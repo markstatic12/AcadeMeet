@@ -53,7 +53,7 @@ Follow these instructions to get a copy of the project up and running on your lo
 1.  **Clone the repository:**
 
     ```bash
-    git clone [Your Repository URL Here]
+    git clone https://github.com/markstatic12/AcadeMeet.git
     cd academeet
     ```
 
