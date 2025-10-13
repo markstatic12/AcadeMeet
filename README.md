@@ -105,8 +105,8 @@ Follow these instructions to get a copy of the project up and running on your lo
 
 ## Contact 📧
 
-Zander Aligato - zander.aligato@cit.edu
-Richemmae Bigno - richemmae.bigno@cit.edu
-Mark Anton Camoro - markanton.camoro@cit.edu
+- Zander Aligato / zander.aligato@cit.edu
+- Richemmae Bigno / richemmae.bigno@cit.edu
+- Mark Anton Camoro / markanton.camoro@cit.edu
 
 Project Link: https://github.com/markstatic12/AcadeMeet.git
