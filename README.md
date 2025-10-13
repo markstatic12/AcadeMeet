@@ -78,6 +78,8 @@ Follow these instructions to get a copy of the project up and running on your lo
         ```bash
         java -jar target/academeet-0.0.1-SNAPSHOT.jar # Adjust the file name as needed
         # OR run from your IDE (e.g., IntelliJ, VS Code)
+        # OR run the spring boot using:
+        mvnw spring-boot:run
         ```
       * The backend will typically start on `http://localhost:8080`.
 
