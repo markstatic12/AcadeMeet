@@ -1,0 +1,2 @@
+/* Using a shared CSS file for common auth page styles */
+@import '../AuthPage.css';
