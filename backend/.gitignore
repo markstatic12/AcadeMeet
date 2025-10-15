@@ -36,8 +36,8 @@ build/
 # ----------------------------------------
 # IGNORE LOCAL/PRIVATE CONFIGURATION FILES
 # ----------------------------------------
-backend/src/main/resources/application-local.properties
-backend/src/main/resources/application-local.yml
+src/main/resources/application-local.properties
+src/main/resources/application-local.yml
 
 
 
