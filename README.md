@@ -91,10 +91,14 @@ Navigate to the backend directory (`cd backend`). You have three ways to run the
 ```bash
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
 ```
+or
+```bash
+mvn spring-boot:run -Dspring-boot.run.profiles=local
+```
 
 #### Method 2: Executable JAR
 
-1.  First, build the project (if you haven't already): `./mvnw clean install`
+1.  First, build the project (if you haven't already): `./mvnw clean install` or `mvn clean install`
 2.  Then, run the JAR, specifying the active profile:
     ```bash
     java -jar target/academeet-0.0.1-SNAPSHOT.jar --spring.profiles.active=local
