@@ -115,22 +115,99 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 
 ### Running the Frontend (React)
 
-Open a **new terminal** and navigate to the frontend directory:
+⚛️ Frontend Setup Guide — React + Vite (JavaScript + Tailwind CSS)
+👥 For All Team Members
 
-1.  Install dependencies:
-    ```bash
-    npm install
-    # OR
-    yarn install
-    ```
-2.  Start the development server:
-    ```bash
-    npm start
-    # OR
-    yarn start
-    ```
+These are the only steps you need to follow to get the frontend running on your local machine.
 
-The frontend will typically open in your browser at `http://localhost:3000`.
+1️⃣ Clone the repository
+git clone https://github.com/<your-repo-url>.git
+cd AcadeMeet/frontend
+
+2️⃣ Install dependencies
+
+Make sure you have Node.js v20 LTS and npm v9+ installed.
+Then run:
+
+npm install
+
+3️⃣ Start the development server
+npm run dev
+
+
+By default, it will open automatically at:
+👉 http://localhost:5173
+
+4️⃣ Build for production (if needed)
+npm run build
+
+
+Optimized output will appear in the dist/ folder.
+
+5️⃣ Preview the production build
+npm run preview
+
+⚙️ Tech Stack & Versions
+Tool	Version	Notes
+Node.js	v20.x LTS	Required (avoid v21+)
+npm	v9+	Comes with Node
+React	^18.2.0	Stable version
+Vite	^5.0.0	Bundler and dev server
+Tailwind CSS	3.4.13 (locked)	Stable version
+PostCSS	^8.4.0	CSS processor
+Autoprefixer	^10.4.0	CSS vendor prefixer
+🧹 .gitignore (already configured)
+
+The following files/folders are ignored by default:
+
+node_modules/
+dist/
+build/
+.env*
+.vscode/
+.idea/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+💡 Development Notes
+
+Always create a new branch before working on a feature:
+
+git checkout -b feature/your-task-name
+
+
+After pulling updates from GitHub, run:
+
+npm install
+
+
+to sync any new dependencies.
+
+Do not push node_modules or dist/ to GitHub.
+
+Tailwind is already configured — just use utility classes in your React components.
+
+🧱 Folder Overview
+frontend/
+├── src/
+│   ├── assets/         # Images, icons, etc.
+│   ├── components/     # Reusable components
+│   ├── App.jsx         # Main app component
+│   ├── index.css       # Tailwind entry point
+│   └── main.jsx        # Entry file
+├── index.html
+├── package.json
+├── tailwind.config.js
+├── postcss.config.js
+└── vite.config.js
+
+🚨 Troubleshooting
+Issue	Fix
+npm error could not determine executable to run	You may have Tailwind v4. Run npm uninstall tailwindcss then npm install -D tailwindcss@3.4.13 postcss autoprefixer
+EBADENGINE warnings	Use Node.js v20 LTS (not v21)
+Port already in use	Run npx vite --port 5174 or close the previous dev server
 
 ## Contact 📧
 
