@@ -30,10 +30,12 @@ AcadeMeet is built as a monolithic application using the following primary techn
 ### Frontend
 
 | Technology | Description |
-| :--- | :--- |
-| **React** | The JavaScript library for building the user interface. |
-| **npm/yarn** | Package managers for handling frontend dependencies. |
-| **HTML/CSS/JavaScript** | Standard web technologies. |
+| :------------------------- | :-------------------------------------------------------------- |
+| **React (Vite)**           | Framework for building dynamic and component-based UIs.         |
+| **JavaScript (ES6+)**      | The main programming language used for logic and interactivity. |
+| **Tailwind CSS**           | Utility-first CSS framework for fast and responsive design.     |
+| **Node.js (v20 LTS)**      | Runtime environment for development and dependency management.  |
+
 
 -----
 
@@ -113,24 +115,107 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 
 -----
 
-### Running the Frontend (React)
 
-Open a **new terminal** and navigate to the frontend directory:
+## Frontend (React + Vite) ⚛️
 
-1.  Install dependencies:
-    ```bash
-    npm install
-    # OR
-    yarn install
-    ```
-2.  Start the development server:
-    ```bash
-    npm start
-    # OR
-    yarn start
-    ```
+The **AcadeMeet Frontend** is built using **React** with **Vite** as the development environment.
+It provides a fast, modular, and visually appealing interface for users to study collaboratively, share notes, and manage study groups seamlessly.
 
-The frontend will typically open in your browser at `http://localhost:3000`.
+---
+
+### Prerequisites
+
+* **Node.js v20 LTS** (recommended)
+* **npm v9+** (comes with Node.js)
+
+---
+
+### Installation
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/<your-repo-url>.git
+   cd AcadeMeet/frontend
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server:**
+
+   ```bash
+   npm run dev
+   ```
+
+   Once started, open your browser at:
+   👉 [http://localhost:5173](http://localhost:5173)
+
+4. **Build for production (if needed):**
+
+   ```bash
+   npm run build
+   ```
+
+   The optimized build will be located in the **`dist/`** folder.
+
+5. **Preview the production build:**
+
+   ```bash
+   npm run preview
+   ```
+
+---
+
+## Folder Structure 📁
+
+```
+frontend/
+├── src/
+│   ├── assets/         # Images, icons, and static files
+│   ├── components/     # Reusable React components
+│   ├── App.jsx         # Main application component
+│   ├── index.css       # Tailwind CSS entry point
+│   └── main.jsx        # Application entry file
+├── index.html
+├── package.json
+├── tailwind.config.js
+├── postcss.config.js
+└── vite.config.js
+```
+
+---
+
+## Development Notes 💡
+
+* Always create a **new branch** before starting a feature:
+
+  ```bash
+  git checkout -b feature/your-task-name
+  ```
+* After pulling updates, always run:
+
+  ```bash
+  npm install
+  ```
+
+  to sync new dependencies.
+* Do **not** push `node_modules/` or `dist/` folders to GitHub.
+* Tailwind is **pre-configured** — use utility classes directly in React components.
+* The project is structured for future integration with the Spring Boot backend.
+
+
+## Troubleshooting ⚙️
+
+| Issue                                             | Fix                                                                                                                                         |
+| :------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm error could not determine executable to run` | Uninstall Tailwind and reinstall version 3.4.13:<br>`npm uninstall tailwindcss`<br>`npm install -D tailwindcss@3.4.13 postcss autoprefixer` |
+| `EBADENGINE` warning                              | Ensure Node.js version is **v20 LTS** (avoid v21).                                                                                          |
+| Port already in use                               | Run `npx vite --port 5174` or close the previous dev server.                                                                                |
+| CSS not applying                                  | Check `index.css` includes:<br>`@tailwind base; @tailwind components; @tailwind utilities;`                                                 |
 
 ## Contact 📧
 
