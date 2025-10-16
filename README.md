@@ -30,10 +30,12 @@ AcadeMeet is built as a monolithic application using the following primary techn
 ### Frontend
 
 | Technology | Description |
-| :--- | :--- |
-| **React** | The JavaScript library for building the user interface. |
-| **npm/yarn** | Package managers for handling frontend dependencies. |
-| **HTML/CSS/JavaScript** | Standard web technologies. |
+| :------------------------- | :-------------------------------------------------------------- |
+| **React (Vite)**           | Framework for building dynamic and component-based UIs.         |
+| **JavaScript (ES6+)**      | The main programming language used for logic and interactivity. |
+| **Tailwind CSS**           | Utility-first CSS framework for fast and responsive design.     |
+| **Node.js (v20 LTS)**      | Runtime environment for development and dependency management.  |
+
 
 -----
 
@@ -113,101 +115,107 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 
 -----
 
-### Running the Frontend (React)
 
-⚛️ Frontend Setup Guide — React + Vite (JavaScript + Tailwind CSS)
-👥 For All Team Members
+## Frontend (React + Vite) ⚛️
 
-These are the only steps you need to follow to get the frontend running on your local machine.
+The **AcadeMeet Frontend** is built using **React** with **Vite** as the development environment.
+It provides a fast, modular, and visually appealing interface for users to study collaboratively, share notes, and manage study groups seamlessly.
 
-1️⃣ Clone the repository
-git clone https://github.com/<your-repo-url>.git
-cd AcadeMeet/frontend
+---
 
-2️⃣ Install dependencies
+### Prerequisites
 
-Make sure you have Node.js v20 LTS and npm v9+ installed.
-Then run:
+* **Node.js v20 LTS** (recommended)
+* **npm v9+** (comes with Node.js)
 
-npm install
+---
 
-3️⃣ Start the development server
-npm run dev
+### Installation
 
+1. **Clone the repository:**
 
-By default, it will open automatically at:
-👉 http://localhost:5173
+   ```bash
+   git clone https://github.com/<your-repo-url>.git
+   cd AcadeMeet/frontend
+   ```
 
-4️⃣ Build for production (if needed)
-npm run build
+2. **Install dependencies:**
 
+   ```bash
+   npm install
+   ```
 
-Optimized output will appear in the dist/ folder.
+3. **Start the development server:**
 
-5️⃣ Preview the production build
-npm run preview
+   ```bash
+   npm run dev
+   ```
 
-⚙️ Tech Stack & Versions
-Tool	Version	Notes
-Node.js	v20.x LTS	Required (avoid v21+)
-npm	v9+	Comes with Node
-React	^18.2.0	Stable version
-Vite	^5.0.0	Bundler and dev server
-Tailwind CSS	3.4.13 (locked)	Stable version
-PostCSS	^8.4.0	CSS processor
-Autoprefixer	^10.4.0	CSS vendor prefixer
-🧹 .gitignore (already configured)
+   Once started, open your browser at:
+   👉 [http://localhost:5173](http://localhost:5173)
 
-The following files/folders are ignored by default:
+4. **Build for production (if needed):**
 
-node_modules/
-dist/
-build/
-.env*
-.vscode/
-.idea/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+   ```bash
+   npm run build
+   ```
 
-💡 Development Notes
+   The optimized build will be located in the **`dist/`** folder.
 
-Always create a new branch before working on a feature:
+5. **Preview the production build:**
 
-git checkout -b feature/your-task-name
+   ```bash
+   npm run preview
+   ```
 
+---
 
-After pulling updates from GitHub, run:
+## Folder Structure 📁
 
-npm install
-
-
-to sync any new dependencies.
-
-Do not push node_modules or dist/ to GitHub.
-
-Tailwind is already configured — just use utility classes in your React components.
-
-🧱 Folder Overview
+```
 frontend/
 ├── src/
-│   ├── assets/         # Images, icons, etc.
-│   ├── components/     # Reusable components
-│   ├── App.jsx         # Main app component
-│   ├── index.css       # Tailwind entry point
-│   └── main.jsx        # Entry file
+│   ├── assets/         # Images, icons, and static files
+│   ├── components/     # Reusable React components
+│   ├── App.jsx         # Main application component
+│   ├── index.css       # Tailwind CSS entry point
+│   └── main.jsx        # Application entry file
 ├── index.html
 ├── package.json
 ├── tailwind.config.js
 ├── postcss.config.js
 └── vite.config.js
+```
 
-🚨 Troubleshooting
-Issue	Fix
-npm error could not determine executable to run	You may have Tailwind v4. Run npm uninstall tailwindcss then npm install -D tailwindcss@3.4.13 postcss autoprefixer
-EBADENGINE warnings	Use Node.js v20 LTS (not v21)
-Port already in use	Run npx vite --port 5174 or close the previous dev server
+---
+
+## Development Notes 💡
+
+* Always create a **new branch** before starting a feature:
+
+  ```bash
+  git checkout -b feature/your-task-name
+  ```
+* After pulling updates, always run:
+
+  ```bash
+  npm install
+  ```
+
+  to sync new dependencies.
+* Do **not** push `node_modules/` or `dist/` folders to GitHub.
+* Tailwind is **pre-configured** — use utility classes directly in React components.
+* The project is structured for future integration with the Spring Boot backend.
+
+
+## Troubleshooting ⚙️
+
+| Issue                                             | Fix                                                                                                                                         |
+| :------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm error could not determine executable to run` | Uninstall Tailwind and reinstall version 3.4.13:<br>`npm uninstall tailwindcss`<br>`npm install -D tailwindcss@3.4.13 postcss autoprefixer` |
+| `EBADENGINE` warning                              | Ensure Node.js version is **v20 LTS** (avoid v21).                                                                                          |
+| Port already in use                               | Run `npx vite --port 5174` or close the previous dev server.                                                                                |
+| CSS not applying                                  | Check `index.css` includes:<br>`@tailwind base; @tailwind components; @tailwind utilities;`                                                 |
 
 ## Contact 📧
 
