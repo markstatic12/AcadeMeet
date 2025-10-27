@@ -1,29 +1,33 @@
 package com.appdev.academeet.dto;
 
 public class AuthResponse {
-    private Long studentId;
+    private Long id;
     private String name;
     private String email;
+    private String program;
+    private Integer yearLevel;
     private String message;
     
     // Constructors
     public AuthResponse() {
     }
     
-    public AuthResponse(Long studentId, String name, String email, String message) {
-        this.studentId = studentId;
+    public AuthResponse(Long id, String name, String email, String program, Integer yearLevel, String message) {
+        this.id = id;
         this.name = name;
         this.email = email;
+        this.program = program;
+        this.yearLevel = yearLevel;
         this.message = message;
     }
     
     // Getters and Setters
-    public Long getStudentId() {
-        return studentId;
+    public Long getId() {
+        return id;
     }
     
-    public void setStudentId(Long studentId) {
-        this.studentId = studentId;
+    public void setId(Long id) {
+        this.id = id;
     }
     
     public String getName() {
@@ -40,6 +44,22 @@ public class AuthResponse {
     
     public void setEmail(String email) {
         this.email = email;
+    }
+    
+    public String getProgram() {
+        return program;
+    }
+    
+    public void setProgram(String program) {
+        this.program = program;
+    }
+    
+    public Integer getYearLevel() {
+        return yearLevel;
+    }
+    
+    public void setYearLevel(Integer yearLevel) {
+        this.yearLevel = yearLevel;
     }
     
     public String getMessage() {

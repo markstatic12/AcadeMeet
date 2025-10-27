@@ -6,17 +6,19 @@ public class SignupRequest {
     private String password;
     private String program;
     private Integer yearLevel;
+    private String profilePic;
     
     // Constructors
     public SignupRequest() {
     }
     
-    public SignupRequest(String name, String email, String password, String program, Integer yearLevel) {
+    public SignupRequest(String name, String email, String password, String program, Integer yearLevel, String profilePic) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.program = program;
         this.yearLevel = yearLevel;
+        this.profilePic = profilePic;
     }
     
     // Getters and Setters
@@ -58,5 +60,13 @@ public class SignupRequest {
     
     public void setYearLevel(Integer yearLevel) {
         this.yearLevel = yearLevel;
+    }
+    
+    public String getProfilePic() {
+        return profilePic;
+    }
+    
+    public void setProfilePic(String profilePic) {
+        this.profilePic = profilePic;
     }
 }
