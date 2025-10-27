@@ -8,7 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "admin")
+@Table(name = "admin") // Zander Aligato's Work
 public class Admin {
     
     @Id
@@ -19,7 +19,6 @@ public class Admin {
     @Column(name = "id_secret", nullable = false, unique = true)
     private String idSecret;
     
-    // Constructors
     public Admin() {
     }
     
@@ -28,7 +27,6 @@ public class Admin {
         this.idSecret = idSecret;
     }
     
-    // Getters and Setters
     public Integer getAdminId() {
         return adminId;
     }

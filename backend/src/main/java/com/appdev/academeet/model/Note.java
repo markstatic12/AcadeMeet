@@ -16,7 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "notes") // All files related to host are Camoro's work
+@Table(name = "notes") // All files related to notes are Camoro's work
 public class Note {
     
     @Id
