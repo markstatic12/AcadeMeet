@@ -15,6 +15,8 @@ public class Session {
     private Integer sessionId;
     @Column(name = "time")
     private String time;
+    @Column
+    private String title;
     @Column(nullable = false)
     private String subject;
     @Column(nullable = false)
@@ -46,6 +48,7 @@ public class Session {
     public Session(Integer sessionId, String time, String subject, LocalDateTime schedule, String description, String status) {
         this.sessionId = sessionId;
         this.time = time;
+        this.title = subject;
         this.subject = subject;
         this.schedule = schedule;
         this.description = description;
@@ -151,6 +154,16 @@ public class Session {
         this.notes.remove(note);
         note.setSession(null);
     }
+    public void addParticipant(Participant participant) {
+        this.participants.add(participant);
+        participant.getEnrolledSessions().add(this);
+    }
+    public void removeParticipant(Participant participant) {
+        this.participants.remove(participant);
+        participant.getEnrolledSessions().remove(this);
+    }
+    public void attachFile(File file) { addFile(file); }
+    public void attachNote(Note note) { addNote(note); }
     @Override
     public String toString() {
         return "Session{" +
