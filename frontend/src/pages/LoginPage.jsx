@@ -19,9 +19,9 @@ const LoginPage = () => {
       const response = await authService.login(email, password);
       console.log('Login successful:', response);
       
-      // Store user data in localStorage
-      localStorage.setItem('user', JSON.stringify({
-        userId: response.userId,
+      // Store student data in localStorage
+      localStorage.setItem('student', JSON.stringify({
+        studentId: response.studentId,
         name: response.name,
         email: response.email
       }));

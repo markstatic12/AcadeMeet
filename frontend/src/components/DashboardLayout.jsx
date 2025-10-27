@@ -4,18 +4,18 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 const DashboardLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState(null);
+  const [student, setStudent] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
+    const studentData = localStorage.getItem('student');
+    if (studentData) {
+      setStudent(JSON.parse(studentData));
     }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
+    localStorage.removeItem('student');
     navigate('/login');
   };
 

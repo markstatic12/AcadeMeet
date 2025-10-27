@@ -12,8 +12,8 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name = "student")
+public class Student {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,10 +52,10 @@ public class User {
     }
     
     // Constructors
-    public User() {
+    public Student() {
     }
     
-    public User(String name, String email, String password, String program, Integer yearLevel) {
+    public Student(String name, String email, String password, String program, Integer yearLevel) {
         this.name = name;
         this.email = email;
         this.password = password;

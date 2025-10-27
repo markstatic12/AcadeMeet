@@ -1,7 +1,7 @@
 package com.appdev.academeet.dto;
 
 public class AuthResponse {
-    private Long userId;
+    private Long studentId;
     private String name;
     private String email;
     private String message;
@@ -10,20 +10,20 @@ public class AuthResponse {
     public AuthResponse() {
     }
     
-    public AuthResponse(Long userId, String name, String email, String message) {
-        this.userId = userId;
+    public AuthResponse(Long studentId, String name, String email, String message) {
+        this.studentId = studentId;
         this.name = name;
         this.email = email;
         this.message = message;
     }
     
     // Getters and Setters
-    public Long getUserId() {
-        return userId;
+    public Long getStudentId() {
+        return studentId;
     }
     
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setStudentId(Long studentId) {
+        this.studentId = studentId;
     }
     
     public String getName() {

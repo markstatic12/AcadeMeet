@@ -1,6 +1,6 @@
 -- ============================================
 -- AcadeMeet Database Migration
--- Add Program and Year Level fields to users table
+-- Add Program and Year Level fields to students table
 -- Date: 2025-10-19
 -- ============================================
 
@@ -14,12 +14,12 @@ SET @column_exists = (
     SELECT COUNT(*)
     FROM INFORMATION_SCHEMA.COLUMNS
     WHERE TABLE_SCHEMA = 'academeet_db'
-    AND TABLE_NAME = 'users'
+    AND TABLE_NAME = 'students'
     AND COLUMN_NAME = 'program'
 );
 
 SET @sql = IF(@column_exists = 0,
-    'ALTER TABLE users ADD COLUMN program VARCHAR(255) NOT NULL DEFAULT "BSCS"',
+    'ALTER TABLE students ADD COLUMN program VARCHAR(255) NOT NULL DEFAULT "BSCS"',
     'SELECT "Column program already exists" AS message'
 );
 
@@ -32,12 +32,12 @@ SET @column_exists = (
     SELECT COUNT(*)
     FROM INFORMATION_SCHEMA.COLUMNS
     WHERE TABLE_SCHEMA = 'academeet_db'
-    AND TABLE_NAME = 'users'
+    AND TABLE_NAME = 'students'
     AND COLUMN_NAME = 'year_level'
 );
 
 SET @sql = IF(@column_exists = 0,
-    'ALTER TABLE users ADD COLUMN year_level INT NOT NULL DEFAULT 1',
+    'ALTER TABLE students ADD COLUMN year_level INT NOT NULL DEFAULT 1',
     'SELECT "Column year_level already exists" AS message'
 );
 
@@ -47,14 +47,14 @@ DEALLOCATE PREPARE stmt;
 
 -- Remove default values after adding columns
 -- (so new registrations must provide these values)
-ALTER TABLE users 
+ALTER TABLE students 
     ALTER COLUMN program DROP DEFAULT,
     ALTER COLUMN year_level DROP DEFAULT;
 
 -- Display updated table structure
-DESCRIBE users;
+DESCRIBE students;
 
 -- Show success message
 SELECT 
     'Migration completed successfully!' AS status,
-    'Program and Year Level fields added to users table' AS details;
+    'Program and Year Level fields added to students table' AS details;

@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 
 const DashboardPage = () => {
-  const [user, setUser] = useState(null);
+  const [student, setStudent] = useState(null);
   const [activeSessionTab, setActiveSessionTab] = useState('available');
   const [activeNotesTab, setActiveNotesTab] = useState('my');
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
+    const studentData = localStorage.getItem('student');
+    if (studentData) {
+      setStudent(JSON.parse(studentData));
     }
   }, []);
 

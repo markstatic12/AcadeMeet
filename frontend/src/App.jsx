@@ -6,7 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   const isAuthenticated = () => {
-    return localStorage.getItem('user') !== null;
+    return localStorage.getItem('student') !== null;
   };
 
   return (
