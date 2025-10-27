@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "sessions")
+@Table(name = "sessions") // All sessions related are Zander Aligato's Work
 public class Session {
     
     @Id

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@DiscriminatorValue("PARTICIPANT")
+@DiscriminatorValue("PARTICIPANT") // All files related to participants are Bigno's work
 public class Participant extends Student {
     
     @Column(name = "join_date")
