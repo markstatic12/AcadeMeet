@@ -23,28 +23,28 @@ public class AuthService {
     public AuthResponse signup(SignupRequest request) {
         // Check if email already exists
         if (studentRepository.existsByEmail(request.getEmail())) {
-            return new AuthResponse(null, null, null, "Email already exists");
+            return new AuthResponse(null, null, null, null, null, "Email already exists");
         }
         
         // Validate input
         if (request.getName() == null || request.getName().trim().isEmpty()) {
-            return new AuthResponse(null, null, null, "Name is required");
+            return new AuthResponse(null, null, null, null, null, "Name is required");
         }
         
         if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
-            return new AuthResponse(null, null, null, "Email is required");
+            return new AuthResponse(null, null, null, null, null, "Email is required");
         }
         
         if (request.getPassword() == null || request.getPassword().length() < 6) {
-            return new AuthResponse(null, null, null, "Password must be at least 6 characters");
+            return new AuthResponse(null, null, null, null, null, "Password must be at least 6 characters");
         }
         
         if (request.getProgram() == null || request.getProgram().trim().isEmpty()) {
-            return new AuthResponse(null, null, null, "Program is required");
+            return new AuthResponse(null, null, null, null, null, "Program is required");
         }
         
         if (request.getYearLevel() == null || request.getYearLevel() < 1 || request.getYearLevel() > 4) {
-            return new AuthResponse(null, null, null, "Year level must be between 1 and 4");
+            return new AuthResponse(null, null, null, null, null, "Year level must be between 1 and 4");
         }
         
         // Create new student with encrypted password
@@ -61,6 +61,8 @@ public class AuthService {
             savedStudent.getId(),
             savedStudent.getName(),
             savedStudent.getEmail(),
+            savedStudent.getProgram(),
+            savedStudent.getYearLevel(),
             "Signup successful"
         );
     }
@@ -68,31 +70,33 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
         // Validate input
         if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
-            return new AuthResponse(null, null, null, "Email is required");
+            return new AuthResponse(null, null, null, null, null, "Email is required");
         }
         
         if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
-            return new AuthResponse(null, null, null, "Password is required");
+            return new AuthResponse(null, null, null, null, null, "Password is required");
         }
         
         // Find student by email
         Optional<Student> studentOptional = studentRepository.findByEmail(request.getEmail());
         
         if (studentOptional.isEmpty()) {
-            return new AuthResponse(null, null, null, "Invalid email or password");
+            return new AuthResponse(null, null, null, null, null, "Invalid email or password");
         }
         
         Student student = studentOptional.get();
         
         // Check password
         if (!passwordEncoder.matches(request.getPassword(), student.getPassword())) {
-            return new AuthResponse(null, null, null, "Invalid email or password");
+            return new AuthResponse(null, null, null, null, null, "Invalid email or password");
         }
         
         return new AuthResponse(
             student.getId(),
             student.getName(),
             student.getEmail(),
+            student.getProgram(),
+            student.getYearLevel(),
             "Login successful"
         );
     }

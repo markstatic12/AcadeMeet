@@ -3,16 +3,22 @@ package com.appdev.academeet.model;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "student")
+@Table(name = "students")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "student_type", discriminatorType = DiscriminatorType.STRING)
 public class Student {
     
     @Id
@@ -34,7 +40,10 @@ public class Student {
     @Column(name = "year_level", nullable = false)
     private Integer yearLevel;
     
-    @Column(name = "created_at")
+    @Column(name = "profile_pic", length = 500)
+    private String profilePic;
+    
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
     
     @Column(name = "updated_at")
@@ -96,6 +105,30 @@ public class Student {
         this.password = password;
     }
     
+    public String getProgram() {
+        return program;
+    }
+    
+    public void setProgram(String program) {
+        this.program = program;
+    }
+    
+    public Integer getYearLevel() {
+        return yearLevel;
+    }
+    
+    public void setYearLevel(Integer yearLevel) {
+        this.yearLevel = yearLevel;
+    }
+    
+    public String getProfilePic() {
+        return profilePic;
+    }
+    
+    public void setProfilePic(String profilePic) {
+        this.profilePic = profilePic;
+    }
+    
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -112,19 +145,17 @@ public class Student {
         this.updatedAt = updatedAt;
     }
     
-    public String getProgram() {
-        return program;
-    }
-    
-    public void setProgram(String program) {
-        this.program = program;
-    }
-    
-    public Integer getYearLevel() {
-        return yearLevel;
-    }
-    
-    public void setYearLevel(Integer yearLevel) {
-        this.yearLevel = yearLevel;
+    @Override
+    public String toString() {
+        return "Student{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", program='" + program + '\'' +
+                ", yearLevel=" + yearLevel +
+                ", profilePic='" + profilePic + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }

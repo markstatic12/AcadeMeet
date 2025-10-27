@@ -24,8 +24,8 @@ public class Host extends Student {
         super();
     }
     
-    public Host(Integer studentId, String name, String email, String password, String profilePic) {
-        super(studentId, name, email, password, profilePic);
+    public Host(String name, String email, String password, String program, Integer yearLevel) {
+        super(name, email, password, program, yearLevel);
     }
     
     // Getters and Setters
@@ -67,9 +67,11 @@ public class Host extends Student {
     @Override
     public String toString() {
         return "Host{" +
-                "studentId=" + getStudentId() +
+                "id=" + getId() +
                 ", name='" + getName() + '\'' +
                 ", email='" + getEmail() + '\'' +
+                ", program='" + getProgram() + '\'' +
+                ", yearLevel=" + getYearLevel() +
                 ", privileges=" + privileges +
                 '}';
     }
