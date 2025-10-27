@@ -97,6 +97,10 @@ or
 ```bash
 mvn spring-boot:run -Dspring-boot.run.profiles=local
 ```
+or
+```bash
+.\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local
+```
 
 #### Method 2: Executable JAR
 
@@ -125,8 +129,7 @@ It provides a fast, modular, and visually appealing interface for users to study
 
 ### Prerequisites
 
-* **Node.js v20 LTS** (recommended)
-* **npm v9+** (comes with Node.js)
+* **Node.js v22 LTS** (recommended)
 
 ---
 
