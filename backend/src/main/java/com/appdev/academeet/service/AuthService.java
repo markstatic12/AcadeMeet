@@ -9,20 +9,20 @@ import org.springframework.stereotype.Service;
 import com.appdev.academeet.dto.AuthResponse;
 import com.appdev.academeet.dto.LoginRequest;
 import com.appdev.academeet.dto.SignupRequest;
-import com.appdev.academeet.model.User;
-import com.appdev.academeet.repository.UserRepository;
+import com.appdev.academeet.model.Student;
+import com.appdev.academeet.repository.StudentRepository;
 
 @Service
 public class AuthService {
     
     @Autowired
-    private UserRepository userRepository;
+    private StudentRepository studentRepository;
     
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     
     public AuthResponse signup(SignupRequest request) {
         // Check if email already exists
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (studentRepository.existsByEmail(request.getEmail())) {
             return new AuthResponse(null, null, null, "Email already exists");
         }
         
@@ -47,20 +47,20 @@ public class AuthService {
             return new AuthResponse(null, null, null, "Year level must be between 1 and 4");
         }
         
-        // Create new user with encrypted password
-        User user = new User();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setProgram(request.getProgram());
-        user.setYearLevel(request.getYearLevel());
+        // Create new student with encrypted password
+        Student student = new Student();
+        student.setName(request.getName());
+        student.setEmail(request.getEmail());
+        student.setPassword(passwordEncoder.encode(request.getPassword()));
+        student.setProgram(request.getProgram());
+        student.setYearLevel(request.getYearLevel());
         
-        User savedUser = userRepository.save(user);
+        Student savedStudent = studentRepository.save(student);
         
         return new AuthResponse(
-            savedUser.getId(),
-            savedUser.getName(),
-            savedUser.getEmail(),
+            savedStudent.getId(),
+            savedStudent.getName(),
+            savedStudent.getEmail(),
             "Signup successful"
         );
     }
@@ -75,24 +75,24 @@ public class AuthService {
             return new AuthResponse(null, null, null, "Password is required");
         }
         
-        // Find user by email
-        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
+        // Find student by email
+        Optional<Student> studentOptional = studentRepository.findByEmail(request.getEmail());
         
-        if (userOptional.isEmpty()) {
+        if (studentOptional.isEmpty()) {
             return new AuthResponse(null, null, null, "Invalid email or password");
         }
         
-        User user = userOptional.get();
+        Student student = studentOptional.get();
         
         // Check password
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), student.getPassword())) {
             return new AuthResponse(null, null, null, "Invalid email or password");
         }
         
         return new AuthResponse(
-            user.getId(),
-            user.getName(),
-            user.getEmail(),
+            student.getId(),
+            student.getName(),
+            student.getEmail(),
             "Login successful"
         );
     }

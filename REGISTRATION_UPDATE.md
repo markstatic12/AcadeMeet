@@ -36,9 +36,9 @@ const [yearLevel, setYearLevel] = useState('');
 
 ---
 
-### **2. Backend - User Model**
+### **2. Backend - Student Model**
 
-#### New Fields in `User.java`:
+#### New Fields in `Student.java`:
 ```java
 @Column(nullable = false)
 private String program;
@@ -49,7 +49,7 @@ private Integer yearLevel;
 
 #### Updated Constructor:
 ```java
-public User(String name, String email, String password, String program, Integer yearLevel)
+public Student(String name, String email, String password, String program, Integer yearLevel)
 ```
 
 #### New Getters/Setters:
@@ -83,10 +83,10 @@ if (request.getYearLevel() == null || request.getYearLevel() < 1 || request.getY
 }
 ```
 
-#### Sets new fields when creating user:
+#### Sets new fields when creating student:
 ```java
-user.setProgram(request.getProgram());
-user.setYearLevel(request.getYearLevel());
+student.setProgram(request.getProgram());
+student.setYearLevel(request.getYearLevel());
 ```
 
 ---
@@ -116,7 +116,7 @@ body: JSON.stringify({
 You need to update your MySQL database table to add the new columns:
 
 ```sql
-ALTER TABLE users 
+ALTER TABLE students 
 ADD COLUMN program VARCHAR(255) NOT NULL,
 ADD COLUMN year_level INT NOT NULL;
 ```
@@ -177,7 +177,7 @@ ADD COLUMN year_level INT NOT NULL;
 
 1. **Update Database Schema**
    ```sql
-   ALTER TABLE users 
+   ALTER TABLE students 
    ADD COLUMN program VARCHAR(255) NOT NULL,
    ADD COLUMN year_level INT NOT NULL;
    ```
@@ -203,7 +203,7 @@ ADD COLUMN year_level INT NOT NULL;
 5. **Verify Data**
    ```sql
    SELECT id, name, email, program, year_level, created_at 
-   FROM users 
+   FROM students 
    ORDER BY id DESC 
    LIMIT 5;
    ```

@@ -4,7 +4,7 @@
 
 ### **1. Dashboard Page** (`DashboardPage.jsx`)
 A comprehensive main dashboard with:
-- **Welcome Banner**: Personalized greeting showing user's name, program, and year level
+- **Welcome Banner**: Personalized greeting showing student's name, program, and year level
 - **Quick Action Buttons**: Create Study Session and Browse Sessions
 - **Statistics Cards**: 
   - Study Sessions (12 sessions, +3 this week)
@@ -21,7 +21,7 @@ A reusable layout component featuring:
   - AcadeMeet logo and branding
   - Navigation menu (Dashboard, Study Sessions, Notes, Files, Productivity, Messages)
   - Active route highlighting
-  - User profile section at bottom with logout button
+  - Student profile section at bottom with logout button
 - **Top Navigation Bar** with:
   - Sidebar toggle button
   - Search bar
@@ -30,7 +30,7 @@ A reusable layout component featuring:
 - **Gradient Background**: Consistent dark theme matching login/signup pages
 
 ### **3. Protected Route Component** (`ProtectedRoute.jsx`)
-- Checks if user is authenticated (localStorage has user data)
+- Checks if student is authenticated (localStorage has student data)
 - Redirects to login page if not authenticated
 - Wraps protected pages to ensure security
 
@@ -49,7 +49,7 @@ A reusable layout component featuring:
 ### **5. Updated Login & Signup Pages**
 - **LoginPage**: Now redirects to `/dashboard` on successful login
 - **SignupPage**: Now redirects to `/dashboard` after registration (changed from redirect to login)
-- Both pages store complete user data in localStorage including program and yearLevel
+- Both pages store complete student data in localStorage including program and yearLevel
 
 ## 🎨 Design Features
 
@@ -71,18 +71,18 @@ A reusable layout component featuring:
 - Grid layouts adapt from 1 to 4 columns based on screen size
 - Mobile-friendly navigation
 
-## 📊 User Data Flow
+## 📊 Student Data Flow
 
-1. **Registration**: User signs up → Data saved to backend → User object stored in localStorage with program & yearLevel → Redirect to dashboard
-2. **Login**: User logs in → Backend validates → User object stored in localStorage → Redirect to dashboard
-3. **Dashboard**: Reads user data from localStorage → Displays personalized content → Shows program and year level
+1. **Registration**: Student signs up → Data saved to backend → Student object stored in localStorage with program & yearLevel → Redirect to dashboard
+2. **Login**: Student logs in → Backend validates → Student object stored in localStorage → Redirect to dashboard
+3. **Dashboard**: Reads student data from localStorage → Displays personalized content → Shows program and year level
 4. **Logout**: Clear localStorage → Redirect to login
 
 ## 🔒 Security
 - All dashboard routes protected with ProtectedRoute component
 - Authentication check on every protected page load
 - Automatic redirect to login if not authenticated
-- User data persists in localStorage for session management
+- Student data persists in localStorage for session management
 
 ## 🚀 Next Steps (Future Development)
 
@@ -99,12 +99,12 @@ A reusable layout component featuring:
 ### Priority 3: Communication
 7. **Real-time Messaging**: Chat with study partners
 8. **Notifications System**: Get alerts for sessions, messages, etc.
-9. **User Profiles**: View and edit profile information
+9. **Student Profiles**: View and edit profile information
 
 ### Priority 4: Advanced Features
 10. **Search Functionality**: Global search for sessions, notes, files
 11. **Analytics Dashboard**: Study time tracking, progress charts
-12. **Admin Panel**: Manage users, sessions, content (for Admin role)
+12. **Admin Panel**: Manage students, sessions, content (for Admin role)
 
 ## 📁 File Structure
 
@@ -125,7 +125,7 @@ frontend/src/
 
 - [ ] Registration creates account and redirects to dashboard
 - [ ] Login authenticates and redirects to dashboard
-- [ ] Dashboard displays user's name, program, and year level
+- [ ] Dashboard displays student's name, program, and year level
 - [ ] Sidebar navigation works for all routes
 - [ ] Sidebar can be toggled open/closed
 - [ ] Logout button clears session and redirects to login
@@ -144,7 +144,7 @@ frontend/src/
 5. You'll be automatically redirected to the dashboard!
 
 ### To Logout:
-- Click the logout icon (arrow icon) in the bottom-left user profile section of the sidebar
+- Click the logout icon (arrow icon) in the bottom-left student profile section of the sidebar
 
 ### To Navigate:
 - Use the sidebar menu to switch between different sections

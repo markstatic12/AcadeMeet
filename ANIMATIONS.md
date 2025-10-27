@@ -73,7 +73,7 @@ When you load the login/signup page:
 0.2s → Form slides up from bottom
 0.6s → All animations complete
 ---
-User Interaction:
+Student Interaction:
 → Hover button: Scales up
 → Submit form: Loading spinner appears
 → Error occurs: Box shakes
@@ -131,7 +131,7 @@ Copy the keyframe pattern in `index.css` and create new ones!
 ## ✅ Benefits of These Animations
 
 1. ✨ **Professional Look** - Modern, polished feel
-2. 🎯 **User Attention** - Draws focus to important elements
+2. 🎯 **Student Attention** - Draws focus to important elements
 3. 💫 **Smooth Experience** - No jarring page loads
 4. 🔔 **Error Feedback** - Shake animation makes errors obvious
 5. 🎨 **Brand Identity** - Consistent, memorable interactions

@@ -10,8 +10,8 @@
 
   * **Group Study Creation & Discovery:** Students can create new study groups based on subject or topic, and others can easily search and join relevant groups.
   * **Study Group Management:** Tools for group administrators to manage membership and group details.
-  * **Note Sharing:** A dedicated feature for users to upload, share, browse, and download study notes, summaries, and educational materials.
-  * **User Profiles:** Personalized profiles showing a user's joined groups and shared notes.
+  * **Note Sharing:** A dedicated feature for students to upload, share, browse, and download study notes, summaries, and educational materials.
+  * **Student Profiles:** Personalized profiles showing a student's joined groups and shared notes.
 
 -----
 
@@ -25,7 +25,7 @@ AcadeMeet is built as a monolithic application using the following primary techn
 | :--- | :--- |
 | **Spring Boot** | The primary framework for building the robust, scalable RESTful API. |
 | **Java** | The core programming language. |
-| **MySQL** | The relational database management system for persistent storage of user data, group information, and notes. |
+| **MySQL** | The relational database management system for persistent storage of student data, group information, and notes. |
 
 ### Frontend
 
@@ -66,7 +66,7 @@ Follow these instructions to get a copy of the project up and running on your lo
 
 3.  **Configure Local Credentials (Crucial for Collaboration):**
 
-      * Edit your new **`application-local.properties`** file with your **unique MySQL username and password**.
+      * Edit your new **`application-local.properties`** file with your **unique MySQL studentname and password**.
       * **Do not commit this file.**
 
     <!-- end list -->
@@ -77,7 +77,7 @@ Follow these instructions to get a copy of the project up and running on your lo
     # This file overrides the default credentials in application.properties
     # ----------------------------------------
     spring.datasource.url=jdbc:mysql://localhost:3306/academeet_db?serverTimezone=UTC
-    spring.datasource.username=YOUR_UNIQUE_USERNAME_HERE
+    spring.datasource.studentname=YOUR_UNIQUE_USERNAME_HERE
     spring.datasource.password=YOUR_UNIQUE_PASSWORD_HERE
     spring.jpa.hibernate.ddl-auto=update
     ```
@@ -119,7 +119,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 ## Frontend (React + Vite) ⚛️
 
 The **AcadeMeet Frontend** is built using **React** with **Vite** as the development environment.
-It provides a fast, modular, and visually appealing interface for users to study collaboratively, share notes, and manage study groups seamlessly.
+It provides a fast, modular, and visually appealing interface for students to study collaboratively, share notes, and manage study groups seamlessly.
 
 ---
 

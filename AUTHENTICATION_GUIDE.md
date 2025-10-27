@@ -3,12 +3,12 @@
 ## ✅ What Has Been Implemented
 
 ### Backend (Spring Boot + MySQL)
-1. **User Entity** - Stores user information in MySQL
+1. **Student Entity** - Stores student information in MySQL
 2. **Authentication Service** - Handles signup and login with password encryption (BCrypt)
 3. **REST API Endpoints**:
-   - `POST /api/auth/signup` - Register new users
-   - `POST /api/auth/login` - Login existing users
-4. **Database Table**: `users` table automatically created with fields:
+   - `POST /api/auth/signup` - Register new students
+   - `POST /api/auth/login` - Login existing students
+4. **Database Table**: `students` table automatically created with fields:
    - `id` (auto-increment)
    - `name`
    - `email` (unique)
@@ -24,7 +24,7 @@
    - Error handling
    - Loading states
    - Success messages
-   - User data stored in localStorage
+   - Student data stored in localStorage
 
 ---
 
@@ -78,10 +78,10 @@ npm run dev
 Open MySQL Workbench and run:
 ```sql
 USE academeet_db;
-SELECT * FROM users;
+SELECT * FROM students;
 ```
 
-You should see your registered user with an encrypted password!
+You should see your registered student with an encrypted password!
 
 ---
 
@@ -102,7 +102,7 @@ Content-Type: application/json
 **Success Response (200):**
 ```json
 {
-  "userId": 1,
+  "studentId": 1,
   "name": "John Doe",
   "email": "john@example.com",
   "message": "Signup successful"
@@ -112,7 +112,7 @@ Content-Type: application/json
 **Error Response (400):**
 ```json
 {
-  "userId": null,
+  "studentId": null,
   "name": null,
   "email": null,
   "message": "Email already exists"
@@ -135,7 +135,7 @@ Content-Type: application/json
 **Success Response (200):**
 ```json
 {
-  "userId": 1,
+  "studentId": 1,
   "name": "John Doe",
   "email": "john@example.com",
   "message": "Login successful"
@@ -145,7 +145,7 @@ Content-Type: application/json
 **Error Response (400):**
 ```json
 {
-  "userId": null,
+  "studentId": null,
   "name": null,
   "email": null,
   "message": "Invalid email or password"
@@ -169,8 +169,8 @@ Content-Type: application/json
 ## 📁 Files Created
 
 ### Backend:
-- `model/User.java` - User entity
-- `repository/UserRepository.java` - Database operations
+- `model/Student.java` - Student entity
+- `repository/StudentRepository.java` - Database operations
 - `dto/SignupRequest.java` - Signup request DTO
 - `dto/LoginRequest.java` - Login request DTO
 - `dto/AuthResponse.java` - Response DTO
@@ -187,11 +187,11 @@ Content-Type: application/json
 
 ## 🎯 Next Steps
 
-1. **Create Dashboard Page** - Where users go after login
+1. **Create Dashboard Page** - Where students go after login
 2. **Protected Routes** - Require login to access certain pages
-3. **Logout Functionality** - Clear user session
-4. **User Profile Page** - View/edit user information
-5. **Remember Me** - Keep users logged in
+3. **Logout Functionality** - Clear student session
+4. **Student Profile Page** - View/edit student information
+5. **Remember Me** - Keep students logged in
 6. **Password Reset** - Forgot password feature
 7. **JWT Tokens** - For more secure authentication
 
@@ -212,7 +212,7 @@ Content-Type: application/json
 ### Login/Signup fails:
 - Check backend terminal for error logs
 - Verify database connection
-- Check if user already exists (for signup)
+- Check if student already exists (for signup)
 
 ---
 

@@ -25,7 +25,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> signup(@RequestBody SignupRequest request) {
         AuthResponse response = authService.signup(request);
         
-        if (response.getUserId() == null) {
+        if (response.getStudentId() == null) {
             return ResponseEntity.badRequest().body(response);
         }
         
@@ -36,7 +36,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         
-        if (response.getUserId() == null) {
+        if (response.getStudentId() == null) {
             return ResponseEntity.badRequest().body(response);
         }
         
