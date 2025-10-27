@@ -34,7 +34,7 @@ AcadeMeet is built as a monolithic application using the following primary techn
 | **React (Vite)**           | Framework for building dynamic and component-based UIs.         |
 | **JavaScript (ES6+)**      | The main programming language used for logic and interactivity. |
 | **Tailwind CSS**           | Utility-first CSS framework for fast and responsive design.     |
-| **Node.js (v20 LTS)**      | Runtime environment for development and dependency management.  |
+| **Node.js (v22 LTS)**      | Runtime environment for development and dependency management.  |
 
 
 -----
