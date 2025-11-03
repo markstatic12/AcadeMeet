@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import logo from '../assets/academeet-white.svg';
 
 const DashboardLayout = ({ children }) => {
   const navigate = useNavigate();
@@ -33,10 +34,11 @@ const DashboardLayout = ({ children }) => {
       {/* Left Sidebar - Narrow Vertical */}
       <div className="w-16 bg-[#0f0f0f] flex flex-col items-center py-6 border-r border-gray-800">
         {/* Logo */}
-        <Link to="/dashboard" className="mb-12">
-          <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/50 hover:scale-110 transition-transform">
-            <span className="text-lg font-bold text-white">Am</span>
+        <Link to="/dashboard" className="mb-12 group">
+          <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/40 transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl">
+            <img src={logo} alt="AcadeMeet Logo" className="w-7 h-7 object-contain transition-transform duration-300 group-hover:scale-105" />
           </div>
+          <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/20 group-hover:ring-white/30 transition-all duration-300"></div>
         </Link>
 
         {/* Navigation Icons */}
