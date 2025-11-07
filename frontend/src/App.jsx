@@ -3,6 +3,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
 import NotesPage from './pages/NotesPage';
+import ProfilePage from './pages/ProfilePage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -38,7 +39,14 @@ function App() {
         } 
       />
 
-
+      <Route 
+        path="/profile" 
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        } 
+      />
 
       {/* Placeholder routes for future pages */}
       <Route path="/sessions" element={<ProtectedRoute><div className="min-h-screen bg-gray-900 text-white p-8"><h1 className="text-3xl font-bold">Study Sessions - Coming Soon</h1></div></ProtectedRoute>} />
