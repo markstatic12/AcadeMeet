@@ -91,11 +91,6 @@ const NotesPage = () => {
     title: 'Excel Formulas & Functions Mastery',
     categories: ['Excel'],
   },
-  {
-    id: 9,
-    title: 'Financial Statements 101',
-    categories: ['Accounting', 'Excel'],
-  }
   ];
 
   return (
