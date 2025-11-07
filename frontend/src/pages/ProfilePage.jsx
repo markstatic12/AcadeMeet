@@ -20,7 +20,7 @@ const ProfilePage = () => {
   return (
     <DashboardLayout>
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">My Profile</h1>
+        <h1 className="text-2xl font-bold text-white mb-6">My Profile</h1>
         
         <div className="bg-gray-800 rounded-lg p-6 mb-6">
           <div className="flex items-start gap-6">
@@ -36,7 +36,7 @@ const ProfilePage = () => {
 
             {/* Profile Info */}
             <div className="flex-1">
-              <h2 className="text-xl font-bold">{userData.name}</h2>
+              <h2 className="text-xl font-bold text-white">{userData.name}</h2>
               <p className="text-gray-400">
                 {userData.school}, {userData.program}, {userData.studentId}
               </p>
@@ -44,11 +44,11 @@ const ProfilePage = () => {
               
               <div className="flex gap-8 mt-4">
                 <div>
-                  <p className="font-bold">{userData.followers}</p>
+                  <p className="font-bold text-white">{userData.followers}</p>
                   <p className="text-gray-400">Followers</p>
                 </div>
                 <div>
-                  <p className="font-bold">{userData.following}</p>
+                  <p className="font-bold text-white">{userData.following}</p>
                   <p className="text-gray-400">Following</p>
                 </div>
               </div>
@@ -92,7 +92,7 @@ const ProfilePage = () => {
           {activeTab === 'sessions' ? (
             <div className="bg-gray-800 rounded-lg p-6 flex items-center justify-center">
               <div className="text-center">
-                <div className="text-6xl mb-4">+</div>
+                <div className="text-6xl mb-4 text-white">+</div>
                 <p className="text-gray-400">Create New Session</p>
               </div>
             </div>
