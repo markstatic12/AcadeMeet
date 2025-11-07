@@ -5,8 +5,7 @@ const NoteCard = ({ title, category, icon }) => (
   <div className="bg-[#1f1f1f] rounded-xl p-6 hover:bg-[#2a2a2a] transition-all duration-300 cursor-pointer group">
     <div className="flex items-start justify-between">
       <div className="flex-1">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-2xl">{icon}</span>
+         <div className="flex items-center gap-2 mb-2">
           <span className="px-3 py-1 text-xs rounded-full bg-opacity-20" 
                 style={{ 
                   backgroundColor: category === 'Springboot' ? 'rgba(76, 175, 80, 0.2)' : 'rgba(33, 150, 243, 0.2)',
@@ -14,6 +13,9 @@ const NoteCard = ({ title, category, icon }) => (
                 }}>
             {category}
           </span>
+        </div>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-2xl">{icon}</span>
         </div>
         <h3 className="text-lg font-semibold text-white mb-1">{title}</h3>
       </div>
