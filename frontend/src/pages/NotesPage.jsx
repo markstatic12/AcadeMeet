@@ -14,14 +14,14 @@ const getCategoryColor = (category) => {
 };
 
 const NoteCard = ({ title, categories}) => (
-  <div className="bg-[#1f1f1f] rounded-xl p-6 hover:bg-[#2a2a2a] transition-all duration-300 cursor-pointer group">
-    <div className="flex items-start justify-between">
+  <div className="bg-[#1f1f1f] rounded-xl p-6 hover:bg-[#2a2a2a] transition-all duration-300 cursor-pointer group h-[200px] flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <div className="flex-1">
-                <div className="flex flex-wrap items-center gap-2 mb-3">
+        <div className="flex flex-wrap items-center gap-2 mb-3 overflow-hidden max-h-[48px]">
           {Array.isArray(categories) ? categories.map((category, index) => (
             <span
               key={index}
-              className="px-3 py-1 text-xs rounded-full bg-opacity-20"
+              className="px-3 py-1 text-xs rounded-full bg-opacity-20 whitespace-nowrap"
               style={{
                 backgroundColor: getCategoryColor(category).bg,
                 color: getCategoryColor(category).text
@@ -41,8 +41,8 @@ const NoteCard = ({ title, categories}) => (
             </span>
           )}
         </div>
-        <div className="flex items-start gap-3 mb-2">
-          <h3 className="text-lg font-semibold text-white">{title}</h3>
+        <div className="flex items-start gap-3">
+          <h3 className="text-lg font-semibold text-white line-clamp-3 overflow-hidden">{title}</h3>
         </div>
       </div>
     </div>
@@ -69,7 +69,7 @@ const NotesPage = () => {
   {
     id: 4,
     title: 'API Development with SpringBoot',
-    categories: ['Springboot', 'Web Development', 'Database'],
+    categories: ['Springboot', 'Web Development'],
   },
   {
     id: 5,
@@ -107,7 +107,7 @@ const NotesPage = () => {
         </div>
 
         {/* Notes Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-10">
           {notes.map((note) => (
             <NoteCard
               key={note.id}
