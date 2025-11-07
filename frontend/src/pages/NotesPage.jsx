@@ -23,18 +23,60 @@ const NoteCard = ({ title, category, icon }) => (
 
 const NotesPage = () => {
   const notes = [
-    {
-      id: 1,
-      title: 'Introduction to SpringBoot',
-      category: 'Springboot',
-      icon: '🍃'
-    },
-    {
-      id: 2,
-      title: 'Data Visualization',
-      category: 'Excel',
-      icon: '📊'
-    }
+  {
+    id: 1,
+    title: 'SpringBoot Fundamentals',
+    category: 'Springboot',
+    icon: '🌱'
+  },
+  {
+    id: 2,
+    title: 'Advanced Excel Dashboarding',
+    category: 'Excel',
+    icon: '📈'
+  },
+  {
+    id: 3,
+    title: 'Practical Bookkeeping for Beginners',
+    category: 'Accounting',
+    icon: '💼'
+  },
+  {
+    id: 4,
+    title: 'API Development with SpringBoot',
+    category: 'Springboot',
+    icon: '⚙️'
+  },
+  {
+    id: 5,
+    title: 'Data Cleaning & Visualization Techniques',
+    category: 'Excel',
+    icon: '🧹'
+  },
+  {
+    id: 6,
+    title: 'Small Business Accounting Essentials',
+    category: 'Accounting',
+    icon: '🏦'
+  },
+  {
+    id: 7,
+    title: 'SpringBoot + MySQL Integration',
+    category: 'Springboot',
+    icon: '🛢️'
+  },
+  {
+    id: 8,
+    title: 'Excel Formulas & Functions Mastery',
+    category: 'Excel',
+    icon: '🔢'
+  },
+  {
+    id: 9,
+    title: 'Financial Statements 101',
+    category: 'Accounting',
+    icon: '📄'
+  }
   ];
 
   return (
@@ -43,11 +85,10 @@ const NotesPage = () => {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Notes</h1>
-          <p className="text-gray-400">Access and manage your study materials</p>
         </div>
 
         {/* Notes Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {notes.map((note) => (
             <NoteCard
               key={note.id}
