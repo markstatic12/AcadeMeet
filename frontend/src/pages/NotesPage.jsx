@@ -1,23 +1,49 @@
 import React from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 
-const NoteCard = ({ title, category, icon }) => (
+const getCategoryColor = (category) => {
+  const colors = {
+    'Springboot': { bg: 'rgba(76, 175, 80, 0.2)', text: '#4CAF50' },
+    'Excel': { bg: 'rgba(33, 150, 243, 0.2)', text: '#2196F3' },
+    'Accounting': { bg: 'rgba(255, 152, 0, 0.2)', text: '#FF9800' },
+    'Database': { bg: 'rgba(156, 39, 176, 0.2)', text: '#9C27B0' },
+    'Web Development': { bg: 'rgba(233, 30, 99, 0.2)', text: '#E91E63' },
+    'Data Science': { bg: 'rgba(0, 188, 212, 0.2)', text: '#00BCD4' }
+  };
+  return colors[category] || { bg: 'rgba(158, 158, 158, 0.2)', text: '#9E9E9E' };
+};
+
+const NoteCard = ({ title, categories}) => (
   <div className="bg-[#1f1f1f] rounded-xl p-6 hover:bg-[#2a2a2a] transition-all duration-300 cursor-pointer group">
     <div className="flex items-start justify-between">
       <div className="flex-1">
-         <div className="flex items-center gap-2 mb-2">
-          <span className="px-3 py-1 text-xs rounded-full bg-opacity-20" 
-                style={{ 
-                  backgroundColor: category === 'Springboot' ? 'rgba(76, 175, 80, 0.2)' : 'rgba(33, 150, 243, 0.2)',
-                  color: category === 'Springboot' ? '#4CAF50' : '#2196F3'
-                }}>
-            {category}
-          </span>
+                <div className="flex flex-wrap items-center gap-2 mb-3">
+          {Array.isArray(categories) ? categories.map((category, index) => (
+            <span
+              key={index}
+              className="px-3 py-1 text-xs rounded-full bg-opacity-20"
+              style={{
+                backgroundColor: getCategoryColor(category).bg,
+                color: getCategoryColor(category).text
+              }}
+            >
+              {category}
+            </span>
+          )) : (
+            <span
+              className="px-3 py-1 text-xs rounded-full bg-opacity-20"
+              style={{
+                backgroundColor: getCategoryColor(categories).bg,
+                color: getCategoryColor(categories).text
+              }}
+            >
+              {categories}
+            </span>
+          )}
         </div>
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-2xl">{icon}</span>
+        <div className="flex items-start gap-3 mb-2">
+          <h3 className="text-lg font-semibold text-white">{title}</h3>
         </div>
-        <h3 className="text-lg font-semibold text-white mb-1">{title}</h3>
       </div>
     </div>
   </div>
@@ -28,56 +54,47 @@ const NotesPage = () => {
   {
     id: 1,
     title: 'SpringBoot Fundamentals',
-    category: 'Springboot',
-    icon: '🌱'
+    categories: ['Springboot', 'Web Development'],
   },
   {
     id: 2,
     title: 'Advanced Excel Dashboarding',
-    category: 'Excel',
-    icon: '📈'
+    categories: ['Excel', 'Data Science'],
   },
   {
     id: 3,
     title: 'Practical Bookkeeping for Beginners',
-    category: 'Accounting',
-    icon: '💼'
+    categories: ['Accounting'],
   },
   {
     id: 4,
     title: 'API Development with SpringBoot',
-    category: 'Springboot',
-    icon: '⚙️'
+    categories: ['Springboot', 'Web Development', 'Database'],
   },
   {
     id: 5,
     title: 'Data Cleaning & Visualization Techniques',
-    category: 'Excel',
-    icon: '🧹'
+    categories: ['Excel', 'Data Science'],
   },
   {
     id: 6,
     title: 'Small Business Accounting Essentials',
-    category: 'Accounting',
-    icon: '🏦'
+    categories: ['Accounting'],
   },
   {
     id: 7,
     title: 'SpringBoot + MySQL Integration',
-    category: 'Springboot',
-    icon: '🛢️'
+    categories: ['Springboot', 'Database'],
   },
   {
     id: 8,
     title: 'Excel Formulas & Functions Mastery',
-    category: 'Excel',
-    icon: '🔢'
+    categories: ['Excel'],
   },
   {
     id: 9,
     title: 'Financial Statements 101',
-    category: 'Accounting',
-    icon: '📄'
+    categories: ['Accounting', 'Excel'],
   }
   ];
 
@@ -90,13 +107,12 @@ const NotesPage = () => {
         </div>
 
         {/* Notes Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-4 gap-5">
           {notes.map((note) => (
             <NoteCard
               key={note.id}
               title={note.title}
-              category={note.category}
-              icon={note.icon}
+              categories={note.categories}
             />
           ))}
         </div>
