@@ -1,5 +1,11 @@
 package com.appdev.academeet.model;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,10 +20,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "sessions") // All sessions related are Zander Aligato's Work
@@ -34,14 +36,54 @@ public class Session {
     @Column(nullable = false)
     private String subject;
     
+    // Alias for subject - used by services
+    public String getTitle() {
+        return subject;
+    }
+    
+    public void setTitle(String title) {
+        this.subject = title;
+    }
+    
     @Column(nullable = false)
     private LocalDateTime schedule;
+    
+    // Alias for schedule - used by services
+    public LocalDateTime getStartTime() {
+        return schedule;
+    }
+    
+    public void setStartTime(LocalDateTime startTime) {
+        this.schedule = startTime;
+    }
     
     @Column(length = 2000)
     private String description;
     
     @Column(nullable = false)
     private String status = "PENDING";
+    
+    // New fields from SessionEnhanced
+    @Column(name = "privacy_type", length = 20)
+    private String privacyType = "PUBLIC"; // PUBLIC or PRIVATE
+    
+    @Column(name = "session_type", length = 20)
+    private String sessionType = "ONLINE"; // ONLINE or FACE_TO_FACE
+    
+    @Column(name = "join_code", length = 20, unique = true)
+    private String joinCode;
+    
+    @Column(name = "location", length = 500)
+    private String location; // For FACE_TO_FACE sessions
+    
+    @Column(name = "meeting_link", length = 500)
+    private String meetingLink; // For ONLINE sessions
+    
+    @Column(name = "max_participants")
+    private Integer maxParticipants;
+    
+    @Column(name = "is_active")
+    private Boolean isActive = true;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "host_id")
@@ -186,6 +228,63 @@ public class Session {
     
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+    
+    // New fields getters and setters
+    public String getPrivacyType() {
+        return privacyType;
+    }
+    
+    public void setPrivacyType(String privacyType) {
+        this.privacyType = privacyType;
+    }
+    
+    public String getSessionType() {
+        return sessionType;
+    }
+    
+    public void setSessionType(String sessionType) {
+        this.sessionType = sessionType;
+    }
+    
+    public String getJoinCode() {
+        return joinCode;
+    }
+    
+    public void setJoinCode(String joinCode) {
+        this.joinCode = joinCode;
+    }
+    
+    public String getLocation() {
+        return location;
+    }
+    
+    public void setLocation(String location) {
+        this.location = location;
+    }
+    
+    public String getMeetingLink() {
+        return meetingLink;
+    }
+    
+    public void setMeetingLink(String meetingLink) {
+        this.meetingLink = meetingLink;
+    }
+    
+    public Integer getMaxParticipants() {
+        return maxParticipants;
+    }
+    
+    public void setMaxParticipants(Integer maxParticipants) {
+        this.maxParticipants = maxParticipants;
+    }
+    
+    public Boolean getIsActive() {
+        return isActive;
+    }
+    
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
     
     // Helper methods
