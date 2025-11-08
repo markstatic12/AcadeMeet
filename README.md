@@ -1,230 +1,201 @@
-## AcadeMeet: Study & Share Platform 📚
+# Academeet
 
-**AcadeMeet** is a dynamic web application designed to help students connect, study in groups, and share valuable educational notes. It serves as a central hub for collaborative learning, making it easier to find study partners and access peer-contributed resources.
-
------
-
-## Features ✨
-
-### Core Functionality
-
-  * **Group Study Creation & Discovery:** Students can create new study groups based on subject or topic, and others can easily search and join relevant groups.
-  * **Study Group Management:** Tools for group administrators to manage membership and group details.
-  * **Note Sharing:** A dedicated feature for students to upload, share, browse, and download study notes, summaries, and educational materials.
-  * **Student Profiles:** Personalized profiles showing a student's joined groups and shared notes.
-
------
-
-## Technology Stack 🛠️
-
-AcadeMeet is built as a monolithic application using the following primary technologies:
-
-### Backend
-
-| Technology | Description |
-| :--- | :--- |
-| **Spring Boot** | The primary framework for building the robust, scalable RESTful API. |
-| **Java** | The core programming language. |
-| **MySQL** | The relational database management system for persistent storage of student data, group information, and notes. |
-
-### Frontend
-
-| Technology | Description |
-| :------------------------- | :-------------------------------------------------------------- |
-| **React (Vite)**           | Framework for building dynamic and component-based UIs.         |
-| **JavaScript (ES6+)**      | The main programming language used for logic and interactivity. |
-| **Tailwind CSS**           | Utility-first CSS framework for fast and responsive design.     |
-| **Node.js (v22 LTS)**      | Runtime environment for development and dependency management.  |
-
-
------
-
-## Getting Started 🚀
-
-Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
-
-### Prerequisites
-
-  * **Java Development Kit (JDK) 17+**
-  * **Node.js & npm/yarn** (for React frontend)
-  * **MySQL Server**
-  * **Git** (for cloning the repository)
-
-### Installation
-
-1.  **Clone the repository:**
-
-    ```bash
-    git clone https://github.com/markstatic12/AcadeMeet.git
-    cd academeet
-    ```
-
-2.  **Database Setup:**
-
-      * **Create the Database:** Using **MySQL Workbench** or your preferred tool, create a new database named **`academeet_db`**.
-      * **Create Local Config File:** Navigate to `backend/src/main/resources/` and create a new file named **`application-local.properties`**. (This file is ignored by Git).
-
-3.  **Configure Local Credentials (Crucial for Collaboration):**
-
-      * Edit your new **`application-local.properties`** file with your **unique MySQL studentname and password**.
-      * **Do not commit this file.**
-
-    <!-- end list -->
-
-    ```properties
-    # ----------------------------------------
-    # LOCAL DEVELOPMENT ONLY: ENTER YOUR UNIQUE CREDENTIALS
-    # This file overrides the default credentials in application.properties
-    # ----------------------------------------
-    spring.datasource.url=jdbc:mysql://localhost:3306/academeet_db?serverTimezone=UTC
-    spring.datasource.studentname=YOUR_UNIQUE_USERNAME_HERE
-    spring.datasource.password=YOUR_UNIQUE_PASSWORD_HERE
-    spring.jpa.hibernate.ddl-auto=update
-    ```
-
------
-
-### Running the Backend (Spring Boot)
-
-Navigate to the backend directory (`cd backend`). You have three ways to run the application, but you **must** activate the **`local` profile** for your private credentials to be used:
-
-#### Method 1: Maven Wrapper (Easiest CLI)
-
-```bash
-./mvnw spring-boot:run -Dspring-boot.run.profiles=local
-```
-or
-```bash
-mvn spring-boot:run -Dspring-boot.run.profiles=local
-```
-or
-```bash
-.\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local
-```
-
-#### Method 2: Executable JAR
-
-1.  First, build the project (if you haven't already): `./mvnw clean install` or `mvn clean install`
-2.  Then, run the JAR, specifying the active profile:
-    ```bash
-    java -jar target/academeet-0.0.1-SNAPSHOT.jar --spring.profiles.active=local
-    ```
-
-#### Method 3: Integrated Development Environment (IDE)
-
-1.  Open the project in your IDE (IntelliJ, VS Code, etc.).
-2.  Locate the main class (e.g., `AcadeMeetApplication.java`).
-3.  In the run/debug configuration settings, set the **Active Profiles** parameter to `local`.
-4.  Run the application.
-
------
-
-
-## Frontend (React + Vite) ⚛️
-
-The **AcadeMeet Frontend** is built using **React** with **Vite** as the development environment.
-It provides a fast, modular, and visually appealing interface for students to study collaboratively, share notes, and manage study groups seamlessly.
+Academeet is a collaborative academic platform that allows students to share notes, join study sessions, participate in forums, and discover trending academic content. The platform consists of a **Spring Boot backend** with a **MySQL database** and a **React + Vite frontend**.
 
 ---
 
-### Prerequisites
+## Table of Contents
 
-* **Node.js v22 LTS** (recommended)
-
----
-
-### Installation
-
-1. **Clone the repository:**
-
-   ```bash
-   git clone https://github.com/<your-repo-url>.git
-   cd AcadeMeet/frontend
-   ```
-
-2. **Install dependencies:**
-
-   ```bash
-   npm install
-   ```
-
-3. **Start the development server:**
-
-   ```bash
-   npm run dev
-   ```
-
-   Once started, open your browser at:
-   👉 [http://localhost:5173](http://localhost:5173)
-
-4. **Build for production (if needed):**
-
-   ```bash
-   npm run build
-   ```
-
-   The optimized build will be located in the **`dist/`** folder.
-
-5. **Preview the production build:**
-
-   ```bash
-   npm run preview
-   ```
+- [Project Overview](#project-overview)
+- [Frontend](#frontend)
+  - [Folder Structure](#frontend-folder-structure)
+  - [Setup and Running](#frontend-setup-and-running)
+- [Backend](#backend)
+  - [Folder Structure](#backend-folder-structure)
+  - [Setup and Running](#backend-setup-and-running)
+- [API Testing](#api-testing)
+- [Environment Variables](#environment-variables)
+- [Team](#team)
 
 ---
 
-## Folder Structure 📁
+## Project Overview
+
+Academeet provides a comprehensive academic collaboration platform with features including:
+
+- **Authentication**: Sign up, log in, and manage user sessions.
+- **Study Sessions**: Create, browse, and join collaborative study sessions.
+- **Notes Library**: Upload, browse, and view notes.
+- **Forums**: Post discussions, reply, and interact with the community.
+- **Discovery**: Discover trending content and featured tutors.
+- **Calendar**: View upcoming sessions and events.
+- **User Profile & Following**: Manage your profile and follow other users.
+- **Admin Panel**: Manage users, content moderation, and analytics.
+
+---
+
+## Frontend
+
+The frontend is built using **React + Vite**, Tailwind CSS, and TypeScript.
+
+### Frontend Folder Structure
 
 ```
-frontend/
+
+academeet-frontend/
+│
 ├── src/
-│   ├── assets/         # Images, icons, and static files
-│   ├── components/     # Reusable React components
-│   ├── App.jsx         # Main application component
-│   ├── index.css       # Tailwind CSS entry point
-│   └── main.jsx        # Application entry file
-├── index.html
-├── package.json
-├── tailwind.config.js
-├── postcss.config.js
-└── vite.config.js
+│   ├── main.tsx            # Vite entry point
+│   ├── index.css           # Global styles
+│   ├── App.tsx             # Main app component with routing
+│   ├── pages/              # Page components (Landing, Dashboard, Auth, Sessions, Notes, Forums, etc.)
+│   ├── components/         # Reusable components (UI, layouts, sessions, forum, notes, discovery, calendar, admin)
+│   ├── hooks/              # Custom React hooks (auth, sessions, notes, forum, toast, local storage)
+│   ├── services/           # API and business logic services (authService, sessionService, noteService, etc.)
+│   ├── store/              # State management (Zustand/Redux/Context)
+│   ├── lib/                # Utility functions and constants
+│   ├── types/              # TypeScript type definitions
+│   ├── styles/             # Additional stylesheets (themes, animations, responsive)
+│   └── assets/             # Images, icons, fonts
+├── public/                 # Public static assets (favicon, images)
+├── .env                    # Environment variables (dev)
+├── .env.production         # Environment variables (prod)
+├── index.html              # HTML entry point
+├── vite.config.ts          # Vite configuration
+├── tsconfig.json           # TypeScript configuration
+├── tailwind.config.js      # Tailwind CSS configuration
+├── postcss.config.js       # PostCSS configuration
+├── package.json            # NPM dependencies
+└── README.md               # Frontend documentation
+
+````
+
+### Frontend Setup and Running
+
+1. Install dependencies:
+
+```bash
+cd academeet-frontend
+npm install
+````
+
+2. Start the development server:
+
+```bash
+npm run dev
+```
+
+3. Open your browser at `http://localhost:5173` (default Vite port) to view the app.
+
+---
+
+## Backend
+
+The backend is built using **Spring Boot** with **MySQL** as the database.
+
+### Backend Folder Structure
+
+```
+academeet-backend/
+│
+├── src/
+│   ├── main/
+│   │   ├── java/com/academeet/
+│   │   │   ├── AcademeetApplication.java
+│   │   │   ├── controller/       # REST API endpoints (Auth, User, Session, Forum, Note, Search, Admin, FileUpload)
+│   │   │   ├── service/          # Business logic layer
+│   │   │   ├── repository/       # JPA repositories for database access
+│   │   │   ├── entity/           # JPA Entity models
+│   │   │   ├── dto/              # Data Transfer Objects
+│   │   │   ├── security/         # JWT authentication and security configuration
+│   │   │   ├── config/           # Spring configuration classes (CORS, Database, Beans)
+│   │   │   ├── exception/        # Custom exceptions and global handlers
+│   │   │   ├── validation/       # Validation logic
+│   │   │   ├── util/             # Utility classes
+│   │   │   └── interceptor/      # Request/response interceptors
+│   │   └── resources/            # application.yml, dev/prod profiles, messages.properties
+│   └── test/                      # Unit and integration tests
+├── pom.xml                        # Maven dependencies & build config
+├── README.md                       # Backend documentation
+```
+
+### Backend Setup and Running
+
+1. Install dependencies:
+
+```bash
+cd academeet-backend
+mvn clean install
+```
+
+2. Configure your **MySQL database** and update `application.yml` with credentials.
+
+3. Start the Spring Boot application:
+
+```bash
+mvn spring-boot:run
+```
+
+The backend runs on `http://localhost:8080` by default.
+
+---
+
+## API Testing
+
+You can test the backend REST APIs using **Postman**:
+
+1. Import the Postman collection (if available) or create new requests.
+2. Use the base URL: `http://localhost:8080/api/`.
+3. Example endpoints:
+
+   * `POST /auth/login` — Login user
+   * `POST /auth/register` — Sign up user
+   * `GET /sessions` — Fetch all sessions
+   * `POST /sessions` — Create a new session
+   * `GET /notes` — Fetch all notes
+   * `POST /forums` — Create a new discussion
+4. Include JWT token in headers for protected routes:
+
+```
+Authorization: Bearer <your-jwt-token>
 ```
 
 ---
 
-## Development Notes 💡
+## Environment Variables
 
-* Always create a **new branch** before starting a feature:
+### Frontend (`.env`)
 
-  ```bash
-  git checkout -b feature/your-task-name
-  ```
-* After pulling updates, always run:
+```
+VITE_API_BASE_URL=http://localhost:8080/api
+VITE_APP_NAME=Academeet
+```
 
-  ```bash
-  npm install
-  ```
+### Backend (`application-dev.yml`)
 
-  to sync new dependencies.
-* Do **not** push `node_modules/` or `dist/` folders to GitHub.
-* Tailwind is **pre-configured** — use utility classes directly in React components.
-* The project is structured for future integration with the Spring Boot backend.
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/academeet
+    username: root
+    password: yourpassword
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+server:
+  port: 8080
+jwt:
+  secret: your_jwt_secret_key
+  expiration: 86400000
+```
 
+---
 
-## Troubleshooting ⚙️
-
-| Issue                                             | Fix                                                                                                                                         |
-| :------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------ |
-| `npm error could not determine executable to run` | Uninstall Tailwind and reinstall version 3.4.13:<br>`npm uninstall tailwindcss`<br>`npm install -D tailwindcss@3.4.13 postcss autoprefixer` |
-| `EBADENGINE` warning                              | Ensure Node.js version is **v20 LTS** (avoid v21).                                                                                          |
-| Port already in use                               | Run `npx vite --port 5174` or close the previous dev server.                                                                                |
-| CSS not applying                                  | Check `index.css` includes:<br>`@tailwind base; @tailwind components; @tailwind utilities;`                                                 |
-
-## Contact 📧
+## Team
 
 - Zander Aligato - zander.aligato@cit.edu
 - Richemmae Bigno - richemmae.bigno@cit.edu
 - Mark Anton Camoro - markanton.camoro@cit.edu
 
-Project Link: https://github.com/markstatic12/AcadeMeet.git
 
