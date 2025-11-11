@@ -168,134 +168,125 @@ const ProfilePage = () => {
   return (
     <DashboardLayout>
       <h1 className="text-2xl font-bold text-white mb-6">My Profile</h1>
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left Side - Profile Information */}
-        <div className="lg:w-1/3">          
-          <div className="bg-[#1f1f1f] border border-gray-800 rounded-2xl p-6 shadow-xl">
-            {/* Profile Image with Online Status */}
-            <div className="relative w-32 h-32 mx-auto mb-6">
-              <div className="w-full h-full bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center">
-                {/* Placeholder for profile image - show initials */}
-                <span className="text-4xl font-bold text-white">
-                  {userData.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                </span>
-              </div>
-              {userData.isOnline && (
-                <div className="absolute bottom-2 right-2 w-5 h-5 bg-green-500 rounded-full border-4 border-[#1f1f1f]"></div>
-              )}
-            </div>
-
-            {/* Profile Info */}
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">{userData.name}</h2>
-              <p className="text-gray-400 text-sm">
-                {userData.school}, {userData.program}, {userData.studentId}
-              </p>
-            </div>
-
-            {/* Bio */}
-            <div className="mb-6">
-              <p className="text-gray-300 text-sm bg-gray-800/50 border border-gray-700 rounded-lg p-3 min-h-[80px]">
-                {userData.bio}
-              </p>
-            </div>
-            
-            {/* Followers & Following */}
-            <div className="flex justify-center gap-12 mb-6 py-4 border-y border-gray-800">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-white mb-1">{userData.followers}</p>
-                <p className="text-gray-400 text-sm">Followers</p>
-              </div>
-              <div className="w-px bg-gray-800"></div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-white mb-1">{userData.following}</p>
-                <p className="text-gray-400 text-sm">Following</p>
-              </div>
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <Button 
-                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl transition-colors shadow-lg shadow-indigo-500/20"
-              >
-                Manage Followers
-              </Button>
-              <div className="relative options-menu">
-                <button
-                  onClick={toggleOptionsMenu}
-                  className="p-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl transition-colors"
-                  title="Options"
-                >
-                  <ThreeDotsIcon className="w-5 h-5" />
-                </button>
-                
-                {/* Dropdown Menu */}
-                {showOptionsMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-[#1a1a1a] border border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden animate-slideDown">
-                    <button
-                      onClick={() => {
-                        openEditModal();
-                        setShowOptionsMenu(false);
-                      }}
-                      className="w-full px-4 py-3 text-left text-white hover:bg-gray-800 transition-colors flex items-center gap-3"
-                    >
-                      <EditIcon className="w-4 h-4" />
-                      Edit Profile
-                    </button>
+      <div className="flex gap-6">
+        {/* Left Side - Profile Card */}
+        <div className="w-[350px]">
+          <div className="bg-[#1f1f1f] border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
+            {/* Profile Banner with Avatar */}
+            <div className="relative h-40 bg-gradient-to-br from-indigo-600 to-purple-600">
+              <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
+                <div className="w-24 h-24 bg-[#1f1f1f] rounded-full p-1">
+                  <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center">
+                    <span className="text-3xl font-bold text-white">
+                      {userData.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    </span>
                   </div>
+                </div>
+                {userData.isOnline && (
+                  <div className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 rounded-full border-4 border-[#1f1f1f]"></div>
                 )}
+              </div>
+            </div>
+
+            {/* Profile Content */}
+            <div className="pt-16 px-6 pb-6">
+              {/* User Info */}
+              <div className="text-center mb-4">
+                <h2 className="text-xl font-bold text-white mb-1">{userData.name}</h2>
+                <p className="text-gray-400 text-xs">
+                  {userData.school}, {userData.program}, {userData.studentId}
+                </p>
+              </div>
+
+              {/* Bio */}
+              <div className="mb-4">
+                <p className="text-gray-400 text-xs bg-gray-800/50 border border-gray-700 rounded-lg p-3">
+                  {userData.bio}
+                </p>
+              </div>
+
+              {/* Followers & Following */}
+              <div className="flex justify-center gap-8 mb-4 py-3 border-y border-gray-800">
+                <div className="text-center">
+                  <p className="text-gray-400 text-xs mb-1">Followers</p>
+                  <p className="text-xl font-bold text-white">{userData.followers}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-gray-400 text-xs mb-1">Following</p>
+                  <p className="text-xl font-bold text-white">{userData.following}</p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <Button className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2 rounded-lg transition-colors">
+                  Manage Followers
+                </Button>
+                <div className="relative options-menu">
+                  <button
+                    onClick={toggleOptionsMenu}
+                    className="p-2 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white rounded-lg transition-colors"
+                  >
+                    <ThreeDotsIcon className="w-5 h-5" />
+                  </button>
+                  {showOptionsMenu && (
+                    <div className="absolute right-0 mt-2 w-40 bg-[#1a1a1a] border border-gray-700 rounded-lg shadow-2xl z-50 overflow-hidden">
+                      <button
+                        onClick={() => {
+                          openEditModal();
+                          setShowOptionsMenu(false);
+                        }}
+                        className="w-full px-3 py-2 text-left text-sm text-white hover:bg-gray-800 transition-colors flex items-center gap-2"
+                      >
+                        <EditIcon className="w-3 h-3" />
+                        Edit Profile
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Right Side - Sessions and Notes */}
-        <div className="lg:w-2/3">
+        <div className="flex-1">
           {/* Sessions Header */}
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-white">Sessions</h2>
-            <div className="relative options-menu">
-              <button
-                onClick={toggleOptionsMenu}
-                className="p-3 bg-[#1f1f1f] text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-colors border border-gray-800"
-                title="More options"
-              >
-                <ThreeDotsIcon className="w-5 h-5" />
-              </button>
-            </div>
+            <button className="p-2 text-gray-400 hover:text-white transition-colors">
+              <ThreeDotsIcon className="w-5 h-5" />
+            </button>
           </div>
 
-          {/* Dynamic Content Area */}
-          <div className="min-h-[500px]">
-            {/* Sessions Content */}
-            <div className="block">
-              {sessionsData.length === 0 ? (
-                <div className="bg-[#1f1f1f] border border-gray-800 rounded-2xl p-12 flex flex-col items-center justify-center h-[500px]">
-                  <div className="w-24 h-24 bg-indigo-600/10 rounded-full flex items-center justify-center mb-6">
-                    <PlusIcon className="w-12 h-12 text-indigo-400" />
+          {/* Sessions Content */}
+          <div>
+            {sessionsData.length === 0 ? (
+              <div className="bg-[#1f1f1f] border border-gray-800 rounded-2xl p-16 flex flex-col items-center justify-center">
+                <div className="w-20 h-20 bg-indigo-600/10 rounded-full flex items-center justify-center mb-4">
+                  <PlusIcon className="w-10 h-10 text-indigo-400" />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2">No Sessions Yet</h3>
+                <p className="text-gray-400 text-sm mb-6 text-center max-w-sm">
+                  Create your first study session and start collaborating with others
+                </p>
+                <button
+                  onClick={handleCreateSession}
+                  className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                  Create New Session
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                {sessionsData.map((session) => (
+                  <div key={session.id} className="bg-[#1f1f1f] border border-gray-800 rounded-xl p-4">
+                    {/* Session card content */}
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">No Sessions Yet</h3>
-                  <p className="text-gray-400 mb-6 text-center max-w-md">
-                    Create your first study session and start collaborating with others
-                  </p>
-                  <button 
-                    onClick={handleCreateSession}
-                    className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors shadow-lg shadow-indigo-500/20 flex items-center gap-2"
-                  >
-                    <PlusIcon className="w-5 h-5" />
-                    Create New Session
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {sessionsData.map((session) => (
-                    <div key={session.id} className="bg-[#1f1f1f] border border-gray-800 rounded-xl p-6">
-                      {/* Session card content */}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
