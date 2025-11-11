@@ -9,20 +9,25 @@ import org.springframework.stereotype.Service;
 import com.appdev.academeet.dto.AuthResponse;
 import com.appdev.academeet.dto.LoginRequest;
 import com.appdev.academeet.dto.SignupRequest;
-import com.appdev.academeet.model.Student;
-import com.appdev.academeet.repository.StudentRepository;
+import com.appdev.academeet.model.Role;
+import com.appdev.academeet.model.User;
+import com.appdev.academeet.repository.RoleRepository;
+import com.appdev.academeet.repository.UserRepository;
 
 @Service
 public class AuthService {
     
     @Autowired
-    private StudentRepository studentRepository;
+    private UserRepository userRepository;
+    
+    @Autowired
+    private RoleRepository roleRepository;
     
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     
     public AuthResponse signup(SignupRequest request) {
         // Check if email already exists
-        if (studentRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             return new AuthResponse(null, null, null, null, null, "Email already exists");
         }
         
@@ -47,22 +52,31 @@ public class AuthService {
             return new AuthResponse(null, null, null, null, null, "Year level must be between 1 and 4");
         }
         
-        // Create new student with encrypted password
-        Student student = new Student();
-        student.setName(request.getName());
-        student.setEmail(request.getEmail());
-        student.setPassword(passwordEncoder.encode(request.getPassword()));
-        student.setProgram(request.getProgram());
-        student.setYearLevel(request.getYearLevel());
+        // Create new user with encrypted password
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setProgram(request.getProgram());
+        user.setYearLevel(request.getYearLevel());
         
-        Student savedStudent = studentRepository.save(student);
+        // Assign default STUDENT role
+        Role studentRole = roleRepository.findByName("STUDENT")
+            .orElseGet(() -> {
+                Role newRole = new Role("STUDENT", "Default student role");
+                return roleRepository.save(newRole);
+            });
+        
+        user.addRole(studentRole);
+        
+        User savedUser = userRepository.save(user);
         
         return new AuthResponse(
-            savedStudent.getId(),
-            savedStudent.getName(),
-            savedStudent.getEmail(),
-            savedStudent.getProgram(),
-            savedStudent.getYearLevel(),
+            savedUser.getId(),
+            savedUser.getName(),
+            savedUser.getEmail(),
+            savedUser.getProgram(),
+            savedUser.getYearLevel(),
             "Signup successful"
         );
     }
@@ -77,26 +91,26 @@ public class AuthService {
             return new AuthResponse(null, null, null, null, null, "Password is required");
         }
         
-        // Find student by email
-        Optional<Student> studentOptional = studentRepository.findByEmail(request.getEmail());
+        // Find user by email
+        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
         
-        if (studentOptional.isEmpty()) {
+        if (userOptional.isEmpty()) {
             return new AuthResponse(null, null, null, null, null, "Invalid email or password");
         }
         
-        Student student = studentOptional.get();
+        User user = userOptional.get();
         
         // Check password
-        if (!passwordEncoder.matches(request.getPassword(), student.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             return new AuthResponse(null, null, null, null, null, "Invalid email or password");
         }
         
         return new AuthResponse(
-            student.getId(),
-            student.getName(),
-            student.getEmail(),
-            student.getProgram(),
-            student.getYearLevel(),
+            user.getId(),
+            user.getName(),
+            user.getEmail(),
+            user.getProgram(),
+            user.getYearLevel(),
             "Login successful"
         );
     }

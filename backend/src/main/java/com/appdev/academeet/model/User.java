@@ -1,25 +1,27 @@
 package com.appdev.academeet.model;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "students")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "student_type", discriminatorType = DiscriminatorType.STRING)
-public class Student {
+@Table(name = "users")
+public class User {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,6 +45,20 @@ public class Student {
     @Column(name = "profile_pic", length = 500)
     private String profilePic;
     
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "user_roles",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
+    
+    @OneToMany(mappedBy = "host", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Session> hostedSessions = new HashSet<>();
+    
+    @ManyToMany(mappedBy = "participants")
+    private Set<Session> participatingSessions = new HashSet<>();
+    
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
     
@@ -61,15 +77,52 @@ public class Student {
     }
     
     // Constructors
-    public Student() {
+    public User() {
     }
     
-    public Student(String name, String email, String password, String program, Integer yearLevel) {
+    public User(String name, String email, String password, String program, Integer yearLevel) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.program = program;
         this.yearLevel = yearLevel;
+    }
+    
+    // Helper methods for roles
+    public void addRole(Role role) {
+        this.roles.add(role);
+        role.getUsers().add(this);
+    }
+    
+    public void removeRole(Role role) {
+        this.roles.remove(role);
+        role.getUsers().remove(this);
+    }
+    
+    public boolean hasRole(String roleName) {
+        return roles.stream()
+                .anyMatch(role -> role.getName().equals(roleName));
+    }
+    
+    // Helper methods for sessions
+    public void hostSession(Session session) {
+        this.hostedSessions.add(session);
+        session.setHost(this);
+    }
+    
+    public void removeHostedSession(Session session) {
+        this.hostedSessions.remove(session);
+        session.setHost(null);
+    }
+    
+    public void joinSession(Session session) {
+        this.participatingSessions.add(session);
+        session.getParticipants().add(this);
+    }
+    
+    public void leaveSession(Session session) {
+        this.participatingSessions.remove(session);
+        session.getParticipants().remove(this);
     }
     
     // Getters and Setters
@@ -129,6 +182,30 @@ public class Student {
         this.profilePic = profilePic;
     }
     
+    public Set<Role> getRoles() {
+        return roles;
+    }
+    
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+    
+    public Set<Session> getHostedSessions() {
+        return hostedSessions;
+    }
+    
+    public void setHostedSessions(Set<Session> hostedSessions) {
+        this.hostedSessions = hostedSessions;
+    }
+    
+    public Set<Session> getParticipatingSessions() {
+        return participatingSessions;
+    }
+    
+    public void setParticipatingSessions(Set<Session> participatingSessions) {
+        this.participatingSessions = participatingSessions;
+    }
+    
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -147,7 +224,7 @@ public class Student {
     
     @Override
     public String toString() {
-        return "Student{" +
+        return "User{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +

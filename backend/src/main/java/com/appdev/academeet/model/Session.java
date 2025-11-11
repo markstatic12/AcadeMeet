@@ -1,5 +1,11 @@
 package com.appdev.academeet.model;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,16 +14,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "sessions") // All sessions related are Zander Aligato's Work
@@ -45,8 +48,8 @@ public class Session {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "host_id")
-    @JsonIgnoreProperties({"hostedSessions", "enrolledSessions"})
-    private Host host;
+    @JsonIgnoreProperties({"hostedSessions", "participatingSessions", "password"})
+    private User host;
     
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties("session")
@@ -56,9 +59,14 @@ public class Session {
     @JsonIgnoreProperties("session")
     private List<Note> notes = new ArrayList<>();
     
-    @ManyToMany(mappedBy = "enrolledSessions")
-    @JsonIgnoreProperties({"enrolledSessions", "password"})
-    private List<Participant> participants = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+        name = "session_participants",
+        joinColumns = @JoinColumn(name = "session_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @JsonIgnoreProperties({"participatingSessions", "hostedSessions", "password"})
+    private List<User> participants = new ArrayList<>();
     
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -140,11 +148,11 @@ public class Session {
         this.status = status;
     }
     
-    public Host getHost() {
+    public User getHost() {
         return host;
     }
     
-    public void setHost(Host host) {
+    public void setHost(User host) {
         this.host = host;
     }
     
@@ -164,11 +172,11 @@ public class Session {
         this.notes = notes;
     }
     
-    public List<Participant> getParticipants() {
+    public List<User> getParticipants() {
         return participants;
     }
     
-    public void setParticipants(List<Participant> participants) {
+    public void setParticipants(List<User> participants) {
         this.participants = participants;
     }
     

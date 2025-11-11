@@ -1,15 +1,16 @@
 package com.appdev.academeet.service;
 
-import com.appdev.academeet.model.Session;
-import com.appdev.academeet.model.Host;
-import com.appdev.academeet.repository.SessionRepository;
-import com.appdev.academeet.repository.HostRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.appdev.academeet.model.Session;
+import com.appdev.academeet.model.User;
+import com.appdev.academeet.repository.SessionRepository;
+import com.appdev.academeet.repository.UserRepository;
 
 @Service
 public class SessionService {
@@ -18,14 +19,14 @@ public class SessionService {
     private SessionRepository sessionRepository;
     
     @Autowired
-    private HostRepository hostRepository;
+    private UserRepository userRepository;
     
     // Create
     public Session createSession(Session session) {
         // Validate host exists
         if (session.getHost() != null && session.getHost().getId() != null) {
-            Host host = hostRepository.findById(session.getHost().getId())
-                .orElseThrow(() -> new RuntimeException("Host not found with id: " + session.getHost().getId()));
+            User host = userRepository.findById(session.getHost().getId())
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + session.getHost().getId()));
             session.setHost(host);
         }
         
@@ -41,7 +42,7 @@ public class SessionService {
         return sessionRepository.findById(id);
     }
     
-    public List<Session> getSessionsByHost(Host host) {
+    public List<Session> getSessionsByHost(User host) {
         return sessionRepository.findByHost(host);
     }
     
@@ -82,8 +83,8 @@ public class SessionService {
         
         // Update host if provided
         if (sessionDetails.getHost() != null && sessionDetails.getHost().getId() != null) {
-            Host host = hostRepository.findById(sessionDetails.getHost().getId())
-                .orElseThrow(() -> new RuntimeException("Host not found with id: " + sessionDetails.getHost().getId()));
+            User host = userRepository.findById(sessionDetails.getHost().getId())
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + sessionDetails.getHost().getId()));
             session.setHost(host);
         }
         
