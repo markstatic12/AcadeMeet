@@ -251,20 +251,10 @@ const ProfilePage = () => {
 
         {/* Right Side - Sessions and Notes */}
         <div className="lg:w-2/3">
-          {/* Tab Buttons */}
-          <div className="flex gap-3 mb-6">
-            <button
-              className="px-8 py-3 rounded-xl font-medium transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
-            >
-              Sessions
-            </button>
-            <button
-              className="px-8 py-3 rounded-xl font-medium transition-all bg-[#1f1f1f] text-gray-400 hover:text-white hover:bg-gray-800 border border-gray-800"
-              onClick={() => navigate('/notes')}
-            >
-              Notes
-            </button>
-            <div className="relative ml-auto options-menu">
+          {/* Sessions Header */}
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white">Sessions</h2>
+            <div className="relative options-menu">
               <button
                 onClick={toggleOptionsMenu}
                 className="p-3 bg-[#1f1f1f] text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-colors border border-gray-800"
