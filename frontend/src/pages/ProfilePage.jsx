@@ -5,7 +5,6 @@ import Button from '../components/ui/Button';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('sessions');
   const [showEditModal, setShowEditModal] = useState(false);
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -55,9 +54,6 @@ const ProfilePage = () => {
   // Sample sessions data (empty initially)
   const sessionsData = [];
 
-  // Sample notes data (empty initially)
-  const notesData = [];
-
   // Open edit modal
   const openEditModal = () => {
     setEditForm({
@@ -99,6 +95,7 @@ const ProfilePage = () => {
 
   // Navigate to create session
   const handleCreateSession = () => {
+    console.log('Navigating to sessions page...');
     navigate('/sessions');
   };
 
@@ -257,22 +254,13 @@ const ProfilePage = () => {
           {/* Tab Buttons */}
           <div className="flex gap-3 mb-6">
             <button
-              className={`px-8 py-3 rounded-xl font-medium transition-all ${
-                activeTab === 'sessions'
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
-                  : 'bg-[#1f1f1f] text-gray-400 hover:text-white hover:bg-gray-800 border border-gray-800'
-              }`}
-              onClick={() => setActiveTab('sessions')}
+              className="px-8 py-3 rounded-xl font-medium transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
             >
               Sessions
             </button>
             <button
-              className={`px-8 py-3 rounded-xl font-medium transition-all ${
-                activeTab === 'notes'
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
-                  : 'bg-[#1f1f1f] text-gray-400 hover:text-white hover:bg-gray-800 border border-gray-800'
-              }`}
-              onClick={() => setActiveTab('notes')}
+              className="px-8 py-3 rounded-xl font-medium transition-all bg-[#1f1f1f] text-gray-400 hover:text-white hover:bg-gray-800 border border-gray-800"
+              onClick={() => navigate('/notes')}
             >
               Notes
             </button>
@@ -290,7 +278,7 @@ const ProfilePage = () => {
           {/* Dynamic Content Area */}
           <div className="min-h-[500px]">
             {/* Sessions Content */}
-            <div className={`${activeTab === 'sessions' ? 'block' : 'hidden'}`}>
+            <div className="block">
               {sessionsData.length === 0 ? (
                 <div className="bg-[#1f1f1f] border border-gray-800 rounded-2xl p-12 flex flex-col items-center justify-center h-[500px]">
                   <div className="w-24 h-24 bg-indigo-600/10 rounded-full flex items-center justify-center mb-6">
@@ -313,54 +301,6 @@ const ProfilePage = () => {
                   {sessionsData.map((session) => (
                     <div key={session.id} className="bg-[#1f1f1f] border border-gray-800 rounded-xl p-6">
                       {/* Session card content */}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Notes Content */}
-            <div className={`${activeTab === 'notes' ? 'block' : 'hidden'}`}>
-              {notesData.length === 0 ? (
-                <div className="bg-[#1f1f1f] border border-gray-800 rounded-2xl p-12 flex flex-col items-center justify-center h-[500px]">
-                  <div className="w-24 h-24 bg-purple-600/10 rounded-full flex items-center justify-center mb-6">
-                    <NotesEmptyIcon className="w-12 h-12 text-purple-400" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">No Notes Yet</h3>
-                  <p className="text-gray-400 mb-6 text-center max-w-md">
-                    Create or upload your first note to get started
-                  </p>
-                  <button 
-                    onClick={() => {
-                      // TODO: Add create note functionality
-                      alert('Create Note feature coming soon!');
-                    }}
-                    className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors shadow-lg shadow-purple-500/20 flex items-center gap-2"
-                  >
-                    <PlusIcon className="w-5 h-5" />
-                    Create New Note
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {notesData.map((note) => (
-                    <div key={note.id} className="bg-white rounded-xl overflow-hidden shadow-lg">
-                      <div className="p-6">
-                        <h3 className="text-black font-bold text-lg mb-3">{note.title}</h3>
-                        {note.tags.map((tag, index) => (
-                          <span 
-                            key={index}
-                            className="inline-block bg-indigo-600 text-white text-xs px-3 py-1 rounded-full mr-2 mb-2"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                        <p className="text-gray-600 text-sm mt-3">{note.preview}</p>
-                      </div>
-                      <div className="bg-gray-100 px-6 py-3 text-xs text-gray-500 flex items-center">
-                        <ClockIcon className="w-3 h-3 mr-1" />
-                        Created on {note.createdAt}
-                      </div>
                     </div>
                   ))}
                 </div>
