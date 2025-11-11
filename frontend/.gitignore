@@ -34,3 +34,10 @@ dist-ssr/
 # OS-generated files
 .DS_Store
 Thumbs.db
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Testing / coverage
+coverage/
+*.lcov
