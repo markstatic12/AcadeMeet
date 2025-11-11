@@ -102,11 +102,6 @@ const ProfilePage = () => {
     navigate('/sessions');
   };
 
-  // Navigate to notes page
-  const handleGoToNotes = () => {
-    navigate('/notes');
-  };
-
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -241,31 +236,14 @@ const ProfilePage = () => {
                 {showOptionsMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-[#1a1a1a] border border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden animate-slideDown">
                     <button
-                      onClick={openEditModal}
+                      onClick={() => {
+                        openEditModal();
+                        setShowOptionsMenu(false);
+                      }}
                       className="w-full px-4 py-3 text-left text-white hover:bg-gray-800 transition-colors flex items-center gap-3"
                     >
                       <EditIcon className="w-4 h-4" />
                       Edit Profile
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowOptionsMenu(false);
-                        // Add settings functionality later
-                      }}
-                      className="w-full px-4 py-3 text-left text-white hover:bg-gray-800 transition-colors flex items-center gap-3"
-                    >
-                      <SettingsIcon className="w-4 h-4" />
-                      Settings
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowOptionsMenu(false);
-                        // Add share functionality later
-                      }}
-                      className="w-full px-4 py-3 text-left text-white hover:bg-gray-800 transition-colors flex items-center gap-3"
-                    >
-                      <ShareIcon className="w-4 h-4" />
-                      Share Profile
                     </button>
                   </div>
                 )}
@@ -350,14 +328,17 @@ const ProfilePage = () => {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">No Notes Yet</h3>
                   <p className="text-gray-400 mb-6 text-center max-w-md">
-                    Upload or create your first note to get started
+                    Create or upload your first note to get started
                   </p>
                   <button 
-                    onClick={handleGoToNotes}
+                    onClick={() => {
+                      // TODO: Add create note functionality
+                      alert('Create Note feature coming soon!');
+                    }}
                     className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors shadow-lg shadow-purple-500/20 flex items-center gap-2"
                   >
                     <PlusIcon className="w-5 h-5" />
-                    Go to Notes
+                    Create New Note
                   </button>
                 </div>
               ) : (
@@ -536,19 +517,6 @@ const LoadingIcon = ({ className }) => (
 const EditIcon = ({ className }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-  </svg>
-);
-
-const SettingsIcon = ({ className }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-  </svg>
-);
-
-const ShareIcon = ({ className }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
   </svg>
 );
 
