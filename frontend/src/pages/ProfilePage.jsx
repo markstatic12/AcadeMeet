@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 import Button from '../components/ui/Button';
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('sessions');
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showOptionsMenu, setShowOptionsMenu] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   
   // User data from localStorage (initially)
@@ -75,6 +78,33 @@ const ProfilePage = () => {
       studentId: '',
       bio: ''
     });
+  };
+
+  // Toggle options menu
+  const toggleOptionsMenu = () => {
+    setShowOptionsMenu(!showOptionsMenu);
+  };
+
+  // Close options menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showOptionsMenu && !event.target.closest('.options-menu')) {
+        setShowOptionsMenu(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showOptionsMenu]);
+
+  // Navigate to create session
+  const handleCreateSession = () => {
+    navigate('/sessions');
+  };
+
+  // Navigate to notes page
+  const handleGoToNotes = () => {
+    navigate('/notes');
   };
 
   // Handle form input changes
@@ -198,13 +228,48 @@ const ProfilePage = () => {
               >
                 Manage Followers
               </Button>
-              <button
-                onClick={openEditModal}
-                className="p-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl transition-colors"
-                title="Edit Profile"
-              >
-                <ThreeDotsIcon className="w-5 h-5" />
-              </button>
+              <div className="relative options-menu">
+                <button
+                  onClick={toggleOptionsMenu}
+                  className="p-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl transition-colors"
+                  title="Options"
+                >
+                  <ThreeDotsIcon className="w-5 h-5" />
+                </button>
+                
+                {/* Dropdown Menu */}
+                {showOptionsMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-[#1a1a1a] border border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden animate-slideDown">
+                    <button
+                      onClick={openEditModal}
+                      className="w-full px-4 py-3 text-left text-white hover:bg-gray-800 transition-colors flex items-center gap-3"
+                    >
+                      <EditIcon className="w-4 h-4" />
+                      Edit Profile
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowOptionsMenu(false);
+                        // Add settings functionality later
+                      }}
+                      className="w-full px-4 py-3 text-left text-white hover:bg-gray-800 transition-colors flex items-center gap-3"
+                    >
+                      <SettingsIcon className="w-4 h-4" />
+                      Settings
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowOptionsMenu(false);
+                        // Add share functionality later
+                      }}
+                      className="w-full px-4 py-3 text-left text-white hover:bg-gray-800 transition-colors flex items-center gap-3"
+                    >
+                      <ShareIcon className="w-4 h-4" />
+                      Share Profile
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -233,12 +298,15 @@ const ProfilePage = () => {
             >
               Notes
             </button>
-            <button
-              className="ml-auto p-3 bg-[#1f1f1f] text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-colors border border-gray-800"
-              title="More options"
-            >
-              <ThreeDotsIcon className="w-5 h-5" />
-            </button>
+            <div className="relative ml-auto options-menu">
+              <button
+                onClick={toggleOptionsMenu}
+                className="p-3 bg-[#1f1f1f] text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-colors border border-gray-800"
+                title="More options"
+              >
+                <ThreeDotsIcon className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Dynamic Content Area */}
@@ -254,7 +322,11 @@ const ProfilePage = () => {
                   <p className="text-gray-400 mb-6 text-center max-w-md">
                     Create your first study session and start collaborating with others
                   </p>
-                  <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors shadow-lg shadow-indigo-500/20">
+                  <button 
+                    onClick={handleCreateSession}
+                    className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors shadow-lg shadow-indigo-500/20 flex items-center gap-2"
+                  >
+                    <PlusIcon className="w-5 h-5" />
                     Create New Session
                   </button>
                 </div>
@@ -280,8 +352,12 @@ const ProfilePage = () => {
                   <p className="text-gray-400 mb-6 text-center max-w-md">
                     Upload or create your first note to get started
                   </p>
-                  <button className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors shadow-lg shadow-purple-500/20">
-                    Upload Note
+                  <button 
+                    onClick={handleGoToNotes}
+                    className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors shadow-lg shadow-purple-500/20 flex items-center gap-2"
+                  >
+                    <PlusIcon className="w-5 h-5" />
+                    Go to Notes
                   </button>
                 </div>
               ) : (
@@ -454,6 +530,25 @@ const LoadingIcon = ({ className }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24">
     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+  </svg>
+);
+
+const EditIcon = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+  </svg>
+);
+
+const SettingsIcon = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
+
+const ShareIcon = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
   </svg>
 );
 
