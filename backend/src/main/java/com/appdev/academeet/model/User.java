@@ -45,6 +45,15 @@ public class User {
     @Column(name = "profile_pic", length = 500)
     private String profilePic;
     
+    @Column(length = 200)
+    private String school;
+    
+    @Column(name = "student_id", length = 50)
+    private String studentId;
+    
+    @Column(length = 1000)
+    private String bio;
+    
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "user_roles",
@@ -180,6 +189,30 @@ public class User {
     
     public void setProfilePic(String profilePic) {
         this.profilePic = profilePic;
+    }
+    
+    public String getSchool() {
+        return school;
+    }
+    
+    public void setSchool(String school) {
+        this.school = school;
+    }
+    
+    public String getStudentId() {
+        return studentId;
+    }
+    
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
+    
+    public String getBio() {
+        return bio;
+    }
+    
+    public void setBio(String bio) {
+        this.bio = bio;
     }
     
     public Set<Role> getRoles() {
