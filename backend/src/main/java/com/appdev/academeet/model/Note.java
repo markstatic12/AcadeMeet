@@ -1,5 +1,10 @@
 package com.appdev.academeet.model;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,9 +16,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "notes") // All files related to notes are Camoro's work
@@ -32,6 +34,31 @@ public class Note {
     
     @Column(name = "file_type")
     private String fileType;
+    
+    // New fields for enhanced note functionality
+    @Column(name = "note_type", length = 20)
+    private String noteType = "TEXT"; // TEXT or FILE
+    
+    @Column(name = "file_url", length = 1000)
+    private String fileUrl;
+    
+    @Column(name = "file_name", length = 255)
+    private String fileName;
+    
+    @Column(name = "file_size")
+    private Long fileSize; // in bytes
+    
+    @Column(name = "is_public")
+    private Boolean isPublic = false;
+    
+    @Column(name = "is_downloadable")
+    private Boolean isDownloadable = true;
+    
+    @Column(name = "views_count")
+    private Integer viewsCount = 0;
+    
+    @Column(name = "downloads_count")
+    private Integer downloadsCount = 0;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "session_id")
@@ -147,6 +174,86 @@ public class Note {
     
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+    
+    // New fields getters and setters
+    public String getNoteType() {
+        return noteType;
+    }
+    
+    public void setNoteType(String noteType) {
+        this.noteType = noteType;
+    }
+    
+    public String getFileUrl() {
+        return fileUrl;
+    }
+    
+    public void setFileUrl(String fileUrl) {
+        this.fileUrl = fileUrl;
+    }
+    
+    public String getFileName() {
+        return fileName;
+    }
+    
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+    
+    public Long getFileSize() {
+        return fileSize;
+    }
+    
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
+    }
+    
+    public Boolean getIsPublic() {
+        return isPublic;
+    }
+    
+    public void setIsPublic(Boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+    
+    public Boolean getIsDownloadable() {
+        return isDownloadable;
+    }
+    
+    public void setIsDownloadable(Boolean isDownloadable) {
+        this.isDownloadable = isDownloadable;
+    }
+    
+    public Integer getViewsCount() {
+        return viewsCount;
+    }
+    
+    public void setViewsCount(Integer viewsCount) {
+        this.viewsCount = viewsCount;
+    }
+    
+    public Integer getDownloadsCount() {
+        return downloadsCount;
+    }
+    
+    public void setDownloadsCount(Integer downloadsCount) {
+        this.downloadsCount = downloadsCount;
+    }
+    
+    // Helper methods
+    public void incrementViews() {
+        if (this.viewsCount == null) {
+            this.viewsCount = 0;
+        }
+        this.viewsCount++;
+    }
+    
+    public void incrementDownloads() {
+        if (this.downloadsCount == null) {
+            this.downloadsCount = 0;
+        }
+        this.downloadsCount++;
     }
     
     @Override
