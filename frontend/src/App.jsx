@@ -4,6 +4,9 @@ import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
 import NotesPage from './pages/NotesPage';
 import ProfilePage from './pages/ProfilePage';
+import CreateSessionPage from './pages/CreateSessionPage';
+import CreateNotePage from './pages/CreateNotePage';
+import SettingsPage from './pages/SettingsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -44,6 +47,31 @@ function App() {
         element={
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/create-session" 
+        element={
+          <ProtectedRoute>
+            <CreateSessionPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/create-note" 
+        element={
+          <ProtectedRoute>
+            <CreateNotePage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/settings" 
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
           </ProtectedRoute>
         } 
       />
