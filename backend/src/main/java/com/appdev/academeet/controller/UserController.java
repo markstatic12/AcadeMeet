@@ -80,6 +80,12 @@ public class UserController {
             if (request.getBio() != null) {
                 user.setBio(request.getBio().trim());
             }
+            if (request.getProfilePic() != null) {
+                user.setProfilePic(request.getProfilePic());
+            }
+            if (request.getCoverImage() != null) {
+                user.setCoverImage(request.getCoverImage());
+            }
             
             // Save updated user
             User updatedUser = userService.updateUser(user);
@@ -95,6 +101,7 @@ public class UserController {
             response.put("studentId", updatedUser.getStudentId());
             response.put("bio", updatedUser.getBio());
             response.put("profilePic", updatedUser.getProfilePic());
+            response.put("coverImage", updatedUser.getCoverImage());
             response.put("message", "Profile updated successfully");
             
             return ResponseEntity.ok(response);
