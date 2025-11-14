@@ -14,7 +14,7 @@ import com.appdev.academeet.model.CommentReaction;
 public interface CommentReactionRepository extends JpaRepository<CommentReaction, Long> {
     
     @Query("SELECT cr FROM CommentReaction cr WHERE cr.comment.commentId = :commentId AND " +
-           "cr.student.id = :studentId AND cr.reactionType = :reactionType")
+           "cr.user.id = :studentId AND cr.reactionType = :reactionType")
     Optional<CommentReaction> findByCommentAndStudentAndType(
         @Param("commentId") Long commentId,
         @Param("studentId") Long studentId,
@@ -24,7 +24,7 @@ public interface CommentReactionRepository extends JpaRepository<CommentReaction
     @Query("SELECT cr FROM CommentReaction cr WHERE cr.comment.commentId = :commentId")
     List<CommentReaction> findByComment(@Param("commentId") Long commentId);
     
-    @Query("SELECT cr FROM CommentReaction cr WHERE cr.student.id = :studentId")
+    @Query("SELECT cr FROM CommentReaction cr WHERE cr.user.id = :studentId")
     List<CommentReaction> findByStudent(@Param("studentId") Long studentId);
     
     @Query("SELECT cr FROM CommentReaction cr WHERE cr.comment.commentId = :commentId AND cr.reactionType = :reactionType")

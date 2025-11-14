@@ -24,8 +24,8 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
         @Param("id") Long id
     );
     
-    @Query("SELECT r FROM Report r WHERE r.reviewedBy.adminId = :adminId ORDER BY r.reviewedAt DESC")
-    List<Report> findByReviewer(@Param("adminId") Integer adminId);
+    @Query("SELECT r FROM Report r WHERE r.reviewedBy.id = :adminId ORDER BY r.reviewedAt DESC")
+    List<Report> findByReviewer(@Param("adminId") Long adminId);
     
     @Query("SELECT COUNT(r) FROM Report r WHERE r.status = :status")
     Long countByStatus(@Param("status") String status);
@@ -85,7 +85,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
            "ORDER BY reportCount DESC LIMIT :limit")
     List<Object[]> findMostReportedEntities(@Param("limit") int limit);
     
-    @Query("SELECT r FROM Report r WHERE r.reviewedBy.adminId = :adminId ORDER BY r.reviewedAt DESC")
+    @Query("SELECT r FROM Report r WHERE r.reviewedBy.id = :adminId ORDER BY r.reviewedAt DESC")
     List<Report> findReportsReviewedByAdmin(@Param("adminId") Long adminId);
     
     @Query("SELECT new map(COUNT(r) as total, " +

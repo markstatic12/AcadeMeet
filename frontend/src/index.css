@@ -114,4 +114,35 @@ input:-moz-autofill-preview {
   html {
     scroll-behavior: smooth;
   }
+
+  /* Force left-to-right typing globally to mitigate any accidental RTL/inversion */
+  body, input, textarea, [contenteditable="true"], [contenteditable] {
+    direction: ltr !important;
+    unicode-bidi: normal !important;
+    text-align: left;
+  }
+
+  /* Beautiful purple scrollbars (WebKit) */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #0b0b0b; /* match app dark */
+    border-radius: 9999px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #6366f1, #8b5cf6); /* indigo-500 to purple-500 */
+    border-radius: 9999px;
+    border: 2px solid #0b0b0b; /* creates padding effect */
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #4f46e5, #7c3aed); /* indigo-600 to purple-600 */
+  }
+
+  /* Firefox */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #6366f1 #0b0b0b; /* thumb color, track color */
+  }
 }

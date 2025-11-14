@@ -44,6 +44,9 @@ public class User {
     
     @Column(name = "profile_pic", length = 500)
     private String profilePic;
+
+    @Column(name = "cover_image", length = 1000)
+    private String coverImage;
     
     @Column(length = 200)
     private String school;
@@ -190,6 +193,14 @@ public class User {
     
     public void setProfilePic(String profilePic) {
         this.profilePic = profilePic;
+    }
+
+    public String getCoverImage() {
+        return coverImage;
+    }
+
+    public void setCoverImage(String coverImage) {
+        this.coverImage = coverImage;
     }
     
     public String getSchool() {
