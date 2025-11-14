@@ -7,6 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.appdev.academeet.dto.AuthResponse;
+import com.appdev.academeet.dto.ChangePasswordRequest;
 import com.appdev.academeet.dto.LoginRequest;
 import com.appdev.academeet.dto.SignupRequest;
 import com.appdev.academeet.model.Role;
@@ -113,5 +114,29 @@ public class AuthService {
             user.getYearLevel(),
             "Login successful"
         );
+    }
+
+    public String changePassword(ChangePasswordRequest request) {
+        if (request.getUserId() == null) {
+            return "User ID is required";
+        }
+        if (request.getCurrentPassword() == null || request.getCurrentPassword().isBlank()) {
+            return "Current password is required";
+        }
+        if (request.getNewPassword() == null || request.getNewPassword().length() < 6) {
+            return "New password must be at least 6 characters";
+        }
+
+        Optional<User> userOptional = userRepository.findById(request.getUserId());
+        if (userOptional.isEmpty()) {
+            return "User not found";
+        }
+        User user = userOptional.get();
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            return "Current password is incorrect";
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        return null; // null means success
     }
 }

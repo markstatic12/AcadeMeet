@@ -9,13 +9,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.appdev.academeet.dto.AuthResponse;
+import com.appdev.academeet.dto.ChangePasswordRequest;
 import com.appdev.academeet.dto.LoginRequest;
 import com.appdev.academeet.dto.SignupRequest;
 import com.appdev.academeet.service.AuthService;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 public class AuthController {
     
     @Autowired
@@ -41,5 +42,14 @@ public class AuthController {
         }
         
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+        String error = authService.changePassword(request);
+        if (error != null) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", error));
+        }
+        return ResponseEntity.ok(java.util.Map.of("message", "Password changed successfully"));
     }
 }
