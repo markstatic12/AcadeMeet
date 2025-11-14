@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.appdev.academeet.model.Follower;
-import com.appdev.academeet.model.Student;
+import com.appdev.academeet.model.User;
 
 @Repository
 public interface FollowerRepository extends JpaRepository<Follower, Long> {
@@ -62,5 +62,5 @@ public interface FollowerRepository extends JpaRepository<Follower, Long> {
            "(SELECT f2.follower.id FROM Follower f2 WHERE f2.following.id = :studentId) " +
            "AND f.following.id != :studentId AND NOT EXISTS " +
            "(SELECT f3 FROM Follower f3 WHERE f3.follower.id = :studentId AND f3.following.id = f.following.id)")
-    List<Student> findSuggestedFollows(@Param("studentId") Long studentId);
+    List<User> findSuggestedFollows(@Param("studentId") Long studentId);
 }

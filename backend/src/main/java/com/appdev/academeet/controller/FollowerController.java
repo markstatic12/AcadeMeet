@@ -1,16 +1,25 @@
 package com.appdev.academeet.controller;
 
-import com.appdev.academeet.model.Follower;
-import com.appdev.academeet.model.Student;
-import com.appdev.academeet.service.FollowerService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.appdev.academeet.model.Follower;
+import com.appdev.academeet.model.User;
+import com.appdev.academeet.service.FollowerService;
 
 @RestController
 @RequestMapping("/api/followers")
@@ -54,9 +63,9 @@ public class FollowerController {
     
     // Get followers of a user
     @GetMapping("/{userId}/followers")
-    public ResponseEntity<List<Student>> getFollowers(@PathVariable Long userId) {
+    public ResponseEntity<List<User>> getFollowers(@PathVariable Long userId) {
         try {
-            List<Student> followers = followerService.getFollowerStudents(userId);
+            List<User> followers = followerService.getFollowerUsers(userId);
             return ResponseEntity.ok(followers);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -65,9 +74,9 @@ public class FollowerController {
     
     // Get users that a user is following
     @GetMapping("/{userId}/following")
-    public ResponseEntity<List<Student>> getFollowing(@PathVariable Long userId) {
+    public ResponseEntity<List<User>> getFollowing(@PathVariable Long userId) {
         try {
-            List<Student> following = followerService.getFollowingStudents(userId);
+            List<User> following = followerService.getFollowingUsers(userId);
             return ResponseEntity.ok(following);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -117,13 +126,13 @@ public class FollowerController {
         }
     }
     
-    // Get suggested follows for a user
+    // Get suggested follows
     @GetMapping("/{userId}/suggestions")
-    public ResponseEntity<List<Student>> getSuggestedFollows(
+    public ResponseEntity<List<User>> getSuggestedFollows(
             @PathVariable Long userId,
             @RequestParam(defaultValue = "10") int limit) {
         try {
-            List<Student> suggestions = followerService.getSuggestedFollows(userId, limit);
+            List<User> suggestions = followerService.getSuggestedFollows(userId, limit);
             return ResponseEntity.ok(suggestions);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

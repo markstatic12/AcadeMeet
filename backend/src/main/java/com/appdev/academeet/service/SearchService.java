@@ -15,11 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.appdev.academeet.model.Comment;
 import com.appdev.academeet.model.Note;
 import com.appdev.academeet.model.Session;
-import com.appdev.academeet.model.Student;
+import com.appdev.academeet.model.User;
 import com.appdev.academeet.repository.CommentRepository;
 import com.appdev.academeet.repository.NoteRepository;
 import com.appdev.academeet.repository.SessionRepository;
-import com.appdev.academeet.repository.StudentRepository;
+import com.appdev.academeet.repository.UserRepository;
 
 @Service
 public class SearchService {
@@ -28,7 +28,7 @@ public class SearchService {
     private SessionRepository sessionRepository;
     
     @Autowired
-    private StudentRepository studentRepository;
+    private UserRepository userRepository;
     
     @Autowired
     private NoteRepository noteRepository;
@@ -43,7 +43,7 @@ public class SearchService {
         
         Map<String, Object> results = new HashMap<>();
         results.put("sessions", searchSessions(query, searchLimit));
-        results.put("students", searchStudents(query, searchLimit));
+        results.put("users", searchUsers(query, searchLimit));
         results.put("notes", searchNotes(query, searchLimit));
         results.put("comments", searchComments(query, searchLimit));
         results.put("query", query);
@@ -64,16 +64,16 @@ public class SearchService {
                 .collect(Collectors.toList());
     }
     
-    // Search students
+    // Search users
     @Transactional(readOnly = true)
-    public List<Student> searchStudents(String query, int limit) {
+    public List<User> searchUsers(String query, int limit) {
         String lowerQuery = query.toLowerCase();
-        return studentRepository.findAll().stream()
-                .filter(student ->
-                    student.getName().toLowerCase().contains(lowerQuery) ||
-                    student.getEmail().toLowerCase().contains(lowerQuery) ||
-                    (student.getProgram() != null && 
-                     student.getProgram().toLowerCase().contains(lowerQuery)))
+        return userRepository.findAll().stream()
+                .filter(user ->
+                    user.getName().toLowerCase().contains(lowerQuery) ||
+                    user.getEmail().toLowerCase().contains(lowerQuery) ||
+                    (user.getProgram() != null && 
+                     user.getProgram().toLowerCase().contains(lowerQuery)))
                 .limit(limit)
                 .collect(Collectors.toList());
     }
@@ -148,24 +148,24 @@ public class SearchService {
         return new ArrayList<>();
     }
     
-    // Search students by program
+    // Search users by program
     @Transactional(readOnly = true)
-    public List<Student> searchStudentsByProgram(String program, int limit) {
-        return studentRepository.findAll().stream()
-                .filter(student -> student.getProgram() != null &&
-                        student.getProgram().equalsIgnoreCase(program))
+    public List<User> searchUsersByProgram(String program, int limit) {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getProgram() != null &&
+                        user.getProgram().equalsIgnoreCase(program))
                 .limit(limit)
                 .collect(Collectors.toList());
     }
     
-    // Search students by year level
+    // Search users by year level
     @Transactional(readOnly = true)
-    public List<Student> searchStudentsByYearLevel(String yearLevel, int limit) {
+    public List<User> searchUsersByYearLevel(String yearLevel, int limit) {
         try {
             Integer yearLevelInt = Integer.parseInt(yearLevel);
-            return studentRepository.findAll().stream()
-                    .filter(student -> student.getYearLevel() != null &&
-                            student.getYearLevel().equals(yearLevelInt))
+            return userRepository.findAll().stream()
+                    .filter(user -> user.getYearLevel() != null &&
+                            user.getYearLevel().equals(yearLevelInt))
                     .limit(limit)
                     .collect(Collectors.toList());
         } catch (NumberFormatException e) {
@@ -185,8 +185,8 @@ public class SearchService {
                 .collect(Collectors.toList());
         
         // Get common programs
-        Set<String> programs = studentRepository.findAll().stream()
-                .map(Student::getProgram)
+        Set<String> programs = userRepository.findAll().stream()
+                .map(User::getProgram)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         
@@ -209,15 +209,15 @@ public class SearchService {
                     .limit(limit)
                     .collect(Collectors.toList());
                     
-            case "students" -> studentRepository.findAll().stream()
-                    .map(Student::getName)
+            case "users" -> userRepository.findAll().stream()
+                    .map(User::getName)
                     .filter(name -> name.toLowerCase().startsWith(lowerPrefix))
                     .distinct()
                     .limit(limit)
                     .collect(Collectors.toList());
                     
-            case "programs" -> studentRepository.findAll().stream()
-                    .map(Student::getProgram)
+            case "programs" -> userRepository.findAll().stream()
+                    .map(User::getProgram)
                     .filter(Objects::nonNull)
                     .filter(program -> program.toLowerCase().startsWith(lowerPrefix))
                     .distinct()

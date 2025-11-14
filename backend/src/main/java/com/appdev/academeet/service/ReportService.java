@@ -8,12 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.appdev.academeet.model.Admin;
 import com.appdev.academeet.model.Report;
-import com.appdev.academeet.model.Student;
-import com.appdev.academeet.repository.AdminRepository;
+import com.appdev.academeet.model.User;
 import com.appdev.academeet.repository.ReportRepository;
-import com.appdev.academeet.repository.StudentRepository;
+import com.appdev.academeet.repository.UserRepository;
 
 @Service
 public class ReportService {
@@ -22,16 +20,13 @@ public class ReportService {
     private ReportRepository reportRepository;
     
     @Autowired
-    private StudentRepository studentRepository;
-    
-    @Autowired
-    private AdminRepository adminRepository;
+    private UserRepository userRepository;
     
     // Submit a new report
     @Transactional
     public Report submitReport(Long reporterId, String reportedType, Long reportedId, 
                                String reason, String description) {
-        Student reporter = studentRepository.findById(reporterId)
+        User reporter = userRepository.findById(reporterId)
                 .orElseThrow(() -> new RuntimeException("Reporter not found with id: " + reporterId));
         
         // Check for duplicate reports within 24 hours
@@ -79,11 +74,11 @@ public class ReportService {
     
     // Mark report as reviewed by admin
     @Transactional
-    public Report markAsReviewed(Long reportId, Integer adminId, String adminNotes) {
+    public Report markAsReviewed(Long reportId, Long adminId, String adminNotes) {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new RuntimeException("Report not found with id: " + reportId));
         
-        Admin admin = adminRepository.findById(adminId)
+        User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new RuntimeException("Admin not found with id: " + adminId));
         
         report.markAsReviewed(admin, adminNotes);
@@ -92,11 +87,11 @@ public class ReportService {
     
     // Resolve a report
     @Transactional
-    public Report resolveReport(Long reportId, Integer adminId, String adminNotes) {
+    public Report resolveReport(Long reportId, Long adminId, String adminNotes) {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new RuntimeException("Report not found with id: " + reportId));
         
-        Admin admin = adminRepository.findById(adminId)
+        User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new RuntimeException("Admin not found with id: " + adminId));
         
         report.resolve(admin, adminNotes);
@@ -105,11 +100,11 @@ public class ReportService {
     
     // Dismiss a report
     @Transactional
-    public Report dismissReport(Long reportId, Integer adminId, String adminNotes) {
+    public Report dismissReport(Long reportId, Long adminId, String adminNotes) {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new RuntimeException("Report not found with id: " + reportId));
         
-        Admin admin = adminRepository.findById(adminId)
+        User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new RuntimeException("Admin not found with id: " + adminId));
         
         report.dismiss(admin, adminNotes);
@@ -185,10 +180,10 @@ public class ReportService {
     
     // Bulk update reports for content
     @Transactional
-    public void resolveAllReportsForContent(String reportedType, Long reportedId, Integer adminId, String adminNotes) {
+    public void resolveAllReportsForContent(String reportedType, Long reportedId, Long adminId, String adminNotes) {
         List<Report> reports = reportRepository.findByReportedTypeAndReportedIdOrderByCreatedAtDesc(reportedType, reportedId);
         
-        Admin admin = adminRepository.findById(adminId)
+        User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new RuntimeException("Admin not found with id: " + adminId));
         
         reports.forEach(report -> {

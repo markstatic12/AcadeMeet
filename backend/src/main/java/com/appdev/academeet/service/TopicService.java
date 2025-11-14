@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.appdev.academeet.model.Student;
 import com.appdev.academeet.model.Topic;
-import com.appdev.academeet.repository.StudentRepository;
+import com.appdev.academeet.model.User;
 import com.appdev.academeet.repository.TopicRepository;
+import com.appdev.academeet.repository.UserRepository;
 
 @Service
 public class TopicService {
@@ -19,7 +19,7 @@ public class TopicService {
     private TopicRepository topicRepository;
     
     @Autowired
-    private StudentRepository studentRepository;
+    private UserRepository userRepository;
     
     // Get all active topics
     @Transactional(readOnly = true)
@@ -75,9 +75,9 @@ public class TopicService {
         
         // Set creator if studentId provided
         if (studentId != null) {
-            Student student = studentRepository.findById(studentId)
-                    .orElseThrow(() -> new RuntimeException("Student not found with id: " + studentId));
-            topic.setCreatedBy(student.getId());
+            User user = userRepository.findById(studentId)
+                    .orElseThrow(() -> new RuntimeException("User not found with id: " + studentId));
+            topic.setCreatedBy(user.getId());
         }
         
         return topicRepository.save(topic);

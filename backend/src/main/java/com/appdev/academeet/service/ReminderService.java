@@ -9,10 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.appdev.academeet.model.Reminder;
 import com.appdev.academeet.model.Session;
-import com.appdev.academeet.model.Student;
+import com.appdev.academeet.model.User;
 import com.appdev.academeet.repository.ReminderRepository;
 import com.appdev.academeet.repository.SessionRepository;
-import com.appdev.academeet.repository.StudentRepository;
+import com.appdev.academeet.repository.UserRepository;
 
 @Service
 public class ReminderService {
@@ -24,13 +24,13 @@ public class ReminderService {
     private SessionRepository sessionRepository;
     
     @Autowired
-    private StudentRepository studentRepository;
+    private UserRepository userRepository;
     
     // Create a reminder for a session
     @Transactional
     public Reminder createReminder(Long studentId, Integer sessionId, LocalDateTime reminderTime) {
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found with id: " + studentId));
+        User user = userRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + studentId));
         
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found with id: " + sessionId));
@@ -46,7 +46,7 @@ public class ReminderService {
         }
         
         Reminder reminder = new Reminder();
-        reminder.setStudent(student);
+        reminder.setUser(user);
         reminder.setSession(session);
         reminder.setReminderTime(reminderTime);
         reminder.setIsSent(false);
@@ -139,7 +139,7 @@ public class ReminderService {
                 .orElseThrow(() -> new RuntimeException("Reminder not found with id: " + reminderId));
         
         // Verify ownership
-        if (!reminder.getStudent().getStudentId().equals(studentId)) {
+        if (!reminder.getUser().getId().equals(studentId)) {
             throw new RuntimeException("Not authorized to delete this reminder");
         }
         
@@ -178,7 +178,7 @@ public class ReminderService {
                 .orElseThrow(() -> new RuntimeException("Reminder not found with id: " + reminderId));
         
         // Verify ownership
-        if (!reminder.getStudent().getStudentId().equals(studentId)) {
+        if (!reminder.getUser().getId().equals(studentId)) {
             throw new RuntimeException("Not authorized to update this reminder");
         }
         
