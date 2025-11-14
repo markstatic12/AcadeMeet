@@ -1,17 +1,25 @@
 package com.appdev.academeet.controller;
 
-import com.appdev.academeet.model.Comment;
-import com.appdev.academeet.model.Note;
-import com.appdev.academeet.model.Session;
-import com.appdev.academeet.model.Student;
-import com.appdev.academeet.service.SearchService;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
+import com.appdev.academeet.model.Comment;
+import com.appdev.academeet.model.Note;
+import com.appdev.academeet.model.Session;
+import com.appdev.academeet.model.User;
+import com.appdev.academeet.service.SearchService;
 
 @RestController
 @RequestMapping("/api/search")
@@ -104,40 +112,40 @@ public class SearchController {
         }
     }
     
-    // Search students only
-    @GetMapping("/students")
-    public ResponseEntity<List<Student>> searchStudents(
+    // Search users only
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> searchUsers(
             @RequestParam String query,
             @RequestParam(defaultValue = "20") int limit) {
         try {
-            List<Student> students = searchService.searchStudents(query, limit);
-            return ResponseEntity.ok(students);
+            List<User> users = searchService.searchUsers(query, limit);
+            return ResponseEntity.ok(users);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
     
-    // Search students by program
-    @GetMapping("/students/program/{program}")
-    public ResponseEntity<List<Student>> searchStudentsByProgram(
+    // Search users by program
+    @GetMapping("/users/program/{program}")
+    public ResponseEntity<List<User>> searchUsersByProgram(
             @PathVariable String program,
             @RequestParam(defaultValue = "20") int limit) {
         try {
-            List<Student> students = searchService.searchStudentsByProgram(program, limit);
-            return ResponseEntity.ok(students);
+            List<User> users = searchService.searchUsersByProgram(program, limit);
+            return ResponseEntity.ok(users);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
     
-    // Search students by year level
-    @GetMapping("/students/year/{yearLevel}")
-    public ResponseEntity<List<Student>> searchStudentsByYearLevel(
+    // Search users by year level
+    @GetMapping("/users/year/{yearLevel}")
+    public ResponseEntity<List<User>> searchUsersByYearLevel(
             @PathVariable String yearLevel,
             @RequestParam(defaultValue = "20") int limit) {
         try {
-            List<Student> students = searchService.searchStudentsByYearLevel(yearLevel, limit);
-            return ResponseEntity.ok(students);
+            List<User> users = searchService.searchUsersByYearLevel(yearLevel, limit);
+            return ResponseEntity.ok(users);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

@@ -16,7 +16,7 @@ import jakarta.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "comment_reactions", 
-       uniqueConstraints = @UniqueConstraint(columnNames = {"comment_id", "student_id", "reaction_type"}))
+       uniqueConstraints = @UniqueConstraint(columnNames = {"comment_id", "user_id", "reaction_type"}))
 public class CommentReaction {
     
     // Reaction Type Constants
@@ -37,8 +37,8 @@ public class CommentReaction {
     private Comment comment;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id", nullable = false)
-    private Student student;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
     
     @Column(name = "reaction_type", nullable = false, length = 20)
     private String reactionType;
@@ -49,9 +49,9 @@ public class CommentReaction {
     public CommentReaction() {
     }
     
-    public CommentReaction(Comment comment, Student student, String reactionType) {
+    public CommentReaction(Comment comment, User user, String reactionType) {
         this.comment = comment;
-        this.student = student;
+        this.user = user;
         this.reactionType = reactionType;
     }
     
@@ -76,12 +76,12 @@ public class CommentReaction {
         this.comment = comment;
     }
     
-    public Student getStudent() {
-        return student;
+    public User getUser() {
+        return user;
     }
     
-    public void setStudent(Student student) {
-        this.student = student;
+    public void setUser(User user) {
+        this.user = user;
     }
     
     public String getReactionType() {

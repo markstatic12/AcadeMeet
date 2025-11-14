@@ -139,10 +139,6 @@ public class User {
         return id;
     }
     
-    // Alias for compatibility with service layer
-    public Long getStudentId() {
-        return id;
-    }
     
     public void setId(Long id) {
         this.id = id;

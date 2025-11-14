@@ -296,11 +296,11 @@ public class ReportController {
     }
     
     public static class AdminActionRequest {
-        private Integer adminId;
+        private Long adminId;
         private String adminNotes;
         
-        public Integer getAdminId() { return adminId; }
-        public void setAdminId(Integer adminId) { this.adminId = adminId; }
+        public Long getAdminId() { return adminId; }
+        public void setAdminId(Long adminId) { this.adminId = adminId; }
         
         public String getAdminNotes() { return adminNotes; }
         public void setAdminNotes(String adminNotes) { this.adminNotes = adminNotes; }
@@ -309,7 +309,7 @@ public class ReportController {
     public static class BulkResolveRequest {
         private String reportedType;
         private Long reportedId;
-        private Integer adminId;
+        private Long adminId;
         private String adminNotes;
         
         public String getReportedType() { return reportedType; }
@@ -318,8 +318,8 @@ public class ReportController {
         public Long getReportedId() { return reportedId; }
         public void setReportedId(Long reportedId) { this.reportedId = reportedId; }
         
-        public Integer getAdminId() { return adminId; }
-        public void setAdminId(Integer adminId) { this.adminId = adminId; }
+        public Long getAdminId() { return adminId; }
+        public void setAdminId(Long adminId) { this.adminId = adminId; }
         
         public String getAdminNotes() { return adminNotes; }
         public void setAdminNotes(String adminNotes) { this.adminNotes = adminNotes; }

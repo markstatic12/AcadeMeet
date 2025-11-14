@@ -25,7 +25,7 @@ public class Report {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reporter_id", nullable = false)
-    private Student reporter;
+    private User reporter;
     
     @Column(name = "reported_type", nullable = false, length = 20)
     private String reportedType;
@@ -44,7 +44,7 @@ public class Report {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewed_by")
-    private Admin reviewedBy;
+    private User reviewedBy;
     
     @Column(name = "reviewed_at")
     private LocalDateTime reviewedAt;
@@ -61,7 +61,7 @@ public class Report {
     public Report() {
     }
     
-    public Report(Student reporter, String reportedType, Long reportedId, String reason) {
+    public Report(User reporter, String reportedType, Long reportedId, String reason) {
         this.reporter = reporter;
         this.reportedType = reportedType;
         this.reportedId = reportedId;
@@ -87,11 +87,11 @@ public class Report {
         this.reportId = reportId;
     }
     
-    public Student getReporter() {
+    public User getReporter() {
         return reporter;
     }
     
-    public void setReporter(Student reporter) {
+    public void setReporter(User reporter) {
         this.reporter = reporter;
     }
     
@@ -135,11 +135,11 @@ public class Report {
         this.status = status;
     }
     
-    public Admin getReviewedBy() {
+    public User getReviewedBy() {
         return reviewedBy;
     }
     
-    public void setReviewedBy(Admin reviewedBy) {
+    public void setReviewedBy(User reviewedBy) {
         this.reviewedBy = reviewedBy;
     }
     
@@ -175,21 +175,21 @@ public class Report {
         this.updatedAt = updatedAt;
     }
     
-    public void markAsReviewed(Admin admin, String notes) {
+    public void markAsReviewed(User admin, String notes) {
         this.status = "REVIEWED";
         this.reviewedBy = admin;
         this.reviewedAt = LocalDateTime.now();
         this.adminNotes = notes;
     }
     
-    public void resolve(Admin admin, String notes) {
+    public void resolve(User admin, String notes) {
         this.status = "RESOLVED";
         this.reviewedBy = admin;
         this.reviewedAt = LocalDateTime.now();
         this.adminNotes = notes;
     }
     
-    public void dismiss(Admin admin, String notes) {
+    public void dismiss(User admin, String notes) {
         this.status = "DISMISSED";
         this.reviewedBy = admin;
         this.reviewedAt = LocalDateTime.now();

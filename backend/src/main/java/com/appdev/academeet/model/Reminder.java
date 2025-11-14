@@ -23,8 +23,8 @@ public class Reminder {
     private Long reminderId;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id", nullable = false)
-    private Student student;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "session_id", nullable = false)
@@ -45,8 +45,8 @@ public class Reminder {
     public Reminder() {
     }
     
-    public Reminder(Student student, Session session, LocalDateTime reminderTime) {
-        this.student = student;
+    public Reminder(User user, Session session, LocalDateTime reminderTime) {
+        this.user = user;
         this.session = session;
         this.reminderTime = reminderTime;
     }
@@ -64,12 +64,12 @@ public class Reminder {
         this.reminderId = reminderId;
     }
     
-    public Student getStudent() {
-        return student;
+    public User getUser() {
+        return user;
     }
     
-    public void setStudent(Student student) {
-        this.student = student;
+    public void setUser(User user) {
+        this.user = user;
     }
     
     public Session getSession() {

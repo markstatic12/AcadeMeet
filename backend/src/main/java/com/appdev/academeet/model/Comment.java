@@ -1,5 +1,11 @@
 package com.appdev.academeet.model;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,10 +19,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "comments")
@@ -36,9 +38,9 @@ public class Comment {
     private Session session;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id", nullable = false)
-    @JsonIgnoreProperties({"password", "enrolledSessions"})
-    private Student student;
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({"password", "roles", "hostedSessions", "participatingSessions"})
+    private User user;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
@@ -68,10 +70,10 @@ public class Comment {
     public Comment() {
     }
     
-    public Comment(String content, Session session, Student student) {
+    public Comment(String content, Session session, User user) {
         this.content = content;
         this.session = session;
-        this.student = student;
+        this.user = user;
     }
     
     @PrePersist
@@ -109,12 +111,12 @@ public class Comment {
         this.session = session;
     }
     
-    public Student getStudent() {
-        return student;
+    public User getUser() {
+        return user;
     }
     
-    public void setStudent(Student student) {
-        this.student = student;
+    public void setUser(User user) {
+        this.user = user;
     }
     
     public Comment getParentComment() {

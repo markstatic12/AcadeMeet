@@ -1,15 +1,16 @@
 package com.appdev.academeet.service;
 
-import com.appdev.academeet.model.Follower;
-import com.appdev.academeet.model.Student;
-import com.appdev.academeet.repository.FollowerRepository;
-import com.appdev.academeet.repository.StudentRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import com.appdev.academeet.model.Follower;
+import com.appdev.academeet.model.User;
+import com.appdev.academeet.repository.FollowerRepository;
+import com.appdev.academeet.repository.UserRepository;
 
 @Service
 public class FollowerService {
@@ -18,7 +19,7 @@ public class FollowerService {
     private FollowerRepository followerRepository;
     
     @Autowired
-    private StudentRepository studentRepository;
+    private UserRepository userRepository;
     
     // Follow a user
     @Transactional
@@ -33,11 +34,11 @@ public class FollowerService {
             throw new RuntimeException("Already following this user");
         }
         
-        // Get students
-        Student follower = studentRepository.findById(followerId)
+        // Get users
+        User follower = userRepository.findById(followerId)
                 .orElseThrow(() -> new RuntimeException("Follower not found with id: " + followerId));
         
-        Student following = studentRepository.findById(followingId)
+        User following = userRepository.findById(followingId)
                 .orElseThrow(() -> new RuntimeException("User to follow not found with id: " + followingId));
         
         // Create follow relationship
@@ -105,8 +106,8 @@ public class FollowerService {
     
     // Get suggested follows for a user
     @Transactional(readOnly = true)
-    public List<Student> getSuggestedFollows(Long userId, int limit) {
-        List<Student> suggested = followerRepository.findSuggestedFollows(userId);
+    public List<User> getSuggestedFollows(Long userId, int limit) {
+        List<User> suggested = followerRepository.findSuggestedFollows(userId);
         return suggested.stream().limit(limit).toList();
     }
     
@@ -123,18 +124,18 @@ public class FollowerService {
                followerRepository.existsByFollowerAndFollowing(userId2, userId1);
     }
     
-    // Get followers with Student details
+    // Get followers with User details
     @Transactional(readOnly = true)
-    public List<Student> getFollowerStudents(Long userId) {
+    public List<User> getFollowerUsers(Long userId) {
         List<Follower> followers = followerRepository.findByFollowing(userId);
         return followers.stream()
                 .map(Follower::getFollower)
                 .toList();
     }
     
-    // Get following with Student details
+    // Get following with User details
     @Transactional(readOnly = true)
-    public List<Student> getFollowingStudents(Long userId) {
+    public List<User> getFollowingUsers(Long userId) {
         List<Follower> following = followerRepository.findByFollower(userId);
         return following.stream()
                 .map(Follower::getFollowing)
