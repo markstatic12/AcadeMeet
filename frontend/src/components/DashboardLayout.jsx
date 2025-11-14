@@ -6,8 +6,8 @@ const DashboardLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [student, setStudent] = useState(null);
-  const [darkMode, setDarkMode] = useState(true);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [darkMode, setDarkMode] = useState(true); // retained for future theme work
+  // Removed global logout from sidebar (now handled inside Settings)
 
   useEffect(() => {
     const studentData = localStorage.getItem('student');
@@ -16,23 +16,7 @@ const DashboardLayout = ({ children }) => {
     }
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('student');
-    navigate('/login');
-  };
-
-  const openLogoutModal = () => {
-    setShowLogoutModal(true);
-  };
-
-  const closeLogoutModal = () => {
-    setShowLogoutModal(false);
-  };
-
-  const confirmLogout = () => {
-    handleLogout();
-    setShowLogoutModal(false);
-  };
+  // Logout handlers removed with sidebar logout button
 
   const navigation = [
     { name: 'Home', href: '/dashboard', icon: HomeIcon },
@@ -48,11 +32,10 @@ const DashboardLayout = ({ children }) => {
       {/* Left Sidebar - Narrow Vertical */}
       <div className="w-16 bg-[#0f0f0f] flex flex-col items-center py-6 border-r border-gray-800">
         {/* Logo */}
-        <Link to="/dashboard" className="mb-12 group">
-          <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/40 transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl">
+        <Link to="/dashboard" className="mb-12 group relative">
+          <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/40 transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl ring-1 ring-inset ring-white/20 group-hover:ring-white/30">
             <img src={logo} alt="AcadeMeet Logo" className="w-7 h-7 object-contain transition-transform duration-300 group-hover:scale-105" />
           </div>
-          <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/20 group-hover:ring-white/30 transition-all duration-300"></div>
         </Link>
 
         {/* Navigation Icons */}
@@ -72,24 +55,14 @@ const DashboardLayout = ({ children }) => {
               {isActive(item.href) && (
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-indigo-500 rounded-r-full -ml-3"></div>
               )}
-              <span className="absolute left-full ml-4 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              <span className="absolute left-full ml-4 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 shadow-lg shadow-black/30">
                 {item.name}
               </span>
             </Link>
           ))}
         </nav>
 
-        {/* Logout Button at Bottom */}
-        <button
-          onClick={openLogoutModal}
-          className="relative p-3 rounded-xl transition-all group text-gray-500 hover:text-red-400 hover:bg-gray-800 mt-auto"
-          title="Logout"
-        >
-          <LogoutIcon className="w-6 h-6" />
-          <span className="absolute left-full ml-4 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-            Logout
-          </span>
-        </button>
+        {/* Bottom space preserved */}
       </div>
 
       {/* Main Content Area */}
@@ -116,20 +89,14 @@ const DashboardLayout = ({ children }) => {
               </div>
             </div>
 
-            {/* Right: Theme Toggle & Notifications */}
-            <div className="flex items-center gap-4">
-              {/* Dark Mode Toggle */}
+            {/* Right: Settings */}
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => setDarkMode(!darkMode)}
+                onClick={() => navigate('/settings')}
                 className="p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-gray-800"
+                title="Settings"
               >
-                {darkMode ? <MoonIcon className="w-6 h-6" /> : <SunIcon className="w-6 h-6" />}
-              </button>
-
-              {/* Notifications */}
-              <button className="relative p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-gray-800">
-                <BellIcon className="w-6 h-6" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-indigo-500 rounded-full"></span>
+                <GearIcon className="w-6 h-6" />
               </button>
             </div>
           </div>
@@ -141,43 +108,7 @@ const DashboardLayout = ({ children }) => {
         </div>
       </div>
 
-      {/* Logout Confirmation Modal */}
-      {showLogoutModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
-          <div className="bg-[#1a1a1a] border border-gray-700 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl animate-slideUp">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-white">Confirm Logout</h3>
-                <p className="text-gray-400 text-sm">Are you sure you want to log out?</p>
-              </div>
-            </div>
-            
-            <p className="text-gray-300 mb-6">
-              You will need to log in again to access your account.
-            </p>
-
-            <div className="flex gap-3">
-              <button
-                onClick={closeLogoutModal}
-                className="flex-1 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-medium transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmLogout}
-                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* No global logout modal */}
     </div>
   );
 };
@@ -231,10 +162,13 @@ const BellIcon = ({ className }) => (
   </svg>
 );
 
-const LogoutIcon = ({ className }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+const GearIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.55-.893 3.31.867 2.417 2.417a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.893 1.55-.867 3.31-2.417 2.417a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.55.893-3.31-.867-2.417-2.417a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35.52-.126.955-.45 1.066-2.573-.893-1.55.867-3.31 2.417-2.417.767.442 1.744.17 2.573-1.066z" />
+    <circle cx="12" cy="12" r="3" strokeWidth="2" />
   </svg>
 );
+
+// LogoutIcon no longer used here
 
 export default DashboardLayout;
