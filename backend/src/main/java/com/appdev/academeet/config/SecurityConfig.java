@@ -15,18 +15,25 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
     
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .anyRequest().authenticated()
-            );
-        
-        return http.build();
-    }
+    // In SecurityConfig.java
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
+            // List all your public endpoints first
+            .requestMatchers("/api/auth/**").permitAll()
+            .requestMatchers("/api/sessions/**").permitAll()
+            .requestMatchers("/api/users/**").permitAll()
+            .requestMatchers("/api/tags/**").permitAll()
+
+            // ".anyRequest().authenticated()" MUST be last
+            .anyRequest().authenticated() 
+        );
+
+    return http.build();
+}
     
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
