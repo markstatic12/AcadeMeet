@@ -83,7 +83,6 @@ public class NoteService {
         note.setFileUrl(noteDetails.getFileUrl());
         note.setFileName(noteDetails.getFileName());
         note.setFileSize(noteDetails.getFileSize());
-Services.c/
         note.setIsPublic(noteDetails.getIsPublic());
         note.setIsDownloadable(noteDetails.getIsDownloadable());
         note.setViewsCount(noteDetails.getViewsCount());

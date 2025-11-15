@@ -92,7 +92,7 @@ public class FileController {
         try {
             FileEntity updatedFile = fileService.updateFile(id, file);
             return ResponseEntity.ok(updatedFile);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
