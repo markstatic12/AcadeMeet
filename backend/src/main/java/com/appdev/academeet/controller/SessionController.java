@@ -8,23 +8,42 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.appdev.academeet.service.SessionService;
 import com.appdev.academeet.model.Session;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import java.util.List;
+
+import com.appdev.academeet.repository.UserRepository;
+import com.appdev.academeet.model.User;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/sessions")
-@CrossOrigin(origins = "http://localhost:5173") 
+@CrossOrigin(origins = "http://localhost:5173")
 public class SessionController {
 
     private final SessionService sessionService;
+    private final UserRepository userRepository;
 
-    public SessionController(SessionService sessionService) {
+    public SessionController(SessionService sessionService, UserRepository userRepository) {
         this.sessionService = sessionService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/create")
-    public Session createSession(@RequestBody Session request) {
-        return sessionService.createSession(request);
+    public Session createSession(@RequestBody Session session, @RequestParam Long userId) {
+        User host = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        session.setHost(host); // attach host
+        return sessionService.createSession(session);
+    }
+
+    // Get sessions by user
+    @GetMapping("/user/{userId}")
+    public List<Session> getSessionsByUser(@PathVariable Long userId) {
+        return sessionService.getSessionsByUserId(userId);
     }
 }
+
 
     // @Autowired
     // private SessionService sessionService;

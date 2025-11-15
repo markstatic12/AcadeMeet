@@ -1,18 +1,12 @@
 package com.appdev.academeet.model;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -56,14 +50,6 @@ public class User {
     @Column(length = 1000)
     private String bio;
     
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "user_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles = new HashSet<>();
-    
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
     
@@ -92,23 +78,6 @@ public class User {
         this.program = program;
         this.yearLevel = yearLevel;
     }
-    
-    // Helper methods for roles
-    public void addRole(Role role) {
-        this.roles.add(role);
-        role.getUsers().add(this);
-    }
-    
-    public void removeRole(Role role) {
-        this.roles.remove(role);
-        role.getUsers().remove(this);
-    }
-    
-    public boolean hasRole(String roleName) {
-        return roles.stream()
-                .anyMatch(role -> role.getName().equals(roleName));
-    }
-    
 
     // Getters and Setters
     public Long getId() {
@@ -200,13 +169,6 @@ public class User {
         this.bio = bio;
     }
     
-    public Set<Role> getRoles() {
-        return roles;
-    }
-    
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
     
     public LocalDateTime getCreatedAt() {
         return createdAt;

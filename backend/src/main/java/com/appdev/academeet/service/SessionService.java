@@ -1,9 +1,10 @@
 package com.appdev.academeet.service;
 
-import org.springframework.stereotype.Service;
-
 import com.appdev.academeet.model.Session;
 import com.appdev.academeet.repository.SessionRepository;
+import org.springframework.stereotype.Service;
+import java.util.List;
+
 
 @Service
 public class SessionService {
@@ -16,5 +17,13 @@ public class SessionService {
 
     public Session createSession(Session session) {
         return sessionRepository.save(session);
+    }
+
+    public List<Session> getSessionsByUserId(Long userId) {
+        return sessionRepository.findByHost_Id(userId);
+    }
+
+    public List<Session> getAllSessions() {
+        return sessionRepository.findAll();
     }
 }

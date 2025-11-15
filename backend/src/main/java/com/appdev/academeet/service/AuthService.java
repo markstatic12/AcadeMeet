@@ -10,9 +10,7 @@ import com.appdev.academeet.dto.AuthResponse;
 import com.appdev.academeet.dto.ChangePasswordRequest;
 import com.appdev.academeet.dto.LoginRequest;
 import com.appdev.academeet.dto.SignupRequest;
-import com.appdev.academeet.model.Role;
 import com.appdev.academeet.model.User;
-import com.appdev.academeet.repository.RoleRepository;
 import com.appdev.academeet.repository.UserRepository;
 
 @Service
@@ -22,8 +20,6 @@ public class AuthService {
     private UserRepository userRepository;
     
     @Autowired
-    private RoleRepository roleRepository;
-    
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     
     public AuthResponse signup(SignupRequest request) {
@@ -60,15 +56,6 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setProgram(request.getProgram());
         user.setYearLevel(request.getYearLevel());
-        
-        // Assign default STUDENT role
-        Role studentRole = roleRepository.findByName("STUDENT")
-            .orElseGet(() -> {
-                Role newRole = new Role("STUDENT", "Default student role");
-                return roleRepository.save(newRole);
-            });
-        
-        user.addRole(studentRole);
         
         User savedUser = userRepository.save(user);
         

@@ -6,15 +6,13 @@ const CreateSessionPage = () => {
 
   const [sessionData, setSessionData] = useState({
     title: "",
-    host: "",
     month: "",
     day: "",
     year: "",
     startTime: "",
     endTime: "",
     location: "",
-    additionalNotes: "",
-    description: "",
+    description: ""
   });
 
   const handleChange = (e) => {
@@ -24,22 +22,21 @@ const CreateSessionPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const userId = 1; // Replace with actual user ID as needed
     try {
-      const res = await fetch("http://localhost:8080/api/sessions/create", {
+      const res = await fetch(`http://localhost:8080/api/sessions/create?userId=${userId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(sessionData),
+        body: JSON.stringify(sessionData)
       });
 
       if (!res.ok) throw new Error("Failed to create session");
-      alert("Session created successfully!");
 
       const createdSession = await res.json();
       console.log("Session created:", createdSession);
-
-      navigate("/profile");
+      alert("Session created successfully!");
     } catch (error) {
-      console.error("Error:", error);
+      console.error(error);
       alert("Error creating session.");
     }
   };
@@ -121,18 +118,6 @@ const CreateSessionPage = () => {
           <div className="bg-[#1a1a1a] rounded-2xl p-6">
             <h3 className="text-white font-bold text-xl mb-6">Details</h3>
 
-            {/* Host */}
-            <div className="mb-6">
-              <input
-                type="text"
-                name="host"
-                value={sessionData.host}
-                onChange={handleChange}
-                placeholder="Host Name"
-                className="w-full px-3 py-2 bg-[#2a2a2a] border border-gray-700 rounded-lg text-gray-300 text-sm"
-              />
-            </div>
-
             {/* Date */}
             <div className="mb-6">
               <div className="flex gap-2">
@@ -210,20 +195,6 @@ const CreateSessionPage = () => {
               />
             </div>
 
-            {/* Notes */}
-            <div>
-              <label className="text-white text-sm font-semibold mb-3 block">
-                Additional Notes:
-              </label>
-              <textarea
-                name="additionalNotes"
-                value={sessionData.additionalNotes}
-                onChange={handleChange}
-                placeholder="Write notes here..."
-                rows="4"
-                className="w-full px-3 py-2 bg-[#2a2a2a] border border-gray-700 rounded-lg text-gray-300 text-sm resize-none"
-              />
-            </div>
           </div>
 
           {/* RIGHT PANEL */}
