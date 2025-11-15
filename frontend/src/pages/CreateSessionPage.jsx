@@ -5,6 +5,7 @@ import { createSession } from '../services/sessionService';
 const CreateSessionPage = () => {
   const navigate = useNavigate();
   const textareaRef = useRef(null);
+
   const [userData, setUserData] = useState({ name: 'Zander Aligato' });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +29,7 @@ const CreateSessionPage = () => {
     const studentData = localStorage.getItem('student');
     if (studentData) {
       const student = JSON.parse(studentData);
-      const userName = student.name || 'Zander Aligato';
+      const userName = student.name || 'Zander Aligato'; //fallback host
       setUserData({ name: userName });
       setSessionData(prev => ({
         ...prev,
