@@ -50,7 +50,15 @@ public class Session {
     )
     private Set<User> participants = new HashSet<>();
 
-    // --- Timestamps ---
+    // Relationship to Tags
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinTable(
+        name = "session_tags",
+        joinColumns = @JoinColumn(name = "session_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags = new HashSet<>();
+
 
     @PrePersist
     protected void onCreate() {
@@ -63,12 +71,9 @@ public class Session {
         updatedAt = LocalDateTime.now();
     }
 
-    // --- Constructors ---
     public Session() {}
 
-    // ======================
-    // Getters
-    // ======================
+    // --- Getters ---
     public Long getId() { return id; }
     public String getTitle() { return title; }
     public String getDescription() { return description; }
@@ -80,10 +85,9 @@ public class Session {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public User getHost() { return host; }
     public Set<User> getParticipants() { return participants; }
+    public Set<Tag> getTags() { return tags; }
 
-    // ======================
-    // Setters
-    // ======================
+    // --- Setters ---
     public void setId(Long id) { this.id = id; }
     public void setTitle(String title) { this.title = title; }
     public void setDescription(String description) { this.description = description; }
@@ -94,5 +98,6 @@ public class Session {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     public void setHost(User host) { this.host = host; }
-    public void setParticipants(Set<User> participants) { this.participants = participants; }
+    public void setParticipants(Set<User> participants) { this.participants = participants; }    
+    public void setTags(Set<Tag> tags) { this.tags = tags; }
 }
