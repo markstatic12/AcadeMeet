@@ -1,6 +1,7 @@
 package com.appdev.academeet.repository;
 
-import com.appdev.academeet.model.File;
+// UPDATED: Import FileEntity
+import com.appdev.academeet.model.FileEntity; 
 import com.appdev.academeet.model.Session;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,19 +11,26 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface FileRepository extends JpaRepository<File, Integer> {
+// UPDATED: Renamed to FileEntity
+public interface FileRepository extends JpaRepository<FileEntity, Integer> { 
     
-    List<File> findBySession(Session session);
+    // UPDATED: Returns List<FileEntity>
+    List<FileEntity> findBySession(Session session);
     
-    List<File> findBySessionSessionId(Integer sessionId);
+    // UPDATED: Correct JPA query by convention (session.id) and correct type (Long)
+    List<FileEntity> findBySessionId(Long sessionId); 
     
-    List<File> findByNameContainingIgnoreCase(String name);
+    // UPDATED: Returns List<FileEntity>
+    List<FileEntity> findByNameContainingIgnoreCase(String name);
     
-    List<File> findByUploadDate(LocalDate uploadDate);
+    // UPDATED: Returns List<FileEntity>
+    List<FileEntity> findByUploadDate(LocalDate uploadDate);
     
-    @Query("SELECT f FROM File f WHERE f.session.sessionId = ?1 ORDER BY f.uploadDate DESC")
-    List<File> findBySessionIdOrderByUploadDateDesc(Integer sessionId);
+    // UPDATED: Query now uses FileEntity and f.session.id, parameter is Long
+    @Query("SELECT f FROM FileEntity f WHERE f.session.id = ?1 ORDER BY f.uploadDate DESC")
+    List<FileEntity> findBySessionIdOrderByUploadDateDesc(Long sessionId);
     
-    @Query("SELECT f FROM File f WHERE f.size > ?1")
-    List<File> findFilesLargerThan(Double size);
+    // UPDATED: Query now uses FileEntity
+    @Query("SELECT f FROM FileEntity f WHERE f.size > ?1")
+    List<FileEntity> findFilesLargerThan(Double size);
 }

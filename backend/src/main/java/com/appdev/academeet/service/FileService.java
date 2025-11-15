@@ -1,6 +1,7 @@
 package com.appdev.academeet.service;
 
-import com.appdev.academeet.model.File;
+// UPDATED: Import FileEntity
+import com.appdev.academeet.model.FileEntity;
 import com.appdev.academeet.model.Session;
 import com.appdev.academeet.repository.FileRepository;
 import com.appdev.academeet.repository.SessionRepository;
@@ -21,11 +22,13 @@ public class FileService {
     private SessionRepository sessionRepository;
     
     // Create
-    public File uploadFile(File file) {
+    // UPDATED: Parameter and return type are FileEntity
+    public FileEntity uploadFile(FileEntity file) {
         // Validate session exists
-        if (file.getSession() != null && file.getSession().getSessionId() != null) {
-            Session session = sessionRepository.findById(file.getSession().getSessionId())
-                .orElseThrow(() -> new RuntimeException("Session not found with id: " + file.getSession().getSessionId()));
+        // UPDATED: Use file.getSession().getId() and Long type
+        if (file.getSession() != null && file.getSession().getId() != null) {
+            Session session = sessionRepository.findById(file.getSession().getId())
+                    .orElseThrow(() -> new RuntimeException("Session not found with id: " + file.getSession().getId()));
             file.setSession(session);
         }
         
@@ -33,38 +36,46 @@ public class FileService {
     }
     
     // Read
-    public List<File> getAllFiles() {
+    // UPDATED: Return type is List<FileEntity>
+    public List<FileEntity> getAllFiles() {
         return fileRepository.findAll();
     }
     
-    public Optional<File> getFileById(Integer id) {
+    // UPDATED: Return type is Optional<FileEntity>
+    public Optional<FileEntity> getFileById(Integer id) {
         return fileRepository.findById(id);
     }
     
-    public List<File> getFilesBySession(Session session) {
+    // UPDATED: Return type is List<FileEntity>
+    public List<FileEntity> getFilesBySession(Session session) {
         return fileRepository.findBySession(session);
     }
     
-    public List<File> getFilesBySessionId(Integer sessionId) {
+    // UPDATED: Parameter is Long
+    public List<FileEntity> getFilesBySessionId(Long sessionId) {
         return fileRepository.findBySessionIdOrderByUploadDateDesc(sessionId);
     }
     
-    public List<File> searchFilesByName(String name) {
+    // UPDATED: Return type is List<FileEntity>
+    public List<FileEntity> searchFilesByName(String name) {
         return fileRepository.findByNameContainingIgnoreCase(name);
     }
     
-    public List<File> getFilesByUploadDate(LocalDate uploadDate) {
+    // UPDATED: Return type is List<FileEntity>
+    public List<FileEntity> getFilesByUploadDate(LocalDate uploadDate) {
         return fileRepository.findByUploadDate(uploadDate);
     }
     
-    public List<File> getFilesLargerThan(Double size) {
+    // UPDATED: Return type is List<FileEntity>
+    public List<FileEntity> getFilesLargerThan(Double size) {
         return fileRepository.findFilesLargerThan(size);
     }
     
     // Update
-    public File updateFile(Integer id, File fileDetails) {
-        File file = fileRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("File not found with id: " + id));
+    // UPDATED: Parameter and return type are FileEntity
+    public FileEntity updateFile(Integer id, FileEntity fileDetails) {
+        FileEntity file = fileRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("File not found with id: " + id));
         
         file.setName(fileDetails.getName());
         file.setContent(fileDetails.getContent());
@@ -72,9 +83,10 @@ public class FileService {
         file.setUploadDate(fileDetails.getUploadDate());
         
         // Update session if provided
-        if (fileDetails.getSession() != null && fileDetails.getSession().getSessionId() != null) {
-            Session session = sessionRepository.findById(fileDetails.getSession().getSessionId())
-                .orElseThrow(() -> new RuntimeException("Session not found with id: " + fileDetails.getSession().getSessionId()));
+        // UPDATED: Use fileDetails.getSession().getId() and Long type
+        if (fileDetails.getSession() != null && fileDetails.getSession().getId() != null) {
+            Session session = sessionRepository.findById(fileDetails.getSession().getId())
+                    .orElseThrow(() -> new RuntimeException("Session not found with id: " + fileDetails.getSession().getId()));
             file.setSession(session);
         }
         
@@ -83,14 +95,16 @@ public class FileService {
     
     // Delete
     public void deleteFile(Integer id) {
-        File file = fileRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("File not found with id: " + id));
+        // UPDATED: Use FileEntity
+        FileEntity file = fileRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("File not found with id: " + id));
         fileRepository.delete(file);
     }
     
     // Delete all files by session
-    public void deleteFilesBySessionId(Integer sessionId) {
-        List<File> files = fileRepository.findBySessionSessionId(sessionId);
+    // UPDATED: Parameter is Long, uses correct repository method
+    public void deleteFilesBySessionId(Long sessionId) {
+        List<FileEntity> files = fileRepository.findBySessionId(sessionId);
         fileRepository.deleteAll(files);
     }
 }

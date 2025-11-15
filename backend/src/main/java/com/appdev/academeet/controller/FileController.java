@@ -1,6 +1,7 @@
 package com.appdev.academeet.controller;
 
-import com.appdev.academeet.model.File;
+// UPDATED: Import FileEntity
+import com.appdev.academeet.model.FileEntity;
 import com.appdev.academeet.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,10 +22,11 @@ public class FileController {
     private FileService fileService;
     
     // Upload file
+    // UPDATED: Uses FileEntity
     @PostMapping
-    public ResponseEntity<?> uploadFile(@RequestBody File file) {
+    public ResponseEntity<?> uploadFile(@RequestBody FileEntity file) {
         try {
-            File uploadedFile = fileService.uploadFile(file);
+            FileEntity uploadedFile = fileService.uploadFile(file);
             return ResponseEntity.status(HttpStatus.CREATED).body(uploadedFile);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -32,16 +34,18 @@ public class FileController {
     }
     
     // Get all files
+    // UPDATED: Returns List<FileEntity>
     @GetMapping
-    public ResponseEntity<List<File>> getAllFiles() {
-        List<File> files = fileService.getAllFiles();
+    public ResponseEntity<List<FileEntity>> getAllFiles() {
+        List<FileEntity> files = fileService.getAllFiles();
         return ResponseEntity.ok(files);
     }
     
     // Get by ID
     @GetMapping("/{id}")
     public ResponseEntity<?> getFileById(@PathVariable Integer id) {
-        Optional<File> file = fileService.getFileById(id);
+        // UPDATED: Uses FileEntity
+        Optional<FileEntity> file = fileService.getFileById(id);
         if (file.isPresent()) {
             return ResponseEntity.ok(file.get());
         }
@@ -49,39 +53,44 @@ public class FileController {
     }
     
     // Get by session ID
+    // UPDATED: Parameter is Long
     @GetMapping("/session/{sessionId}")
-    public ResponseEntity<List<File>> getFilesBySessionId(@PathVariable Integer sessionId) {
-        List<File> files = fileService.getFilesBySessionId(sessionId);
+    public ResponseEntity<List<FileEntity>> getFilesBySessionId(@PathVariable Long sessionId) {
+        List<FileEntity> files = fileService.getFilesBySessionId(sessionId);
         return ResponseEntity.ok(files);
     }
     
     // Search by name
+    // UPDATED: Returns List<FileEntity>
     @GetMapping("/search")
-    public ResponseEntity<List<File>> searchFilesByName(@RequestParam String name) {
-        List<File> files = fileService.searchFilesByName(name);
+    public ResponseEntity<List<FileEntity>> searchFilesByName(@RequestParam String name) {
+        List<FileEntity> files = fileService.searchFilesByName(name);
         return ResponseEntity.ok(files);
     }
     
     // Get by upload date
+    // UPDATED: Returns List<FileEntity>
     @GetMapping("/date/{uploadDate}")
-    public ResponseEntity<List<File>> getFilesByUploadDate(
+    public ResponseEntity<List<FileEntity>> getFilesByUploadDate(
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate uploadDate) {
-        List<File> files = fileService.getFilesByUploadDate(uploadDate);
+        List<FileEntity> files = fileService.getFilesByUploadDate(uploadDate);
         return ResponseEntity.ok(files);
     }
     
     // Get files larger than size
+    // UPDATED: Returns List<FileEntity>
     @GetMapping("/size")
-    public ResponseEntity<List<File>> getFilesLargerThan(@RequestParam Double size) {
-        List<File> files = fileService.getFilesLargerThan(size);
+    public ResponseEntity<List<FileEntity>> getFilesLargerThan(@RequestParam Double size) {
+        List<FileEntity> files = fileService.getFilesLargerThan(size);
         return ResponseEntity.ok(files);
     }
     
     // Update file
+    // UPDATED: Uses FileEntity
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateFile(@PathVariable Integer id, @RequestBody File file) {
+    public ResponseEntity<?> updateFile(@PathVariable Integer id, @RequestBody FileEntity file) {
         try {
-            File updatedFile = fileService.updateFile(id, file);
+            FileEntity updatedFile = fileService.updateFile(id, file);
             return ResponseEntity.ok(updatedFile);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -100,8 +109,9 @@ public class FileController {
     }
     
     // Delete all files by session
+    // UPDATED: Parameter is Long
     @DeleteMapping("/session/{sessionId}")
-    public ResponseEntity<?> deleteFilesBySessionId(@PathVariable Integer sessionId) {
+    public ResponseEntity<?> deleteFilesBySessionId(@PathVariable Long sessionId) {
         try {
             fileService.deleteFilesBySessionId(sessionId);
             return ResponseEntity.ok("All files for session deleted successfully");
