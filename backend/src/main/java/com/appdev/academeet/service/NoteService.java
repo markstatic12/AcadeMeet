@@ -22,9 +22,10 @@ public class NoteService {
     // Create
     public Note createNote(Note note) {
         // Validate session exists
-        if (note.getSession() != null && note.getSession().getSessionId() != null) {
-            Session session = sessionRepository.findById(note.getSession().getSessionId())
-                .orElseThrow(() -> new RuntimeException("Session not found with id: " + note.getSession().getSessionId()));
+        // UPDATED: Call getId() which returns Long
+        if (note.getSession() != null && note.getSession().getId() != null) {
+            Session session = sessionRepository.findById(note.getSession().getId())
+                    .orElseThrow(() -> new RuntimeException("Session not found with id: " + note.getSession().getId()));
             note.setSession(session);
         }
         
@@ -44,7 +45,8 @@ public class NoteService {
         return noteRepository.findBySession(session);
     }
     
-    public List<Note> getNotesBySessionId(Integer sessionId) {
+    // UPDATED: Parameter is Long
+    public List<Note> getNotesBySessionId(Long sessionId) {
         return noteRepository.findBySessionIdOrderByUploadedDateDesc(sessionId);
     }
     
@@ -67,18 +69,31 @@ public class NoteService {
     // Update
     public Note updateNote(Integer id, Note noteDetails) {
         Note note = noteRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Note not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Note not found with id: " + id));
         
+        // UPDATED: Set all fields from the model
         note.setTitle(noteDetails.getTitle());
         note.setContent(noteDetails.getContent());
         note.setFileType(noteDetails.getFileType());
         note.setUploadedDate(noteDetails.getUploadedDate());
         note.setHasPromotion(noteDetails.getHasPromotion());
         
+        // Add new fields
+        note.setNoteType(noteDetails.getNoteType());
+        note.setFileUrl(noteDetails.getFileUrl());
+        note.setFileName(noteDetails.getFileName());
+        note.setFileSize(noteDetails.getFileSize());
+Services.c/
+        note.setIsPublic(noteDetails.getIsPublic());
+        note.setIsDownloadable(noteDetails.getIsDownloadable());
+        note.setViewsCount(noteDetails.getViewsCount());
+        note.setDownloadsCount(noteDetails.getDownloadsCount());
+        
         // Update session if provided
-        if (noteDetails.getSession() != null && noteDetails.getSession().getSessionId() != null) {
-            Session session = sessionRepository.findById(noteDetails.getSession().getSessionId())
-                .orElseThrow(() -> new RuntimeException("Session not found with id: " + noteDetails.getSession().getSessionId()));
+        // UPDATED: Call getId() which returns Long
+        if (noteDetails.getSession() != null && noteDetails.getSession().getId() != null) {
+            Session session = sessionRepository.findById(noteDetails.getSession().getId())
+                    .orElseThrow(() -> new RuntimeException("Session not found with id: " + noteDetails.getSession().getId()));
             note.setSession(session);
         }
         
@@ -88,28 +103,30 @@ public class NoteService {
     // Delete
     public void deleteNote(Integer id) {
         Note note = noteRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Note not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Note not found with id: " + id));
         noteRepository.delete(note);
     }
     
     // Promote/Unpromote note
     public Note promoteNote(Integer id) {
         Note note = noteRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Note not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Note not found with id: " + id));
         note.setHasPromotion(true);
         return noteRepository.save(note);
     }
     
     public Note unpromoteNote(Integer id) {
         Note note = noteRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Note not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Note not found with id: " + id));
         note.setHasPromotion(false);
         return noteRepository.save(note);
     }
     
     // Delete all notes by session
-    public void deleteNotesBySessionId(Integer sessionId) {
-        List<Note> notes = noteRepository.findBySessionSessionId(sessionId);
+    // UPDATED: Parameter is Long
+    public void deleteNotesBySessionId(Long sessionId) {
+        // UPDATED: Use correct repository method
+        List<Note> notes = noteRepository.findBySessionId(sessionId);
         noteRepository.deleteAll(notes);
     }
 }

@@ -2,9 +2,7 @@ package com.appdev.academeet.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,7 +16,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "notes") // All files related to notes are Camoro's work
+@Table(name = "notes") 
 public class Note {
     
     @Id
@@ -35,9 +33,8 @@ public class Note {
     @Column(name = "file_type")
     private String fileType;
     
-    // New fields for enhanced note functionality
     @Column(name = "note_type", length = 20)
-    private String noteType = "TEXT"; // TEXT or FILE
+    private String noteType = "TEXT"; 
     
     @Column(name = "file_url", length = 1000)
     private String fileUrl;
@@ -46,7 +43,7 @@ public class Note {
     private String fileName;
     
     @Column(name = "file_size")
-    private Long fileSize; // in bytes
+    private Long fileSize; 
     
     @Column(name = "is_public")
     private Boolean isPublic = false;
@@ -78,8 +75,7 @@ public class Note {
     private LocalDateTime updatedAt;
     
     // Constructors
-    public Note() {
-    }
+    public Note() {}
     
     public Note(Integer noteId, String title, String content, String fileType) {
         this.noteId = noteId;
@@ -103,144 +99,58 @@ public class Note {
         updatedAt = LocalDateTime.now();
     }
     
-    // Getters and Setters
-    public Integer getNoteId() {
-        return noteId;
-    }
-    
-    public void setNoteId(Integer noteId) {
-        this.noteId = noteId;
-    }
-    
-    public String getTitle() {
-        return title;
-    }
-    
-    public void setTitle(String title) {
-        this.title = title;
-    }
-    
-    public String getContent() {
-        return content;
-    }
-    
-    public void setContent(String content) {
-        this.content = content;
-    }
-    
-    public String getFileType() {
-        return fileType;
-    }
-    
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
-    }
-    
-    public Session getSession() {
-        return session;
-    }
-    
-    public void setSession(Session session) {
-        this.session = session;
-    }
-    
-    public LocalDate getUploadedDate() {
-        return uploadedDate;
-    }
-    
-    public void setUploadedDate(LocalDate uploadedDate) {
-        this.uploadedDate = uploadedDate;
-    }
-    
-    public Boolean getHasPromotion() {
-        return hasPromotion;
-    }
-    
-    public void setHasPromotion(Boolean hasPromotion) {
-        this.hasPromotion = hasPromotion;
-    }
-    
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-    
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-    
-    // New fields getters and setters
-    public String getNoteType() {
-        return noteType;
-    }
-    
-    public void setNoteType(String noteType) {
-        this.noteType = noteType;
-    }
-    
-    public String getFileUrl() {
-        return fileUrl;
-    }
-    
-    public void setFileUrl(String fileUrl) {
-        this.fileUrl = fileUrl;
-    }
-    
-    public String getFileName() {
-        return fileName;
-    }
-    
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-    
-    public Long getFileSize() {
-        return fileSize;
-    }
-    
-    public void setFileSize(Long fileSize) {
-        this.fileSize = fileSize;
-    }
-    
-    public Boolean getIsPublic() {
-        return isPublic;
-    }
-    
-    public void setIsPublic(Boolean isPublic) {
-        this.isPublic = isPublic;
-    }
-    
-    public Boolean getIsDownloadable() {
-        return isDownloadable;
-    }
-    
-    public void setIsDownloadable(Boolean isDownloadable) {
-        this.isDownloadable = isDownloadable;
-    }
-    
-    public Integer getViewsCount() {
-        return viewsCount;
-    }
-    
-    public void setViewsCount(Integer viewsCount) {
-        this.viewsCount = viewsCount;
-    }
-    
-    public Integer getDownloadsCount() {
-        return downloadsCount;
-    }
-    
-    public void setDownloadsCount(Integer downloadsCount) {
-        this.downloadsCount = downloadsCount;
-    }
-    
+    // --- UPDATED: All Getters and Setters as one-liners ---
+    public Integer getNoteId() { return noteId; }
+    public void setNoteId(Integer noteId) { this.noteId = noteId; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
+
+    public String getFileType() { return fileType; }
+    public void setFileType(String fileType) { this.fileType = fileType; }
+
+    public String getNoteType() { return noteType; }
+    public void setNoteType(String noteType) { this.noteType = noteType; }
+
+    public String getFileUrl() { return fileUrl; }
+    public void setFileUrl(String fileUrl) { this.fileUrl = fileUrl; }
+
+    public String getFileName() { return fileName; }
+    public void setFileName(String fileName) { this.fileName = fileName; }
+
+    public Long getFileSize() { return fileSize; }
+    public void setFileSize(Long fileSize) { this.fileSize = fileSize; }
+
+    public Boolean getIsPublic() { return isPublic; }
+    public void setIsPublic(Boolean isPublic) { this.isPublic = isPublic; }
+
+    public Boolean getIsDownloadable() { return isDownloadable; }
+    public void setIsDownloadable(Boolean isDownloadable) { this.isDownloadable = isDownloadable; }
+
+    public Integer getViewsCount() { return viewsCount; }
+    public void setViewsCount(Integer viewsCount) { this.viewsCount = viewsCount; }
+
+    public Integer getDownloadsCount() { return downloadsCount; }
+    public void setDownloadsCount(Integer downloadsCount) { this.downloadsCount = downloadsCount; }
+
+    public Session getSession() { return session; }
+    public void setSession(Session session) { this.session = session; }
+
+    public LocalDate getUploadedDate() { return uploadedDate; }
+    public void setUploadedDate(LocalDate uploadedDate) { this.uploadedDate = uploadedDate; }
+
+    public Boolean getHasPromotion() { return hasPromotion; }
+    public void setHasPromotion(Boolean hasPromotion) { this.hasPromotion = hasPromotion; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
     // Helper methods
     public void incrementViews() {
         if (this.viewsCount == null) {

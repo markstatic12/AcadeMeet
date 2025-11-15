@@ -47,8 +47,9 @@ public class NoteController {
     }
     
     // Get by session ID
+    // UPDATED: Parameter is Long
     @GetMapping("/session/{sessionId}")
-    public ResponseEntity<List<Note>> getNotesBySessionId(@PathVariable Integer sessionId) {
+    public ResponseEntity<List<Note>> getNotesBySessionId(@PathVariable Long sessionId) {
         List<Note> notes = noteService.getNotesBySessionId(sessionId);
         return ResponseEntity.ok(notes);
     }
@@ -103,7 +104,7 @@ public class NoteController {
             Note note = noteService.promoteNote(id);
             return ResponseEntity.ok(note);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());.
         }
     }
     
@@ -119,8 +120,9 @@ public class NoteController {
     }
     
     // Delete all notes by session
+    // UPDATED: Parameter is Long
     @DeleteMapping("/session/{sessionId}")
-    public ResponseEntity<?> deleteNotesBySessionId(@PathVariable Integer sessionId) {
+    public ResponseEntity<?> deleteNotesBySessionId(@PathVariable Long sessionId) {
         try {
             noteService.deleteNotesBySessionId(sessionId);
             return ResponseEntity.ok("All notes for session deleted successfully");

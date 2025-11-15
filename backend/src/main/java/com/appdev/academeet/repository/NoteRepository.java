@@ -13,7 +13,8 @@ public interface NoteRepository extends JpaRepository<Note, Integer> {
     
     List<Note> findBySession(Session session);
     
-    List<Note> findBySessionSessionId(Integer sessionId);
+    // UPDATED: Correct JPA convention and data type
+    List<Note> findBySessionId(Long sessionId);
     
     List<Note> findByTitleContainingIgnoreCase(String title);
     
@@ -21,8 +22,9 @@ public interface NoteRepository extends JpaRepository<Note, Integer> {
     
     List<Note> findByHasPromotion(Boolean hasPromotion);
     
-    @Query("SELECT n FROM Note n WHERE n.session.sessionId = ?1 ORDER BY n.uploadedDate DESC")
-    List<Note> findBySessionIdOrderByUploadedDateDesc(Integer sessionId);
+    // UPDATED: Query path is n.session.id and parameter is Long
+    @Query("SELECT n FROM Note n WHERE n.session.id = ?1 ORDER BY n.uploadedDate DESC")
+    List<Note> findBySessionIdOrderByUploadedDateDesc(Long sessionId);
     
     @Query("SELECT n FROM Note n WHERE n.hasPromotion = true ORDER BY n.uploadedDate DESC")
     List<Note> findPromotedNotes();
