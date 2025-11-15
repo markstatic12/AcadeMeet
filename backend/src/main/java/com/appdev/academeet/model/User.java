@@ -49,6 +49,7 @@ public class User {
     @Column(length = 200)
     private String school;
     
+    //SCHOOL ID
     @Column(name = "student_id", length = 50)
     private String studentId;
     

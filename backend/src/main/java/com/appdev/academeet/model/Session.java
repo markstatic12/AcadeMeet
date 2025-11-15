@@ -15,8 +15,8 @@ public class Session {
     private String title;
     private String host;
 
-    @Column(name = "creator_user_id")
-    private Long creatorId;
+    @Column(name = "host_id_fk") // HOST ID NOT CONNECTED TO USER TABLE
+    private Long hostId;
 
     private String month;
     private String day;
@@ -24,6 +24,7 @@ public class Session {
 
     @JsonFormat(pattern = "HH:mm")
     private LocalTime startTime;
+
     @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
 
@@ -35,53 +36,31 @@ public class Session {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    // --- GETTERS & SETTERS ---
-
+    // --- GETTERS ---
     public Long getId() { return id; }
-
-    public void setId(Long id) { this.id = id; }
-    
-    public Long getCreatorId() { return creatorId; }
-    
-    public void setCreatorId(Long creatorId) { this.creatorId = creatorId; }
-
     public String getTitle() { return title; }
-
-    public void setTitle(String title) { this.title = title; }
-
     public String getHost() { return host; }
-
-    public void setHost(String host) { this.host = host; }
-
+    public Long getHostId() { return hostId; }
     public String getMonth() { return month; }
-
-    public void setMonth(String month) { this.month = month; }
-
     public String getDay() { return day; }
-
-    public void setDay(String day) { this.day = day; }
-
     public String getYear() { return year; }
-
-    public void setYear(String year) { this.year = year; }
-
     public LocalTime getStartTime() { return startTime; }
-
-    public void setStartTime(LocalTime startTime) { this.startTime = startTime; }
-
     public LocalTime getEndTime() { return endTime; }
-
-    public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
-
     public String getLocation() { return location; }
-
-    public void setLocation(String location) { this.location = location; }
-
     public String getAdditionalNotes() { return additionalNotes; }
-
-    public void setAdditionalNotes(String additionalNotes) { this.additionalNotes = additionalNotes; }
-
     public String getDescription() { return description; }
 
+    // --- SETTERS ---
+    public void setId(Long id) { this.id = id; }
+    public void setTitle(String title) { this.title = title; }
+    public void setHost(String host) { this.host = host; }
+    public void setHostId(Long hostId) { this.hostId = hostId; }
+    public void setMonth(String month) { this.month = month; }
+    public void setDay(String day) { this.day = day; }
+    public void setYear(String year) { this.year = year; }
+    public void setStartTime(LocalTime startTime) { this.startTime = startTime; }
+    public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
+    public void setLocation(String location) { this.location = location; }
+    public void setAdditionalNotes(String additionalNotes) { this.additionalNotes = additionalNotes; }
     public void setDescription(String description) { this.description = description; }
 }
