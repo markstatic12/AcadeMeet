@@ -20,7 +20,6 @@ import java.util.Optional;
 
 @Service
 public class SessionService {
-
     @Autowired
     private SessionRepository sessionRepository;
 
@@ -32,7 +31,7 @@ public class SessionService {
         // 1. Find the Host User
         // Note: Finding by name is not ideal. A real app would use the host's ID
         // from the security token. We may need to add findByName to UserRepository.
-        Optional<User> hostOptional = userRepository.findByEmail(request.getHost()); // Assuming host is an email for now
+        Optional<User> hostOptional = userRepository.findByName(request.getHost());
         
         // --- This is a TEMPORARY fallback ---
         // We'll assume the first user in the DB is the host if the name isn't found
