@@ -8,184 +8,174 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "users")
+@Table(name = "user")
 public class User {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
-    
-    @Column(nullable = false)
-    private String name;
-    
-    @Column(nullable = false, unique = true)
-    private String email;
-    
-    @Column(nullable = false)
-    private String password;
-    
-    @Column(nullable = false)
-    private String program;
-    
-    @Column(name = "year_level", nullable = false)
-    private Integer yearLevel;
-    
-    @Column(name = "profile_pic", length = 500)
-    private String profilePic;
 
-    @Column(name = "cover_image", length = 1000)
-    private String coverImage;
-    
-    @Column(length = 200)
-    private String school;
-    
-    //SCHOOL ID
-    @Column(name = "student_id", length = 50)
-    private String studentId;
-    
-    @Column(length = 1000)
+    @Column(name = "full_name", nullable = false, length = 125)
+    private String name;
+
+    @Column(length = 45)
+    private String program;
+
+    @Column(name = "year_level")
+    private Integer yearLevel;
+
+    // Maps to SQL column school_id
+    @Column(name = "school_id", length = 45)
+    private String school; 
+
+    @Column(name = "phone_number", length = 45)
+    private String phoneNumber;
+
+    @Column(nullable = false, unique = true, length = 125)
+    private String email;
+
+    // !!! CRUCIAL CHANGE: Mapping 'password' field to SQL column 'password_hash'
+    // This enforces the security convention used in your SQL schema.
+    @Column(name = "password_hash", nullable = false, length = 255)
+    private String password;
+
+    @Column(length = 500)
     private String bio;
-    
+
+    @Column(name = "profile_image_url", length = 255)
+    private String profileImageUrl;
+
+    @Column(name = "cover_image_url", length = 255)
+    private String coverImageUrl;
+
+    // Using @ColumnDefinition is generally unnecessary when using @PrePersist 
+    // unless you rely on the DB default. Keeping it clean with standard settings.
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-    
+
+    // --- Lifecycle Callbacks ---
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        // Sets the timestamp in the Java object right before persistence
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
     }
-    
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-    
-    // Constructors
+
+    // --- Constructors ---
     public User() {
     }
-    
+
     public User(String name, String email, String password, String program, Integer yearLevel) {
         this.name = name;
         this.email = email;
-        this.password = password;
+        this.password = password; // This will hold the HASHED password value
         this.program = program;
         this.yearLevel = yearLevel;
     }
 
-    // Getters and Setters
+    // --- Getters and Setters ---
     public Long getId() {
         return id;
     }
-    
-    
+
     public void setId(Long id) {
         this.id = id;
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
-    
-    public String getEmail() {
-        return email;
-    }
-    
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    
-    public String getPassword() {
-        return password;
-    }
-    
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    
+
     public String getProgram() {
         return program;
     }
-    
+
     public void setProgram(String program) {
         this.program = program;
     }
-    
+
     public Integer getYearLevel() {
         return yearLevel;
     }
-    
+
     public void setYearLevel(Integer yearLevel) {
         this.yearLevel = yearLevel;
     }
-    
-    public String getProfilePic() {
-        return profilePic;
-    }
-    
-    public void setProfilePic(String profilePic) {
-        this.profilePic = profilePic;
-    }
 
-    public String getCoverImage() {
-        return coverImage;
-    }
-
-    public void setCoverImage(String coverImage) {
-        this.coverImage = coverImage;
-    }
-    
     public String getSchool() {
         return school;
     }
-    
+
     public void setSchool(String school) {
         this.school = school;
     }
-    
-    public String getStudentId() {
-        return studentId;
+
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
-    
-    public void setStudentId(String studentId) {
-        this.studentId = studentId;
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
-    
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    // Getter/Setter for password (which maps to password_hash column)
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getBio() {
         return bio;
     }
-    
+
     public void setBio(String bio) {
         this.bio = bio;
     }
-    
-    
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public String getCoverImageUrl() {
+        return coverImageUrl;
+    }
+
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-    
+
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-    
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-    
+
     @Override
     public String toString() {
         return "User{" +
@@ -194,9 +184,7 @@ public class User {
                 ", email='" + email + '\'' +
                 ", program='" + program + '\'' +
                 ", yearLevel=" + yearLevel +
-                ", profilePic='" + profilePic + '\'' +
                 ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
                 '}';
     }
 }

@@ -26,15 +26,11 @@ public class UserController {
     @Autowired
     private UserService userService;
     
-    /**
-     * Get user profile by ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserProfile(@PathVariable Long id) {
         try {
             User user = userService.getUserById(id);
             
-            // Create response without password
             Map<String, Object> response = new HashMap<>();
             response.put("id", user.getId());
             response.put("name", user.getName());
@@ -42,9 +38,9 @@ public class UserController {
             response.put("program", user.getProgram());
             response.put("yearLevel", user.getYearLevel());
             response.put("school", user.getSchool());
-            response.put("studentId", user.getStudentId());
+            response.put("studentId", null);
             response.put("bio", user.getBio());
-            response.put("profilePic", user.getProfilePic());
+            response.put("profilePic", user.getProfileImageUrl());
             response.put("createdAt", user.getCreatedAt());
             response.put("followers", 0); // TODO: Implement followers feature
             response.put("following", 0); // TODO: Implement following feature
@@ -56,35 +52,28 @@ public class UserController {
         }
     }
     
-    /**
-     * Update user profile
-     */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUserProfile(
             @PathVariable Long id,
             @RequestBody UpdateProfileRequest request) {
         try {
-            // Get existing user
             User user = userService.getUserById(id);
             
-            // Update fields
             if (request.getName() != null && !request.getName().trim().isEmpty()) {
                 user.setName(request.getName().trim());
             }
             if (request.getSchool() != null) {
                 user.setSchool(request.getSchool().trim());
             }
-            if (request.getStudentId() != null) {
-                user.setStudentId(request.getStudentId().trim());
-            }
+            // studentId is not part of the SQL-backed User model; ignore if provided
             if (request.getBio() != null) {
                 user.setBio(request.getBio().trim());
             }
             if (request.getProfilePic() != null) {
-                user.setProfilePic(request.getProfilePic());
+                user.setProfileImageUrl(request.getProfilePic());
             }
             if (request.getCoverImage() != null) {
-                user.setCoverImage(request.getCoverImage());
+                user.setCoverImageUrl(request.getCoverImage());
             }
             
             // Save updated user
@@ -98,10 +87,10 @@ public class UserController {
             response.put("program", updatedUser.getProgram());
             response.put("yearLevel", updatedUser.getYearLevel());
             response.put("school", updatedUser.getSchool());
-            response.put("studentId", updatedUser.getStudentId());
+            response.put("studentId", null);
             response.put("bio", updatedUser.getBio());
-            response.put("profilePic", updatedUser.getProfilePic());
-            response.put("coverImage", updatedUser.getCoverImage());
+            response.put("profilePic", updatedUser.getProfileImageUrl());
+            response.put("coverImage", updatedUser.getCoverImageUrl());
             response.put("message", "Profile updated successfully");
             
             return ResponseEntity.ok(response);
