@@ -83,15 +83,21 @@ const NotesPage = () => {
         ) : error ? (
           <div className="text-red-400">{error}</div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-10">
-            {notes.map((note) => (
-              <NoteCard
-                key={note.noteId || note.id}
-                title={note.title}
-                categories={(note.tags || []).map(t => t.name)}
-              />
-            ))}
-          </div>
+          <> 
+            {notes.length === 0 ? (
+              <div className="text-gray-400">No notes found.</div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-10">
+                {notes.map((note) => (
+                  <NoteCard
+                    key={note.noteId || note.id}
+                    title={note.title}
+                    categories={(note.tags || []).map(t => t.name)}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </DashboardLayout>
