@@ -20,7 +20,4 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
     /* Finds notes owned by a user with a specific status (e.g., ARCHIVED or TRASH).
      */
     List<Note> findByOwnerIdAndStatus(Long ownerId, Note.NoteStatus status);
-
-    // Find notes by status across all users (used for public feed)
-    List<Note> findByStatus(Note.NoteStatus status);
 }
