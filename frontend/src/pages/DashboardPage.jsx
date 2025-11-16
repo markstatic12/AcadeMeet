@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
+import { noteService } from '../services/noteService';
+import { Link } from 'react-router-dom';
 
 const DashboardPage = () => {
   const [activeSessionTab, setActiveSessionTab] = useState('available');
@@ -49,15 +51,10 @@ const DashboardPage = () => {
     },
   ];
 
-  const myNotes = [
-    {
-      id: 1,
-      title: 'Introduction to Springboot',
-      date: 'Created on September 11, 2025',
-      icon: '📄',
-      iconBg: 'bg-blue-500',
-    },
-  ];
+  // dynamic notes loaded from backend for the current user
+  const [notes, setNotes] = useState([]);
+  const [notesLoading, setNotesLoading] = useState(false);
+  const [notesError, setNotesError] = useState(null);
 
   // Calendar logic
   const getDaysInMonth = (date) => {
@@ -77,6 +74,37 @@ const DashboardPage = () => {
   const currentMonthNum = new Date().getMonth();
   const isCurrentMonth = currentMonth.getMonth() === currentMonthNum;
 
+  // load user's notes when the Notes tab is active
+  useEffect(() => {
+    let cancelled = false;
+    const loadNotes = async () => {
+      if (activeNotesTab !== 'my') return;
+      setNotesLoading(true);
+      setNotesError(null);
+      try {
+        const data = await noteService.getActiveNotes();
+        if (cancelled) return;
+        const normalized = (Array.isArray(data) ? data : []).map((n) => ({
+          id: n.noteId || n.id || n.note_id || Math.random(),
+          title: n.title || 'Untitled Note',
+          createdAt: n.createdAt || n.created_at || n.createdDate || '',
+          date: n.createdAt ? `Created on ${new Date(n.createdAt).toLocaleDateString()}` : (n.date || ''),
+          icon: '📄',
+          iconBg: 'bg-blue-500',
+        }));
+  setNotes(normalized.length ? normalized : []);
+      } catch (err) {
+  // fallback to empty notes
+  setNotes([]);
+        setNotesError(err.message || 'Failed to load notes');
+      } finally {
+        if (!cancelled) setNotesLoading(false);
+      }
+    };
+
+    loadNotes();
+    return () => { cancelled = true; };
+  }, [activeNotesTab]);
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -229,17 +257,31 @@ const DashboardPage = () => {
               </div>
 
               <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-4 space-y-3">
-                {myNotes.map((note) => (
+                {notesLoading && <p className="text-gray-400 text-sm">Loading notes...</p>}
+                {notesError && <p className="text-red-400 text-sm">{notesError}</p>}
+                {!notesLoading && !notesError && notes.length === 0 && (
+                  <div className="text-center py-4">
+                    <p className="text-gray-400 text-sm mb-2">You haven't created any notes yet.</p>
+                    <Link
+                      to="/create-note"
+                      className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-full text-sm hover:bg-indigo-500"
+                    >
+                      Create a note
+                    </Link>
+                  </div>
+                )}
+
+                {!notesLoading && notes.map((note) => (
                   <div
                     key={note.id}
                     className="flex items-start gap-3 p-3 bg-gray-700/30 rounded-xl hover:bg-gray-700/50 transition-colors cursor-pointer"
                   >
-                    <div className={`${note.iconBg} w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0`}>
-                      {note.icon}
+                    <div className={`${note.iconBg || 'bg-blue-500'} w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0`}>
+                      {note.icon || '📄'}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-white text-sm font-medium mb-1">{note.title}</p>
-                      <p className="text-gray-400 text-xs">{note.date}</p>
+                      <p className="text-gray-400 text-xs">{note.date || note.createdAt || ''}</p>
                     </div>
                   </div>
                 ))}

@@ -28,7 +28,10 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
             .requestMatchers("/api/sessions/**").permitAll()
             .requestMatchers("/api/users/**").permitAll()
             .requestMatchers("/api/tags/**").permitAll()
-            .requestMatchers("/api/notes/**").permitAll()
+            .requestMatchers("/api/notes/public").permitAll()
+
+            // notes endpoints (other than /public) require authentication
+        .requestMatchers("/api/notes/**").authenticated()
 
             // ".anyRequest().authenticated()" MUST be last
             .anyRequest().authenticated() 
