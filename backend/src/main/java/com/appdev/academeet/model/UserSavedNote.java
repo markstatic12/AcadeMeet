@@ -33,6 +33,8 @@ public class UserSavedNote {
     private LocalDateTime savedAt;
 
     // Constructors, Getters, and Setters go here
+    public UserSavedNote() {
+    }
 
     public UserSavedNote(Long id, User user, Note note, LocalDateTime savedAt) {
         this.id = id;
