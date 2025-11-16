@@ -3,7 +3,9 @@ package com.appdev.academeet.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,9 +18,8 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-
- 
 
 @Entity
 @Table(name = "note")
@@ -70,9 +71,10 @@ public class Note {
     )
     private List<Tag> tags = new ArrayList<>();
 
-    // No created_at/updated_at fields in SQL schema for note; only deleted_at is stored
-
-    // Getters and setters
+    // Links to the UserSavedNote table to track who has saved this note
+    @OneToMany(mappedBy = "note", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserSavedNote> savedByUsers; 
+    
     public Long getId() {
         return id;
     }
@@ -144,5 +146,13 @@ public class Note {
 
     public void setTags(List<Tag> tags) {
         this.tags = tags;
+    }
+
+    public Set<UserSavedNote> getSavedByUsers() {
+        return savedByUsers;
+    }
+
+    public void setSavedByUsers(Set<UserSavedNote> savedByUsers) {
+        this.savedByUsers = savedByUsers;
     }
 }
