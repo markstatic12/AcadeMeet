@@ -260,6 +260,7 @@ useEffect(() => {
     navigate('/create-session');
   };
 
+  // Navigae to create note
   const handleCreateNote = (e) => {
     e.stopPropagation();
     e.preventDefault();
@@ -272,6 +273,7 @@ useEffect(() => {
     await refreshFollowLists();
   };
 
+  //  NO BACKEND IMPLEMENTATION YET
   const refreshFollowLists = async () => {
     try{
       if(!userData?.id) return;
@@ -292,6 +294,7 @@ useEffect(() => {
     }
   };
 
+  //  NO BACKEND IMPLEMENTATION YET
   const removeFollower = async (followerId) => {
     if(!userData?.id) return;
     try{
@@ -303,6 +306,7 @@ useEffect(() => {
     }catch(e){ console.error('Remove follower failed', e); }
   };
 
+  //  NO BACKEND IMPLEMENTATION YET
   const unfollowUser = async (followingId) => {
     if(!userData?.id) return;
     try{
