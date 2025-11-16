@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 import Button from '../components/ui/Button';
+import { noteService } from '../services/noteService';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -145,22 +146,54 @@ useEffect(() => {
     return `${h}:${mm} ${ampm}`;
   };
 
-  // Sample notes data
+  // Notes created by this user (prefer backend, fall back to localStorage)
   const [notesData, setNotesData] = useState([]);
   useEffect(() => {
-    try {
-      const storedNotes = JSON.parse(localStorage.getItem('notes') || '[]');
-      setNotesData(storedNotes);
+    let mounted = true;
+
+    const loadNotes = async () => {
+      // If userData.id is available prefer server; otherwise try localStorage
+      try {
+        const serverNotes = await noteService.getActiveNotes();
+        if (!mounted) return;
+        // Normalize server note shape to the app's expected fields
+        const normalized = (Array.isArray(serverNotes) ? serverNotes : []).map(n => ({
+          id: n.id || n.noteId,
+          title: n.title,
+          content: n.content || n.richText || '',
+          createdAt: n.createdAt || n.created_at || new Date().toISOString(),
+          isFavourite: n.isFavourite || false,
+          archivedAt: n.archivedAt || null,
+          deletedAt: n.deletedAt || null
+        }));
+        setNotesData(normalized);
+        // store a copy locally for fallback/offline
+        localStorage.setItem('notes', JSON.stringify(normalized));
+      } catch (err) {
+        console.warn('Failed to load notes from server, falling back to localStorage', err);
+        try {
+          const storedNotes = JSON.parse(localStorage.getItem('notes') || '[]');
+          if (mounted) setNotesData(storedNotes);
+        } catch (e) {
+          console.error('Failed to load notes from localStorage', e);
+        }
+      }
+
       // auto-switch to notes if coming from create-note
       if (sessionStorage.getItem('openNotesTab') === 'true') {
         setActiveTab('notes');
         setNotesView('all'); // ensure default notes screen
         sessionStorage.removeItem('openNotesTab');
       }
-    } catch (e) {
-      console.error('Failed to load notes', e);
+    };
+
+    // Only fetch notes when the notes tab is active to avoid extra calls
+    if (activeTab === 'notes') {
+      loadNotes();
     }
-  }, []);
+
+    return () => { mounted = false; };
+  }, [activeTab]);
 
   // Helper to persist notes changes
   const persistNotes = (next) => {

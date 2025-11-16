@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
+import { noteService } from '../services/noteService';
 
 const getCategoryColor = (category) => {
   const colors = {
@@ -50,48 +51,23 @@ const NoteCard = ({ title, categories}) => (
 );
 
 const NotesPage = () => {
-  const notes = [
-  {
-    id: 1,
-    title: 'SpringBoot Fundamentals',
-    categories: ['Springboot', 'Web Development'],
-  },
-  {
-    id: 2,
-    title: 'Advanced Excel Dashboarding',
-    categories: ['Excel', 'Data Science'],
-  },
-  {
-    id: 3,
-    title: 'Practical Bookkeeping for Beginners',
-    categories: ['Accounting'],
-  },
-  {
-    id: 4,
-    title: 'API Development with SpringBoot',
-    categories: ['Springboot', 'Web Development'],
-  },
-  {
-    id: 5,
-    title: 'Data Cleaning & Visualization Techniques',
-    categories: ['Excel', 'Data Science'],
-  },
-  {
-    id: 6,
-    title: 'Small Business Accounting Essentials',
-    categories: ['Accounting'],
-  },
-  {
-    id: 7,
-    title: 'SpringBoot + MySQL Integration',
-    categories: ['Springboot', 'Database'],
-  },
-  {
-    id: 8,
-    title: 'Excel Formulas & Functions Mastery',
-    categories: ['Excel'],
-  },
-  ];
+  const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    noteService.getActiveNotes()
+      .then((data) => {
+        if (mounted) setNotes(Array.isArray(data) ? data : []);
+      })
+      .catch((e) => {
+        if (mounted) setError(e.message || 'Failed to load notes');
+      })
+      .finally(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
+  }, []);
 
   return (
     <DashboardLayout>
@@ -102,15 +78,21 @@ const NotesPage = () => {
         </div>
 
         {/* Notes Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-10">
-          {notes.map((note) => (
-            <NoteCard
-              key={note.id}
-              title={note.title}
-              categories={note.categories}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-gray-400">Loading notes...</div>
+        ) : error ? (
+          <div className="text-red-400">{error}</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-10">
+            {notes.map((note) => (
+              <NoteCard
+                key={note.noteId || note.id}
+                title={note.title}
+                categories={(note.tags || []).map(t => t.name)}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
