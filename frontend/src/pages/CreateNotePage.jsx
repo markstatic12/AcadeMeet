@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { noteService } from '../services/noteService';
 import { useNavigate } from 'react-router-dom';
 
 const CreateNotePage = () => {
@@ -35,26 +36,29 @@ const CreateNotePage = () => {
 
   const handleSave = () => {
     const html = editorRef.current?.innerHTML || '';
-    const newNote = {
-      id: Date.now(),
-      title: noteData.title || 'Untitled Note',
-      content: html,
-      createdAt: new Date().toISOString(),
-      // lifecycle flags
-      isFavourite: false,
-      archivedAt: null,
-      deletedAt: null
-    };
-    try {
-      const existing = JSON.parse(localStorage.getItem('notes') || '[]');
-      existing.unshift(newNote);
-      localStorage.setItem('notes', JSON.stringify(existing));
-    } catch (e) {
-      console.error('Failed to save note', e);
-    }
-    navigate('/profile');
-    // ensure notes tab opens
-    sessionStorage.setItem('openNotesTab', 'true');
+    // Try to persist the note via backend API. Fallback to localStorage on failure.
+    noteService.createNote({ title: noteData.title, content: html })
+      .then((created) => {
+        // on success redirect to notes list
+        navigate('/notes');
+      })
+      .catch((err) => {
+        console.error('Create note failed, falling back to localStorage', err);
+        const newNote = {
+          id: Date.now(),
+          title: noteData.title || 'Untitled Note',
+          content: html,
+          createdAt: new Date().toISOString(),
+        };
+        try {
+          const existing = JSON.parse(localStorage.getItem('notes') || '[]');
+          existing.unshift(newNote);
+          localStorage.setItem('notes', JSON.stringify(existing));
+        } catch (e) {
+          console.error('Failed to save note locally', e);
+        }
+        navigate('/notes');
+      });
   };
 
   const handleBack = () => navigate(-1);
