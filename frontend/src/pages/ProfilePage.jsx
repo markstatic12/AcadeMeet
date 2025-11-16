@@ -708,11 +708,17 @@ useEffect(() => {
                       <div className="space-y-1">
                         <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
                           <CalendarIcon className="w-3 h-3 text-indigo-400" />
-                          <span>{session.date}</span>
+                          {/* Use the new DTO fields: month, day, and year */}
+                          <span>
+                            {session.month} {session.day}, {session.year}
+                          </span>
                         </div>
                         <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
                           <ClockIcon className="w-3 h-3 text-indigo-400" />
-                          <span>{getDisplayTime(session)}</span>
+                          {/* Use the new DTO fields and your existing to12Hour helper */}
+                          <span>
+                            {to12Hour(session.startTime)} - {to12Hour(session.endTime)}
+                          </span>
                         </div>
                         <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
                           <LocationIcon className="w-3 h-3 text-indigo-400" />
@@ -720,6 +726,8 @@ useEffect(() => {
                         </div>
                       </div>
                     </div>
+
+
                   </div>
                 ))}
               </div>
@@ -757,23 +765,35 @@ useEffect(() => {
                             {daysLeft} day{daysLeft!==1?'s':''} left
                           </span>
                         </div>
+                        
+                        
+                        
                         <div className="p-3 bg-[#0a0a0a]">
-                          <h3 className="text-white font-bold text-sm mb-2 opacity-70 line-through">{session.title}</h3>
-                          <div className="space-y-1 text-gray-500 text-[11px]">
-                            <div className="flex items-center gap-1.5">
-                              <CalendarIcon className="w-3 h-3 text-indigo-400" />
-                              <span>{session.date}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <ClockIcon className="w-3 h-3 text-indigo-400" />
-                              <span>{getDisplayTime(session)}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <LocationIcon className="w-3 h-3 text-indigo-400" />
-                              <span>{session.platform}</span>
+                            <h3 className="text-white font-bold text-sm mb-2 opacity-70 line-through">{session.title}</h3>
+                            <div className="space-y-1 text-gray-500 text-[11px]">
+                              <div className="flex items-center gap-1.5">
+                                <CalendarIcon className="w-3 h-3 text-indigo-400" />
+                                {/* Use the new DTO fields */}
+                                <span>
+                                  {session.month} {session.day}, {session.year}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <ClockIcon className="w-3 h-3 text-indigo-400" />
+                                {/* Use the new DTO fields and your existing to12Hour helper */}
+                                <span>
+                                  {to12Hour(session.startTime)} - {to12Hour(session.endTime)}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <LocationIcon className="w-3 h-3 text-indigo-400" />
+                                {/* Use the correct 'location' field */}
+                                <span>{session.location}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
+
+                        
                       </div>
                     );
                   })}
