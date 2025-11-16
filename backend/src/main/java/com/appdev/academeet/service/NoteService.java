@@ -137,9 +137,4 @@ public class NoteService {
             .map(UserSavedNote::getNote)
             .collect(Collectors.toList());
     }
-
-    // Public feed: all active notes from all users
-    public List<Note> getPublicNotes() {
-        return noteRepository.findByStatus(NoteStatus.ACTIVE);
-    }
 }
