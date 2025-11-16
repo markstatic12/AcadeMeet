@@ -188,4 +188,12 @@ public class User {
                 ", createdAt=" + createdAt +
                 '}';
     }
+
+    public Set<UserSavedNote> getSavedNotes() {
+        return savedNotes;
+    }
+
+    public void setSavedNotes(Set<UserSavedNote> savedNotes) {
+        this.savedNotes = savedNotes;
+    }
 }
