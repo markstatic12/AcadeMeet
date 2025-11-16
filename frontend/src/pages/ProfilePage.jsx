@@ -145,23 +145,6 @@ useEffect(() => {
     return `${h}:${mm} ${ampm}`;
   };
 
-  // Get display time for legacy/local entries
-  const getDisplayTime = (s) => {
-    if (!s) return '';
-    if (s.time && /am|pm/i.test(s.time)) return s.time; // already formatted
-    if (s.startTimeRaw || s.endTimeRaw) {
-      const st = s.startTimeRaw ? to12Hour(s.startTimeRaw) : '';
-      const et = s.endTimeRaw ? to12Hour(s.endTimeRaw) : '';
-      return st && et ? `${st} - ${et}` : (st || et);
-    }
-    if (s.time) {
-      const parts = s.time.split('-').map(p => p.trim());
-      if (parts.length === 2) return `${to12Hour(parts[0])} - ${to12Hour(parts[1])}`;
-      if (parts.length === 1) return to12Hour(parts[0]);
-    }
-    return s.time || '';
-  };
-
   // Sample notes data
   const [notesData, setNotesData] = useState([]);
   useEffect(() => {

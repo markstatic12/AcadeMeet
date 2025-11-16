@@ -1,10 +1,13 @@
 package com.appdev.academeet.service;
 
+import com.appdev.academeet.dto.SessionDTO; // <-- IMPORT DTO
 import com.appdev.academeet.model.Session;
 import com.appdev.academeet.repository.SessionRepository;
 import org.springframework.stereotype.Service;
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional; // <-- IMPORT TRANSACTIONAL
 
+import java.util.List;
+import java.util.stream.Collectors; // <-- IMPORT COLLECTORS
 
 @Service
 public class SessionService {
@@ -19,11 +22,21 @@ public class SessionService {
         return sessionRepository.save(session);
     }
 
-    public List<Session> getSessionsByUserId(Long userId) {
-        return sessionRepository.findByHost_Id(userId);
+    // --- MODIFIED METHOD ---
+    @Transactional(readOnly = true) // <-- ADD TRANSACTIONAL
+    public List<SessionDTO> getSessionsByUserId(Long userId) {
+        return sessionRepository.findByHost_Id(userId)
+                .stream()
+                .map(SessionDTO::new) // <-- CONVERT TO DTO
+                .collect(Collectors.toList());
     }
 
-    public List<Session> getAllSessions() {
-        return sessionRepository.findAll();
+    // --- MODIFIED METHOD ---
+    @Transactional(readOnly = true) // <-- ADD TRANSACTIONAL
+    public List<SessionDTO> getAllSessions() {
+        return sessionRepository.findAll()
+                .stream()
+                .map(SessionDTO::new) // <-- CONVERT TO DTO
+                .collect(Collectors.toList());
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.appdev.academeet.service.SessionService;
+import com.appdev.academeet.dto.SessionDTO; // <-- IMPORT DTO
 import com.appdev.academeet.model.Session;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,42 +30,28 @@ public class SessionController {
         this.userRepository = userRepository;
     }
 
+    // --- MODIFIED METHOD ---
     @PostMapping("/create")
-    public Session createSession(@RequestBody Session session, @RequestParam Long userId) {
+    public SessionDTO createSession(@RequestBody Session session, @RequestParam Long userId) { // <-- CHANGED RETURN TYPE
         User host = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         session.setHost(host); // attach host
-        return sessionService.createSession(session);
+        
+        Session savedSession = sessionService.createSession(session);
+        
+        // Convert to DTO before returning
+        return new SessionDTO(savedSession);
     }
 
-    // Get sessions by user
+    // --- MODIFIED METHOD ---
     @GetMapping("/user/{userId}")
-    public List<Session> getSessionsByUser(@PathVariable Long userId) {
+    public List<SessionDTO> getSessionsByUser(@PathVariable Long userId) { // <-- CHANGED RETURN TYPE
         return sessionService.getSessionsByUserId(userId);
     }
+
+    // --- NEW METHOD ---
+    @GetMapping("/all-sessions")
+    public List<SessionDTO> getAllSessions() {
+        return sessionService.getAllSessions();
+    }
 }
-
-
-    // @Autowired
-    // private SessionService sessionService;
-
-    // @PostMapping
-    // public ResponseEntity<SessionResponse> createSession(
-    //     @RequestBody CreateSessionRequest request
-    // ) {
-    //     SessionResponse response = sessionService.createSession(request);
-
-    //     // UPDATED: Check if the response message indicates an error
-    //     if (response.getMessage().startsWith("Error:")) {
-    //         // If it's an error, return a 400 Bad Request
-    //         return ResponseEntity.badRequest().body(response);
-    //     }
-        
-    //     // Otherwise, return 200 OK
-    //     return ResponseEntity.ok(response);
-    // }
-    // @GetMapping
-    // public ResponseEntity<List<SessionDetailsDto>> getAllSessions() {
-    //     List<SessionDetailsDto> sessions = sessionService.getAllSessions();
-    //     return ResponseEntity.ok(sessions);
-    // }
