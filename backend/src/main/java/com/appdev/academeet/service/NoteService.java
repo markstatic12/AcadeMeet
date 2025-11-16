@@ -127,9 +127,10 @@ public class NoteService {
     
     public List<Note> getNotesByStatus(Long userId, NoteStatus status) {
         if (status == NoteStatus.ACTIVE) {
-            return noteRepository.findByOwnerIdAndStatusNot(userId, NoteStatus.TRASH);
+            // return active notes excluding trash, most recent first
+            return noteRepository.findByOwnerIdAndStatusNotOrderByCreatedAtDesc(userId, NoteStatus.TRASH);
         }
-        return noteRepository.findByOwnerIdAndStatus(userId, status);
+        return noteRepository.findByOwnerIdAndStatusOrderByCreatedAtDesc(userId, status);
     }
     
     public List<Note> getSavedNotes(Long userId) {
