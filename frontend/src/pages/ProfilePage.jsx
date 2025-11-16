@@ -44,6 +44,36 @@ const ProfilePage = () => {
     bio: ''
   });
 
+  const [sessionsData, setSessionsData] = useState([]);
+
+
+const userId = 1; // Replace with actual user ID as needed
+
+useEffect(() => {
+  const fetchSessions = async () => {
+    try {
+      const res = await fetch(`http://localhost:8080/api/sessions/user/${userId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch sessions");
+
+      const data = await res.json();
+      console.log("Fetched sessions:", data);
+      setSessionsData(data);
+      
+    } catch (error) {
+      console.error("Error fetching sessions:", error);
+    }
+  };
+
+  fetchSessions();
+}, [userId]); // optional: add userId as dependency
+
+
+    
+
   // Load user data from localStorage on mount
   useEffect(() => {
     const studentData = localStorage.getItem('student');
@@ -68,7 +98,6 @@ const ProfilePage = () => {
   }, []);
 
   // Sessions created by the user (loaded from localStorage)
-  const [sessionsData, setSessionsData] = useState([]);
   const [trashedSessions, setTrashedSessions] = useState([]);
   const [openCardMenuId, setOpenCardMenuId] = useState(null);
 
@@ -84,8 +113,6 @@ const ProfilePage = () => {
 
   useEffect(() => {
     try {
-      const stored = JSON.parse(localStorage.getItem('sessions') || '[]');
-      setSessionsData(stored);
       const trashed = JSON.parse(localStorage.getItem('trashedSessions') || '[]');
       setTrashedSessions(pruneTrashed(trashed));
     } catch (e) {
@@ -116,23 +143,6 @@ const ProfilePage = () => {
     h = h % 12;
     if (h === 0) h = 12;
     return `${h}:${mm} ${ampm}`;
-  };
-
-  // Get display time for legacy/local entries
-  const getDisplayTime = (s) => {
-    if (!s) return '';
-    if (s.time && /am|pm/i.test(s.time)) return s.time; // already formatted
-    if (s.startTimeRaw || s.endTimeRaw) {
-      const st = s.startTimeRaw ? to12Hour(s.startTimeRaw) : '';
-      const et = s.endTimeRaw ? to12Hour(s.endTimeRaw) : '';
-      return st && et ? `${st} - ${et}` : (st || et);
-    }
-    if (s.time) {
-      const parts = s.time.split('-').map(p => p.trim());
-      if (parts.length === 2) return `${to12Hour(parts[0])} - ${to12Hour(parts[1])}`;
-      if (parts.length === 1) return to12Hour(parts[0]);
-    }
-    return s.time || '';
   };
 
   // Sample notes data
@@ -250,6 +260,7 @@ const ProfilePage = () => {
     navigate('/create-session');
   };
 
+  // Navigae to create note
   const handleCreateNote = (e) => {
     e.stopPropagation();
     e.preventDefault();
@@ -262,6 +273,7 @@ const ProfilePage = () => {
     await refreshFollowLists();
   };
 
+  //  NO BACKEND IMPLEMENTATION YET
   const refreshFollowLists = async () => {
     try{
       if(!userData?.id) return;
@@ -282,6 +294,7 @@ const ProfilePage = () => {
     }
   };
 
+  //  NO BACKEND IMPLEMENTATION YET
   const removeFollower = async (followerId) => {
     if(!userData?.id) return;
     try{
@@ -293,6 +306,7 @@ const ProfilePage = () => {
     }catch(e){ console.error('Remove follower failed', e); }
   };
 
+  //  NO BACKEND IMPLEMENTATION YET
   const unfollowUser = async (followingId) => {
     if(!userData?.id) return;
     try{
@@ -591,125 +605,120 @@ const ProfilePage = () => {
               </div>
             </div>
 
-            {/* Sessions Content */}
-            {activeTab === 'sessions' && sessionsView === 'active' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full flex-1 overflow-y-auto pr-1 custom-scrollbar">
-              {/* Create New Session Card */}
-              <button
-                onClick={handleCreateSession}
-                className="bg-[#1a1a1a] border-2 border-dashed border-gray-700 hover:border-indigo-500 rounded-xl flex flex-col items-center justify-center transition-all group hover:bg-[#1f1f1f] h-[240px] w-full"
-              >
-                <div className="w-16 h-16 bg-[#2a2a2a] group-hover:bg-indigo-600/20 rounded-full flex items-center justify-center mb-3 transition-colors">
-                  <PlusIcon className="w-8 h-8 text-gray-600 group-hover:text-indigo-400" />
-                </div>
-                <p className="text-gray-500 group-hover:text-gray-400 text-xs font-light italic">Create New Session</p>
-              </button>
-
-              {/* Session Cards */}
-              {sessionsData.map((session) => (
-                <div
-                  key={session.id}
-                  className="bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl cursor-pointer group h-[240px] w-full"
+              {/* Sessions Content */}
+              {activeTab === 'sessions' && sessionsView === 'active' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full flex-1 overflow-y-auto pr-1 custom-scrollbar">
+                {/* Create New Session Card */}
+                <button
+                  onClick={handleCreateSession}
+                  className="bg-[#1a1a1a] border-2 border-dashed border-gray-700 hover:border-indigo-500 rounded-xl flex flex-col items-center justify-center transition-all group hover:bg-[#1f1f1f] h-[240px] w-full"
                 >
-                  {/* Session Thumbnail */}
-                  <div className="relative h-[120px] bg-gradient-to-br from-[#1e40af] via-[#2563eb] to-[#3b82f6] overflow-hidden">
-                    {/* Card menu */}
-                    <div className="absolute top-2 right-2 card-options-menu z-20">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setOpenCardMenuId(openCardMenuId === session.id ? null : session.id); }}
-                        className="p-1.5 bg-black/30 hover:bg-black/50 rounded-md text-white/80"
-                        title="Options"
-                      >
-                        <ThreeDotsVerticalIcon className="w-4 h-4" />
-                      </button>
-                      {openCardMenuId === session.id && (
-                        <div className="absolute right-0 mt-2 w-36 bg-[#111] border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); deleteSession(session.id); }}
-                            className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-gray-800 flex items-center gap-2"
-                          >
-                            <TrashIcon className="w-4 h-4" />
-                            Delete
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                    {/* Colorful shapes pattern - LEFT SIDE */}
-                    <div className="absolute left-0 top-0 w-1/2 h-full pointer-events-none">
-                      {/* Row 1 */}
-                      <div className="absolute top-2 left-2 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center text-white text-[8px] font-bold shadow-md">B</div>
-                      <div className="absolute top-2 left-10 w-5 h-5 bg-orange-500 rounded shadow-md"></div>
-                      <div className="absolute top-3 left-16 w-4 h-4 bg-cyan-400 rounded shadow-md"></div>
-                      
-                      {/* Row 2 */}
-                      <div className="absolute top-8 left-2 w-5 h-5 bg-blue-500 rounded shadow-md"></div>
-                      <div className="absolute top-7 left-9 w-6 h-6 bg-yellow-400 rounded transform rotate-12 shadow-md"></div>
-                      <div className="absolute top-8 left-16 w-5 h-5 bg-purple-500 rounded shadow-md"></div>
-                      
-                      {/* Row 3 */}
-                      <div className="absolute top-14 left-2 w-5 h-5 bg-pink-500 rounded-full shadow-md"></div>
-                      <div className="absolute top-13 left-9 w-5 h-5 bg-red-500 rounded shadow-md"></div>
-                      <div className="absolute top-14 left-15 w-4 h-4 bg-yellow-300 rounded-full shadow-md"></div>
-                    </div>
-                    
-                    {/* Pink diamond accent - CENTER TOP */}
-                    <div className="absolute top-2 left-1/2 transform -translate-x-1/2 pointer-events-none">
-                      <div className="w-7 h-7 bg-pink-500 rounded transform rotate-45 shadow-lg"></div>
-                    </div>
-                    
-                    {/* Phone illustration - RIGHT BOTTOM */}
-                    <div className="absolute bottom-0 right-0 w-1/2 h-full flex items-end justify-end p-2 pointer-events-none">
-                      {/* Blue rectangle frame */}
-                      <div className="relative">
-                        {/* Outer frame */}
-                        <div className="w-20 h-16 bg-[#1e40af] rounded-lg border-2 border-[#1e3a8a] shadow-xl"></div>
-                        {/* Inner screen */}
-                        <div className="absolute top-1 left-1 right-1 bottom-1 bg-[#2563eb] rounded"></div>
-                        {/* Accent line */}
-                        <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 border-r-2 border-b-2 border-white/30 rounded-br-lg"></div>
-                      </div>
-                    </div>
+                  <div className="w-16 h-16 bg-[#2a2a2a] group-hover:bg-indigo-600/20 rounded-full flex items-center justify-center mb-3 transition-colors">
+                    <PlusIcon className="w-8 h-8 text-gray-600 group-hover:text-indigo-400" />
                   </div>
+                  <p className="text-gray-500 group-hover:text-gray-400 text-xs font-light italic">Create New Session</p>
+                </button>
 
-                  {/* Session Info */}
-                  <div className="p-3 bg-[#0a0a0a]">
-                    {/* Tags */}
-                    <div className="flex gap-1.5 mb-2">
-                      {session.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="px-2.5 py-0.5 bg-indigo-600/40 text-indigo-300 text-[10px] font-semibold rounded-full"
+                {/* Session Cards */}
+                {sessionsData.map((session) => (
+                  <div
+                    key={session.id}
+                    className="bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl cursor-pointer group h-[240px] w-full"
+                  >
+                    {/* Session Thumbnail */}
+                    <div className="relative h-[120px] bg-gradient-to-br from-[#1e40af] via-[#2563eb] to-[#3b82f6] overflow-hidden">
+                      {/* Card menu */}
+                      <div className="absolute top-2 right-2 card-options-menu z-20">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setOpenCardMenuId(openCardMenuId === session.id ? null : session.id); }}
+                          className="p-1.5 bg-black/30 hover:bg-black/50 rounded-md text-white/80"
+                          title="Options"
                         >
-                          {tag}
-                        </span>
-                      ))}
+                          <ThreeDotsVerticalIcon className="w-4 h-4" />
+                        </button>
+                        {openCardMenuId === session.id && (
+                          <div className="absolute right-0 mt-2 w-36 bg-[#111] border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); deleteSession(session.id); }}
+                              className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-gray-800 flex items-center gap-2"
+                            >
+                              <TrashIcon className="w-4 h-4" />
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                      {/* Colorful shapes pattern - LEFT SIDE */}
+                      <div className="absolute left-0 top-0 w-1/2 h-full pointer-events-none">
+                        {/* Row 1 */}
+                        <div className="absolute top-2 left-2 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center text-white text-[8px] font-bold shadow-md">B</div>
+                        <div className="absolute top-2 left-10 w-5 h-5 bg-orange-500 rounded shadow-md"></div>
+                        <div className="absolute top-3 left-16 w-4 h-4 bg-cyan-400 rounded shadow-md"></div>
+                        
+                        {/* Row 2 */}
+                        <div className="absolute top-8 left-2 w-5 h-5 bg-blue-500 rounded shadow-md"></div>
+                        <div className="absolute top-7 left-9 w-6 h-6 bg-yellow-400 rounded transform rotate-12 shadow-md"></div>
+                        <div className="absolute top-8 left-16 w-5 h-5 bg-purple-500 rounded shadow-md"></div>
+                        
+                        {/* Row 3 */}
+                        <div className="absolute top-14 left-2 w-5 h-5 bg-pink-500 rounded-full shadow-md"></div>
+                        <div className="absolute top-13 left-9 w-5 h-5 bg-red-500 rounded shadow-md"></div>
+                        <div className="absolute top-14 left-15 w-4 h-4 bg-yellow-300 rounded-full shadow-md"></div>
+                      </div>
+                      
+                      {/* Pink diamond accent - CENTER TOP */}
+                      <div className="absolute top-2 left-1/2 transform -translate-x-1/2 pointer-events-none">
+                        <div className="w-7 h-7 bg-pink-500 rounded transform rotate-45 shadow-lg"></div>
+                      </div>
+                      
+                      {/* Phone illustration - RIGHT BOTTOM */}
+                      <div className="absolute bottom-0 right-0 w-1/2 h-full flex items-end justify-end p-2 pointer-events-none">
+                        {/* Blue rectangle frame */}
+                        <div className="relative">
+                          {/* Outer frame */}
+                          <div className="w-20 h-16 bg-[#1e40af] rounded-lg border-2 border-[#1e3a8a] shadow-xl"></div>
+                          {/* Inner screen */}
+                          <div className="absolute top-1 left-1 right-1 bottom-1 bg-[#2563eb] rounded"></div>
+                          {/* Accent line */}
+                          <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 border-r-2 border-b-2 border-white/30 rounded-br-lg"></div>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Title */}
-                    <h3 className="text-white font-bold text-sm mb-2 group-hover:text-indigo-400 transition-colors">
-                      {session.title}
-                    </h3>
-
-                    {/* Meta Info */}
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-                        <CalendarIcon className="w-3 h-3 text-indigo-400" />
-                        <span>{session.date}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-                        <ClockIcon className="w-3 h-3 text-indigo-400" />
-                        <span>{getDisplayTime(session)}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-                        <LocationIcon className="w-3 h-3 text-indigo-400" />
-                        <span>{session.platform}</span>
+                    {/* Session Info */}
+                    <div className="p-3 bg-[#0a0a0a]">
+                      {/* Title */}
+                      <h3 className="text-white font-bold text-sm mb-2 group-hover:text-indigo-400 transition-colors">
+                        {session.title}
+                      </h3>
+                      {/* Meta Info */}
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
+                          <CalendarIcon className="w-3 h-3 text-indigo-400" />
+                          {/* Use the new DTO fields: month, day, and year */}
+                          <span>
+                            {session.month} {session.day}, {session.year}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
+                          <ClockIcon className="w-3 h-3 text-indigo-400" />
+                          {/* Use the new DTO fields and your existing to12Hour helper */}
+                          <span>
+                            {to12Hour(session.startTime)} - {to12Hour(session.endTime)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
+                          <LocationIcon className="w-3 h-3 text-indigo-400" />
+                          <span>{session.location}</span>
+                        </div>
                       </div>
                     </div>
+
+
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
 
           {/* Trashed Sessions Content */}
           {activeTab === 'sessions' && sessionsView === 'trash' && (
@@ -743,23 +752,35 @@ const ProfilePage = () => {
                             {daysLeft} day{daysLeft!==1?'s':''} left
                           </span>
                         </div>
+                        
+                        
+                        
                         <div className="p-3 bg-[#0a0a0a]">
-                          <h3 className="text-white font-bold text-sm mb-2 opacity-70 line-through">{session.title}</h3>
-                          <div className="space-y-1 text-gray-500 text-[11px]">
-                            <div className="flex items-center gap-1.5">
-                              <CalendarIcon className="w-3 h-3 text-indigo-400" />
-                              <span>{session.date}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <ClockIcon className="w-3 h-3 text-indigo-400" />
-                              <span>{getDisplayTime(session)}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <LocationIcon className="w-3 h-3 text-indigo-400" />
-                              <span>{session.platform}</span>
+                            <h3 className="text-white font-bold text-sm mb-2 opacity-70 line-through">{session.title}</h3>
+                            <div className="space-y-1 text-gray-500 text-[11px]">
+                              <div className="flex items-center gap-1.5">
+                                <CalendarIcon className="w-3 h-3 text-indigo-400" />
+                                {/* Use the new DTO fields */}
+                                <span>
+                                  {session.month} {session.day}, {session.year}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <ClockIcon className="w-3 h-3 text-indigo-400" />
+                                {/* Use the new DTO fields and your existing to12Hour helper */}
+                                <span>
+                                  {to12Hour(session.startTime)} - {to12Hour(session.endTime)}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <LocationIcon className="w-3 h-3 text-indigo-400" />
+                                {/* Use the correct 'location' field */}
+                                <span>{session.location}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
+
+                        
                       </div>
                     );
                   })}

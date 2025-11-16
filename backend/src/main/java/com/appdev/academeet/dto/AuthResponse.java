@@ -9,8 +9,7 @@ public class AuthResponse {
     private String message;
     
     // Constructors
-    public AuthResponse() {
-    }
+    public AuthResponse() {}
     
     public AuthResponse(Long id, String name, String email, String program, Integer yearLevel, String message) {
         this.id = id;
