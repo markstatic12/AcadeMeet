@@ -58,7 +58,7 @@ const NotesPage = () => {
   useEffect(() => {
     let mounted = true;
     setLoading(true);
-    noteService.getActiveNotes()
+    noteService.getPublicNotes()
       .then((data) => {
         if (mounted) setNotes(Array.isArray(data) ? data : []);
       })

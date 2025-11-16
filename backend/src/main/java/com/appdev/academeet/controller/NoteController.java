@@ -126,6 +126,13 @@ public class NoteController {
         return ResponseEntity.ok(notes);
     }
 
+    // Public feed: notes across all users (only active notes)
+    @GetMapping("/public")
+    public ResponseEntity<List<Note>> getPublicNotes() {
+        List<Note> notes = noteService.getPublicNotes();
+        return ResponseEntity.ok(notes);
+    }
+
     // ----------------------------------------------------------------------------------
     // Saved Notes Actions
     // ----------------------------------------------------------------------------------
