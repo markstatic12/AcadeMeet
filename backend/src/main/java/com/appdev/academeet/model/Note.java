@@ -153,7 +153,6 @@ public class Note {
     }
 
     public void setSavedByUsers(Set<UserSavedNote> savedByUsers) {
-        this.savedByUsers 
-        = savedByUsers;
+        this.savedByUsers = savedByUsers;
     }
 }

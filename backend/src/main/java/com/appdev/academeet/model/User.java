@@ -1,12 +1,15 @@
 package com.appdev.academeet.model;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
@@ -28,7 +31,6 @@ public class User {
     @Column(name = "year_level")
     private Integer yearLevel;
 
-    // Maps to SQL column school_id
     @Column(name = "school_id", length = 45)
     private String school; 
 
@@ -38,8 +40,6 @@ public class User {
     @Column(nullable = false, unique = true, length = 125)
     private String email;
 
-    // !!! CRUCIAL CHANGE: Mapping 'password' field to SQL column 'password_hash'
-    // This enforces the security convention used in your SQL schema.
     @Column(name = "password_hash", nullable = false, length = 255)
     private String password;
 
@@ -52,8 +52,6 @@ public class User {
     @Column(name = "cover_image_url", length = 255)
     private String coverImageUrl;
 
-    // Using @ColumnDefinition is generally unnecessary when using @PrePersist 
-    // unless you rely on the DB default. Keeping it clean with standard settings.
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -65,6 +63,9 @@ public class User {
             this.createdAt = LocalDateTime.now();
         }
     }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserSavedNote> savedNotes;
 
     // --- Constructors ---
     public User() {
