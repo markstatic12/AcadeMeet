@@ -8,6 +8,8 @@ import CreateSessionPage from './pages/CreateSessionPage';
 import CreateNotePage from './pages/CreateNotePage';
 import SettingsPage from './pages/SettingsPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import SessionsPage from './pages/SessionsPage';
+
 
 function App() {
   const isAuthenticated = () => {
@@ -76,8 +78,16 @@ function App() {
         } 
       />
 
+      <Route 
+        path="/sessions" 
+        element={
+          <ProtectedRoute>
+            <SessionsPage />
+          </ProtectedRoute>
+        } 
+      />
+
       {/* Placeholder routes for future pages */}
-      <Route path="/sessions" element={<ProtectedRoute><div className="min-h-screen bg-gray-900 text-white p-8"><h1 className="text-3xl font-bold">Study Sessions - Coming Soon</h1></div></ProtectedRoute>} />
       <Route path="/files" element={<ProtectedRoute><div className="min-h-screen bg-gray-900 text-white p-8"><h1 className="text-3xl font-bold">Files - Coming Soon</h1></div></ProtectedRoute>} />
       <Route path="/productivity" element={<ProtectedRoute><div className="min-h-screen bg-gray-900 text-white p-8"><h1 className="text-3xl font-bold">Productivity Tools - Coming Soon</h1></div></ProtectedRoute>} />
       <Route path="/messages" element={<ProtectedRoute><div className="min-h-screen bg-gray-900 text-white p-8"><h1 className="text-3xl font-bold">Messages - Coming Soon</h1></div></ProtectedRoute>} />
