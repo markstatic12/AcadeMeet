@@ -15,7 +15,8 @@ public class Session {
     private String title;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "host_id_fk", referencedColumnName = "id")
+    // User entity's primary key column is mapped to "user_id"; make the FK reference that column
+    @JoinColumn(name = "host_id_fk", referencedColumnName = "user_id")
     private User host;  // this is important
 
     private String month;
