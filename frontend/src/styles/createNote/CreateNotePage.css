@@ -1,0 +1,119 @@
+/* CreateNotePage Animations & Styles */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation utilities */
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.4s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.4s ease-out;
+}
+
+/* ContentEditable placeholder */
+[contentEditable=true]:empty:before {
+  content: attr(data-placeholder);
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Custom scrollbar for editor */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #0a0a0a;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+
+/* Rich text editor content styling */
+[contentEditable=true] h1 {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 0.67em 0;
+  color: #e5e7eb;
+}
+
+[contentEditable=true] h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 0.75em 0;
+  color: #e5e7eb;
+}
+
+[contentEditable=true] blockquote {
+  border-left: 4px solid #6366f1;
+  padding-left: 1em;
+  margin: 1em 0;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+[contentEditable=true] pre {
+  background: #1a1a1a;
+  border: 1px solid #374151;
+  border-radius: 4px;
+  padding: 1em;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  color: #d1d5db;
+}
+
+[contentEditable=true] a {
+  color: #818cf8;
+  text-decoration: underline;
+}
+
+[contentEditable=true] ul {
+  list-style-type: disc;
+  padding-left: 2em;
+  margin: 1em 0;
+}
+
+[contentEditable=true] li {
+  margin: 0.5em 0;
+}
