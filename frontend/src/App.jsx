@@ -9,18 +9,15 @@ import CreateNotePage from './pages/CreateNotePage';
 import SettingsPage from './pages/SettingsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import SessionsPage from './pages/SessionsPage';
-
+import { UserProvider } from './context/UserContext';
 
 function App() {
-  const isAuthenticated = () => {
-    return localStorage.getItem('student') !== null;
-  };
-
   return (
+    <UserProvider>
     <Routes>
       <Route 
         path="/" 
-        element={isAuthenticated() ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} 
+        element={<Navigate to="/login" replace />} 
       />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
@@ -92,6 +89,7 @@ function App() {
       <Route path="/productivity" element={<ProtectedRoute><div className="min-h-screen bg-gray-900 text-white p-8"><h1 className="text-3xl font-bold">Productivity Tools - Coming Soon</h1></div></ProtectedRoute>} />
       <Route path="/messages" element={<ProtectedRoute><div className="min-h-screen bg-gray-900 text-white p-8"><h1 className="text-3xl font-bold">Messages - Coming Soon</h1></div></ProtectedRoute>} />
     </Routes>
+    </UserProvider>
   );
 }
 

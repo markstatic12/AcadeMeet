@@ -1,0 +1,69 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+const UserContext = createContext(null);
+
+export const UserProvider = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Initialize user from localStorage on mount
+  useEffect(() => {
+    const storedUserId = localStorage.getItem('userId');
+    if (storedUserId) {
+      // Store minimal user data - just the ID
+      // Full user data will be fetched by components as needed
+      setCurrentUser({ id: parseInt(storedUserId) });
+    }
+    setLoading(false);
+  }, []);
+
+  // Store user ID after login/signup
+  const login = (userData) => {
+    const userId = userData.userId || userData.studentId || userData.id;
+    
+    // Only store the user ID - components will fetch full data as needed
+    setCurrentUser({ id: userId });
+    localStorage.setItem('userId', userId.toString());
+  };
+
+  // Clear user data on logout
+  const logout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('userId');
+    // Also clear old 'student' key if it exists
+    localStorage.removeItem('student');
+  };
+
+  // Get current user ID (consistent accessor)
+  const getUserId = () => {
+    return currentUser?.id || currentUser?.studentId || null;
+  };
+
+  // Update user ID (used after profile updates that might change the ID)
+  const updateUser = (userId) => {
+    if (userId) {
+      setCurrentUser({ id: userId });
+      localStorage.setItem('userId', userId.toString());
+    }
+  };
+
+  const value = {
+    currentUser,
+    loading,
+    login,
+    logout,
+    getUserId,
+    updateUser,
+    isAuthenticated: !!currentUser,
+  };
+
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+};
+
+export const useUser = () => {
+  const context = useContext(UserContext);
+  if (!context) {
+    throw new Error('useUser must be used within a UserProvider');
+  }
+  return context;
+};
