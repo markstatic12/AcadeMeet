@@ -1,18 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useUser } from '../../context/UserContext';
 
 export const usePasswordReset = () => {
+  const { getUserId } = useUser();
   const [curr, setCurr] = useState('');
   const [next, setNext] = useState('');
   const [confirm, setConfirm] = useState('');
   const [busy, setBusy] = useState(false);
-  const [student, setStudent] = useState(null);
-
-  useEffect(() => {
-    const s = localStorage.getItem('student');
-    if (s) {
-      setStudent(JSON.parse(s));
-    }
-  }, []);
 
   const reset = () => {
     setCurr('');
@@ -29,7 +23,8 @@ export const usePasswordReset = () => {
       showToast('New password and confirmation do not match', 'error');
       return false;
     }
-    if (!student) {
+    const userId = getUserId();
+    if (!userId) {
       showToast('No user', 'error');
       return false;
     }
@@ -38,6 +33,7 @@ export const usePasswordReset = () => {
 
   const submit = async (showToast) => {
     if (!validatePassword(showToast)) return;
+    const userId = getUserId();
 
     try {
       setBusy(true);
@@ -45,7 +41,7 @@ export const usePasswordReset = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: student.id,
+          userId: userId,
           currentPassword: curr,
           newPassword: next,
         }),
