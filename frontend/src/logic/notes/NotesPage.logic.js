@@ -10,7 +10,7 @@ export const useNotesPage = () => {
     let mounted = true;
     setLoading(true);
     
-    noteService.getActiveNotes()
+    noteService.getAllActiveNotes()
       .then((data) => {
         if (mounted) setNotes(Array.isArray(data) ? data : []);
       })

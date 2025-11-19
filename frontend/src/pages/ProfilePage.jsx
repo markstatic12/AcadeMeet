@@ -11,6 +11,7 @@ import ArchivedContent from '../components/profile/ArchivedContent';
 import TrashedNotesContent from '../components/profile/TrashedNotesContent';
 import EditProfileModal from '../components/profile/EditProfileModal';
 import FollowersModal from '../components/profile/FollowersModal';
+import { useUser } from '../context/UserContext';
 import { useProfilePage } from '../logic/profile/ProfilePage.logic';
 import { useSessions } from '../logic/profile/useSessions';
 import { useNotes } from '../logic/profile/useNotes';
@@ -61,9 +62,10 @@ const ProfilePage = () => {
     unfollowUser,
   } = useProfilePage();
 
-  const userId = 1;
+  const { getUserId } = useUser();
+  const userId = getUserId();
   const { sessionsData, trashedSessions, deleteSession, restoreSession, TRASH_TTL_DAYS } = useSessions(userId);
-  const { notesData, toggleFavouriteNote, archiveNote, deleteNote, restoreTrashedNote, restoreArchivedNote } = useNotes(activeTab);
+  const { notesData, toggleFavouriteNote, archiveNote, deleteNote, restoreTrashedNote, restoreArchivedNote } = useNotes(activeTab, userId);
   const panelHeight = usePanelHeight(leftProfileCardRef, [userData, showEditModal, showProfileOptionsMenu]);
 
   useClickOutside([

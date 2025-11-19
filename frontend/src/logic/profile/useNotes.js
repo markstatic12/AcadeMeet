@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { noteService } from '../../services/noteService';
 
-export const useNotes = (activeTab) => {
+export const useNotes = (activeTab, userId) => {
   const [notesData, setNotesData] = useState([]);
 
   useEffect(() => {
@@ -9,7 +9,7 @@ export const useNotes = (activeTab) => {
 
     const loadNotes = async () => {
       try {
-        const serverNotes = await noteService.getActiveNotes();
+        const serverNotes = userId ? await noteService.getUserActiveNotes(userId) : [];
         if (!mounted) return;
         const normalized = (Array.isArray(serverNotes) ? serverNotes : []).map(n => ({
           id: n.id || n.noteId,
@@ -38,13 +38,13 @@ export const useNotes = (activeTab) => {
       }
     };
 
-    // Only fetch notes when the notes tab is active
-    if (activeTab === 'notes') {
+    // Only fetch notes when the notes tab is active and userId is available
+    if (activeTab === 'notes' && userId) {
       loadNotes();
     }
 
     return () => { mounted = false; };
-  }, [activeTab]);
+  }, [activeTab, userId]);
 
   // Helper to persist notes changes
   const persistNotes = (next) => {
