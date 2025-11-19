@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../context/UserContext';
 
 export const useProfilePage = () => {
   const navigate = useNavigate();
+  const { getUserId } = useUser();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showFollowersManager, setShowFollowersManager] = useState(false);
   const [followTab, setFollowTab] = useState('followers');
@@ -17,7 +19,7 @@ export const useProfilePage = () => {
   const [openNoteMenuId, setOpenNoteMenuId] = useState(null);
   const [openCardMenuId, setOpenCardMenuId] = useState(null);
 
-  // User data from localStorage
+  // User data from centralized context
   const [userData, setUserData] = useState({
     id: null,
     name: '',
@@ -40,27 +42,45 @@ export const useProfilePage = () => {
     bio: ''
   });
 
-  // Load user data from localStorage on mount
+  // Fetch user data from backend using user ID
   useEffect(() => {
-    const studentData = localStorage.getItem('student');
-    if (studentData) {
-      const student = JSON.parse(studentData);
-      setUserData({
-        id: student.id,
-        name: student.name || 'full (name of the user)',
-        email: student.email || '',
-        school: 'CIT University',
-        program: 'BSIT',
-        studentId: '23-2684-947',
-        bio: student.bio || 'No bio yet',
-        profilePic: student.profilePic || null,
-        coverImage: student.coverImage || null,
-        followers: 0,
-        following: 0,
-        isOnline: true
-      });
-    }
-  }, []);
+    const fetchUserData = async () => {
+      const userId = getUserId();
+      if (!userId) return;
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/users/${userId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setUserData({
+            id: userId,
+            name: data.name || 'full (name of the user)',
+            email: data.email || '',
+            school: data.school || 'CIT University',
+            program: data.program || 'BSIT',
+            studentId: data.studentId || '23-2684-947',
+            bio: data.bio || 'No bio yet',
+            profilePic: data.profilePic || null,
+            coverImage: data.coverImage || null,
+            followers: 0,
+            following: 0,
+            isOnline: true
+          });
+
+          setEditForm({
+            name: data.name || '',
+            school: data.school || 'Caraga State University',
+            studentId: data.studentId || '',
+            bio: data.bio || ''
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, [getUserId]);
 
   // Open edit modal
   const openEditModal = () => {
@@ -124,16 +144,6 @@ export const useProfilePage = () => {
         studentId: updatedData.studentId,
         bio: updatedData.bio
       }));
-      
-      const studentData = JSON.parse(localStorage.getItem('student'));
-      const updatedStudent = {
-        ...studentData,
-        name: updatedData.name,
-        school: updatedData.school,
-        studentId: updatedData.studentId,
-        bio: updatedData.bio
-      };
-      localStorage.setItem('student', JSON.stringify(updatedStudent));
       
       closeEditModal();
       alert('Profile updated successfully!');
