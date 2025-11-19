@@ -29,4 +29,7 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 
     // Find notes across all users by status ordered by creation date (for public feed)
     List<Note> findByStatusOrderByCreatedAtDesc(Note.NoteStatus status);
+    
+    // Find notes across all users excluding a specific status (e.g., excluding TRASH)
+    List<Note> findByStatusNotOrderByCreatedAtDesc(Note.NoteStatus excludedStatus);
 }
