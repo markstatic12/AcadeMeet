@@ -27,10 +27,17 @@ public class NoteController {
     @Autowired
     private NoteService noteService;
 
-    // --- Placeholder for current authenticated user ---
-    private Long getCurrentUserId() {
-        // TODO: Replace with logic to retrieve User ID from JWT/Security Context
-        return 1L; 
+    // Get user ID from request header
+    private Long getCurrentUserId(org.springframework.web.context.request.WebRequest request) {
+        String userIdHeader = request.getHeader("X-User-Id");
+        if (userIdHeader != null) {
+            try {
+                return Long.parseLong(userIdHeader);
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("Invalid user ID in header");
+            }
+        }
+        throw new RuntimeException("User ID not provided in request");
     }
 
     // ----------------------------------------------------------------------------------
@@ -38,9 +45,9 @@ public class NoteController {
     // ----------------------------------------------------------------------------------
     
     @PostMapping
-    public ResponseEntity<?> createNote(@RequestBody NoteRequest request) {
+    public ResponseEntity<?> createNote(@RequestBody NoteRequest request, org.springframework.web.context.request.WebRequest webRequest) {
         try {
-            Note newNote = noteService.createNote(request, getCurrentUserId());
+            Note newNote = noteService.createNote(request, getCurrentUserId(webRequest));
             return ResponseEntity.status(HttpStatus.CREATED).body(newNote);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -49,9 +56,9 @@ public class NoteController {
     }
     
     @PutMapping("/{noteId}")
-    public ResponseEntity<?> updateNote(@PathVariable Long noteId, @RequestBody NoteRequest request) {
+    public ResponseEntity<?> updateNote(@PathVariable Long noteId, @RequestBody NoteRequest request, org.springframework.web.context.request.WebRequest webRequest) {
         try {
-            Note updatedNote = noteService.updateNote(noteId, getCurrentUserId(), request);
+            Note updatedNote = noteService.updateNote(noteId, getCurrentUserId(webRequest), request);
             return ResponseEntity.ok(updatedNote);
         } catch (Exception e) {
             // Note: This needs the service layer to throw a specific message on not found
@@ -64,9 +71,9 @@ public class NoteController {
     }
 
     @DeleteMapping("/{noteId}")
-    public ResponseEntity<?> trashNote(@PathVariable Long noteId) {
+    public ResponseEntity<?> trashNote(@PathVariable Long noteId, org.springframework.web.context.request.WebRequest webRequest) {
         try {
-            noteService.setNoteStatus(noteId, getCurrentUserId(), NoteStatus.TRASH);
+            noteService.setNoteStatus(noteId, getCurrentUserId(webRequest), NoteStatus.TRASH);
             return ResponseEntity.ok().build(); 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
@@ -78,9 +85,9 @@ public class NoteController {
     // ----------------------------------------------------------------------------------
     
     @PutMapping("/{noteId}/archive")
-    public ResponseEntity<?> archiveNote(@PathVariable Long noteId) {
+    public ResponseEntity<?> archiveNote(@PathVariable Long noteId, org.springframework.web.context.request.WebRequest webRequest) {
         try {
-            noteService.setNoteStatus(noteId, getCurrentUserId(), NoteStatus.ARCHIVED);
+            noteService.setNoteStatus(noteId, getCurrentUserId(webRequest), NoteStatus.ARCHIVED);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
@@ -88,9 +95,9 @@ public class NoteController {
     }
     
     @PutMapping("/{noteId}/unarchive")
-    public ResponseEntity<?> unarchiveNote(@PathVariable Long noteId) {
+    public ResponseEntity<?> unarchiveNote(@PathVariable Long noteId, org.springframework.web.context.request.WebRequest webRequest) {
         try {
-            noteService.setNoteStatus(noteId, getCurrentUserId(), NoteStatus.ACTIVE);
+            noteService.setNoteStatus(noteId, getCurrentUserId(webRequest), NoteStatus.ACTIVE);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
@@ -102,27 +109,41 @@ public class NoteController {
     // ----------------------------------------------------------------------------------
 
     @GetMapping("/active")
-    public ResponseEntity<List<Note>> getActiveNotes() {
-        List<Note> notes = noteService.getNotesByStatus(getCurrentUserId(), NoteStatus.ACTIVE);
+    public ResponseEntity<List<Note>> getActiveNotes(org.springframework.web.context.request.WebRequest webRequest) {
+        List<Note> notes = noteService.getNotesByStatus(getCurrentUserId(webRequest), NoteStatus.ACTIVE);
+        return ResponseEntity.ok(notes);
+    }
+
+    @GetMapping("/all/active")
+    public ResponseEntity<List<Note>> getAllActiveNotes() {
+        // Get active notes from all users for public notes page
+        List<Note> notes = noteService.getAllNotesByStatus(NoteStatus.ACTIVE);
+        return ResponseEntity.ok(notes);
+    }
+
+    @GetMapping("/user/{userId}/active")
+    public ResponseEntity<List<Note>> getUserActiveNotes(@PathVariable Long userId) {
+        // Get active notes for a specific user
+        List<Note> notes = noteService.getNotesByStatus(userId, NoteStatus.ACTIVE);
         return ResponseEntity.ok(notes);
     }
 
     @GetMapping("/archive")
-    public ResponseEntity<List<Note>> getArchivedNotes() {
-        List<Note> notes = noteService.getNotesByStatus(getCurrentUserId(), NoteStatus.ARCHIVED);
+    public ResponseEntity<List<Note>> getArchivedNotes(org.springframework.web.context.request.WebRequest webRequest) {
+        List<Note> notes = noteService.getNotesByStatus(getCurrentUserId(webRequest), NoteStatus.ARCHIVED);
         return ResponseEntity.ok(notes);
     }
     
     @GetMapping("/trash")
-    public ResponseEntity<List<Note>> getTrashNotes() {
-        List<Note> notes = noteService.getNotesByStatus(getCurrentUserId(), NoteStatus.TRASH);
+    public ResponseEntity<List<Note>> getTrashNotes(org.springframework.web.context.request.WebRequest webRequest) {
+        List<Note> notes = noteService.getNotesByStatus(getCurrentUserId(webRequest), NoteStatus.TRASH);
         return ResponseEntity.ok(notes);
     }
     
     @GetMapping("/saved")
-    public ResponseEntity<List<Note>> getSavedNotes() {
+    public ResponseEntity<List<Note>> getSavedNotes(org.springframework.web.context.request.WebRequest webRequest) {
         // No try/catch needed here as the service doesn't throw on empty results
-        List<Note> notes = noteService.getSavedNotes(getCurrentUserId());
+        List<Note> notes = noteService.getSavedNotes(getCurrentUserId(webRequest));
         return ResponseEntity.ok(notes);
     }
 
@@ -131,9 +152,9 @@ public class NoteController {
     // ----------------------------------------------------------------------------------
     
     @PostMapping("/{noteId}/save")
-    public ResponseEntity<?> saveNote(@PathVariable Long noteId) {
+    public ResponseEntity<?> saveNote(@PathVariable Long noteId, org.springframework.web.context.request.WebRequest webRequest) {
         try {
-            noteService.saveNote(noteId, getCurrentUserId());
+            noteService.saveNote(noteId, getCurrentUserId(webRequest));
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
@@ -141,9 +162,9 @@ public class NoteController {
     }
     
     @DeleteMapping("/{noteId}/unsave")
-    public ResponseEntity<?> unsaveNote(@PathVariable Long noteId) {
+    public ResponseEntity<?> unsaveNote(@PathVariable Long noteId, org.springframework.web.context.request.WebRequest webRequest) {
         try {
-            noteService.unsaveNote(noteId, getCurrentUserId());
+            noteService.unsaveNote(noteId, getCurrentUserId(webRequest));
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));

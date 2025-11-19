@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
+import { useUser } from '../../context/UserContext';
 
 export const useSignupPage = () => {
   const [name, setName] = useState('');
@@ -15,14 +16,14 @@ export const useSignupPage = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login: loginUser, isAuthenticated } = useUser();
 
   // Redirect to dashboard if already logged in
   useEffect(() => {
-    const student = localStorage.getItem('student');
-    if (student) {
+    if (isAuthenticated) {
       navigate('/dashboard');
     }
-  }, [navigate]);
+  }, [isAuthenticated, navigate]);
 
   const validateForm = () => {
     if (password !== confirmPassword) {
@@ -62,14 +63,12 @@ export const useSignupPage = () => {
       const response = await authService.signup(name, email, password, program, yearLevel);
       console.log('Signup successful:', response);
       
-      // Store student data in localStorage
-      localStorage.setItem('student', JSON.stringify({
-        studentId: response.studentId,
-        name: response.name,
-        email: response.email,
+      // Store user data via centralized context
+      loginUser({
+        ...response,
         program: program,
         yearLevel: yearLevel
-      }));
+      });
       
       // Show success message
       setSuccess('Account created successfully! Redirecting to dashboard...');

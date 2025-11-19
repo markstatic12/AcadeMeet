@@ -133,6 +133,15 @@ public class NoteService {
         return noteRepository.findByOwnerIdAndStatusOrderByCreatedAtDesc(userId, status);
     }
     
+    public List<Note> getAllNotesByStatus(NoteStatus status) {
+        // Get all notes from all users with the given status
+        if (status == NoteStatus.ACTIVE) {
+            // Return all active notes excluding trash, most recent first
+            return noteRepository.findByStatusNotOrderByCreatedAtDesc(NoteStatus.TRASH);
+        }
+        return noteRepository.findByStatusOrderByCreatedAtDesc(status);
+    }
+    
     public List<Note> getSavedNotes(Long userId) {
         return userSavedNoteRepository.findByUserId(userId).stream()
             .map(UserSavedNote::getNote)

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { noteService } from '../../services/noteService';
+import { useUser } from '../../context/UserContext';
 
 export const useDashboardPage = () => {
+  const { getUserId } = useUser();
   const [activeSessionTab, setActiveSessionTab] = useState('available');
   const [activeNotesTab, setActiveNotesTab] = useState('my');
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -16,11 +18,14 @@ export const useDashboardPage = () => {
     const loadNotes = async () => {
       if (activeNotesTab !== 'my') return;
       
+      const userId = getUserId();
+      if (!userId) return;
+      
       setNotesLoading(true);
       setNotesError(null);
       
       try {
-        const data = await noteService.getActiveNotes();
+        const data = await noteService.getUserActiveNotes(userId);
         if (cancelled) return;
         
         const normalized = (Array.isArray(data) ? data : []).map((n) => ({
@@ -45,7 +50,7 @@ export const useDashboardPage = () => {
 
     loadNotes();
     return () => { cancelled = true; };
-  }, [activeNotesTab]);
+  }, [activeNotesTab, getUserId]);
 
   const goToPreviousMonth = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));

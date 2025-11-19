@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../context/UserContext';
 
 export const useCreateSessionPage = () => {
   const navigate = useNavigate();
+  const { getUserId } = useUser();
 
   const [sessionData, setSessionData] = useState({
     title: "",
@@ -25,7 +27,13 @@ export const useCreateSessionPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const userId = 1; // Replace with actual user ID as needed
+    const userId = getUserId();
+    if (!userId) {
+      alert("User not logged in");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const res = await fetch(`http://localhost:8080/api/sessions/create?userId=${userId}`, {
         method: "POST",

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
+import { useUser } from '../../context/UserContext';
 
 export const useLoginPage = () => {
   const [email, setEmail] = useState('');
@@ -9,14 +10,14 @@ export const useLoginPage = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login, isAuthenticated } = useUser();
 
   // Redirect to dashboard if already logged in
   useEffect(() => {
-    const student = localStorage.getItem('student');
-    if (student) {
+    if (isAuthenticated) {
       navigate('/dashboard');
     }
-  }, [navigate]);
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,12 +28,8 @@ export const useLoginPage = () => {
       const response = await authService.login(email, password);
       console.log('Login successful:', response);
       
-      // Store student data in localStorage
-      localStorage.setItem('student', JSON.stringify({
-        studentId: response.studentId,
-        name: response.name,
-        email: response.email
-      }));
+      // Store user data via centralized context
+      login(response);
       
       // Navigate to dashboard
       navigate('/dashboard');

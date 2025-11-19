@@ -27,8 +27,9 @@ function normalizeNote(n) {
 }
 
 export const noteService = {
-  async getActiveNotes() {
-    const res = await fetch(`${API_BASE_URL}/notes/active`, {
+  async getAllActiveNotes() {
+    // Get all active notes from all users (for public notes page)
+    const res = await fetch(`${API_BASE_URL}/notes/all/active`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -37,15 +38,46 @@ export const noteService = {
       throw new Error(body.message || 'Failed to load notes');
     }
     const data = await res.json();
+    console.log('Fetched all active notes:', data);
     const arr = Array.isArray(data) ? data : [];
-    return arr.map(normalizeNote).sort((a, b) => {
+    const normalized = arr.map(normalizeNote).sort((a, b) => {
       if (!a.createdAt) return 1;
       if (!b.createdAt) return -1;
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
+    console.log('Normalized all active notes:', normalized);
+    return normalized;
   },
 
-  async createNote({ title, content, tagIds = [] }) {
+  async getActiveNotes() {
+    // Alias for getAllActiveNotes for backward compatibility
+    return this.getAllActiveNotes();
+  },
+
+  async getUserActiveNotes(userId) {
+    // Get active notes for a specific user (for profile page)
+    console.log('Fetching notes for user:', userId);
+    const res = await fetch(`${API_BASE_URL}/notes/user/${userId}/active`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.message || 'Failed to load notes');
+    }
+    const data = await res.json();
+    console.log('Fetched user notes for user', userId, ':', data);
+    const arr = Array.isArray(data) ? data : [];
+    const normalized = arr.map(normalizeNote).sort((a, b) => {
+      if (!a.createdAt) return 1;
+      if (!b.createdAt) return -1;
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+    console.log('Normalized user notes for user', userId, ':', normalized);
+    return normalized;
+  },
+
+  async createNote({ title, content, tagIds = [], userId }) {
     const payload = {
       title: title || 'Untitled Note',
       type: 'RICHTEXT',
@@ -53,9 +85,14 @@ export const noteService = {
       tagIds,
     };
 
+    const headers = { 'Content-Type': 'application/json' };
+    if (userId) {
+      headers['X-User-Id'] = userId.toString();
+    }
+
     const res = await fetch(`${API_BASE_URL}/notes`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(payload),
     });
 
