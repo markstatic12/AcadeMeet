@@ -1,0 +1,94 @@
+/* SettingsPage Styles */
+
+.settings-container {
+  min-height: 100vh;
+}
+
+/* Smooth transitions for tab switching */
+.settings-tab-transition {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Toast animation */
+.toast-enter {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Modal animation */
+.modal-backdrop {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Form field focus effects */
+.settings-input:focus {
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Button hover effects */
+.settings-button {
+  transition: all 0.2s ease;
+}
+
+.settings-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.settings-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Image upload hover effects */
+.image-upload-button {
+  transition: all 0.2s ease;
+}
+
+.image-upload-button:hover {
+  transform: scale(1.05);
+}
