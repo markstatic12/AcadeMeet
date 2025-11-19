@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../context/UserContext';
 
 export const useSettingsPage = () => {
   const navigate = useNavigate();
+  const { getUserId, logout } = useUser();
   const [active, setActive] = useState('profile'); // 'profile' | 'password'
   const [saving, setSaving] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -24,24 +26,28 @@ export const useSettingsPage = () => {
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
 
-  // Load student data from localStorage
+  // Load student data from backend
   useEffect(() => {
-    const stored = localStorage.getItem('student');
-    if (stored) {
-      const s = JSON.parse(stored);
-      setStudent(s);
-      setForm({
-        name: s.name || '',
-        school: s.school || '',
-        program: s.program || 'BSIT',
-        studentId: s.studentId || '',
-        phone: s.phone || '',
-        bio: s.bio || '',
-      });
-      setProfilePreview(s.profilePic || null);
-      setCoverPreview(s.coverImage || null);
+    const userId = getUserId();
+    if (userId) {
+      fetch(`http://localhost:8080/api/users/${userId}`)
+        .then(res => res.json())
+        .then(s => {
+          setStudent(s);
+          setForm({
+            name: s.name || '',
+            school: s.school || '',
+            program: s.program || 'BSIT',
+            studentId: s.studentId || '',
+            phone: s.phone || '',
+            bio: s.bio || '',
+          });
+          setProfilePreview(s.profileImageUrl || null);
+          setCoverPreview(s.coverImage || null);
+        })
+        .catch(err => console.error('Failed to load user', err));
     }
-  }, []);
+  }, [getUserId]);
 
   const handleBack = () => {
     navigate(-1);
@@ -67,11 +73,12 @@ export const useSettingsPage = () => {
   };
 
   const handleSaveProfile = async (showToast) => {
-    if (!student) return;
+    const userId = getUserId();
+    if (!userId) return;
     
     try {
       setSaving(true);
-      const res = await fetch(`http://localhost:8080/api/users/${student.id}`, {
+      const res = await fetch(`http://localhost:8080/api/users/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -79,27 +86,16 @@ export const useSettingsPage = () => {
           school: form.school,
           studentId: form.studentId,
           bio: form.bio,
-          profilePic: profilePreview || null,
+          profileImageUrl: profilePreview || null,
           coverImage: coverPreview || null,
         }),
       });
       
       const data = await res.json();
       
-      // Update localStorage
-      const next = {
-        ...(student || {}),
-        name: form.name,
-        school: form.school,
-        studentId: form.studentId,
-        bio: form.bio,
-        program: form.program,
-        phone: form.phone,
-        profilePic: profilePreview || null,
-        coverImage: coverPreview || null,
-      };
-      localStorage.setItem('student', JSON.stringify(next));
-      setStudent(next);
+      // Reload user data
+      const updatedUser = await fetch(`http://localhost:8080/api/users/${userId}`).then(r => r.json());
+      setStudent(updatedUser);
       
       showToast(data?.message || 'Profile updated', 'success');
     } catch (e) {
@@ -129,7 +125,7 @@ export const useSettingsPage = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('student');
+    logout();
     setShowLogoutConfirm(false);
     navigate('/login');
   };
