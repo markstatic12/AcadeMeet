@@ -1,3 +1,5 @@
+LOTS OF ERRORS WITH IMPORTS!
+
 # AcadeMeet Frontend Refactoring - November 20, 2025
 
 ## Overview
