@@ -1,5 +1,5 @@
 import React from 'react';
-import { ThreeDotsVerticalIcon, StarOutlineIcon, StarSolidIcon, ArchiveIcon, TrashIcon, CalendarIcon } from './icons';
+import { ThreeDotsVerticalIcon, StarOutlineIcon, StarSolidIcon, ArchiveIcon, TrashIcon, CalendarIcon } from '../../icons';
 
 const NoteCard = ({ note, openMenuId, onMenuToggle, onToggleFavourite, onArchive, onDelete }) => {
   return (

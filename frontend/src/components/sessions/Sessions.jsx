@@ -1,39 +1,13 @@
-import React from 'react';
-import { ThreeDotsVerticalIcon, TrashIcon, CalendarIcon, ClockIcon, LocationIcon } from '../../icons';
+import React, { useState, useEffect } from 'react';
+import { CalendarIcon, ClockIcon, LocationIcon } from '../../icons';
 import { to12Hour } from '../../utils/timeUtils';
 
-const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => {
+// Session Card Component (General use - no menu)
+const SessionCard = ({ session }) => {
   return (
     <div className="bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl cursor-pointer group h-[240px] w-full">
       {/* Session Thumbnail */}
       <div className="relative h-[120px] bg-gradient-to-br from-[#1e40af] via-[#2563eb] to-[#3b82f6] overflow-hidden">
-        {/* Card menu */}
-        <div className="absolute top-2 right-2 card-options-menu z-20">
-          <button
-            onClick={(e) => { 
-              e.stopPropagation(); 
-              onMenuToggle(session.id); 
-            }}
-            className="p-1.5 bg-black/30 hover:bg-black/50 rounded-md text-white/80"
-            title="Options"
-          >
-            <ThreeDotsVerticalIcon className="w-4 h-4" />
-          </button>
-          {openMenuId === session.id && (
-            <div className="absolute right-0 mt-2 w-36 bg-[#111] border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
-              <button
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  onDelete(session.id); 
-                }}
-                className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-gray-800 flex items-center gap-2"
-              >
-                <TrashIcon className="w-4 h-4" />
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
         {/* Colorful shapes pattern - LEFT SIDE */}
         <div className="absolute left-0 top-0 w-1/2 h-full pointer-events-none">
           {/* Row 1 */}
@@ -91,4 +65,76 @@ const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => {
   );
 };
 
-export default SessionCard;
+// Sessions Grid Component
+const SessionsGrid = ({ sessions }) => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      {sessions.map(session => (
+        <SessionCard key={session.id} session={session} />
+      ))}
+    </div>
+  );
+};
+
+// Sessions Header Component
+const SessionsHeader = () => {
+  return (
+    <div className="mb-6">
+      <h1 className="text-3xl font-bold text-white">Sessions</h1>
+    </div>
+  );
+};
+
+// Sessions Section Component
+const SessionsSection = () => {
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchSessions();
+  }, []);
+
+  const fetchSessions = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:8080/api/sessions/all-sessions');
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      // Only display first 4 sessions on dashboard
+      setSessions(Array.isArray(data) ? data.slice(0, 4) : []);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch sessions. Please try again later.');
+      console.error("Error fetching sessions:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="text-xl font-bold text-white mb-4">Active Sessions</h2>
+      {loading && <p className="text-white/60">Loading sessions...</p>}
+      {error && <p className="text-red-400">{error}</p>}
+      {!loading && !error && sessions.length === 0 && (
+        <p className="text-white/60">No sessions available.</p>
+      )}
+      {!loading && sessions.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {sessions.map((session) => (
+            <SessionCard key={session.id} session={session} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export { SessionCard, SessionsGrid, SessionsHeader, SessionsSection };
+
+export default SessionsSection;

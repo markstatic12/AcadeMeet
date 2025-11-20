@@ -1,10 +1,9 @@
 ﻿import React from 'react';
 import DashboardLayout from '../components/DashboardLayout';
-import NotesHeader from '../components/notes/NotesHeader';
-import NotesGrid from '../components/notes/NotesGrid';
-import LoadingState from '../components/notes/LoadingState';
-import ErrorState from '../components/notes/ErrorState';
-import EmptyState from '../components/notes/EmptyState';
+import { NotesHeader, NotesGrid } from '../components/notes/Notes';
+import LoadingState from '../components/ui/LoadingState';
+import ErrorState from '../components/ui/ErrorState';
+import EmptyState from '../components/ui/EmptyState';
 import { useNotesPage } from '../logic/notes/NotesPage.logic';
 import '../styles/notes/NotesPage.css';
 

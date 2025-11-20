@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import DashboardLayout from '../components/DashboardLayout';
-import PopularSessionsSection from '../components/dashboard/PopularSessionsSection';
-import CalendarSection from '../components/dashboard/CalendarSection';
+import { SessionsSection } from '../components/dashboard/Sessions';
+import { CalendarSection } from '../components/dashboard/Calendar';
 import RightSidebar from '../components/dashboard/RightSidebar';
 import { useDashboardPage } from '../logic/dashboard/DashboardPage.logic';
 import { reminders } from '../utils/dashboardData';
@@ -24,7 +24,7 @@ const DashboardPage = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6 animate-fadeIn">
-        <PopularSessionsSection />
+        <SessionsSection />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <CalendarSection

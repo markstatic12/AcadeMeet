@@ -1,6 +1,6 @@
 import React from 'react';
-import RemindersSection from './RemindersSection';
-import NotesSection from './NotesSection';
+import RemindersSection from './Reminders';
+import { NotesSection } from './Notes';
 
 const RightSidebar = ({ 
   reminders,

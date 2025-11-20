@@ -1,5 +1,5 @@
 import React from 'react';
-import { CalendarIcon, ClockIcon, LocationIcon } from './icons';
+import { CalendarIcon, ClockIcon, LocationIcon } from '../../icons';
 import { to12Hour } from '../../utils/timeUtils';
 
 const TrashedSessionCard = ({ session, daysLeft, onRestore }) => {

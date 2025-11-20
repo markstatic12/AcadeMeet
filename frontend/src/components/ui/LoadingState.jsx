@@ -1,9 +1,9 @@
 import React from 'react';
 
-const LoadingState = () => {
+const LoadingState = ({ message = 'Loading...' }) => {
   return (
     <div className="text-center py-12">
-      <p className="text-gray-400">Loading sessions...</p>
+      <p className="text-gray-400">{message}</p>
     </div>
   );
 };

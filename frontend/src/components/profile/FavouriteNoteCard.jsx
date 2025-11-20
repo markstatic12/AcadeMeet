@@ -1,5 +1,5 @@
 import React from 'react';
-import { StarSolidIcon, CalendarIcon } from './icons';
+import { StarSolidIcon, CalendarIcon } from '../../icons';
 
 const FavouriteNoteCard = ({ note }) => {
   return (

@@ -1,9 +1,9 @@
 import React from 'react';
 
-const EmptyState = () => {
+const EmptyState = ({ message = 'No items found.' }) => {
   return (
     <div className="text-center py-12">
-      <p className="text-gray-400">No sessions found.</p>
+      <p className="text-gray-400">{message}</p>
     </div>
   );
 };
