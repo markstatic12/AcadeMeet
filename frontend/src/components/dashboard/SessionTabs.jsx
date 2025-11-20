@@ -21,7 +21,7 @@ const SessionTabs = ({ activeTab, onTabChange }) => {
             : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
         }`}
       >
-        My Sessions
+        Joined Sessions
       </button>
     </div>
   );
