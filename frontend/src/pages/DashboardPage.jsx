@@ -4,7 +4,7 @@ import PopularSessionsSection from '../components/dashboard/PopularSessionsSecti
 import CalendarSection from '../components/dashboard/CalendarSection';
 import RightSidebar from '../components/dashboard/RightSidebar';
 import { useDashboardPage } from '../logic/dashboard/DashboardPage.logic';
-import { popularSessions, reminders } from '../utils/dashboardData';
+import { reminders } from '../utils/dashboardData';
 import '../styles/dashboard/DashboardPage.css';
 
 const DashboardPage = () => {
@@ -24,7 +24,7 @@ const DashboardPage = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6 animate-fadeIn">
-        <PopularSessionsSection sessions={popularSessions} />
+        <PopularSessionsSection />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <CalendarSection

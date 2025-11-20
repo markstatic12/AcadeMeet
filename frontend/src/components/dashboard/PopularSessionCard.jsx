@@ -1,13 +1,32 @@
 import React from 'react';
+import { SlCalender } from "react-icons/sl";
+import { IoTimeOutline } from "react-icons/io5";
+import { GrVideo } from "react-icons/gr";
+import { formatDate, formatTime } from '../../utils/dateTimeUtils';
 
 const PopularSessionCard = ({ session }) => {
   return (
-    <div
-      className={`bg-gradient-to-br ${session.color} rounded-2xl p-6 cursor-pointer hover:scale-105 transition-transform duration-300 shadow-xl`}
-    >
-      <div className="text-4xl mb-3">{session.icon}</div>
-      <h3 className="text-white text-xl font-bold mb-2">{session.title}</h3>
-      <p className="text-white/80 text-sm">{session.subtitle}</p>
+    <div className="bg-[#1e1e1e] rounded-xl p-5 flex flex-col gap-3 shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <h3 className="text-xl font-semibold text-white truncate">
+        {session.title}
+      </h3>
+      
+      <div className="flex items-center gap-3 text-gray-400 text-sm">
+        <SlCalender className="flex-shrink-0" />
+        <span>{formatDate(session.month, session.day, session.year)}</span>
+      </div>
+      
+      <div className="flex items-center gap-3 text-gray-400 text-sm">
+        <IoTimeOutline className="flex-shrink-0" />
+        <span>
+          {formatTime(session.startTime)} - {formatTime(session.endTime)}
+        </span>
+      </div>
+      
+      <div className="flex items-center gap-3 text-gray-400 text-sm">
+        <GrVideo className="flex-shrink-0" />
+        <span className="truncate">{session.location}</span>
+      </div>
     </div>
   );
 };
