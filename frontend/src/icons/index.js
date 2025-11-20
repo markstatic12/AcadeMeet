@@ -43,6 +43,7 @@ export {
   HistoryIcon,
   BookmarkCheckIcon,
   ArchiveIcon,
+  TrashIcon,
   StarOutlineIcon,
   StarSolidIcon,
   CloseIcon,
