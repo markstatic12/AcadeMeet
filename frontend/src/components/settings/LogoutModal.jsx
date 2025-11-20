@@ -1,5 +1,5 @@
 import React from 'react';
-import { WarningIcon } from '../../icons/icons';
+import { WarningIcon } from '../../icons';
 
 const LogoutModal = ({ isOpen, onCancel, onConfirm }) => {
   if (!isOpen) return null;

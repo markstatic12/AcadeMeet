@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserIcon, ShieldIcon, LogoutIcon } from '../../icons/icons';
+import { UserIcon, ShieldIcon, LogoutIcon } from '../../icons';
 
 const SettingsSidebar = ({ active, onTabChange, onLogoutClick }) => {
   return (

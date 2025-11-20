@@ -1,7 +1,7 @@
 import React from 'react';
 import { getDaysInMonth, getMonthName, isCurrentMonth as checkIsCurrentMonth, getCurrentDay } from '../../utils/calendarUtils';
 import SessionTabs from './SessionTabs';
-import { ChevronLeftIcon, ChevronRightIcon } from '../../icons/icons';
+import { ChevronLeftIcon, ChevronRightIcon } from '../../icons';
 
 const CalendarHeader = ({ monthName, onPrevious, onNext }) => {
   return (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { PencilIcon } from '../../icons/icons';
+import { PencilIcon } from '../../icons';
 
 const CoverImageUpload = ({ preview, inputRef, onChange }) => {
   return (
