@@ -1,5 +1,5 @@
 import React from 'react';
-import { BackIcon } from './icons';
+import { BackIcon } from '../../icons/icons';
 
 const SettingsHeader = ({ onBack }) => {
   return (

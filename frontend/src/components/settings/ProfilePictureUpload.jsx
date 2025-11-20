@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserCircle, PencilIcon } from './icons';
+import { UserCircle, PencilIcon } from '../../icons/icons';
 
 const ProfilePictureUpload = ({ preview, inputRef, onChange }) => {
   return (
