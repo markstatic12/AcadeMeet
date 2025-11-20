@@ -1,6 +1,6 @@
 import React from 'react';
-import { ThreeDotsVerticalIcon, TrashIcon, CalendarIcon, ClockIcon, LocationIcon } from '../../icons';
-import { to12Hour } from '../../utils/timeUtils';
+import { ThreeDotsVerticalIcon, TrashIcon, CalendarIcon, ClockIcon, LocationIcon } from '../../../icons';
+import { to12Hour } from '../../../utils/timeUtils';
 
 const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => {
   return (

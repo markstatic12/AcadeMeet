@@ -1,5 +1,5 @@
 import React from 'react';
-import CreateNewCard from './CreateNewCard';
+import CreateNewCard from '../../profile/CreateNewCard';
 import NoteCard from './NoteCard';
 
 const NotesContent = ({ notesData, openNoteMenuId, onCreateNote, onMenuToggle, onToggleFavourite, onArchive, onDelete }) => {

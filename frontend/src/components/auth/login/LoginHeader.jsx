@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from '../../assets/academeet-white.svg';
+import logo from '../../../assets/academeet-white.svg';
 
 const LoginHeader = () => {
   return (

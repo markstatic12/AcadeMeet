@@ -1,5 +1,5 @@
 import React from 'react';
-import TrashedNoteCard from './TrashedNoteCard';
+import TrashedNoteCard from '../notes/profile/TrashedNoteCard';
 
 const TrashedNotesContent = ({ notesData, onBackToNotes, onRestore }) => {
   const trashedNotes = notesData.filter((n) => n.deletedAt);

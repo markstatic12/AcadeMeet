@@ -1,5 +1,5 @@
 import React from 'react';
-import CreateNewCard from './CreateNewCard';
+import CreateNewCard from '../../profile/CreateNewCard';
 import SessionCard from './SessionCard';
 
 const SessionsContent = ({ sessionsData, openCardMenuId, onCreateSession, onMenuToggle, onDeleteSession }) => {

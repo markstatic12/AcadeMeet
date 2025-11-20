@@ -1,5 +1,5 @@
 import React from 'react';
-import FavouriteNoteCard from './FavouriteNoteCard';
+import FavouriteNoteCard from '../notes/profile/FavouriteNoteCard';
 
 const FavouritesContent = ({ notesData, onBackToNotes }) => {
   const favouriteNotes = notesData.filter((n) => n.isFavourite && !n.archivedAt && !n.deletedAt);

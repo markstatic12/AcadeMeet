@@ -1,5 +1,5 @@
 import React from 'react';
-import TrashedSessionCard from './TrashedSessionCard';
+import TrashedSessionCard from '../sessions/profile/TrashedSessionCard';
 
 const TrashedSessionsContent = ({ trashedSessions, TRASH_TTL_DAYS, onRestore, onBackToSessions }) => {
   return (

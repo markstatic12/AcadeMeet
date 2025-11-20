@@ -1,5 +1,5 @@
 import React from 'react';
-import ArchivedNoteCard from './ArchivedNoteCard';
+import ArchivedNoteCard from '../notes/profile/ArchivedNoteCard';
 
 const ArchivedContent = ({ notesData, onBackToNotes, onRestore }) => {
   const archivedNotes = notesData.filter((n) => n.archivedAt && !n.deletedAt);
