@@ -1,6 +1,6 @@
 import React from 'react';
 import ToolbarButton from './ToolbarButton';
-import { ListIcon, LinkIcon, H1Icon, H2Icon, QuoteIcon, CodeIcon, ClearIcon } from './ToolbarIcons';
+import { ListIcon, LinkIcon, H1Icon, H2Icon, QuoteIcon, CodeIcon, ClearIcon } from '../../icons';
 
 const EditorToolbar = ({ onFormat, onLink }) => {
   return (

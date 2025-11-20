@@ -1,5 +1,5 @@
 import React from 'react';
-import { CloseIcon, LoadingIcon } from './icons';
+import { CloseIcon, LoadingIcon } from '../../icons';
 
 const EditProfileModal = ({ 
   isOpen, 

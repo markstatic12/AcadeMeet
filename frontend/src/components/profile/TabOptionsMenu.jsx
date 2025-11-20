@@ -1,5 +1,5 @@
 import React from 'react';
-import { ThreeDotsVerticalIcon, HistoryIcon, TrashIcon, BookmarkCheckIcon, ArchiveIcon } from './icons';
+import { ThreeDotsVerticalIcon, HistoryIcon, TrashIcon, BookmarkCheckIcon, ArchiveIcon } from '../../icons';
 
 const TabOptionsMenu = ({ 
   showMenu, 

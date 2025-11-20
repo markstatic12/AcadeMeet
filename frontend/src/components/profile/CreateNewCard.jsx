@@ -1,5 +1,5 @@
 import React from 'react';
-import { PlusIcon } from './icons';
+import { PlusIcon } from '../../icons';
 
 const CreateNewCard = ({ onClick, label }) => {
   return (

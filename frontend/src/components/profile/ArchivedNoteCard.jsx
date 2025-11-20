@@ -1,5 +1,5 @@
 import React from 'react';
-import { CalendarIcon } from './icons';
+import { CalendarIcon } from '../../icons';
 
 const ArchivedNoteCard = ({ note, onRestore }) => {
   return (
