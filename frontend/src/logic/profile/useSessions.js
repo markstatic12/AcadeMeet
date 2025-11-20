@@ -1,90 +1,90 @@
 import { useState, useEffect } from 'react';
-
-const TRASH_TTL_DAYS = 14;
-
-const pruneTrashed = (items) => {
-  const now = Date.now();
-  const kept = items.filter(s => !s.deletedAt || (now - s.deletedAt) < TRASH_TTL_DAYS * 24 * 60 * 60 * 1000);
-  if (kept.length !== items.length) {
-    localStorage.setItem('trashedSessions', JSON.stringify(kept));
-  }
-  return kept;
-};
+import { jwtUtils } from '../../utils/jwtUtils';
 
 export const useSessions = (userId) => {
   const [sessionsData, setSessionsData] = useState([]);
   const [trashedSessions, setTrashedSessions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Fetch sessions from API
+  // Fetch current user's sessions from API
   useEffect(() => {
     const fetchSessions = async () => {
+      if (!jwtUtils.hasToken()) return;
+      
+      setIsLoading(true);
+      setError(null);
       try {
-        const res = await fetch(`http://localhost:8080/api/sessions/user/${userId}`, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" }
-        });
+        const res = await jwtUtils.fetchWithJWT(
+          `http://localhost:8080/api/sessions/my-sessions`,
+          { method: "GET" }
+        );
 
         if (!res.ok) throw new Error("Failed to fetch sessions");
 
         const data = await res.json();
         console.log("Fetched sessions:", data);
-        setSessionsData(data);
+        setSessionsData(data || []);
         
-      } catch (error) {
-        console.error("Error fetching sessions:", error);
+      } catch (err) {
+        console.error("Error fetching sessions:", err);
+        setError(err.message);
+        setSessionsData([]);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    if (userId) {
-      fetchSessions();
-    }
-  }, [userId]);
-
-  // Load trashed sessions from localStorage
-  useEffect(() => {
-    try {
-      const trashed = JSON.parse(localStorage.getItem('trashedSessions') || '[]');
-      setTrashedSessions(pruneTrashed(trashed));
-    } catch (e) {
-      console.error('Failed to load sessions from localStorage', e);
-    }
+    fetchSessions();
   }, []);
 
-  // Move session to trash
-  const deleteSession = (sessionId) => {
-    const toDelete = sessionsData.find(s => s.id === sessionId);
-    if (!toDelete) return;
-    const updated = sessionsData.filter(s => s.id !== sessionId);
-    setSessionsData(updated);
-    localStorage.setItem('sessions', JSON.stringify(updated));
+  // Delete session via API
+  const deleteSession = async (sessionId) => {
+    try {
+      const res = await jwtUtils.fetchWithJWT(
+        `http://localhost:8080/api/sessions/${sessionId}`,
+        { method: "DELETE" }
+      );
 
-    const newTrashItem = { ...toDelete, deletedAt: Date.now() };
-    const currentTrash = pruneTrashed(JSON.parse(localStorage.getItem('trashedSessions') || '[]'));
-    const nextTrash = [newTrashItem, ...currentTrash];
-    setTrashedSessions(nextTrash);
-    localStorage.setItem('trashedSessions', JSON.stringify(nextTrash));
+      if (!res.ok) throw new Error("Failed to delete session");
+
+      // Remove from state
+      setSessionsData(prevSessions => prevSessions.filter(s => s.id !== sessionId));
+      console.log("Session deleted successfully");
+    } catch (err) {
+      console.error("Error deleting session:", err);
+      setError(err.message);
+    }
   };
 
-  // Restore a trashed session back to active sessions
-  const restoreSession = (sessionId) => {
-    const idx = trashedSessions.findIndex(s => s.id === sessionId);
-    if (idx === -1) return;
-    const restored = { ...trashedSessions[idx] };
-    delete restored.deletedAt;
-    const nextTrash = [...trashedSessions];
-    nextTrash.splice(idx, 1);
-    const nextSessions = [restored, ...sessionsData];
-    setTrashedSessions(nextTrash);
-    setSessionsData(nextSessions);
-    localStorage.setItem('trashedSessions', JSON.stringify(nextTrash));
-    localStorage.setItem('sessions', JSON.stringify(nextSessions));
+  // Restore session via API (requires backend support)
+  const restoreSession = async (sessionId) => {
+    try {
+      const res = await jwtUtils.fetchWithJWT(
+        `http://localhost:8080/api/sessions/${sessionId}/restore`,
+        { method: "PATCH" }
+      );
+
+      if (!res.ok) throw new Error("Failed to restore session");
+
+      const restored = await res.json();
+      // Add back to active sessions
+      setSessionsData(prevSessions => [restored, ...prevSessions]);
+      // Remove from trashed
+      setTrashedSessions(prevTrashed => prevTrashed.filter(s => s.id !== sessionId));
+      console.log("Session restored successfully");
+    } catch (err) {
+      console.error("Error restoring session:", err);
+      setError(err.message);
+    }
   };
 
   return {
     sessionsData,
     trashedSessions,
+    isLoading,
+    error,
     deleteSession,
-    restoreSession,
-    TRASH_TTL_DAYS
+    restoreSession
   };
 };

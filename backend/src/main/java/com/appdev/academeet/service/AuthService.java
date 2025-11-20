@@ -3,7 +3,7 @@ package com.appdev.academeet.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.appdev.academeet.dto.AuthResponse;
@@ -12,6 +12,7 @@ import com.appdev.academeet.dto.LoginRequest;
 import com.appdev.academeet.dto.SignupRequest;
 import com.appdev.academeet.model.User;
 import com.appdev.academeet.repository.UserRepository;
+import com.appdev.academeet.security.JwtTokenProvider;
 
 @Service
 public class AuthService {
@@ -20,7 +21,10 @@ public class AuthService {
     private UserRepository userRepository;
     
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
     
     public AuthResponse signup(SignupRequest request) {
         // Check if email already exists
@@ -59,13 +63,17 @@ public class AuthService {
         
         User savedUser = userRepository.save(user);
         
+        // Generate JWT token
+        String token = jwtTokenProvider.generateToken(savedUser.getId(), savedUser.getEmail(), savedUser.getName());
+        
         return new AuthResponse(
             savedUser.getId(),
             savedUser.getName(),
             savedUser.getEmail(),
             savedUser.getProgram(),
             savedUser.getYearLevel(),
-            "Signup successful"
+            "Signup successful",
+            token
         );
     }
     
@@ -93,13 +101,17 @@ public class AuthService {
             return new AuthResponse(null, null, null, null, null, "Invalid email or password");
         }
         
+        // Generate JWT token
+        String token = jwtTokenProvider.generateToken(user.getId(), user.getEmail(), user.getName());
+        
         return new AuthResponse(
             user.getId(),
             user.getName(),
             user.getEmail(),
             user.getProgram(),
             user.getYearLevel(),
-            "Login successful"
+            "Login successful",
+            token
         );
     }
 

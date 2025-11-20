@@ -1,7 +1,7 @@
 import React from 'react';
 import TrashedSessionCard from './TrashedSessionCard';
 
-const TrashedSessionsContent = ({ trashedSessions, TRASH_TTL_DAYS, onRestore, onBackToSessions }) => {
+const TrashedSessionsContent = ({ trashedSessions, onRestore, onBackToSessions }) => {
   return (
     <div className="flex-1 overflow-y-auto custom-scrollbar pr-1">
       <div className="mb-4 flex items-center justify-between">
@@ -15,24 +15,17 @@ const TrashedSessionsContent = ({ trashedSessions, TRASH_TTL_DAYS, onRestore, on
       </div>
       {trashedSessions.length === 0 ? (
         <div className="bg-[#0a0a0a] border border-gray-700 rounded-2xl p-10 text-center text-gray-400">
-          No trashed sessions. Deleted sessions stay here for 14 days.
+          No trashed sessions.
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-          {trashedSessions.map((session) => {
-            const msLeft = session.deletedAt
-              ? session.deletedAt + TRASH_TTL_DAYS * 24 * 60 * 60 * 1000 - Date.now()
-              : 0;
-            const daysLeft = Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000)));
-            return (
-              <TrashedSessionCard
-                key={session.id}
-                session={session}
-                daysLeft={daysLeft}
-                onRestore={onRestore}
-              />
-            );
-          })}
+          {trashedSessions.map((session) => (
+            <TrashedSessionCard
+              key={session.id}
+              session={session}
+              onRestore={onRestore}
+            />
+          ))}
         </div>
       )}
     </div>

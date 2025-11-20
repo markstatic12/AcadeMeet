@@ -61,8 +61,21 @@ const ProfilePage = () => {
     unfollowUser,
   } = useProfilePage();
 
-  const userId = 1;
-  const { sessionsData, trashedSessions, deleteSession, restoreSession, TRASH_TTL_DAYS } = useSessions(userId);
+  // Get current logged-in user ID from localStorage
+  const getCurrentUserId = () => {
+    try {
+      const student = JSON.parse(localStorage.getItem('student') || '{}');
+      return student.id || null;
+    } catch (err) {
+      console.error('Failed to retrieve user ID:', err);
+      return null;
+    }
+  };
+
+  // eslint-disable-next-line no-unused-vars
+  const userId = getCurrentUserId();
+  // eslint-disable-next-line no-unused-vars
+  const { sessionsData, trashedSessions, isLoading, error, deleteSession, restoreSession } = useSessions();
   const { notesData, toggleFavouriteNote, archiveNote, deleteNote, restoreTrashedNote, restoreArchivedNote } = useNotes(activeTab);
   const panelHeight = usePanelHeight(leftProfileCardRef, [userData, showEditModal, showProfileOptionsMenu]);
 
@@ -150,7 +163,6 @@ const ProfilePage = () => {
             {activeTab === 'sessions' && sessionsView === 'trash' && (
               <TrashedSessionsContent
                 trashedSessions={trashedSessions}
-                TRASH_TTL_DAYS={TRASH_TTL_DAYS}
                 onRestore={restoreSession}
                 onBackToSessions={() => setSessionsView('active')}
               />

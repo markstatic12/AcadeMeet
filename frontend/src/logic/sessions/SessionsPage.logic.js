@@ -12,7 +12,7 @@ export const useSessionsPage = () => {
   const fetchSessions = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8080/api/sessions/all-sessions');
+      const response = await fetch('http://localhost:8080/api/sessions/all');
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

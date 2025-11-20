@@ -64,12 +64,16 @@ export const useSignupPage = () => {
       
       // Store student data in localStorage
       localStorage.setItem('student', JSON.stringify({
+        id: response.id,
         studentId: response.studentId,
         name: response.name,
         email: response.email,
         program: program,
         yearLevel: yearLevel
       }));
+
+      // Store JWT token
+      localStorage.setItem('jwtToken', response.token);
       
       // Show success message
       setSuccess('Account created successfully! Redirecting to dashboard...');

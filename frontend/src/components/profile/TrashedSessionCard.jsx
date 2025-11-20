@@ -2,7 +2,7 @@ import React from 'react';
 import { CalendarIcon, ClockIcon, LocationIcon } from './icons';
 import { to12Hour } from '../../utils/timeUtils';
 
-const TrashedSessionCard = ({ session, daysLeft, onRestore }) => {
+const TrashedSessionCard = ({ session, onRestore }) => {
   return (
     <div className="relative bg-[#1a1a1a] border border-gray-800 rounded-xl overflow-hidden">
       {/* Vertical Restore action */}
@@ -16,7 +16,7 @@ const TrashedSessionCard = ({ session, daysLeft, onRestore }) => {
       </div>
       <div className="relative h-[120px] bg-gradient-to-br from-[#0f172a] via-[#1f2937] to-[#111827]">
         <span className="absolute top-2 left-2 text-xs px-2 py-1 bg-red-500/20 text-red-300 rounded-full border border-red-500/30">
-          {daysLeft} day{daysLeft !== 1 ? 's' : ''} left
+          Trashed
         </span>
       </div>
       

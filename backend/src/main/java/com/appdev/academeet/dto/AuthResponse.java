@@ -7,6 +7,7 @@ public class AuthResponse {
     private String program;
     private Integer yearLevel;
     private String message;
+    private String token;
     
     // Constructors
     public AuthResponse() {}
@@ -18,6 +19,17 @@ public class AuthResponse {
         this.program = program;
         this.yearLevel = yearLevel;
         this.message = message;
+        this.token = null;
+    }
+
+    public AuthResponse(Long id, String name, String email, String program, Integer yearLevel, String message, String token) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.program = program;
+        this.yearLevel = yearLevel;
+        this.message = message;
+        this.token = token;
     }
     
     // Getters and Setters
@@ -67,5 +79,13 @@ public class AuthResponse {
     
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

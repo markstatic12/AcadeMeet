@@ -1,13 +1,14 @@
 package com.appdev.academeet.service;
 
-import com.appdev.academeet.dto.SessionDTO; // <-- IMPORT DTO
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.appdev.academeet.dto.SessionDTO;
 import com.appdev.academeet.model.Session;
 import com.appdev.academeet.repository.SessionRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // <-- IMPORT TRANSACTIONAL
-
-import java.util.List;
-import java.util.stream.Collectors; // <-- IMPORT COLLECTORS
 
 @Service
 public class SessionService {
@@ -22,21 +23,31 @@ public class SessionService {
         return sessionRepository.save(session);
     }
 
-    // --- MODIFIED METHOD ---
-    @Transactional(readOnly = true) // <-- ADD TRANSACTIONAL
+    @Transactional(readOnly = true)
     public List<SessionDTO> getSessionsByUserId(Long userId) {
         return sessionRepository.findByHost_Id(userId)
                 .stream()
-                .map(SessionDTO::new) // <-- CONVERT TO DTO
+                .map(SessionDTO::new)
                 .collect(Collectors.toList());
     }
 
-    // --- MODIFIED METHOD ---
-    @Transactional(readOnly = true) // <-- ADD TRANSACTIONAL
+    @Transactional(readOnly = true)
     public List<SessionDTO> getAllSessions() {
         return sessionRepository.findAll()
                 .stream()
-                .map(SessionDTO::new) // <-- CONVERT TO DTO
+                .map(SessionDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    public Session getSessionById(Long sessionId) {
+        return sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Session not found"));
+    }
+
+    public void deleteSession(Long sessionId) {
+        if (!sessionRepository.existsById(sessionId)) {
+            throw new RuntimeException("Session not found");
+        }
+        sessionRepository.deleteById(sessionId);
     }
 }

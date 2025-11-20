@@ -27,12 +27,18 @@ export const useLoginPage = () => {
       const response = await authService.login(email, password);
       console.log('Login successful:', response);
       
-      // Store student data in localStorage
+      // Store student data and JWT token in localStorage
       localStorage.setItem('student', JSON.stringify({
+        id: response.id,
         studentId: response.studentId,
         name: response.name,
-        email: response.email
+        email: response.email,
+        program: response.program,
+        yearLevel: response.yearLevel
       }));
+
+      // Store JWT token
+      localStorage.setItem('jwtToken', response.token);
       
       // Navigate to dashboard
       navigate('/dashboard');
