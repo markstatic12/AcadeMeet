@@ -1,32 +1,65 @@
 import React, { useState, useEffect } from 'react';
-import { SlCalender } from "react-icons/sl";
-import { IoTimeOutline } from "react-icons/io5";
-import { GrVideo } from "react-icons/gr";
-import { formatDate, formatTime } from '../../utils/dateTimeUtils';
+import { CalendarIcon, ClockIcon, LocationIcon } from '../../icons';
+import { to12Hour } from '../../utils/timeUtils';
 
-// Session Card Component
+// Session Card Component (General use - no menu)
 const SessionCard = ({ session }) => {
   return (
-    <div className="bg-[#1e1e1e] rounded-xl p-5 flex flex-col gap-3 shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <h3 className="text-xl font-semibold text-white truncate">
-        {session.title}
-      </h3>
-      
-      <div className="flex items-center gap-3 text-gray-400 text-sm">
-        <SlCalender className="flex-shrink-0" />
-        <span>{formatDate(session.month, session.day, session.year)}</span>
+    <div className="bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl cursor-pointer group h-[240px] w-full">
+      {/* Session Thumbnail */}
+      <div className="relative h-[120px] bg-gradient-to-br from-[#1e40af] via-[#2563eb] to-[#3b82f6] overflow-hidden">
+        {/* Colorful shapes pattern - LEFT SIDE */}
+        <div className="absolute left-0 top-0 w-1/2 h-full pointer-events-none">
+          {/* Row 1 */}
+          <div className="absolute top-2 left-2 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center text-white text-[8px] font-bold shadow-md">B</div>
+          <div className="absolute top-2 left-10 w-5 h-5 bg-orange-500 rounded shadow-md"></div>
+          <div className="absolute top-3 left-16 w-4 h-4 bg-cyan-400 rounded shadow-md"></div>
+          
+          {/* Row 2 */}
+          <div className="absolute top-8 left-2 w-5 h-5 bg-blue-500 rounded shadow-md"></div>
+          <div className="absolute top-7 left-9 w-6 h-6 bg-yellow-400 rounded transform rotate-12 shadow-md"></div>
+          <div className="absolute top-8 left-16 w-5 h-5 bg-purple-500 rounded shadow-md"></div>
+          
+          {/* Row 3 */}
+          <div className="absolute top-14 left-2 w-5 h-5 bg-pink-500 rounded-full shadow-md"></div>
+          <div className="absolute top-13 left-9 w-5 h-5 bg-red-500 rounded shadow-md"></div>
+          <div className="absolute top-14 left-15 w-4 h-4 bg-yellow-300 rounded-full shadow-md"></div>
+        </div>
+        
+        {/* Pink diamond accent - CENTER TOP */}
+        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 pointer-events-none">
+          <div className="w-7 h-7 bg-pink-500 rounded transform rotate-45 shadow-lg"></div>
+        </div>
+        
+        {/* Phone illustration - RIGHT BOTTOM */}
+        <div className="absolute bottom-0 right-0 w-1/2 h-full flex items-end justify-end p-2 pointer-events-none">
+          <div className="relative">
+            <div className="w-20 h-16 bg-[#1e40af] rounded-lg border-2 border-[#1e3a8a] shadow-xl"></div>
+            <div className="absolute top-1 left-1 right-1 bottom-1 bg-[#2563eb] rounded"></div>
+            <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 border-r-2 border-b-2 border-white/30 rounded-br-lg"></div>
+          </div>
+        </div>
       </div>
-      
-      <div className="flex items-center gap-3 text-gray-400 text-sm">
-        <IoTimeOutline className="flex-shrink-0" />
-        <span>
-          {formatTime(session.startTime)} - {formatTime(session.endTime)}
-        </span>
-      </div>
-      
-      <div className="flex items-center gap-3 text-gray-400 text-sm">
-        <GrVideo className="flex-shrink-0" />
-        <span className="truncate">{session.location}</span>
+
+      {/* Session Info */}
+      <div className="p-3 bg-[#0a0a0a]">
+        <h3 className="text-white font-bold text-sm mb-2 group-hover:text-indigo-400 transition-colors">
+          {session.title}
+        </h3>
+        <div className="space-y-1">
+          <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
+            <CalendarIcon className="w-3 h-3 text-indigo-400" />
+            <span>{session.month} {session.day}, {session.year}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
+            <ClockIcon className="w-3 h-3 text-indigo-400" />
+            <span>{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
+            <LocationIcon className="w-3 h-3 text-indigo-400" />
+            <span>{session.location}</span>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -103,4 +136,5 @@ const SessionsSection = () => {
 };
 
 export { SessionCard, SessionsGrid, SessionsHeader, SessionsSection };
+
 export default SessionsSection;
