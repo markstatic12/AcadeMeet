@@ -1,10 +1,10 @@
 ﻿import React from 'react';
 import AuthLayout from '../components/AuthLayout';
-import LoginHeader from '../components/login/LoginHeader';
-import AlertMessage from '../components/login/AlertMessage';
-import LoginForm from '../components/login/LoginForm';
-import FormDivider from '../components/login/FormDivider';
-import SignupLink from '../components/login/SignupLink';
+import LoginHeader from '../components/auth/login/LoginHeader';
+import AlertMessage from '../components/auth/login/AlertMessage';
+import LoginForm from '../components/auth/login/LoginForm';
+import FormDivider from '../components/auth/login/FormDivider';
+import SignupLink from '../components/auth/login/SignupLink';
 import { useLoginPage } from '../logic/login/LoginPage.logic';
 import '../styles/login/LoginPage.css';
 

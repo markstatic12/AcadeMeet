@@ -1,6 +1,6 @@
 import React from 'react';
 import AuthLayout from '../components/AuthLayout';
-import SignupHeader from '../components/signup/SignupHeader';
+import SignupHeader from '../components/auth/signup/SignupHeader';
 import AlertMessage from '../components/signup/AlertMessage';
 import SignupForm from '../components/signup/SignupForm';
 import LoginLink from '../components/signup/LoginLink';

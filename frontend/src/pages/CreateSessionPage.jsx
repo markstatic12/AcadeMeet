@@ -1,8 +1,8 @@
 ﻿import React from 'react';
-import PageHeader from '../components/createSession/PageHeader';
-import SessionHeader from '../components/createSession/SessionHeader';
-import DetailsPanel from '../components/createSession/DetailsPanel';
-import DescriptionPanel from '../components/createSession/DescriptionPanel';
+import PageHeader from '../components/sessions/CreateSession/PageHeader';
+import SessionHeader from '../components/sessions/CreateSession/SessionHeader';
+import DetailsPanel from '../components/sessions/CreateSession/DetailsPanel';
+import DescriptionPanel from '../components/sessions/CreateSession/DescriptionPanel';
 import { useCreateSessionPage } from '../logic/createSession/CreateSessionPage.logic';
 import '../styles/createSession/CreateSessionPage.css';
 

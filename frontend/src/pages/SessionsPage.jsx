@@ -1,9 +1,9 @@
 import React from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import { SessionsHeader, SessionsGrid } from '../components/sessions/Sessions';
-import LoadingState from '../components/ui/LoadingState';
-import ErrorState from '../components/ui/ErrorState';
-import EmptyState from '../components/ui/EmptyState';
+import LoadingState from '../components/common/LoadingState';
+import ErrorState from '../components/common/ErrorState';
+import EmptyState from '../components/common/EmptyState';
 import { useSessionsPage } from '../logic/sessions/SessionsPage.logic';
 import '../styles/sessions/SessionsPage.css';
 

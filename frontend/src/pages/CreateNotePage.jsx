@@ -1,9 +1,9 @@
 ﻿import React from 'react';
-import PageHeader from '../components/createNote/PageHeader';
-import NoteTitleInput from '../components/createNote/NoteTitleInput';
-import EditorToolbar from '../components/createNote/EditorToolbar';
-import RichTextEditor from '../components/createNote/RichTextEditor';
-import AuthorFooter from '../components/createNote/AuthorFooter';
+import PageHeader from '../components/notes/RichTextEditor/PageHeader';
+import NoteTitleInput from '../components/notes/RichTextEditor/NoteTitleInput';
+import EditorToolbar from '../components/notes/RichTextEditor/EditorToolbar';
+import RichTextEditor from '../components/notes/RichTextEditor/RichTextEditor';
+import AuthorFooter from '../components/notes/RichTextEditor/AuthorFooter';
 import { useCreateNotePage } from '../logic/createNote/CreateNotePage.logic';
 import '../styles/createNote/CreateNotePage.css';
 
