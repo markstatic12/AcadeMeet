@@ -1,4 +1,5 @@
 import React from 'react';
+import { StarSolidIcon, CalendarIcon } from '../../icons';
 import { getCategoryColor } from '../../utils/categoryUtils';
 
 // Category Badge Component
@@ -15,6 +16,25 @@ const CategoryBadge = ({ category }) => {
     >
       {category}
     </span>
+  );
+};
+
+// Note Card Component - General use (no menu)
+const NoteCard = ({ note }) => {
+  return (
+    <div className={`bg-[#1a1a1a] border ${note.isFavourite ? 'border-yellow-400/50' : 'border-gray-800'} hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl h-[240px] w-full flex flex-col`}>
+      <div className="p-4 flex-1 flex flex-col">
+        <h3 className="text-white font-bold text-sm mb-2 truncate flex items-center gap-1">
+          {note.title}
+          {note.isFavourite && <StarSolidIcon className="w-3 h-3 text-yellow-400" />}
+        </h3>
+        <div className="text-[11px] text-gray-400 mb-2 flex items-center gap-1">
+          <CalendarIcon className="w-3 h-3 text-indigo-400" />
+          <span>{new Date(note.createdAt).toLocaleDateString(undefined,{ month:'short', day:'numeric', year:'numeric'})}</span>
+        </div>
+        <div className="text-xs text-gray-500 line-clamp-5 overflow-hidden" dangerouslySetInnerHTML={{ __html: note.content }} />
+      </div>
+    </div>
   );
 };
 
@@ -62,12 +82,11 @@ const NoteCardDashboard = ({ note }) => {
 // Notes Grid Component
 const NotesGrid = ({ notes }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-10">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
       {notes.map((note) => (
-        <NoteCardPage
+        <NoteCard
           key={note.noteId || note.id}
-          title={note.title}
-          categories={(note.tags || []).map(t => t.name)}
+          note={note}
         />
       ))}
     </div>
@@ -146,6 +165,7 @@ const NotesSection = ({
 
 export { 
   CategoryBadge, 
+  NoteCard,
   NoteCardPage, 
   NoteCardDashboard, 
   NotesGrid, 
