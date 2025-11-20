@@ -116,3 +116,4 @@ const CalendarSection = ({
 };
 
 export { Calendar, CalendarHeader, CalendarGrid, CalendarSection };
+export default Calendar;
