@@ -1,6 +1,6 @@
 import React from 'react';
 import FormField from './FormField';
-import { usePasswordReset } from '../../logic/settings/usePasswordReset';
+import { usePasswordReset } from '../../services/SettingsLogic';
 
 const PasswordResetCard = ({ showToast }) => {
   const {
