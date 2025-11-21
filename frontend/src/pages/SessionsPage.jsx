@@ -4,7 +4,7 @@ import { SessionsHeader, SessionsGrid } from '../components/sessions/Sessions';
 import LoadingState from '../components/ui/LoadingState';
 import ErrorState from '../components/ui/ErrorState';
 import EmptyState from '../components/ui/EmptyState';
-import { useSessionsPage } from '../logic/sessions/SessionsPage.logic';
+import { useSessionsPage } from '../services/SessionLogic';
 import '../styles/sessions/SessionsPage.css';
 
 const SessionsPage = () => {

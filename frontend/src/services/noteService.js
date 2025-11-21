@@ -77,12 +77,13 @@ export const noteService = {
     return normalized;
   },
 
-  async createNote({ title, content, tagIds = [], userId }) {
+  async createNote({ title, content, tagIds = [], userId, sessionIds = [] }) {
     const payload = {
       title: title || 'Untitled Note',
       type: 'RICHTEXT',
       content: content || '',
       tagIds,
+      sessionIds,
     };
 
     const headers = { 'Content-Type': 'application/json' };
@@ -103,5 +104,213 @@ export const noteService = {
 
     const created = await res.json();
     return normalizeNote(created);
+  },
+
+  async updateNote(noteId, { title, content, tagIds = [], sessionIds = [] }) {
+    const payload = {
+      title,
+      content,
+      tagIds,
+      sessionIds,
+    };
+
+    const res = await fetch(`${API_BASE_URL}/notes/${noteId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || 'Failed to update note');
+    }
+
+    const updated = await res.json();
+    return normalizeNote(updated);
+  },
+
+  async toggleFavoriteNote(noteId, userId) {
+    const res = await fetch(`${API_BASE_URL}/notes/${noteId}/favorite`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-User-Id': userId.toString(),
+      },
+    });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || 'Failed to toggle favorite');
+    }
+
+    return await res.json();
+  },
+
+  async getFavoriteNotes(userId) {
+    const res = await fetch(`${API_BASE_URL}/notes/favorites?userId=${userId}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.message || 'Failed to load favorite notes');
+    }
+
+    const data = await res.json();
+    const arr = Array.isArray(data) ? data : [];
+    return arr.map(normalizeNote).sort((a, b) => {
+      if (!a.createdAt) return 1;
+      if (!b.createdAt) return -1;
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+  },
+
+  async deleteNote(noteId) {
+    const res = await fetch(`${API_BASE_URL}/notes/${noteId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || 'Failed to delete note');
+    }
+
+    return await res.json();
+  },
+
+  async getNotesBySession(sessionId) {
+    const res = await fetch(`${API_BASE_URL}/notes/session/${sessionId}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.message || 'Failed to load session notes');
+    }
+
+    const data = await res.json();
+    const arr = Array.isArray(data) ? data : [];
+    return arr.map(normalizeNote).sort((a, b) => {
+      if (!a.createdAt) return 1;
+      if (!b.createdAt) return -1;
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
   }
+};
+
+// Note Creation Logic Hook
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
+
+export const useCreateNotePage = () => {
+  const navigate = useNavigate();
+  const editorRef = useRef(null);
+  const { getUserId } = useUser();
+
+  const [noteData, setNoteData] = useState({
+    title: '',
+    content: '',
+  });
+
+  const [userName, setUserName] = useState('');
+
+  // Load user for display
+  useEffect(() => {
+    const userId = getUserId();
+    if (userId) {
+      fetch(`http://localhost:8080/api/users/${userId}`)
+        .then(res => res.json())
+        .then(data => setUserName(data.name || ''))
+        .catch(err => console.error('Failed to load user', err));
+    }
+  }, [getUserId]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNoteData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const applyFormatting = (command, value = null) => {
+    document.execCommand(command, false, value);
+  };
+
+  const applyLink = () => {
+    const url = prompt('Enter URL:');
+    if (url) document.execCommand('createLink', false, url);
+  };
+
+  const handleSave = () => {
+    const html = editorRef.current?.innerHTML || '';
+    const userId = getUserId();
+    
+    noteService.createNote({ title: noteData.title, content: html, userId })
+      .then((created) => {
+        navigate('/profile');
+      })
+      .catch((err) => {
+        console.error('Create note failed, falling back to localStorage', err);
+        const newNote = {
+          id: Date.now(),
+          title: noteData.title || 'Untitled Note',
+          content: html,
+          createdAt: new Date().toISOString(),
+        };
+        try {
+          const existing = JSON.parse(localStorage.getItem('notes') || '[]');
+          existing.unshift(newNote);
+          localStorage.setItem('notes', JSON.stringify(existing));
+        } catch (e) {
+          console.error('Failed to save note locally', e);
+        }
+        navigate('/profile');
+      });
+  };
+
+  const handleBack = () => navigate(-1);
+
+  return {
+    editorRef,
+    noteData,
+    userName,
+    handleInputChange,
+    applyFormatting,
+    applyLink,
+    handleSave,
+    handleBack
+  };
+};
+
+// Notes Page Logic Hook
+export const useNotesPage = () => {
+  const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    
+    noteService.getAllActiveNotes()
+      .then((data) => {
+        if (mounted) setNotes(Array.isArray(data) ? data : []);
+      })
+      .catch((e) => {
+        if (mounted) setError(e.message || 'Failed to load notes');
+      })
+      .finally(() => { 
+        if (mounted) setLoading(false); 
+      });
+    
+    return () => { mounted = false; };
+  }, []);
+
+  return {
+    notes,
+    loading,
+    error
+  };
 };

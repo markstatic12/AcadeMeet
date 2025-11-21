@@ -1,11 +1,11 @@
 ﻿import React from 'react';
 import AuthLayout from '../components/AuthLayout';
-import LoginHeader from '../components/login/LoginHeader';
-import AlertMessage from '../components/login/AlertMessage';
-import LoginForm from '../components/login/LoginForm';
-import FormDivider from '../components/login/FormDivider';
-import SignupLink from '../components/login/SignupLink';
-import { useLoginPage } from '../logic/login/LoginPage.logic';
+import LoginHeader from '../components/auth/LoginHeader';
+import AlertMessage from '../components/auth/AlertMessage';
+import LoginForm from '../components/auth/LoginForm';
+import FormDivider from '../components/auth/FormDivider';
+import SignupLink from '../components/auth/SignupLink';
+import { useLoginPage } from '../services/AuthLogic';
 import '../styles/login/LoginPage.css';
 
 const LoginPage = () => {

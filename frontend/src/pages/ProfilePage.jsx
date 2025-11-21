@@ -12,11 +12,11 @@ import TrashedNotesContent from '../components/profile/TrashedNotesContent';
 import EditProfileModal from '../components/profile/EditProfileModal';
 import FollowersModal from '../components/profile/FollowersModal';
 import { useUser } from '../context/UserContext';
-import { useProfilePage } from '../logic/profile/ProfilePage.logic';
-import { useSessions } from '../logic/profile/useSessions';
-import { useNotes } from '../logic/profile/useNotes';
-import { usePanelHeight } from '../logic/profile/usePanelHeight';
-import { useClickOutside } from '../logic/profile/useClickOutside';
+import { useProfilePage } from '../services/ProfileLogic';
+import { useSessions } from '../services/ProfileLogic';
+import { useNotes } from '../services/ProfileLogic';
+import { usePanelHeight } from '../services/CommonUtils';
+import { useClickOutside } from '../services/CommonUtils';
 import '../styles/profile/ProfilePage.css';
 
 const ProfilePage = () => {

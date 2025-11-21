@@ -6,8 +6,8 @@ import SettingsSidebar from '../components/settings/SettingsSidebar';
 import ProfileForm from '../components/settings/ProfileForm';
 import PasswordResetCard from '../components/settings/PasswordResetCard';
 import LogoutModal from '../components/settings/LogoutModal';
-import { useSettingsPage } from '../logic/settings/SettingsPage.logic';
-import { useToast } from '../logic/settings/useToast';
+import { useSettingsPage } from '../services/SettingsLogic';
+import { useToast } from '../services/CommonUtils';
 import '../styles/settings/SettingsPage.css';
 
 const SettingsPage = () => {
