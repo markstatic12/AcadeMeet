@@ -23,7 +23,7 @@ export const useCreateSessionPage = () => {
     setSessionData({ ...sessionData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e)   => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -35,9 +35,15 @@ export const useCreateSessionPage = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:8080/api/sessions/create?userId=${userId}`, {
+      const headers = { "Content-Type": "application/json" };
+      if (userId) {
+        headers['X-User-Id'] = userId.toString();
+      }
+
+      const res = await fetch(`http://localhost:8080/api/sessions`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
+        credentials: "include",
         body: JSON.stringify(sessionData)
       });
 
@@ -47,8 +53,7 @@ export const useCreateSessionPage = () => {
       console.log("Session created:", createdSession);
       alert("Session created successfully!");
       
-      // Optionally navigate to sessions page or dashboard
-      // navigate('/sessions');
+      navigate('/profile');
     } catch (error) {
       console.error(error);
       alert("Error creating session.");

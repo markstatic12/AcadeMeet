@@ -46,7 +46,7 @@ export const useCreateNotePage = () => {
     
     noteService.createNote({ title: noteData.title, content: html, userId })
       .then((created) => {
-        navigate('/notes');
+        navigate('/profile');
       })
       .catch((err) => {
         console.error('Create note failed, falling back to localStorage', err);
@@ -63,7 +63,7 @@ export const useCreateNotePage = () => {
         } catch (e) {
           console.error('Failed to save note locally', e);
         }
-        navigate('/notes');
+        navigate('/profile');
       });
   };
 

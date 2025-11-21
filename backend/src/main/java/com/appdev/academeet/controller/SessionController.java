@@ -1,25 +1,25 @@
 package com.appdev.academeet.controller;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.appdev.academeet.service.SessionService;
-import com.appdev.academeet.dto.SessionDTO; // <-- IMPORT DTO
-import com.appdev.academeet.model.Session;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import java.util.List;
 
-import com.appdev.academeet.repository.UserRepository;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping; // <-- IMPORT DTO
+import org.springframework.web.bind.annotation.RestController;
+
+import com.appdev.academeet.dto.SessionDTO;
+import com.appdev.academeet.model.Session;
 import com.appdev.academeet.model.User;
-import org.springframework.web.bind.annotation.RequestParam;
+import com.appdev.academeet.repository.UserRepository;
+import com.appdev.academeet.service.SessionService;
 
 @RestController
 @RequestMapping("/api/sessions")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 public class SessionController {
 
     private final SessionService sessionService;
@@ -30,9 +30,9 @@ public class SessionController {
         this.userRepository = userRepository;
     }
 
-    // --- MODIFIED METHOD ---
-    @PostMapping("/create")
-    public SessionDTO createSession(@RequestBody Session session, @RequestParam Long userId) { // <-- CHANGED RETURN TYPE
+    // --- CREATE SESSION (RESTful with X-User-Id header) ---
+    @PostMapping
+    public SessionDTO createSession(@RequestBody Session session, @RequestHeader("X-User-Id") Long userId) {
         User host = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         session.setHost(host); // attach host
