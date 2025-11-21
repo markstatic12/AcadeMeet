@@ -11,6 +11,8 @@ const CreateSessionPage = () => {
     sessionData,
     isSubmitting,
     handleChange,
+    handlePasswordChange,
+    handleParticipantsChange,
     handleSubmit,
     handleBack
   } = useSessionForm();
@@ -32,10 +34,12 @@ const CreateSessionPage = () => {
             onChange={handleChange}
           />
 
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-3 gap-8 mt-6">
             <DetailsPanel
               sessionData={sessionData}
               onChange={handleChange}
+              onPasswordChange={handlePasswordChange}
+              onParticipantsChange={handleParticipantsChange}
             />
 
             <DescriptionPanel

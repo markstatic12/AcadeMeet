@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { CalendarIcon, ClockIcon, LocationIcon } from '../../icons';
+import { CalendarIcon, ClockIcon, LocationIcon, LockIcon } from '../../icons';
 import { to12Hour } from '../../utils/timeUtils';
+import SessionStatusBadge from './SessionStatusBadge';
 
 // Session Card Component (General use - no menu)
 const SessionCard = ({ session }) => {
@@ -8,6 +9,16 @@ const SessionCard = ({ session }) => {
     <div className="bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl cursor-pointer group h-[240px] w-full">
       {/* Session Thumbnail */}
       <div className="relative h-[120px] bg-gradient-to-br from-[#1e40af] via-[#2563eb] to-[#3b82f6] overflow-hidden">
+        {/* Status and Privacy Indicators */}
+        <div className="absolute top-2 left-2 flex items-center gap-2 z-10">
+          <SessionStatusBadge status={session.status || 'ACTIVE'} />
+          {session.sessionType === 'PRIVATE' && (
+            <div className="flex items-center px-2 py-1 bg-black/30 rounded-full">
+              <LockIcon className="w-3 h-3 text-yellow-400" />
+              <span className="text-xs text-yellow-400 ml-1">Private</span>
+            </div>
+          )}
+        </div>
         {/* Colorful shapes pattern - LEFT SIDE */}
         <div className="absolute left-0 top-0 w-1/2 h-full pointer-events-none">
           {/* Row 1 */}
@@ -59,6 +70,12 @@ const SessionCard = ({ session }) => {
             <LocationIcon className="w-3 h-3 text-indigo-400" />
             <span>{session.location}</span>
           </div>
+          {session.maxParticipants && (
+            <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
+              <span>👥</span>
+              <span>{session.currentParticipants || 0}/{session.maxParticipants} participants</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
