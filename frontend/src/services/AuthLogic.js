@@ -62,9 +62,12 @@ export const useSignupPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [program, setProgram] = useState('');
-  const [year, setYear] = useState('');
+  const [yearLevel, setYearLevel] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login, isAuthenticated } = useUser();
@@ -94,12 +97,12 @@ export const useSignupPage = () => {
     setLoading(true);
 
     try {
-      const response = await authService.signup(name, email, password, program, year);
+      const response = await authService.signup(name, email, password, program, yearLevel);
       
       console.log('Signup successful:', response);
       
       // Auto-login after successful signup
-      await login(response.token, response.user);
+      login(response);
       navigate('/dashboard');
     } catch (err) {
       console.error('Signup failed:', err);
@@ -109,21 +112,34 @@ export const useSignupPage = () => {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
   return {
     name,
     email,
     password,
     confirmPassword,
+    showPassword,
+    showConfirmPassword,
     program,
-    year,
+    yearLevel,
     error,
+    success,
     loading,
     setName,
     setEmail,
     setPassword,
     setConfirmPassword,
     setProgram,
-    setYear,
-    handleSubmit
+    setYearLevel,
+    handleSubmit,
+    togglePasswordVisibility,
+    toggleConfirmPasswordVisibility
   };
 };
