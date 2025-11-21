@@ -1,7 +1,7 @@
 import React from 'react';
-import FormInput from './FormInput';
-import PasswordInput from './PasswordInput';
-import FormSelect from './FormSelect';
+import FormInput from '../ui/FormInput';
+import PasswordInput from '../ui/PasswordInput';
+import FormSelect from '../ui/FormSelect';
 import SubmitButton from './SubmitButton';
 
 const PROGRAM_OPTIONS = [

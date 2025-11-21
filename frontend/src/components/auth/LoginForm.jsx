@@ -1,6 +1,6 @@
 import React from 'react';
-import EmailInput from './EmailInput';
-import PasswordInput from './PasswordInput';
+import EmailInput from '../ui/EmailInput';
+import PasswordInput from '../ui/PasswordInput';
 import FormOptions from './FormOptions';
 import SubmitButton from './SubmitButton';
 
