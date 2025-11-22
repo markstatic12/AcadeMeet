@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 
+
+
 export const useProfilePage = () => {
   const navigate = useNavigate();
   const { getUserId } = useUser();
@@ -56,9 +58,9 @@ export const useProfilePage = () => {
             id: userId,
             name: data.name || 'full (name of the user)',
             email: data.email || '',
-            school: data.school || 'CIT University',
-            program: data.program || 'BSIT',
-            studentId: data.studentId || '23-2684-947',
+            school: data.school || 'CIT University', // default school
+            program: data.program || 'BSIT', // default program
+            studentId: data.studentId || '23-2684-947', // default student ID
             bio: data.bio || 'No bio yet',
             profilePic: data.profilePic || null,
             coverImage: data.coverImage || null,
@@ -118,7 +120,13 @@ export const useProfilePage = () => {
     try {
       setIsEditing(true);
       
-      const response = await fetch(`http://localhost:8080/api/users/${userData.id}`, {
+      const currentUserId = getUserId();
+      if (!currentUserId) {
+        alert('User not authenticated');
+        return;
+      }
+      
+      const response = await fetch(`http://localhost:8080/api/users/${currentUserId}`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json'
@@ -195,10 +203,11 @@ export const useProfilePage = () => {
 
   const refreshFollowLists = async () => {
     try{
-      if(!userData?.id) return;
+      const userId = getUserId();
+      if(!userId) return;
       const [foRes, fiRes] = await Promise.all([
-        fetch(`http://localhost:8080/api/followers/${userData.id}/followers`),
-        fetch(`http://localhost:8080/api/followers/${userData.id}/following`)
+        fetch(`http://localhost:8080/api/followers/${userId}/followers`),
+        fetch(`http://localhost:8080/api/followers/${userId}/following`)
       ]);
       const [followers, following] = await Promise.all([
         foRes.ok ? foRes.json() : Promise.resolve([]),
@@ -214,22 +223,24 @@ export const useProfilePage = () => {
   };
 
   const removeFollower = async (followerId) => {
-    if(!userData?.id) return;
+    const userId = getUserId();
+    if(!userId) return;
     try{
       await fetch('http://localhost:8080/api/followers/unfollow',{
         method:'DELETE', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ followerId, followingId: userData.id })
+        body: JSON.stringify({ followerId, followingId: userId })
       });
       setFollowersList(prev=> prev.filter(u=>u.id!==followerId));
     }catch(e){ console.error('Remove follower failed', e); }
   };
 
   const unfollowUser = async (followingId) => {
-    if(!userData?.id) return;
+    const userId = getUserId();
+    if(!userId) return;
     try{
       await fetch('http://localhost:8080/api/followers/unfollow',{
         method:'DELETE', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ followerId: userData.id, followingId })
+        body: JSON.stringify({ followerId: userId, followingId })
       });
       setFollowingList(prev=> prev.filter(u=>u.id!==followingId));
     }catch(e){ console.error('Unfollow failed', e); }
@@ -283,7 +294,8 @@ export const useProfilePage = () => {
 // Notes hook for profile page
 import { noteService } from './NoteService';
 
-export const useNotes = (activeTab, userId) => {
+export const useNotes = (activeTab) => {
+  const { getUserId } = useUser();
   const [notesData, setNotesData] = useState([]);
 
   // TTL for trashed notes (days)
@@ -304,6 +316,7 @@ export const useNotes = (activeTab, userId) => {
 
     const loadNotes = async () => {
       try {
+        const userId = getUserId();
         const serverNotes = userId ? await noteService.getUserActiveNotes(userId) : [];
         if (!mounted) return;
         const normalized = (Array.isArray(serverNotes) ? serverNotes : []).map(n => ({
@@ -355,7 +368,7 @@ export const useNotes = (activeTab, userId) => {
     return () => {
       mounted = false;
     };
-  }, [activeTab, userId]);
+  }, [activeTab, getUserId]);
 
   const toggleFavourite = (noteId) => {
     setNotesData(prevNotes => {
@@ -438,12 +451,22 @@ const pruneTrashed = (items) => {
   return kept;
 };
 
-export const useSessions = (userId) => {
+export const useSessions = () => {
   const [sessionsData, setSessionsData] = useState([]);
   const [trashedSessions, setTrashedSessions] = useState([]);
+  const { getUserId } = useUser();
+
 
   // Fetch sessions from API
   useEffect(() => {
+
+    const userId = getUserId();
+    if (!userId) {
+      console.warn("User not authenticated");
+      return;
+    }
+
+
     const fetchSessions = async () => {
       try {
         const res = await fetch(`http://localhost:8080/api/sessions/user/${userId}`, {
@@ -493,7 +516,7 @@ export const useSessions = (userId) => {
       console.error('Failed to parse trashed sessions', e);
       setTrashedSessions([]);
     }
-  }, [userId]);
+  }, [getUserId]);
 
   const deleteSession = (sessionId) => {
     setSessionsData(prevSessions => {
