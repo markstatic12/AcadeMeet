@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import SuccessModal from '../ui/SuccessModal';
 import { CalendarIcon, ClockIcon, LocationIcon, LockIcon } from '../../icons';
 import { to12Hour } from '../../utils/timeUtils';
-import SessionStatusBadge from './SessionStatusBadge';
+// SessionStatusBadge lives in the shared ui folder
+import SessionStatusBadge from '../ui/SessionStatusBadge';
 
 // Session Card Component (General use - no menu)
 const SessionCard = ({ session }) => {
@@ -107,10 +110,24 @@ const SessionsSection = () => {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const location = useLocation();
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successTitle, setSuccessTitle] = useState('');
 
   useEffect(() => {
     fetchSessions();
   }, []);
+
+  useEffect(() => {
+    // Show success modal if we navigated here after creating a session
+    const state = location.state || {};
+    if (state.sessionCreated) {
+      setSuccessTitle(state.title || 'Session created');
+      setShowSuccess(true);
+      // clear navigation state to avoid showing again
+      try { window.history.replaceState({}, document.title); } catch (_) {}
+    }
+  }, [location]);
 
   const fetchSessions = async () => {
     try {
