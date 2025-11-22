@@ -47,7 +47,8 @@
 /* ContentEditable placeholder */
 [contentEditable=true]:empty:before {
   content: attr(data-placeholder);
-  color: #6b7280;
+  /* light, muted purple placeholder */
+  color: rgba(191,168,255,0.65);
   font-style: italic;
 }
 
@@ -117,3 +118,139 @@
 [contentEditable=true] li {
   margin: 0.5em 0;
 }
+
+/* Page background shapes and dark-mode aesthetic to match login */
+.acm-create-note-page {
+  position: relative;
+  background-color: #060316; /* deep indigo base */
+  /* subtle base gradient to add depth */
+  background-image: linear-gradient(180deg, rgba(10,8,30,0.98), rgba(8,4,24,0.98));
+  overflow: hidden;
+}
+
+.acm-bg-shapes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.acm-bg-shapes::before {
+  /* large soft purple/pink glow in the top-right */
+  content: '';
+  position: absolute;
+  right: -12%;
+  top: -8%;
+  width: 70vw;
+  height: 60vh;
+  background: radial-gradient(closest-side at 30% 25%, rgba(129,140,248,0.16), rgba(139,92,246,0.08) 35%, transparent 60%);
+  filter: blur(84px);
+  transform: translateZ(0);
+  opacity: 0.95;
+}
+
+.acm-bg-shapes::after {
+  /* softer magenta glow at lower-left */
+  content: '';
+  position: absolute;
+  left: -6%;
+  bottom: -18%;
+  width: 54vw;
+  height: 48vh;
+  background: radial-gradient(closest-side at 70% 70%, rgba(236,72,153,0.11), rgba(139,92,246,0.06) 35%, transparent 65%);
+  filter: blur(120px);
+  opacity: 0.85;
+}
+
+/* subtle vignette overlay to increase contrast for content */
+.acm-create-note-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(80% 60% at 50% 40%, rgba(255,255,255,0.01), rgba(0,0,0,0.45));
+}
+
+/* ensure the inner content visually sits above background */
+.acm-create-note-page > .page-content,
+.acm-create-note-page .relative.z-10 {
+  position: relative;
+  z-index: 10;
+}
+
+/* Slight glow on editor border to match purple aesthetic */
+.acm-create-note-page [contentEditable=true] {
+  box-shadow: 0 6px 30px rgba(99,102,241,0.035), inset 0 1px 0 rgba(255,255,255,0.02);
+  border-color: rgba(99,102,241,0.12);
+  /* slightly lighter than page background for the editor surface */
+  background: #0f0f16 !important;
+  color: #dcd6ff;
+}
+
+@media (max-width: 768px) {
+  .acm-bg-shapes::before { width: 120vw; height: 38vh; right: -30%; top: -22%; filter: blur(64px); }
+  .acm-bg-shapes::after { width: 80vw; height: 38vh; left: -20%; bottom: -32%; filter: blur(88px); }
+}
+
+/* Toolbar icon/button visuals for notes editor */
+.acm-toolbar-button {
+  width: 2rem; /* 8 */
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem; /* rounded */
+  background: transparent;
+  color: rgba(255,255,255,0.85);
+  transition: color 120ms ease, background-color 120ms ease, transform 120ms ease;
+  font-size: 0.875rem; /* text-sm */
+}
+.acm-toolbar-button:hover {
+  color: #ffffff;
+  background: rgba(255,255,255,0.02);
+  transform: translateY(-1px);
+}
+
+/* Force icons to be stroke-only (white line icons) and remove fills */
+.acm-toolbar-button svg {
+  width: 1.125rem; /* w-4.5 ~ 18px */
+  height: 1.125rem;
+  stroke: currentColor;
+  fill: none !important;
+}
+
+/* Support label-only toolbar buttons (e.g., B, I, U) to be thin line style */
+.acm-toolbar-button span,
+.acm-toolbar-button > svg + span {
+  color: inherit;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* Font size dropdown with subtle gradient highlight/border */
+.acm-fontsize-select {
+  background: linear-gradient(180deg, rgba(15,15,15,0.9), rgba(10,10,10,0.9));
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  color: #e6e6ff;
+  border: 1px solid transparent;
+  position: relative;
+}
+
+.acm-fontsize-select:focus,
+.acm-fontsize-select:hover {
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(129,140,248,0.12), 0 6px 20px rgba(99,102,241,0.04);
+  border-color: rgba(129,140,248,0.14);
+}
+
+/* keep select arrow subtle */
+.acm-fontsize-select::-ms-expand { display: none; }
+
+/* character counter style */
+.acm-char-count {
+  color: rgba(191,168,255,0.72);
+  font-weight: 500;
+}
+
