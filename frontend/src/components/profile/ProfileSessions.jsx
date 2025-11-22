@@ -1,9 +1,12 @@
 import React from 'react';
 import { ThreeDotsVerticalIcon, TrashIcon, CalendarIcon, ClockIcon, LocationIcon, LockIcon } from '../../icons';
 import { to12Hour } from '../../utils/timeUtils';
-import SessionStatusBadge from '../sessions/SessionStatusBadge';
+import SessionStatusBadge from '../ui/SessionStatusBadge';
+import { CreateNewCard } from './ProfileNavigation';
 
-const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => {
+// ===== SESSION CARD =====
+
+export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => {
   return (
     <div className="bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl cursor-pointer group h-[240px] w-full">
       {/* Session Thumbnail */}
@@ -108,4 +111,110 @@ const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => {
   );
 };
 
-export default SessionCard;
+
+// ===== TRASHED SESSION CARD =====
+
+export const TrashedSessionCard = ({ session, daysLeft, onRestore }) => {
+  return (
+    <div className="relative bg-[#1a1a1a] border border-gray-800 rounded-xl overflow-hidden">
+      {/* Vertical Restore action */}
+      <div className="absolute top-3 right-3 flex flex-col gap-2 z-20">
+        <button
+          onClick={() => onRestore(session.id)}
+          className="px-2 py-1 text-xs rounded-lg bg-green-600/20 text-green-300 border border-green-500/40 hover:bg-green-600/30"
+        >
+          Restore
+        </button>
+      </div>
+      <div className="relative h-[120px] bg-gradient-to-br from-[#0f172a] via-[#1f2937] to-[#111827]">
+        <span className="absolute top-2 left-2 text-xs px-2 py-1 bg-red-500/20 text-red-300 rounded-full border border-red-500/30">
+          {daysLeft} day{daysLeft !== 1 ? 's' : ''} left
+        </span>
+      </div>
+      
+      <div className="p-3 bg-[#0a0a0a]">
+        <h3 className="text-white font-bold text-sm mb-2 opacity-70 line-through">{session.title}</h3>
+        <div className="space-y-1 text-gray-500 text-[11px]">
+          <div className="flex items-center gap-1.5">
+            <CalendarIcon className="w-3 h-3 text-indigo-400" />
+            <span>{session.month} {session.day}, {session.year}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <ClockIcon className="w-3 h-3 text-indigo-400" />
+            <span>{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <LocationIcon className="w-3 h-3 text-indigo-400" />
+            <span>{session.location}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+// ===== SESSIONS CONTENT =====
+
+export const SessionsContent = ({ sessionsData, openCardMenuId, onCreateSession, onMenuToggle, onDeleteSession }) => {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full flex-1 min-h-0 overflow-y-auto pr-1 custom-scrollbar">
+      {/* Create New Session Card */}
+      <CreateNewCard onClick={onCreateSession} label="Create New Session" />
+
+      {/* Session Cards */}
+      {sessionsData.map((session) => (
+        <SessionCard
+          key={`session-${session.id}-${session.deletedAt || ''}`}
+          session={session}
+          openMenuId={openCardMenuId}
+          onMenuToggle={onMenuToggle}
+          onDelete={onDeleteSession}
+        />
+      ))}
+    </div>
+  );
+};
+
+// ===== TRASHED SESSIONS CONTENT =====
+
+export const TrashedSessionsContent = ({ trashedSessions, TRASH_TTL_DAYS, onRestore, onBackToSessions }) => {
+  return (
+    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-white text-xl font-bold">Trashed Sessions</h3>
+        <button
+          onClick={onBackToSessions}
+          className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg text-sm"
+        >
+          Back to Sessions
+        </button>
+      </div>
+      {trashedSessions.length === 0 ? (
+        <div className="bg-[#0a0a0a] border border-gray-700 rounded-2xl p-10 text-center text-gray-400">
+          No trashed sessions. Deleted sessions stay here for 14 days.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          {trashedSessions.map((session) => {
+            const msLeft = session.deletedAt
+              ? session.deletedAt + TRASH_TTL_DAYS * 24 * 60 * 60 * 1000 - Date.now()
+              : 0;
+            const daysLeft = Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000)));
+            return (
+              <TrashedSessionCard
+                key={`trashed-${session.id}-${session.deletedAt || ''}`}
+                session={session}
+                daysLeft={daysLeft}
+                onRestore={onRestore}
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+export default SessionsContent;

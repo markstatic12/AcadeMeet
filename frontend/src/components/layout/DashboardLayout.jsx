@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useUser } from '../context/UserContext';
-import { HomeIcon, SessionsIcon, NotesIcon, ProfileIcon, SearchIcon, MoonIcon, SunIcon, BellIcon, GearIcon } from '../icons';
-import logo from '../assets/academeet-white.svg';
+import { useUser } from '../../context/UserContext';
+import { HomeIcon, SessionsIcon, NotesIcon, ProfileIcon, SearchIcon, MoonIcon, SunIcon, BellIcon, GearIcon } from '../../icons';
+import logo from '../../assets/academeet-white.svg';
 
 const DashboardLayout = ({ children }) => {
   const navigate = useNavigate();

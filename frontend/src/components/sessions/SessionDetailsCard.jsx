@@ -1,7 +1,8 @@
 import React from 'react';
 import { CalendarIcon, ClockIcon, LocationIcon, LockIcon } from '../../icons';
 import { to12Hour } from '../../utils/timeUtils';
-import SessionStatusBadge from './SessionStatusBadge';
+// SessionStatusBadge lives in the shared ui folder
+import SessionStatusBadge from '../ui/SessionStatusBadge';
 
 const SessionDetailsCard = ({ session, onJoinClick, showJoinButton = true }) => {
   const isPrivate = session.sessionType === 'PRIVATE';

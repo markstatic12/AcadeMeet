@@ -1,5 +1,5 @@
 import React from 'react';
-import DashboardLayout from '../components/DashboardLayout';
+import DashboardLayout from '../components/layout/DashboardLayout';
 import { SessionsHeader, SessionsGrid } from '../components/sessions/Sessions';
 import LoadingState from '../components/ui/LoadingState';
 import ErrorState from '../components/ui/ErrorState';

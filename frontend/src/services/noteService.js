@@ -230,17 +230,90 @@ export const useCreateNotePage = () => {
   }, [getUserId]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    // Normalize event-like payloads: support real events and our synthetic wrapper
+    const name = e?.target?.name ?? e?.name;
+    const value = e?.target?.value ?? e?.value;
+    // Debug log to help tracing why title might not update
+    // eslint-disable-next-line no-console
+    console.log('[useCreateNotePage] handleInputChange', { name, value });
+    if (!name) return;
     setNoteData(prev => ({ ...prev, [name]: value }));
   };
 
   const applyFormatting = (command, value = null) => {
-    document.execCommand(command, false, value);
+    try {
+      // Toggle headings: if current block is same heading, revert to paragraph
+      if (command === 'formatBlock' && (value === 'h1' || value === 'h2')) {
+        const sel = window.getSelection && window.getSelection();
+        const range = sel && sel.rangeCount ? sel.getRangeAt(0) : null;
+        const findBlock = (node) => {
+          const blockTags = ['P','DIV','LI','H1','H2','H3','H4','H5','H6','PRE','BLOCKQUOTE'];
+          let n = node;
+          while (n && n !== editorRef.current) {
+            if (n.nodeType === 1 && blockTags.includes(n.tagName)) return n;
+            n = n.parentNode;
+          }
+          return editorRef.current;
+        };
+        const block = range ? findBlock(range.startContainer) : null;
+        if (block && block.tagName === value.toUpperCase()) {
+          document.execCommand('formatBlock', false, 'p');
+        } else {
+          document.execCommand('formatBlock', false, value);
+        }
+        return;
+      }
+
+      // Set font size by wrapping selection in a span with inline style
+      if (command === 'setFontSize' && value) {
+        try {
+          const sel = window.getSelection && window.getSelection();
+          if (!sel || !sel.rangeCount) return;
+          const range = sel.getRangeAt(0);
+          // If collapsed, insert an empty span and place caret inside
+          if (range.collapsed) {
+            const span = document.createElement('span');
+            span.style.fontSize = value;
+            // insert a zero-width space so span is selectable
+            span.appendChild(document.createTextNode('\u200B'));
+            range.insertNode(span);
+            // move caret inside span after the zero-width space
+            const newRange = document.createRange();
+            newRange.setStart(span.firstChild, 1);
+            newRange.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(newRange);
+            return;
+          }
+
+          // For a non-collapsed range, extract contents and wrap in span
+          const contents = range.extractContents();
+          const span = document.createElement('span');
+          span.style.fontSize = value;
+          span.appendChild(contents);
+          range.insertNode(span);
+          // reselect inserted content
+          sel.removeAllRanges();
+          const newRange = document.createRange();
+          newRange.selectNodeContents(span);
+          newRange.collapse(false);
+          sel.addRange(newRange);
+        } catch (err) {
+          console.debug('[applyFormatting] setFontSize failed', err);
+        }
+        return;
+      }
+
+      document.execCommand(command, false, value);
+    } catch (err) {
+      console.debug('[applyFormatting] exec error', err);
+    }
   };
 
   const applyLink = () => {
-    const url = prompt('Enter URL:');
-    if (url) document.execCommand('createLink', false, url);
+    // Link insertion is handled by the toolbar's modal inside NotesEditor.
+    // Keep this as a no-op to avoid the browser prompt from appearing.
+    return;
   };
 
   const handleSave = () => {
@@ -252,21 +325,9 @@ export const useCreateNotePage = () => {
         navigate('/profile');
       })
       .catch((err) => {
-        console.error('Create note failed, falling back to localStorage', err);
-        const newNote = {
-          id: Date.now(),
-          title: noteData.title || 'Untitled Note',
-          content: html,
-          createdAt: new Date().toISOString(),
-        };
-        try {
-          const existing = JSON.parse(localStorage.getItem('notes') || '[]');
-          existing.unshift(newNote);
-          localStorage.setItem('notes', JSON.stringify(existing));
-        } catch (e) {
-          console.error('Failed to save note locally', e);
-        }
-        navigate('/profile');
+        console.error('Create note failed', err);
+        // Let the UI handle failures; do not persist to localStorage. Show an alert for now.
+        try { window.alert('Failed to create note. Please try again.'); } catch (_) {}
       });
   };
 

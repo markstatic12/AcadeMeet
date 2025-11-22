@@ -1,7 +1,48 @@
-import React from 'react';
-import { ThreeDotsVerticalIcon, HistoryIcon, TrashIcon, BookmarkCheckIcon, ArchiveIcon } from '../../icons';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ThreeDotsVerticalIcon, HistoryIcon, TrashIcon, BookmarkCheckIcon, ArchiveIcon, PlusIcon } from '../../icons';
 
-const TabOptionsMenu = ({ 
+
+
+// ===== TAB BUTTONS =====
+
+export const TabButtons = ({ activeTab, onTabChange }) => {
+  return (
+    <div className="flex gap-4">
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onTabChange('sessions');
+        }}
+        className={`px-8 py-3 rounded-xl font-semibold text-lg transition-all ${
+          activeTab === 'sessions'
+            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+            : 'text-gray-400 hover:text-white hover:bg-gray-800'
+        }`}
+      >
+        Sessions
+      </button>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onTabChange('notes');
+        }}
+        className={`px-8 py-3 rounded-xl font-semibold text-lg transition-all ${
+          activeTab === 'notes'
+            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+            : 'text-gray-400 hover:text-white hover:bg-gray-800'
+        }`}
+      >
+        Notes
+      </button>
+    </div>
+  );
+};
+
+
+// ===== TAB OPTIONS MENU =====
+
+export const TabOptionMenu = ({ 
   showMenu, 
   activeTab, 
   onToggle, 
@@ -71,4 +112,21 @@ const TabOptionsMenu = ({
   );
 };
 
-export default TabOptionsMenu;
+// ===== CREATE NEW CARD =====
+
+export const CreateNewCard = ({ onClick, label }) => {
+  return (
+    <button
+      onClick={onClick}
+      className="bg-[#1a1a1a] border-2 border-dashed border-gray-700 hover:border-indigo-500 rounded-xl flex flex-col items-center justify-center transition-all group hover:bg-[#1f1f1f] h-[240px] w-full"
+    >
+      <div className="w-16 h-16 bg-[#2a2a2a] group-hover:bg-indigo-600/20 rounded-full flex items-center justify-center mb-3 transition-colors">
+        <PlusIcon className="w-8 h-8 text-gray-600 group-hover:text-indigo-400" />
+      </div>
+      <p className="text-gray-500 group-hover:text-gray-400 text-xs font-light italic">{label}</p>
+    </button>
+  );
+};
+
+
+export default TabButtons;

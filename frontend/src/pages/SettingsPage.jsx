@@ -1,11 +1,7 @@
 ﻿import React from 'react';
-import DashboardLayout from '../components/DashboardLayout';
-import Toast from '../components/settings/Toast';
-import SettingsHeader from '../components/settings/SettingsHeader';
-import SettingsSidebar from '../components/settings/SettingsSidebar';
-import ProfileForm from '../components/settings/ProfileForm';
-import PasswordResetCard from '../components/settings/PasswordResetCard';
-import LogoutModal from '../components/settings/LogoutModal';
+import DashboardLayout from '../components/layout/DashboardLayout';
+import SettingsHeader, { SettingsSidebar, Toast, LogoutModal } from '../components/settings/SettingsLayout';
+import ProfileForm, { PasswordResetCard } from '../components/settings/SettingsForm';
 import { useSettingsPage } from '../services/SettingsLogic';
 import { useToast } from '../services/CommonUtils';
 import '../styles/settings/SettingsPage.css';

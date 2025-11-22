@@ -1,8 +1,7 @@
 ﻿import React from 'react';
 import PageHeader from '../components/common/PageHeader';
-import SessionHeader from '../components/sessions/SessionHeader';
-import DetailsPanel from '../components/sessions/DetailsPanel';
-import DescriptionPanel from '../components/sessions/DescriptionPanel';
+// Session pieces are consolidated in SessionForm.jsx
+import SessionHeader, { DetailsPanel, DescriptionPanel } from '../components/sessions/SessionForm';
 import { useSessionForm } from '../services/SessionLogic';
 import '../styles/createSession/CreateSessionPage.css';
 

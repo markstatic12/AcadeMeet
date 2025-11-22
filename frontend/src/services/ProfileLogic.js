@@ -157,14 +157,18 @@ export const useProfilePage = () => {
 
   // Toggle options menu
   const toggleProfileOptionsMenu = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
+    if (e && typeof e.stopPropagation === 'function') {
+      e.stopPropagation();
+      e.preventDefault();
+    }
     setShowProfileOptionsMenu(!showProfileOptionsMenu);
   };
 
   const toggleTabOptionsMenu = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
+    if (e && typeof e.stopPropagation === 'function') {
+      e.stopPropagation();
+      e.preventDefault();
+    }
     setShowTabOptionsMenu(!showTabOptionsMenu);
   };
 
@@ -282,6 +286,19 @@ import { noteService } from './NoteService';
 export const useNotes = (activeTab, userId) => {
   const [notesData, setNotesData] = useState([]);
 
+  // TTL for trashed notes (days)
+  const NOTE_TRASH_TTL_DAYS = 3;
+
+  const pruneTrashedNotes = (items) => {
+    const now = Date.now();
+    const kept = (items || []).filter(n => !n.deletedAt || (now - n.deletedAt) < NOTE_TRASH_TTL_DAYS * 24 * 60 * 60 * 1000);
+    if (kept.length !== (items || []).length) {
+      // persist cleaned notes list
+      try { localStorage.setItem('notes', JSON.stringify(kept)); } catch (e) { /* ignore */ }
+    }
+    return kept;
+  };
+
   useEffect(() => {
     let mounted = true;
 
@@ -298,13 +315,34 @@ export const useNotes = (activeTab, userId) => {
           archivedAt: n.archivedAt || null,
           deletedAt: n.deletedAt || null
         }));
-        setNotesData(normalized);
-        localStorage.setItem('notes', JSON.stringify(normalized));
+
+        // Merge server notes with any local overrides stored in localStorage so client-side
+        // actions (delete/archive/favourite) persist across tab switches.
+        let finalNotes = normalized;
+        try {
+          const stored = JSON.parse(localStorage.getItem('notes') || '[]');
+          const map = (Array.isArray(stored) ? stored : []).reduce((acc, item) => {
+            if (item && item.id) acc[item.id] = item;
+            return acc;
+          }, {});
+
+          // Merge overrides into normalized; keep any local-only notes as well
+          const merged = normalized.map(n => ({ ...n, ...(map[n.id] || {}) }));
+          const localOnly = (Array.isArray(stored) ? stored : []).filter(s => !s.id || !merged.find(m => m.id === s.id));
+          finalNotes = [...merged, ...localOnly];
+        } catch (e) {
+          // if parse fails, fall back to normalized
+          finalNotes = normalized;
+        }
+
+        const cleaned = pruneTrashedNotes(finalNotes);
+        setNotesData(cleaned);
+        try { localStorage.setItem('notes', JSON.stringify(cleaned)); } catch (e) { /* ignore */ }
       } catch (err) {
         console.warn('Failed to load notes from server, falling back to localStorage', err);
         try {
           const storedNotes = JSON.parse(localStorage.getItem('notes') || '[]');
-          if (mounted) setNotesData(storedNotes);
+          if (mounted) setNotesData(pruneTrashedNotes(storedNotes));
         } catch (e) {
           console.error('Failed to parse stored notes', e);
           if (mounted) setNotesData([]);
@@ -348,21 +386,48 @@ export const useNotes = (activeTab, userId) => {
           ? { ...note, deletedAt: note.deletedAt ? null : new Date().toISOString() }
           : note
       );
+      const cleaned = pruneTrashedNotes(updated);
+      try { localStorage.setItem('notes', JSON.stringify(cleaned)); } catch (e) { /* ignore */ }
+      return updated;
+    });
+  };
+
+  const restoreTrashedNote = (noteId) => {
+    setNotesData(prevNotes => {
+      const updated = prevNotes.map(note =>
+        note.id === noteId ? { ...note, deletedAt: null } : note
+      );
       localStorage.setItem('notes', JSON.stringify(updated));
       return updated;
     });
   };
 
+  const restoreArchivedNote = (noteId) => {
+    setNotesData(prevNotes => {
+      const updated = prevNotes.map(note =>
+        note.id === noteId ? { ...note, archivedAt: null } : note
+      );
+      localStorage.setItem('notes', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  // Provide API-compatible names expected by components
+  const toggleFavouriteNote = (noteId) => toggleFavourite(noteId);
+
   return {
     notesData,
-    toggleFavourite,
+    toggleFavourite: toggleFavourite,
+    toggleFavouriteNote,
     archiveNote,
-    deleteNote
+    deleteNote,
+    restoreTrashedNote,
+    restoreArchivedNote
   };
 };
 
 // Sessions hook for profile page
-const TRASH_TTL_DAYS = 14;
+const TRASH_TTL_DAYS = 3;
 
 const pruneTrashed = (items) => {
   const now = Date.now();
@@ -449,9 +514,31 @@ export const useSessions = (userId) => {
     });
   };
 
+  const restoreSession = (sessionId) => {
+    setTrashedSessions(prevTrash => {
+      const toRestore = prevTrash.find(s => s.id === sessionId);
+      if (!toRestore) return prevTrash;
+
+      const updatedTrash = prevTrash.filter(s => s.id !== sessionId);
+      // Clear deletedAt and re-add to sessions
+      const restored = { ...toRestore, deletedAt: null };
+
+      setSessionsData(prev => {
+        const newSessions = [restored, ...prev];
+        localStorage.setItem('sessions', JSON.stringify(newSessions));
+        return newSessions;
+      });
+
+      localStorage.setItem('trashedSessions', JSON.stringify(updatedTrash));
+      return updatedTrash;
+    });
+  };
+
   return {
     sessionsData,
     trashedSessions,
-    deleteSession
+    deleteSession,
+    restoreSession,
+    TRASH_TTL_DAYS
   };
 };
