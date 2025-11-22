@@ -1,3 +1,5 @@
+import { useUser } from '../context/UserContext';
+
 const API_BASE_URL = 'http://localhost:8080/api';
 
 function pickOwnerName(n) {
@@ -204,7 +206,6 @@ export const noteService = {
 // Note Creation Logic Hook
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '../context/UserContext';
 
 export const useCreateNotePage = () => {
   const navigate = useNavigate();

@@ -60,7 +60,7 @@ export const useSessionForm = () => {
       
       // Instead of a blocking alert, navigate to dashboard and pass a success flag
       // so the dashboard or sessions page can render a non-blocking success modal.
-      navigate('/dashboard', { state: { sessionCreated: true, title: sessionData.title } });
+      navigate('/profile', { state: { sessionCreated: true, title: sessionData.title } });
     } catch (error) {
       console.error("Error creating session:", error);
       alert("Error creating session: " + error.message);
