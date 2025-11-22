@@ -58,9 +58,9 @@ export const useSessionForm = () => {
     try {
       await sessionService.createSession(sessionData, userId);
       
-      // Show success message
-      alert(`Session "${sessionData.title}" created successfully!`);
-      navigate('/dashboard');
+      // Instead of a blocking alert, navigate to dashboard and pass a success flag
+      // so the dashboard or sessions page can render a non-blocking success modal.
+      navigate('/dashboard', { state: { sessionCreated: true, title: sessionData.title } });
     } catch (error) {
       console.error("Error creating session:", error);
       alert("Error creating session: " + error.message);
