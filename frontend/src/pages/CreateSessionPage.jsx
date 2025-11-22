@@ -1,9 +1,8 @@
 ﻿import React from 'react';
-import PageHeader from '../components/createSession/PageHeader';
-import SessionHeader from '../components/createSession/SessionHeader';
-import DetailsPanel from '../components/createSession/DetailsPanel';
-import DescriptionPanel from '../components/createSession/DescriptionPanel';
-import { useCreateSessionPage } from '../logic/createSession/CreateSessionPage.logic';
+import PageHeader from '../components/common/PageHeader';
+// Session pieces are consolidated in SessionForm.jsx
+import SessionHeader, { DetailsPanel, DescriptionPanel } from '../components/sessions/SessionForm';
+import { useSessionForm } from '../services/SessionLogic';
 import '../styles/createSession/CreateSessionPage.css';
 
 const CreateSessionPage = () => {
@@ -11,9 +10,11 @@ const CreateSessionPage = () => {
     sessionData,
     isSubmitting,
     handleChange,
+    handlePasswordChange,
+    handleParticipantsChange,
     handleSubmit,
     handleBack
-  } = useCreateSessionPage();
+  } = useSessionForm();
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
@@ -23,6 +24,8 @@ const CreateSessionPage = () => {
             onBack={handleBack} 
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
+            showSubmit={true}
+            submitText="Create Session"
           />
 
           <SessionHeader
@@ -30,10 +33,12 @@ const CreateSessionPage = () => {
             onChange={handleChange}
           />
 
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-3 gap-8 mt-6">
             <DetailsPanel
               sessionData={sessionData}
               onChange={handleChange}
+              onPasswordChange={handlePasswordChange}
+              onParticipantsChange={handleParticipantsChange}
             />
 
             <DescriptionPanel

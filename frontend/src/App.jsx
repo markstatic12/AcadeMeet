@@ -7,7 +7,7 @@ import ProfilePage from './pages/ProfilePage';
 import CreateSessionPage from './pages/CreateSessionPage';
 import CreateNotePage from './pages/CreateNotePage';
 import SettingsPage from './pages/SettingsPage';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/layout/ProtectedRoute';
 import SessionsPage from './pages/SessionsPage';
 import { UserProvider } from './context/UserContext';
 

@@ -35,6 +35,7 @@ export {
   ArrowRightIcon,
   EyeIcon,
   EyeOffIcon,
+  LockIcon,
   // Profile-specific Icons
   ThreeDotsIcon,
   ThreeDotsVerticalIcon,

@@ -1,9 +1,9 @@
 ﻿import React from 'react';
-import DashboardLayout from '../components/DashboardLayout';
+import DashboardLayout from '../components/layout/DashboardLayout';
 import { SessionsSection } from '../components/dashboard/Sessions';
 import { CalendarSection } from '../components/dashboard/Calendar';
 import RightSidebar from '../components/dashboard/RightSidebar';
-import { useDashboardPage } from '../logic/dashboard/DashboardPage.logic';
+import { useDashboardPage } from '../services/DashboardLogic';
 import { reminders } from '../utils/dashboardData';
 import '../styles/dashboard/DashboardPage.css';
 

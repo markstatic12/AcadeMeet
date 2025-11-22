@@ -1,0 +1,220 @@
+import React from 'react';
+import { ThreeDotsVerticalIcon, TrashIcon, CalendarIcon, ClockIcon, LocationIcon, LockIcon } from '../../icons';
+import { to12Hour } from '../../utils/timeUtils';
+import SessionStatusBadge from '../ui/SessionStatusBadge';
+import { CreateNewCard } from './ProfileNavigation';
+
+// ===== SESSION CARD =====
+
+export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => {
+  return (
+    <div className="bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl cursor-pointer group h-[240px] w-full">
+      {/* Session Thumbnail */}
+      <div className="relative h-[120px] bg-gradient-to-br from-[#1e40af] via-[#2563eb] to-[#3b82f6] overflow-hidden">
+        {/* Status and Privacy Indicators */}
+        <div className="absolute top-2 left-2 flex items-center gap-2 z-10">
+          <SessionStatusBadge status={session.status || 'ACTIVE'} />
+          {session.sessionType === 'PRIVATE' && (
+            <div className="flex items-center px-2 py-1 bg-black/30 rounded-full">
+              <LockIcon className="w-3 h-3 text-yellow-400" />
+              <span className="text-xs text-yellow-400 ml-1">Private</span>
+            </div>
+          )}
+        </div>
+        {/* Card menu */}
+        <div className="absolute top-2 right-2 card-options-menu z-20">
+          <button
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              onMenuToggle(session.id); 
+            }}
+            className="p-1.5 bg-black/30 hover:bg-black/50 rounded-md text-white/80"
+            title="Options"
+          >
+            <ThreeDotsVerticalIcon className="w-4 h-4" />
+          </button>
+          {openMenuId === session.id && (
+            <div className="absolute right-0 mt-2 w-36 bg-[#111] border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
+              <button
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  onDelete(session.id); 
+                }}
+                className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-gray-800 flex items-center gap-2"
+              >
+                <TrashIcon className="w-4 h-4" />
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
+        {/* Colorful shapes pattern - LEFT SIDE */}
+        <div className="absolute left-0 top-0 w-1/2 h-full pointer-events-none">
+          {/* Row 1 */}
+          <div className="absolute top-2 left-2 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center text-white text-[8px] font-bold shadow-md">B</div>
+          <div className="absolute top-2 left-10 w-5 h-5 bg-orange-500 rounded shadow-md"></div>
+          <div className="absolute top-3 left-16 w-4 h-4 bg-cyan-400 rounded shadow-md"></div>
+          
+          {/* Row 2 */}
+          <div className="absolute top-8 left-2 w-5 h-5 bg-blue-500 rounded shadow-md"></div>
+          <div className="absolute top-7 left-9 w-6 h-6 bg-yellow-400 rounded transform rotate-12 shadow-md"></div>
+          <div className="absolute top-8 left-16 w-5 h-5 bg-purple-500 rounded shadow-md"></div>
+          
+          {/* Row 3 */}
+          <div className="absolute top-14 left-2 w-5 h-5 bg-pink-500 rounded-full shadow-md"></div>
+          <div className="absolute top-13 left-9 w-5 h-5 bg-red-500 rounded shadow-md"></div>
+          <div className="absolute top-14 left-15 w-4 h-4 bg-yellow-300 rounded-full shadow-md"></div>
+        </div>
+        
+        {/* Pink diamond accent - CENTER TOP */}
+        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 pointer-events-none">
+          <div className="w-7 h-7 bg-pink-500 rounded transform rotate-45 shadow-lg"></div>
+        </div>
+        
+        {/* Phone illustration - RIGHT BOTTOM */}
+        <div className="absolute bottom-0 right-0 w-1/2 h-full flex items-end justify-end p-2 pointer-events-none">
+          <div className="relative">
+            <div className="w-20 h-16 bg-[#1e40af] rounded-lg border-2 border-[#1e3a8a] shadow-xl"></div>
+            <div className="absolute top-1 left-1 right-1 bottom-1 bg-[#2563eb] rounded"></div>
+            <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 border-r-2 border-b-2 border-white/30 rounded-br-lg"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Session Info */}
+      <div className="p-3 bg-[#0a0a0a]">
+        <h3 className="text-white font-bold text-sm mb-2 group-hover:text-indigo-400 transition-colors">
+          {session.title}
+        </h3>
+        <div className="space-y-1">
+          <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
+            <CalendarIcon className="w-3 h-3 text-indigo-400" />
+            <span>{session.month} {session.day}, {session.year}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
+            <ClockIcon className="w-3 h-3 text-indigo-400" />
+            <span>{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
+            <LocationIcon className="w-3 h-3 text-indigo-400" />
+            <span>{session.location}</span>
+          </div>
+          {session.maxParticipants && (
+            <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
+              <span>👥</span>
+              <span>{session.currentParticipants || 0}/{session.maxParticipants} participants</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+// ===== TRASHED SESSION CARD =====
+
+export const TrashedSessionCard = ({ session, daysLeft, onRestore }) => {
+  return (
+    <div className="relative bg-[#1a1a1a] border border-gray-800 rounded-xl overflow-hidden">
+      {/* Vertical Restore action */}
+      <div className="absolute top-3 right-3 flex flex-col gap-2 z-20">
+        <button
+          onClick={() => onRestore(session.id)}
+          className="px-2 py-1 text-xs rounded-lg bg-green-600/20 text-green-300 border border-green-500/40 hover:bg-green-600/30"
+        >
+          Restore
+        </button>
+      </div>
+      <div className="relative h-[120px] bg-gradient-to-br from-[#0f172a] via-[#1f2937] to-[#111827]">
+        <span className="absolute top-2 left-2 text-xs px-2 py-1 bg-red-500/20 text-red-300 rounded-full border border-red-500/30">
+          {daysLeft} day{daysLeft !== 1 ? 's' : ''} left
+        </span>
+      </div>
+      
+      <div className="p-3 bg-[#0a0a0a]">
+        <h3 className="text-white font-bold text-sm mb-2 opacity-70 line-through">{session.title}</h3>
+        <div className="space-y-1 text-gray-500 text-[11px]">
+          <div className="flex items-center gap-1.5">
+            <CalendarIcon className="w-3 h-3 text-indigo-400" />
+            <span>{session.month} {session.day}, {session.year}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <ClockIcon className="w-3 h-3 text-indigo-400" />
+            <span>{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <LocationIcon className="w-3 h-3 text-indigo-400" />
+            <span>{session.location}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+// ===== SESSIONS CONTENT =====
+
+export const SessionsContent = ({ sessionsData, openCardMenuId, onCreateSession, onMenuToggle, onDeleteSession }) => {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full flex-1 min-h-0 overflow-y-auto pr-1 custom-scrollbar">
+      {/* Create New Session Card */}
+      <CreateNewCard onClick={onCreateSession} label="Create New Session" />
+
+      {/* Session Cards */}
+      {sessionsData.map((session) => (
+        <SessionCard
+          key={`session-${session.id}-${session.deletedAt || ''}`}
+          session={session}
+          openMenuId={openCardMenuId}
+          onMenuToggle={onMenuToggle}
+          onDelete={onDeleteSession}
+        />
+      ))}
+    </div>
+  );
+};
+
+// ===== TRASHED SESSIONS CONTENT =====
+
+export const TrashedSessionsContent = ({ trashedSessions, TRASH_TTL_DAYS, onRestore, onBackToSessions }) => {
+  return (
+    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-white text-xl font-bold">Trashed Sessions</h3>
+        <button
+          onClick={onBackToSessions}
+          className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg text-sm"
+        >
+          Back to Sessions
+        </button>
+      </div>
+      {trashedSessions.length === 0 ? (
+        <div className="bg-[#0a0a0a] border border-gray-700 rounded-2xl p-10 text-center text-gray-400">
+          No trashed sessions. Deleted sessions stay here for 14 days.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          {trashedSessions.map((session) => {
+            const msLeft = session.deletedAt
+              ? session.deletedAt + TRASH_TTL_DAYS * 24 * 60 * 60 * 1000 - Date.now()
+              : 0;
+            const daysLeft = Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000)));
+            return (
+              <TrashedSessionCard
+                key={`trashed-${session.id}-${session.deletedAt || ''}`}
+                session={session}
+                daysLeft={daysLeft}
+                onRestore={onRestore}
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+export default SessionsContent;

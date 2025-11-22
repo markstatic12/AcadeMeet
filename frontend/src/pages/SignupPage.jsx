@@ -1,10 +1,9 @@
 import React from 'react';
-import AuthLayout from '../components/AuthLayout';
-import SignupHeader from '../components/signup/SignupHeader';
-import AlertMessage from '../components/signup/AlertMessage';
-import SignupForm from '../components/signup/SignupForm';
-import LoginLink from '../components/signup/LoginLink';
-import { useSignupPage } from '../logic/signup/SignupPage.logic';
+import AuthLayout from '../components/layout/AuthLayout';
+import SignupForm, { SignupHeader, SignupLink } from '../components/auth/SignUpAuth';
+import AlertMessage from '../components/auth/AlertMessage';
+import { LoginLink } from '../components/auth/LogInAuth';
+import { useSignupPage } from '../services/AuthLogic';
 import '../styles/signup/SignupPage.css';
 
 const SignupPage = () => {

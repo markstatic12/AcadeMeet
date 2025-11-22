@@ -1,22 +1,15 @@
 ﻿import React, { useRef } from 'react';
-import DashboardLayout from '../components/DashboardLayout';
-import ProfileCard from '../components/profile/ProfileCard';
-import TabButtons from '../components/profile/TabButtons';
-import TabOptionsMenu from '../components/profile/TabOptionsMenu';
-import SessionsContent from '../components/profile/SessionsContent';
-import TrashedSessionsContent from '../components/profile/TrashedSessionsContent';
-import NotesContent from '../components/profile/NotesContent';
-import FavouritesContent from '../components/profile/FavouritesContent';
-import ArchivedContent from '../components/profile/ArchivedContent';
-import TrashedNotesContent from '../components/profile/TrashedNotesContent';
-import EditProfileModal from '../components/profile/EditProfileModal';
-import FollowersModal from '../components/profile/FollowersModal';
+import DashboardLayout from '../components/layout/DashboardLayout';
+import ProfileCard, { EditProfileModal, FollowersModal } from '../components/profile/ProfileHeader';
+import TabButtons, { TabOptionMenu as TabOptionsMenu } from '../components/profile/ProfileNavigation';
+import SessionsContent, { TrashedSessionsContent } from '../components/profile/ProfileSessions';
+import NotesContent, { FavouritesContent, ArchivedContent, TrashedNotesContent } from '../components/profile/ProfileNotes';
 import { useUser } from '../context/UserContext';
-import { useProfilePage } from '../logic/profile/ProfilePage.logic';
-import { useSessions } from '../logic/profile/useSessions';
-import { useNotes } from '../logic/profile/useNotes';
-import { usePanelHeight } from '../logic/profile/usePanelHeight';
-import { useClickOutside } from '../logic/profile/useClickOutside';
+import { useProfilePage } from '../services/ProfileLogic';
+import { useSessions } from '../services/ProfileLogic';
+import { useNotes } from '../services/ProfileLogic';
+import { usePanelHeight } from '../services/CommonUtils';
+import { useClickOutside } from '../services/CommonUtils';
 import '../styles/profile/ProfilePage.css';
 
 const ProfilePage = () => {
@@ -102,7 +95,7 @@ const ProfilePage = () => {
           <div
             ref={rightPanelRef}
             style={panelHeight ? { height: panelHeight } : undefined}
-            className="bg-[#1f1f1f] border border-gray-800 rounded-2xl overflow-hidden shadow-xl p-6 flex flex-col"
+            className="bg-[#1f1f1f] border border-gray-800 rounded-2xl overflow-hidden shadow-xl p-6 flex flex-col min-h-0"
           >
             <div className="flex items-center justify-between mb-6 flex-shrink-0">
               <TabButtons 
