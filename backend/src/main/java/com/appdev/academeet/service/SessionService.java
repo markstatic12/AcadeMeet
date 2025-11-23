@@ -1,14 +1,5 @@
 package com.appdev.academeet.service;
 
-import com.appdev.academeet.dto.SessionDTO;
-import com.appdev.academeet.model.Session;
-import com.appdev.academeet.model.SessionStatus;
-import com.appdev.academeet.model.SessionType;
-import com.appdev.academeet.repository.SessionRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,6 +9,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.appdev.academeet.dto.SessionDTO;
+import com.appdev.academeet.model.Session;
+import com.appdev.academeet.model.SessionStatus;
+import com.appdev.academeet.model.SessionType;
+import com.appdev.academeet.repository.SessionRepository;
 
 @Service
 public class SessionService {
@@ -44,10 +45,10 @@ public class SessionService {
     // --- MODIFIED METHOD ---
     @Transactional(readOnly = true) // <-- ADD TRANSACTIONAL
     public List<SessionDTO> getAllSessions() {
-        return sessionRepository.findAll()
-                .stream()
-                .map(SessionDTO::new) // <-- CONVERT TO DTO
-                .collect(Collectors.toList());
+        return sessionRepository.findAllByOrderByStartTime()
+            .stream()
+            .map(SessionDTO::new)
+            .collect(Collectors.toList());
     }
 
     // Session Privacy & Status Methods
@@ -117,6 +118,17 @@ public class SessionService {
         return sessionRepository.findAll()
                 .stream()
                 .filter(session -> session.getStatus() == status)
+                .map(SessionDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<SessionDTO> getSessionsByDate(String year, String month, String day) {
+        return sessionRepository.findAll()
+                .stream()
+                .filter(session -> year.equals(session.getYear()) && 
+                                 month.equals(session.getMonth()) && 
+                                 day.equals(session.getDay()))
                 .map(SessionDTO::new)
                 .collect(Collectors.toList());
     }
