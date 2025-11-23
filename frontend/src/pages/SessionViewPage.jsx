@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import DashboardLayout from '../components/layout/DashboardLayout';
-import SessionDetailsCard from '../components/sessions/SessionDetailsCard';
+import PageHeader from '../components/common/PageHeader';
+import { SessionViewHeader, ViewDetailsPanel, ViewOverviewPanel, CommentsPanel } from '../components/sessions/SessionViewComponents';
 import { sessionService } from '../services/SessionService';
 import { useUser } from '../context/UserContext';
 
@@ -248,67 +248,51 @@ const SessionViewPage = () => {
 
   if (loading) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-96">
-          <div className="text-white">Loading session...</div>
+      <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
+        <div className="relative z-10 p-8">
+          <div className="flex items-center justify-center min-h-96">
+            <div className="text-white">Loading session...</div>
+          </div>
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <DashboardLayout>
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <button
-              onClick={handleBack}
-              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Sessions
-            </button>
-          </div>
+      <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
+        <div className="relative z-10 p-8">
+          <PageHeader onBack={handleBack} />
           
-          <div className="bg-red-900/20 border border-red-800 rounded-2xl p-6 text-center">
+          <div className="bg-red-900/20 border border-red-800 rounded-2xl p-6 text-center mt-8">
             <h2 className="text-xl font-bold text-red-400 mb-2">Session Not Found</h2>
             <p className="text-gray-300">{error}</p>
           </div>
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
 
   if (!session && !needsAuthentication) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-96">
-          <div className="text-gray-400">Session not found</div>
+      <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
+        <div className="relative z-10 p-8">
+          <div className="flex items-center justify-center min-h-96">
+            <div className="text-gray-400">Session not found</div>
+          </div>
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
 
   // If we need authentication (private session), show loading state with password modal
   if (needsAuthentication && !session) {
     return (
-      <DashboardLayout>
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <button
-              onClick={handleBack}
-              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Sessions
-            </button>
-          </div>
+      <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
+        <div className="relative z-10 p-8">
+          <PageHeader onBack={handleBack} />
           
-          <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6 text-center">
+          <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6 text-center mt-8">
             <h2 className="text-xl font-bold text-white mb-2">Private Session</h2>
             <p className="text-gray-300">Please enter the password to access this session.</p>
           </div>
@@ -326,122 +310,45 @@ const SessionViewPage = () => {
             needsAuthentication={needsAuthentication}
           />
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
 
   return (
-    <DashboardLayout>
-      <div className="max-w-4xl mx-auto">
-        {/* Header with Back Button and Action */}
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+    <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
+      <div className="relative z-10 p-8 animate-fadeIn">
+        <PageHeader 
+          onBack={handleBack} 
+          onSubmit={isSessionOwner ? handleEditSession : handleJoinSession}
+          isSubmitting={isJoining}
+          showSubmit={session.status === 'ACTIVE'}
+          submitText={isSessionOwner ? 'Edit Session' : (isJoining ? 'Joining...' : 'Join Session')}
+          submitIcon={isSessionOwner ? (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
-            Back to Sessions
-          </button>
-
-          {/* Edit/Join Button */}
-          {isSessionOwner ? (
-            <button
-              onClick={handleEditSession}
-              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              Edit Session
-            </button>
           ) : (
-            session.status === 'ACTIVE' && (
-              <button
-                onClick={handleJoinSession}
-                disabled={isJoining}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 ${
-                  session.sessionType === 'PRIVATE'
-                    ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                    : 'bg-green-600 hover:bg-green-700 text-white'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-              >
-                {session.sessionType === 'PRIVATE' && (
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" />
-                  </svg>
-                )}
-                {isJoining ? 'Joining...' : 'Join Session'}
-              </button>
+            session.sessionType === 'PRIVATE' && (
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" />
+              </svg>
             )
           )}
-        </div>
+        />
 
-        {/* Session Details */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <SessionDetailsCard 
-              session={session} 
-              showJoinButton={false}
-            />
+        <SessionViewHeader session={session} />
+
+        <div className="grid grid-cols-6 gap-8 mt-6">
+          <ViewDetailsPanel session={session} />
+          
+          <div className="col-span-4">
+            <ViewOverviewPanel session={session} />
           </div>
-
-          {/* Additional Info Sidebar */}
-          <div className="space-y-6">
-            {/* Session Stats */}
-            <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-              <h3 className="text-white font-bold text-lg mb-4">Session Info</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Status:</span>
-                  <span className="text-white capitalize">{session.status?.toLowerCase() || 'Active'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Type:</span>
-                  <span className="text-white">{session.sessionType === 'PRIVATE' ? 'Private' : 'Public'}</span>
-                </div>
-                {session.maxParticipants && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Capacity:</span>
-                    <span className="text-white">
-                      {session.currentParticipants || 0} / {session.maxParticipants}
-                    </span>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Created:</span>
-                  <span className="text-white">
-                    {session.createdAt ? new Date(session.createdAt).toLocaleDateString() : 'N/A'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-              <h3 className="text-white font-bold text-lg mb-4">Quick Actions</h3>
-              <div className="space-y-2">
-                <button className="w-full text-left px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
-                  📝 View Notes
-                </button>
-                <button className="w-full text-left px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
-                  💬 Comments
-                </button>
-                <button className="w-full text-left px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
-                  🔔 Set Reminder
-                </button>
-                <button className="w-full text-left px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
-                  📤 Share Session
-                </button>
-              </div>
-            </div>
-          </div>
+          
+          <CommentsPanel />
         </div>
-
-
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

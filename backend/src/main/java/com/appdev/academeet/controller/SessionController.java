@@ -155,6 +155,16 @@ public class SessionController {
     }
 
     /**
+     * Gets sessions scheduled for a specific date.
+     */
+    @GetMapping("/by-date")
+    public List<SessionDTO> getSessionsByDate(@RequestParam String year, 
+                                            @RequestParam String month, 
+                                            @RequestParam String day) {
+        return sessionService.getSessionsByDate(year, month, day);
+    }
+
+    /**
      * Uploads an image for a session (profile or cover).
      */
     @PostMapping("/{id}/upload-image")

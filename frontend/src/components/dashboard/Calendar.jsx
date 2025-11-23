@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { getDaysInMonth, getMonthName, isCurrentMonth as checkIsCurrentMonth, getCurrentDay } from '../../utils/calendarUtils';
 import SessionTabs from './SessionTabs';
 import { ChevronLeftIcon, ChevronRightIcon } from '../../icons';
+import { useCalendarSessions } from '../../services/useCalendarSessions';
+import DaySessionsModal from './DaySessionsModal';
+import { useUser } from '../../context/UserContext';
 
 const CalendarHeader = ({ monthName, onPrevious, onNext }) => {
   return (
@@ -23,7 +26,7 @@ const CalendarHeader = ({ monthName, onPrevious, onNext }) => {
   );
 };
 
-const CalendarGrid = ({ daysInMonth, startingDayOfWeek, today, isCurrentMonth }) => {
+const CalendarGrid = ({ daysInMonth, startingDayOfWeek, today, isCurrentMonth, hasSessionsOnDay, onDayClick }) => {
   const dayHeaders = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   return (
@@ -44,16 +47,22 @@ const CalendarGrid = ({ daysInMonth, startingDayOfWeek, today, isCurrentMonth })
       {Array.from({ length: daysInMonth }).map((_, index) => {
         const day = index + 1;
         const isToday = isCurrentMonth && day === today;
+        const hasSessions = hasSessionsOnDay(day);
+        
         return (
           <div
             key={day}
-            className={`aspect-square flex items-center justify-center rounded-xl text-white font-medium cursor-pointer transition-all ${
+            onClick={() => onDayClick(day)}
+            className={`aspect-square flex flex-col items-center justify-center rounded-xl text-white font-medium cursor-pointer transition-all relative ${
               isToday
                 ? 'bg-indigo-600 hover:bg-indigo-500'
                 : 'bg-gray-700/50 hover:bg-gray-700'
             }`}
           >
-            {day}
+            <span className="text-sm">{day}</span>
+            {hasSessions && (
+              <div className="w-2 h-2 bg-green-400 rounded-full mt-1"></div>
+            )}
           </div>
         );
       })}
@@ -62,26 +71,57 @@ const CalendarGrid = ({ daysInMonth, startingDayOfWeek, today, isCurrentMonth })
 };
 
 const Calendar = ({ currentMonth, onPrevious, onNext }) => {
+  const { getUserId } = useUser();
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  
+  const userId = getUserId();
+  const { hasSessionsOnDay } = useCalendarSessions(currentMonth, userId);
+  
   const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentMonth);
   const monthName = getMonthName(currentMonth);
   const today = getCurrentDay();
   const isCurrentMonth = checkIsCurrentMonth(currentMonth);
 
+  const handleDayClick = (day) => {
+    const year = currentMonth.getFullYear().toString();
+    const month = currentMonth.toLocaleString('default', { month: 'long' });
+    
+    setSelectedDate({ year, month, day: day.toString() });
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedDate(null);
+  };
+
   return (
-    <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-6">
-      <CalendarHeader 
-        monthName={monthName}
-        onPrevious={onPrevious}
-        onNext={onNext}
-      />
+    <>
+      <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-6">
+        <CalendarHeader 
+          monthName={monthName}
+          onPrevious={onPrevious}
+          onNext={onNext}
+        />
+        
+        <CalendarGrid
+          daysInMonth={daysInMonth}
+          startingDayOfWeek={startingDayOfWeek}
+          today={today}
+          isCurrentMonth={isCurrentMonth}
+          hasSessionsOnDay={hasSessionsOnDay}
+          onDayClick={handleDayClick}
+        />
+      </div>
       
-      <CalendarGrid
-        daysInMonth={daysInMonth}
-        startingDayOfWeek={startingDayOfWeek}
-        today={today}
-        isCurrentMonth={isCurrentMonth}
+      <DaySessionsModal
+        isOpen={showModal}
+        onClose={handleCloseModal}
+        selectedDate={selectedDate}
+        userId={userId}
       />
-    </div>
+    </>
   );
 };
 

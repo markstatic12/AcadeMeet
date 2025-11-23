@@ -17,7 +17,7 @@ const SessionCard = ({ session }) => {
   return (
     <div 
       onClick={handleClick}
-      className="bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl cursor-pointer group h-[240px] w-full"
+      className="bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl cursor-pointer group h-[260px] w-full"
     >
       {/* Session Thumbnail */}
       <div className="relative h-[120px] bg-gradient-to-br from-[#1e40af] via-[#2563eb] to-[#3b82f6] overflow-hidden">
@@ -65,11 +65,11 @@ const SessionCard = ({ session }) => {
       </div>
 
       {/* Session Info */}
-      <div className="p-3 bg-[#0a0a0a]">
+      <div className="p-4 bg-[#0a0a0a]">
         <h3 className="text-white font-bold text-sm mb-2 group-hover:text-indigo-400 transition-colors">
           {session.title}
         </h3>
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
             <CalendarIcon className="w-3 h-3 text-indigo-400" />
             <span>{session.month} {session.day}, {session.year}</span>
