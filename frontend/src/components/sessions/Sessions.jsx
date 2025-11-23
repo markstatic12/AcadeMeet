@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import SuccessModal from '../ui/SuccessModal';
 import { CalendarIcon, ClockIcon, LocationIcon, LockIcon } from '../../icons';
 import { to12Hour } from '../../utils/timeUtils';
@@ -8,8 +8,17 @@ import SessionStatusBadge from '../ui/SessionStatusBadge';
 
 // Session Card Component (General use - no menu)
 const SessionCard = ({ session }) => {
+  const navigate = useNavigate();
+  
+  const handleClick = () => {
+    navigate(`/session/${session.id}`);
+  };
+
   return (
-    <div className="bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl cursor-pointer group h-[240px] w-full">
+    <div 
+      onClick={handleClick}
+      className="bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl cursor-pointer group h-[240px] w-full"
+    >
       {/* Session Thumbnail */}
       <div className="relative h-[120px] bg-gradient-to-br from-[#1e40af] via-[#2563eb] to-[#3b82f6] overflow-hidden">
         {/* Status and Privacy Indicators */}
