@@ -9,6 +9,8 @@ import CreateNotePage from './pages/CreateNotePage';
 import SettingsPage from './pages/SettingsPage';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import SessionsPage from './pages/SessionsPage';
+import SessionViewPage from './pages/SessionViewPage';
+import EditSessionPage from './pages/EditSessionPage';
 import { UserProvider } from './context/UserContext';
 
 function App() {
@@ -80,6 +82,24 @@ function App() {
         element={
           <ProtectedRoute>
             <SessionsPage />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/session/:sessionId" 
+        element={
+          <ProtectedRoute>
+            <SessionViewPage />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/edit-session/:sessionId" 
+        element={
+          <ProtectedRoute>
+            <EditSessionPage />
           </ProtectedRoute>
         } 
       />
