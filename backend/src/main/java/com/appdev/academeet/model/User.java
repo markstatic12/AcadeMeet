@@ -185,6 +185,10 @@ public class User {
                 ", email='" + email + '\'' +
                 ", program='" + program + '\'' +
                 ", yearLevel=" + yearLevel +
+                ", school='" + school + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", bio='" + (bio != null && bio.length() > 50 ? bio.substring(0, 50) + "..." : bio) + '\'' +
+                ", profileImageUrl='" + profileImageUrl + '\'' +
                 ", createdAt=" + createdAt +
                 '}';
     }

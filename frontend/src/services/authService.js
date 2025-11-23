@@ -1,47 +1,29 @@
-const API_BASE_URL = 'http://localhost:8080/api';
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://localhost:8080/api',
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const message = error.response?.data?.message || error.message;
+    throw new Error(message);
+  }
+);
 
 export const authService = {
   async signup(name, email, password, program, yearLevel) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, password, program, yearLevel: parseInt(yearLevel) }),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Signup failed');
-      }
-
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.post('/auth/signup', {
+      name, email, password, program, yearLevel: parseInt(yearLevel)
+    });
+    return response.data;
   },
 
   async login(email, password) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.post('/auth/login', { email, password });
+    return response.data;
   },
 };

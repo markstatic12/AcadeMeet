@@ -1,31 +1,38 @@
-/**
- * Session API Service - handles all session-related HTTP requests
- */
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
+import axios from 'axios';
 
-const API_BASE = 'http://localhost:8080/api/sessions';
+// Configure axios defaults
+const api = axios.create({
+  baseURL: 'http://localhost:8080/api',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  withCredentials: true
+});
 
-// Helper function to build headers with optional authentication
-const buildHeaders = (userId) => {
-  const headers = { 'Content-Type': 'application/json' };
+// Request interceptor to add user ID header
+api.interceptors.request.use((config) => {
+  // Get userId from localStorage or context if needed
+  const userId = localStorage.getItem('userId');
   if (userId) {
-    headers['X-User-Id'] = userId.toString();
+    config.headers['X-User-Id'] = userId;
   }
-  return headers;
-};
+  return config;
+});
 
-// Helper function to handle API responses
-const handleResponse = async (response, errorMessage = 'Request failed') => {
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || errorData.message || errorMessage);
+// Response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const message = error.response?.data?.error || error.response?.data?.message || error.message;
+    throw new Error(message);
   }
-  return await response.json();
-};
+);
 
+// Session API Service
 export const sessionService = {
-  /**
-   * Creates a new session with proper data formatting
-   */
   async createSession(sessionData, userId) {
     const submissionData = {
       ...sessionData,
@@ -35,123 +42,172 @@ export const sessionService = {
       password: sessionData.sessionType === 'PUBLIC' ? null : sessionData.password
     };
 
-    const response = await fetch(API_BASE, {
-      method: 'POST',
-      headers: buildHeaders(userId),
-      credentials: 'include',
-      body: JSON.stringify(submissionData)
+    const response = await api.post('/sessions', submissionData, {
+      headers: { 'X-User-Id': userId?.toString() }
     });
-
-    return handleResponse(response, 'Failed to create session');
+    return response.data;
   },
 
-  /**
-   * Validates session password without joining (for private session access)
-   */
   async validateSessionPassword(sessionId, password, userId) {
-    const response = await fetch(`${API_BASE}/${sessionId}/validate-password`, {
-      method: 'POST',
-      headers: buildHeaders(userId),
-      credentials: 'include',
-      body: JSON.stringify({ password, userId })
+    const response = await api.post(`/sessions/${sessionId}/validate-password`, { password, userId }, {
+      headers: { 'X-User-Id': userId?.toString() }
     });
-
-    return handleResponse(response, 'Failed to validate password');
+    return response.data;
   },
 
-  /**
-   * Joins a session with password validation and participant increment
-   */
   async joinSession(sessionId, password, userId) {
-    const response = await fetch(`${API_BASE}/${sessionId}/join`, {
-      method: 'POST',
-      headers: buildHeaders(userId),
-      credentials: 'include',
-      body: JSON.stringify({ password, userId })
+    const response = await api.post(`/sessions/${sessionId}/join`, { password, userId }, {
+      headers: { 'X-User-Id': userId?.toString() }
     });
-
-    return handleResponse(response, 'Failed to join session');
+    return response.data;
   },
 
-  /**
-   * Updates session status (e.g., ACTIVE, COMPLETED, CANCELLED)
-   */
   async updateSessionStatus(sessionId, status, userId) {
-    const response = await fetch(`${API_BASE}/${sessionId}/status`, {
-      method: 'PATCH',
-      headers: buildHeaders(userId),
-      credentials: 'include',
-      body: JSON.stringify({ status })
+    const response = await api.patch(`/sessions/${sessionId}/status`, { status }, {
+      headers: { 'X-User-Id': userId?.toString() }
     });
-
-    return handleResponse(response, 'Failed to update session status');
+    return response.data;
   },
 
-  /**
-   * Fetches sessions filtered by status or all sessions if no status provided
-   */
   async getSessionsByStatus(status, userId) {
-    const url = status 
-      ? `${API_BASE}?status=${status}`
-      : API_BASE;
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: buildHeaders(userId),
-      credentials: 'include'
+    const url = status ? `/sessions?status=${status}` : '/sessions';
+    const response = await api.get(url, {
+      headers: { 'X-User-Id': userId?.toString() }
     });
-
-    return handleResponse(response, 'Failed to fetch sessions');
+    return response.data;
   },
 
-  /**
-   * Fetches sessions available for linking (non-private sessions)
-   */
   async getSessionsForLinking(userId) {
-    const response = await fetch(`${API_BASE}?status=ACTIVE,SCHEDULED`, {
-      method: 'GET',
-      headers: buildHeaders(userId),
-      credentials: 'include'
+    const response = await api.get('/sessions?status=ACTIVE,SCHEDULED', {
+      headers: { 'X-User-Id': userId?.toString() }
     });
-    
-    const sessions = await handleResponse(response, 'Failed to fetch sessions for linking');
-    // Filter out private sessions that user doesn't have access to
-    return sessions.filter(session => 
-      session.sessionType === 'PUBLIC' || 
-      session.sessionType === 'PROTECTED'
+    return response.data.filter(session => 
+      session.sessionType === 'PUBLIC' || session.sessionType === 'PROTECTED'
     );
   },
 
-  /**
-   * Fetches all sessions regardless of filters
-   */
   async getAllSessions(userId) {
-    const response = await fetch(`${API_BASE}/all-sessions`, {
-      method: 'GET',
-      headers: buildHeaders(userId),
-      credentials: 'include'
+    const response = await api.get('/sessions/all-sessions', {
+      headers: { 'X-User-Id': userId?.toString() }
     });
-
-    return handleResponse(response, 'Failed to fetch all sessions');
+    return response.data;
   },
 
-  /**
-   * Fetches session details by ID with enhanced error handling
-   */
   async getSessionById(sessionId, userId) {
-    const response = await fetch(`${API_BASE}/${sessionId}`, {
-      method: 'GET',
-      headers: buildHeaders(userId),
-      credentials: 'include'
+    const response = await api.get(`/sessions/${sessionId}`, {
+      headers: { 'X-User-Id': userId?.toString() }
     });
+    return response.data;
+  }
+};
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw new Error('Session not found');
-      }
-      throw new Error(`Failed to fetch session: ${response.status}`);
+// Session Form Logic Hook
+export const useSessionForm = () => {
+  const navigate = useNavigate();
+  const { getUserId } = useUser();
+
+  const [sessionData, setSessionData] = useState({
+    title: "",
+    month: "",
+    day: "",
+    year: "",
+    startTime: "",
+    endTime: "",
+    location: "",
+    locationType: "in-person",
+    sessionType: "",
+    password: "",
+    maxParticipants: "",
+    description: ""
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (e) => {
+    setSessionData({ ...sessionData, [e.target.name]: e.target.value });
+  };
+
+  const handlePasswordChange = (e) => {
+    setSessionData({ ...sessionData, password: e.target.value });
+  };
+
+  const handleParticipantsChange = (e) => {
+    setSessionData({ ...sessionData, maxParticipants: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    const userId = getUserId();
+    if (!userId) {
+      alert("User not logged in");
+      setIsSubmitting(false);
+      return;
     }
 
-    return await response.json();
-  }
+    if (sessionData.sessionType === 'PRIVATE' && (!sessionData.password || sessionData.password.length < 6)) {
+      alert("Private sessions require a password of at least 6 characters");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      await sessionService.createSession(sessionData, userId);
+      navigate('/profile', { state: { sessionCreated: true, title: sessionData.title } });
+    } catch (error) {
+      console.error("Error creating session:", error);
+      alert("Error creating session: " + error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleBack = () => {
+    navigate('/dashboard');
+  };
+
+  return {
+    sessionData,
+    isSubmitting,
+    handleChange,
+    handlePasswordChange,
+    handleParticipantsChange,
+    handleSubmit,
+    handleBack
+  };
+};
+
+// Sessions Page Logic Hook
+export const useSessionsPage = () => {
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { getUserId } = useUser();
+
+  useEffect(() => {
+    fetchSessions();
+  }, [getUserId]);
+
+  const fetchSessions = useCallback(async () => {
+    try {
+      setLoading(true);
+      const userId = getUserId();
+      const data = await sessionService.getAllSessions(userId);
+      setSessions(data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch sessions. Please try again later.');
+      console.error("Error fetching sessions:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [getUserId]);
+
+  return {
+    sessions,
+    loading,
+    error,
+    refetch: fetchSessions
+  };
 };

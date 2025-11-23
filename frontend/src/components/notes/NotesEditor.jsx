@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { LinkIcon, H1Icon, H2Icon } from '../../icons';
-import { sessionService } from '../../services/SessionService';
+import { sessionService } from '../../services/sessionService';
 // Removed duplicate imports
 // Removed leading markdown fence
 

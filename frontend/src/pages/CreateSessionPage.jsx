@@ -2,7 +2,7 @@
 import PageHeader from '../components/common/PageHeader';
 // Session pieces are consolidated in SessionForm.jsx
 import SessionHeader, { DetailsPanel, DescriptionPanel } from '../components/sessions/SessionForm';
-import { useSessionForm } from '../services/SessionLogic';
+import { useSessionForm } from '../services/sessionService';
 import '../styles/createSession/CreateSessionPage.css';
 
 const CreateSessionPage = () => {

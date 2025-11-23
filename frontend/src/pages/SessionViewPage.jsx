@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import SessionDetailsCard from '../components/sessions/SessionDetailsCard';
-import { sessionService } from '../services/SessionService';
+import { sessionService } from '../services/sessionService';
 import { useUser } from '../context/UserContext';
 
 const PasswordModal = ({ isOpen, onClose, onSubmit, sessionTitle, needsAuthentication = false }) => {

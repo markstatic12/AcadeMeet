@@ -1,6 +1,23 @@
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+// Configure axios instance
+const api = axios.create({
+  baseURL: 'http://localhost:8080/api',
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true
+});
+
+// Response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const message = error.response?.data?.message || error.message || 'Request failed';
+    throw new Error(message);
+  }
+);
 
 function pickOwnerName(n) {
   // Try common shapes returned by the backend
@@ -30,25 +47,14 @@ function normalizeNote(n) {
 
 export const noteService = {
   async getAllActiveNotes() {
-    // Get all active notes from all users (for public notes page)
-    const res = await fetch(`${API_BASE_URL}/notes/all/active`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.message || 'Failed to load notes');
-    }
-    const data = await res.json();
-    console.log('Fetched all active notes:', data);
+    const response = await api.get('/notes/all/active');
+    const data = response.data;
     const arr = Array.isArray(data) ? data : [];
-    const normalized = arr.map(normalizeNote).sort((a, b) => {
+    return arr.map(normalizeNote).sort((a, b) => {
       if (!a.createdAt) return 1;
       if (!b.createdAt) return -1;
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
-    console.log('Normalized all active notes:', normalized);
-    return normalized;
   },
 
   async getActiveNotes() {
@@ -57,26 +63,14 @@ export const noteService = {
   },
 
   async getUserActiveNotes(userId) {
-    // Get active notes for a specific user (for profile page)
-    console.log('Fetching notes for user:', userId);
-    const res = await fetch(`${API_BASE_URL}/notes/user/${userId}/active`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.message || 'Failed to load notes');
-    }
-    const data = await res.json();
-    console.log('Fetched user notes for user', userId, ':', data);
+    const response = await api.get(`/notes/user/${userId}/active`);
+    const data = response.data;
     const arr = Array.isArray(data) ? data : [];
-    const normalized = arr.map(normalizeNote).sort((a, b) => {
+    return arr.map(normalizeNote).sort((a, b) => {
       if (!a.createdAt) return 1;
       if (!b.createdAt) return -1;
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
-    console.log('Normalized user notes for user', userId, ':', normalized);
-    return normalized;
   },
 
   async createNote({ title, content, tagIds = [], userId, sessionIds = [] }) {
@@ -88,78 +82,28 @@ export const noteService = {
       sessionIds,
     };
 
-    const headers = { 'Content-Type': 'application/json' };
-    if (userId) {
-      headers['X-User-Id'] = userId.toString();
-    }
-
-    const res = await fetch(`${API_BASE_URL}/notes`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(payload),
+    const response = await api.post('/notes', payload, {
+      headers: userId ? { 'X-User-Id': userId.toString() } : {}
     });
-
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.error || 'Failed to create note');
-    }
-
-    const created = await res.json();
-    return normalizeNote(created);
+    return normalizeNote(response.data);
   },
 
   async updateNote(noteId, { title, content, tagIds = [], sessionIds = [] }) {
-    const payload = {
-      title,
-      content,
-      tagIds,
-      sessionIds,
-    };
-
-    const res = await fetch(`${API_BASE_URL}/notes/${noteId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.error || 'Failed to update note');
-    }
-
-    const updated = await res.json();
-    return normalizeNote(updated);
+    const payload = { title, content, tagIds, sessionIds };
+    const response = await api.patch(`/notes/${noteId}`, payload);
+    return normalizeNote(response.data);
   },
 
   async toggleFavoriteNote(noteId, userId) {
-    const res = await fetch(`${API_BASE_URL}/notes/${noteId}/favorite`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-User-Id': userId.toString(),
-      },
+    const response = await api.post(`/notes/${noteId}/favorite`, {}, {
+      headers: { 'X-User-Id': userId.toString() }
     });
-
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.error || 'Failed to toggle favorite');
-    }
-
-    return await res.json();
+    return response.data;
   },
 
   async getFavoriteNotes(userId) {
-    const res = await fetch(`${API_BASE_URL}/notes/favorites?userId=${userId}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.message || 'Failed to load favorite notes');
-    }
-
-    const data = await res.json();
+    const response = await api.get(`/notes/favorites?userId=${userId}`);
+    const data = response.data;
     const arr = Array.isArray(data) ? data : [];
     return arr.map(normalizeNote).sort((a, b) => {
       if (!a.createdAt) return 1;
@@ -169,31 +113,13 @@ export const noteService = {
   },
 
   async deleteNote(noteId) {
-    const res = await fetch(`${API_BASE_URL}/notes/${noteId}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.error || 'Failed to delete note');
-    }
-
-    return await res.json();
+    const response = await api.delete(`/notes/${noteId}`);
+    return response.data;
   },
 
   async getNotesBySession(sessionId) {
-    const res = await fetch(`${API_BASE_URL}/notes/session/${sessionId}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.message || 'Failed to load session notes');
-    }
-
-    const data = await res.json();
+    const response = await api.get(`/notes/session/${sessionId}`);
+    const data = response.data;
     const arr = Array.isArray(data) ? data : [];
     return arr.map(normalizeNote).sort((a, b) => {
       if (!a.createdAt) return 1;
@@ -204,8 +130,6 @@ export const noteService = {
 };
 
 // Note Creation Logic Hook
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 export const useCreateNotePage = () => {
   const navigate = useNavigate();

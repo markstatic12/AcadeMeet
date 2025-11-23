@@ -138,4 +138,21 @@ public class Session {
     public void setCoverImageUrl(String coverImageUrl) { this.coverImageUrl = coverImageUrl; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    @Override
+    public String toString() {
+        return "Session{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", status=" + status +
+                ", sessionType=" + sessionType +
+                ", host=" + (host != null ? host.getName() : "null") +
+                ", date=" + month + "/" + day + "/" + year +
+                ", time=" + startTime + "-" + endTime +
+                ", location='" + location + '\'' +
+                ", participants=" + currentParticipants + "/" + maxParticipants +
+                ", description='" + description + '\'' +
+                ", createdAt=" + createdAt +
+                '}';
+    }
 }

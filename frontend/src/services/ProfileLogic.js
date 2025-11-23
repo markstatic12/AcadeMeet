@@ -292,7 +292,7 @@ export const useProfilePage = () => {
 };
 
 // Notes hook for profile page
-import { noteService } from './NoteService';
+import { noteService } from './noteService';
 
 export const useNotes = (activeTab) => {
   const { getUserId } = useUser();
