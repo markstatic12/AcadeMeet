@@ -338,6 +338,7 @@ export const useCreateNotePage = () => {
     editorRef,
     noteData,
     userName,
+    getUserId,
     handleInputChange,
     applyFormatting,
     applyLink,

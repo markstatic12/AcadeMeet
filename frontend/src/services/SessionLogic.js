@@ -17,7 +17,7 @@ export const useSessionForm = () => {
     endTime: "",
     location: "",
     locationType: "in-person",
-    sessionType: "PUBLIC",
+    sessionType: "",
     password: "",
     maxParticipants: "",
     description: ""
@@ -89,6 +89,7 @@ export const useSessionsPage = () => {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { getUserId } = useUser();
 
   useEffect(() => {
     fetchSessions();
@@ -97,7 +98,8 @@ export const useSessionsPage = () => {
   const fetchSessions = async () => {
     try {
       setLoading(true);
-      const data = await sessionService.getAllSessions();
+      const userId = getUserId();
+      const data = await sessionService.getAllSessions(userId);
       setSessions(data);
       setError(null);
     } catch (err) {
