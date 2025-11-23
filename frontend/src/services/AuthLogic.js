@@ -29,7 +29,7 @@ export const useLoginPage = () => {
       const response = await authService.login(email, password);
       console.log('Login successful:', response);
       
-      await login(response.token, response.user);
+      await login(response);
       navigate('/dashboard');
     } catch (err) {
       console.error('Login failed:', err);

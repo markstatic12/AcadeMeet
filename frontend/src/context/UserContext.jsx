@@ -19,7 +19,11 @@ export const UserProvider = ({ children }) => {
 
   // Store user ID after login/signup
   const login = (userData) => {
-    const userId = userData.userId || userData.studentId || userData.id;
+    const userId = userData.id || userData.userId || userData.studentId;
+    
+    if (!userId) {
+      throw new Error('No user ID found in response');
+    }
     
     // Only store the user ID - components will fetch full data as needed
     setCurrentUser({ id: userId });

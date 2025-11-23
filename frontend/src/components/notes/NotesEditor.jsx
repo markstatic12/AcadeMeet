@@ -216,6 +216,7 @@ export const EditorToolbar = ({ onFormat, onLink, onSessionLink, isFavorite, onT
             onSessionLink && onSessionLink(session);
             setShowSessionModal(false);
           }}
+          getUserId={getUserId}
         />
       )}
 
@@ -284,7 +285,7 @@ export const NoteTitleInput = ({ value, onChange }) => {
 
 // ===== RICH TEXT EDITOR =====
 
-export const RichTextEditor = ({ editorRef, initialContent = '', onContentChange, onSessionLink }) => {
+export const RichTextEditor = ({ editorRef, initialContent = '', onContentChange, onSessionLink, getUserId }) => {
   const localRef = useRef(null);
   const innerRef = editorRef || localRef;
   const [content, setContent] = useState(initialContent);
@@ -590,7 +591,7 @@ export const RichTextEditor = ({ editorRef, initialContent = '', onContentChange
 // ===== SESSION LINK MODAL =====
 
 
-export const SessionLinkModal = ({ onClose, onSelectSession }) => {
+export const SessionLinkModal = ({ onClose, onSelectSession, getUserId }) => {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -604,7 +605,8 @@ export const SessionLinkModal = ({ onClose, onSelectSession }) => {
     try {
       setLoading(true);
       setError(null);
-      const sessionsData = await sessionService.getSessionsForLinking();
+      const userId = getUserId ? getUserId() : null;
+      const sessionsData = await sessionService.getSessionsForLinking(userId);
       setSessions(sessionsData);
     } catch (err) {
       setError(err.message);
