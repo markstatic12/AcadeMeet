@@ -10,6 +10,7 @@ const CreateNotePage = () => {
     editorRef,
     noteData,
     userName,
+    getUserId,
     handleInputChange,
     applyFormatting,
     applyLink,
@@ -34,7 +35,7 @@ const CreateNotePage = () => {
         
   <EditorToolbar onFormat={applyFormatting} onLink={applyLink} editorRef={editorRef} />
         
-  <RichTextEditor editorRef={editorRef} />
+  <RichTextEditor editorRef={editorRef} getUserId={getUserId} />
         
         <AuthorFooter userName={userName} />
       </div>

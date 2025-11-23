@@ -55,7 +55,6 @@ const ProfilePage = () => {
     unfollowUser,
   } = useProfilePage();
 
-  const { getUserId } = useUser();
   const { sessionsData, trashedSessions, deleteSession, restoreSession, TRASH_TTL_DAYS } = useSessions();
   const { notesData, toggleFavouriteNote, archiveNote, deleteNote, restoreTrashedNote, restoreArchivedNote } = useNotes(activeTab);
   const panelHeight = usePanelHeight(leftProfileCardRef, [userData, showEditModal, showProfileOptionsMenu]);
