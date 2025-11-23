@@ -167,9 +167,9 @@ public class NoteService {
         if (tagIds == null || tagIds.isEmpty()) return new ArrayList<>();
         
         if (userId != null) {
-            return noteRepository.findDistinctByOwnerIdAndTags_IdInOrderByCreatedAtDesc(userId, tagIds);
+            return noteRepository.findDistinctByOwnerIdAndTags_TagIdInOrderByCreatedAtDesc(userId, tagIds);
         }
-        return noteRepository.findDistinctByTags_IdInAndStatusNotOrderByCreatedAtDesc(tagIds, excludedStatus);
+        return noteRepository.findDistinctByTags_TagIdInAndStatusNotOrderByCreatedAtDesc(tagIds, excludedStatus);
     }
 
     public List<Note> getNotesByType(Long userId, Note.NoteType type, NoteStatus excludedStatus) {

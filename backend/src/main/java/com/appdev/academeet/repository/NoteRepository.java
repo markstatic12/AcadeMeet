@@ -29,8 +29,8 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
     List<Note> findByOwnerIdAndCreatedAtBetweenOrderByCreatedAtDesc(Long ownerId, LocalDateTime start, LocalDateTime end);
 
     // Tag-based queries (distinct to avoid duplicates from many-to-many joins)
-    List<Note> findDistinctByTags_IdInAndStatusNotOrderByCreatedAtDesc(List<Long> tagIds, Note.NoteStatus excludedStatus);
-    List<Note> findDistinctByOwnerIdAndTags_IdInOrderByCreatedAtDesc(Long ownerId, List<Long> tagIds);
+    List<Note> findDistinctByTags_TagIdInAndStatusNotOrderByCreatedAtDesc(List<Long> tagIds, Note.NoteStatus excludedStatus);
+    List<Note> findDistinctByOwnerIdAndTags_TagIdInOrderByCreatedAtDesc(Long ownerId, List<Long> tagIds);
 
     // Type-based queries
     List<Note> findByOwnerIdAndTypeAndStatusNotOrderByCreatedAtDesc(Long ownerId, Note.NoteType type, Note.NoteStatus excludedStatus);
