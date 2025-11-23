@@ -58,4 +58,6 @@ export {
   QuoteIcon,
   CodeIcon,
   ClearIcon,
+  UsersIcon,
+  GlobeIcon,
 } from './icons';
