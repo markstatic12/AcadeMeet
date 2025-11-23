@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { sessionService } from './SessionService';
@@ -48,6 +48,16 @@ export const useSessionForm = () => {
       return;
     }
 
+    // Validate required fields
+    const requiredFields = ['title', 'month', 'day', 'year', 'startTime', 'endTime', 'location', 'sessionType'];
+    const missingFields = requiredFields.filter(field => !sessionData[field] || sessionData[field].trim() === '');
+    
+    if (missingFields.length > 0) {
+      alert(`Please fill in the following required fields: ${missingFields.join(', ')}`);
+      setIsSubmitting(false);
+      return;
+    }
+
     // Validate private session password
     if (sessionData.sessionType === 'PRIVATE' && (!sessionData.password || sessionData.password.length < 6)) {
       alert("Private sessions require a password of at least 6 characters");
@@ -91,11 +101,7 @@ export const useSessionsPage = () => {
   const [error, setError] = useState(null);
   const { getUserId } = useUser();
 
-  useEffect(() => {
-    fetchSessions();
-  }, []);
-
-  const fetchSessions = async () => {
+  const fetchSessions = useCallback(async () => {
     try {
       setLoading(true);
       const userId = getUserId();
@@ -108,7 +114,11 @@ export const useSessionsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [getUserId]);
+
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
 
   return {
     sessions,

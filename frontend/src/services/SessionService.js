@@ -153,5 +153,24 @@ export const sessionService = {
     }
 
     return await response.json();
+  },
+
+  /**
+   * Gets sessions scheduled for a specific date
+   */
+  async getSessionsByDate(year, month, day, userId) {
+    const params = new URLSearchParams({
+      year: year.toString(),
+      month: month.toString(),
+      day: day.toString()
+    });
+    
+    const response = await fetch(`${API_BASE}/by-date?${params}`, {
+      method: 'GET',
+      headers: buildHeaders(userId),
+      credentials: 'include'
+    });
+
+    return handleResponse(response, 'Failed to fetch sessions for date');
   }
 };
