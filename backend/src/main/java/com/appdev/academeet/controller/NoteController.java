@@ -1,9 +1,11 @@
 package com.appdev.academeet.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.appdev.academeet.dto.NoteRequest;
@@ -110,40 +113,87 @@ public class NoteController {
 
     @GetMapping("/active")
     public ResponseEntity<List<Note>> getActiveNotes(org.springframework.web.context.request.WebRequest webRequest) {
-        List<Note> notes = noteService.getNotesByStatus(getCurrentUserId(webRequest), NoteStatus.ACTIVE);
+        List<Note> notes = noteService.getUserNotes(getCurrentUserId(webRequest), NoteStatus.ACTIVE);
         return ResponseEntity.ok(notes);
     }
 
     @GetMapping("/all/active")
     public ResponseEntity<List<Note>> getAllActiveNotes() {
-        // Get active notes from all users for public notes page
-        List<Note> notes = noteService.getAllNotesByStatus(NoteStatus.ACTIVE);
+        // Get active notes from all users (excludes TRASH)
+        List<Note> notes = noteService.getGlobalNotes(NoteStatus.TRASH);
         return ResponseEntity.ok(notes);
     }
 
     @GetMapping("/user/{userId}/active")
     public ResponseEntity<List<Note>> getUserActiveNotes(@PathVariable Long userId) {
         // Get active notes for a specific user
-        List<Note> notes = noteService.getNotesByStatus(userId, NoteStatus.ACTIVE);
+        List<Note> notes = noteService.getUserNotes(userId, NoteStatus.ACTIVE);
         return ResponseEntity.ok(notes);
     }
 
     @GetMapping("/archive")
     public ResponseEntity<List<Note>> getArchivedNotes(org.springframework.web.context.request.WebRequest webRequest) {
-        List<Note> notes = noteService.getNotesByStatus(getCurrentUserId(webRequest), NoteStatus.ARCHIVED);
+        List<Note> notes = noteService.getUserNotes(getCurrentUserId(webRequest), NoteStatus.ARCHIVED);
         return ResponseEntity.ok(notes);
     }
     
     @GetMapping("/trash")
     public ResponseEntity<List<Note>> getTrashNotes(org.springframework.web.context.request.WebRequest webRequest) {
-        List<Note> notes = noteService.getNotesByStatus(getCurrentUserId(webRequest), NoteStatus.TRASH);
+        List<Note> notes = noteService.getUserNotes(getCurrentUserId(webRequest), NoteStatus.TRASH);
         return ResponseEntity.ok(notes);
     }
     
     @GetMapping("/saved")
     public ResponseEntity<List<Note>> getSavedNotes(org.springframework.web.context.request.WebRequest webRequest) {
-        // No try/catch needed here as the service doesn't throw on empty results
         List<Note> notes = noteService.getSavedNotes(getCurrentUserId(webRequest));
+        return ResponseEntity.ok(notes);
+    }
+
+    @GetMapping("/saved/from-others")
+    public ResponseEntity<List<Note>> getSavedNotesFromOthers(org.springframework.web.context.request.WebRequest webRequest) {
+        // Get notes saved/favorited by user from other users only
+        List<Note> notes = noteService.getSavedNotesFromOtherUsers(getCurrentUserId(webRequest));
+        return ResponseEntity.ok(notes);
+    }
+
+    // ----------------------------------------------------------------------------------
+    // Search & Filter Endpoints
+    // ----------------------------------------------------------------------------------
+
+    @GetMapping("/search/by-date")
+    public ResponseEntity<List<Note>> searchNotesByDate(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+            @RequestParam(required = false) Long userId,
+            org.springframework.web.context.request.WebRequest webRequest) {
+        // If userId not provided, use current user; if userId=-1, search globally
+        Long searchUserId = (userId != null && userId == -1) ? null : 
+                           (userId != null ? userId : getCurrentUserId(webRequest));
+        List<Note> notes = noteService.getNotesByDateRange(searchUserId, start, end);
+        return ResponseEntity.ok(notes);
+    }
+
+    @GetMapping("/search/by-tags")
+    public ResponseEntity<List<Note>> searchNotesByTags(
+            @RequestParam List<Long> tagIds,
+            @RequestParam(required = false) Long userId,
+            org.springframework.web.context.request.WebRequest webRequest) {
+        // If userId not provided, use current user; if userId=-1, search globally
+        Long searchUserId = (userId != null && userId == -1) ? null : 
+                           (userId != null ? userId : getCurrentUserId(webRequest));
+        List<Note> notes = noteService.getNotesByTags(searchUserId, tagIds, NoteStatus.TRASH);
+        return ResponseEntity.ok(notes);
+    }
+
+    @GetMapping("/search/by-type")
+    public ResponseEntity<List<Note>> searchNotesByType(
+            @RequestParam Note.NoteType type,
+            @RequestParam(required = false) Long userId,
+            org.springframework.web.context.request.WebRequest webRequest) {
+        // If userId not provided, use current user; if userId=-1, search globally
+        Long searchUserId = (userId != null && userId == -1) ? null : 
+                           (userId != null ? userId : getCurrentUserId(webRequest));
+        List<Note> notes = noteService.getNotesByType(searchUserId, type, NoteStatus.TRASH);
         return ResponseEntity.ok(notes);
     }
 
