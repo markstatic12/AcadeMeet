@@ -11,6 +11,7 @@ public class NoteRequest {
     private String filePath;
     private String content;  
     private List<Long> tagIds; 
+    private String notePreviewImageUrl;
     
     public String getTitle() {
         return title;
@@ -50,5 +51,13 @@ public class NoteRequest {
 
     public void setTagIds(List<Long> tagIds) {
         this.tagIds = tagIds;
+    }
+
+    public String getNotePreviewImageUrl() {
+        return notePreviewImageUrl;
+    }
+
+    public void setNotePreviewImageUrl(String notePreviewImageUrl) {
+        this.notePreviewImageUrl = notePreviewImageUrl;
     }
 }
