@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { noteService } from '../services/NoteService';
+import { noteService } from '../services/noteService';
 import { useUser } from '../context/UserContext';
 const API_BASE_URL = 'http://localhost:8080/api';
 

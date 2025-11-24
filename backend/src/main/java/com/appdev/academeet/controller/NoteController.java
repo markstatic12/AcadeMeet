@@ -220,4 +220,64 @@ public class NoteController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         }
     }
+
+    // ----------------------------------------------------------------------------------
+    // File Upload Endpoint
+    // ----------------------------------------------------------------------------------
+    
+    @PostMapping("/upload")
+    public ResponseEntity<?> uploadFile(
+            @org.springframework.web.bind.annotation.RequestParam("file") org.springframework.web.multipart.MultipartFile file,
+            @org.springframework.web.bind.annotation.RequestParam(value = "title", required = false) String title,
+            @org.springframework.web.bind.annotation.RequestParam(value = "tagIds", required = false) List<Long> tagIds,
+            org.springframework.web.context.request.WebRequest webRequest) {
+        
+        try {
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
+            }
+
+            Long userId = getCurrentUserId(webRequest);
+            
+            // Use absolute path from user.dir (project root)
+            String projectRoot = System.getProperty("user.dir");
+            String uploadDirRelative = "uploads/notes/";
+            java.nio.file.Path uploadPath = java.nio.file.Paths.get(projectRoot, uploadDirRelative);
+            
+            // Create uploads directory if it doesn't exist
+            if (!java.nio.file.Files.exists(uploadPath)) {
+                java.nio.file.Files.createDirectories(uploadPath);
+            }
+            
+            // Generate unique filename
+            String originalFilename = file.getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String filename = java.util.UUID.randomUUID().toString() + extension;
+            java.nio.file.Path filePath = uploadPath.resolve(filename);
+            
+            // Save file to disk
+            file.transferTo(filePath.toFile());
+            
+            // Create note with file reference
+            String noteTitle = (title != null && !title.trim().isEmpty()) ? title : originalFilename;
+            String filePathStr = uploadDirRelative + filename;
+            
+            Note createdNote = noteService.uploadFileNote(
+                noteTitle,
+                filePathStr,
+                null, // preview image URL - can be generated later
+                userId,
+                tagIds
+            );
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdNote);
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Map.of("error", "Failed to upload file: " + e.getMessage()));
+        }
+    }
 }

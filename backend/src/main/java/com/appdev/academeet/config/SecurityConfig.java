@@ -29,6 +29,7 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
             .requestMatchers("/api/users/**").permitAll()
             .requestMatchers("/api/tags/**").permitAll()
             .requestMatchers("/api/notes/**").permitAll()
+            .requestMatchers("/uploads/**").permitAll()
 
             // ".anyRequest().authenticated()" MUST be last
             .anyRequest().authenticated() 

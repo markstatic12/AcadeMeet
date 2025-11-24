@@ -41,6 +41,9 @@ src/main/resources/application-prod.yml
 logs
 *.log
 
+# Uploaded files
+uploads/
+
 # OS-generated files
 .DS_Store
 Thumbs.db

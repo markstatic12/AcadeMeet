@@ -2,6 +2,9 @@ import React, { useState, useRef } from 'react';
 import { ThreeDotsVerticalIcon, StarOutlineIcon, StarSolidIcon, ArchiveIcon, TrashIcon, CalendarIcon } from '../../icons';
 import { CreateNewCard } from './ProfileNavigation';
 import FileUploadDropzone from './FileUploadDropzone';
+import FileNoteCard from '../notes/FileNoteCard';
+import { noteService } from '../../services/noteService';
+import { useUser } from '../../context/UserContext';
 
 
 // ===== NOTE CARD =====
@@ -151,6 +154,7 @@ export const TrashedNoteCard = ({ note, onRestore }) => {
 // ===== NOTES CONTENT =====
 
 export const NotesContent = ({ notesData, openNoteMenuId, onCreateNote, onMenuToggle, onToggleFavourite, onArchive, onDelete }) => {
+  const { getUserId } = useUser();
   const [isDragActive, setIsDragActive] = useState(false);
   const dragCounter = useRef(0);
 
@@ -185,21 +189,23 @@ export const NotesContent = ({ notesData, openNoteMenuId, onCreateNote, onMenuTo
     e.stopPropagation();
     dragCounter.current = 0;
     setIsDragActive(false);
-    // const files = e.dataTransfer?.files;
-    // if (files && files.length > 0) {
-    //   const file = files[0];
-    //   try {
-    //     const userId = getUserId();
-    //     const created = await noteService.uploadFileNote(file, { title: file.name }, userId);
-    //     if (typeof onCreateNote === 'function') {
-    //       onCreateNote(created);
-    //     } else {
-    //       try { window.location.reload(); } catch (_) {}
-    //     }
-    //   } catch (err) {
-    //     console.warn('File upload failed', err);
-    //   }
-    // }
+    
+    const files = e.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      try {
+        const userId = getUserId();
+        const created = await noteService.uploadFileNote(file, { title: file.name }, userId);
+        if (typeof onCreateNote === 'function') {
+          onCreateNote(created);
+        } else {
+          try { window.location.reload(); } catch (_) {}
+        }
+      } catch (err) {
+        console.error('File upload failed', err);
+        alert(`Failed to upload file: ${err.message}`);
+      }
+    }
   };
 
   return (
@@ -213,17 +219,48 @@ export const NotesContent = ({ notesData, openNoteMenuId, onCreateNote, onMenuTo
         <CreateNewCard onClick={onCreateNote} label={"Create New Note or Drag & Drop a File"} />
         {notesData
           .filter((n) => !n.archivedAt && !n.deletedAt)
-          .map((note) => (
-            <NoteCard
-              key={`note-${note.id}-${note.deletedAt || note.archivedAt || ''}`}
-              note={note}
-              openMenuId={openNoteMenuId}
-              onMenuToggle={onMenuToggle}
-              onToggleFavourite={onToggleFavourite}
-              onArchive={onArchive}
-              onDelete={onDelete}
-            />
-          ))}
+          .map((note) => {
+            // Check if this is a FILE type note by looking at the raw data
+            const isFileNote = note.raw?.type === 'FILE' || note.type === 'FILE';
+            
+            if (isFileNote) {
+              return (
+                <FileNoteCard
+                  key={`note-${note.id}-${note.deletedAt || note.archivedAt || ''}`}
+                  note={{
+                    ...note,
+                    notePreviewImageUrl: note.raw?.notePreviewImageUrl || note.notePreviewImageUrl,
+                    tags: note.raw?.tags || note.tags || [],
+                    type: note.raw?.type || note.type
+                  }}
+                  openMenuId={openNoteMenuId}
+                  onMenuToggle={onMenuToggle}
+                  onToggleFavourite={onToggleFavourite}
+                  onArchive={onArchive}
+                  onDelete={onDelete}
+                  onOpen={() => {
+                    // Open file in new tab or download
+                    const filePath = note.raw?.filePath || note.filePath;
+                    if (filePath) {
+                      window.open(`http://localhost:8080/${filePath}`, '_blank');
+                    }
+                  }}
+                />
+              );
+            }
+            
+            return (
+              <NoteCard
+                key={`note-${note.id}-${note.deletedAt || note.archivedAt || ''}`}
+                note={note}
+                openMenuId={openNoteMenuId}
+                onMenuToggle={onMenuToggle}
+                onToggleFavourite={onToggleFavourite}
+                onArchive={onArchive}
+                onDelete={onDelete}
+              />
+            );
+          })}
       </div>
 
       {isDragActive && (

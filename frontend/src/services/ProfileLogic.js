@@ -188,11 +188,20 @@ export const useProfilePage = () => {
     navigate('/create-session');
   };
 
-  // Navigate to create note
-  const handleCreateNote = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    navigate('/create-note');
+  // Navigate to create note. Also accept a created-note object when called
+  // from upload handlers (they pass the created note, not an event).
+  const handleCreateNote = (eOrNote) => {
+    // If this looks like a DOM event, treat accordingly
+    if (eOrNote && typeof eOrNote.stopPropagation === 'function') {
+      eOrNote.stopPropagation();
+      eOrNote.preventDefault();
+      navigate('/create-note');
+      return;
+    }
+
+    // If a created note object is passed (from file upload), refresh the page
+    // to pick up the new note. Avoid throwing when called with unexpected values.
+    try { window.location.reload(); } catch (_) { /* no-op */ }
   };
 
   // Followers manager helpers
@@ -318,15 +327,22 @@ export const useNotes = (activeTab) => {
         const data = await res.json();
         console.log('Fetched notes for user', userId, ':', data);
         
-        // Normalize the data to match expected format
+        // Normalize the data to match expected format and preserve raw fields
         const normalized = (Array.isArray(data) ? data : []).map(n => ({
-          id: n.noteId || n.id,
+          id: n.noteId || n.id || n.note_id || null,
           title: n.title || 'Untitled Note',
-          content: n.content || '',
-          createdAt: n.createdAt || new Date().toISOString(),
-          isFavourite: false,
-          archivedAt: null,
-          deletedAt: null,
+          content: n.content || n.richText || '',
+          createdAt: n.createdAt || n.created_at || n.createdDate || new Date().toISOString(),
+          isFavourite: n.isFavourite || n.is_favourite || false,
+          archivedAt: n.archivedAt || n.archived_at || null,
+          deletedAt: n.deletedAt || n.deleted_at || null,
+          // Keep the original raw response so components can inspect type/filePath/etc.
+          raw: n,
+          // Normalize commonly used file-note fields to make checks simpler in UI
+          type: n.type || n.noteType || n.note_type || null,
+          filePath: n.filePath || n.file_path || null,
+          notePreviewImageUrl: n.notePreviewImageUrl || n.note_preview_image_url || null,
+          tags: n.tags || n.note_tags || [],
         }));
         
         setNotesData(normalized);
