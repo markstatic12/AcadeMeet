@@ -55,8 +55,10 @@ const ProfilePage = () => {
     unfollowUser,
   } = useProfilePage();
 
-  const { sessionsData, trashedSessions, deleteSession, restoreSession, TRASH_TTL_DAYS } = useSessions();
-  const { notesData, toggleFavouriteNote, archiveNote, deleteNote, restoreTrashedNote, restoreArchivedNote } = useNotes(activeTab);
+  const { getUserId } = useUser();
+  const userId = getUserId();
+  const { sessionsData, trashedSessions, deleteSession, restoreSession, TRASH_TTL_DAYS } = useSessions(userId);
+  const { notesData, toggleFavouriteNote, archiveNote, deleteNote, restoreTrashedNote, restoreArchivedNote } = useNotes(activeTab, userId);
   const panelHeight = usePanelHeight(leftProfileCardRef, [userData, showEditModal, showProfileOptionsMenu]);
 
   useClickOutside([
@@ -93,7 +95,7 @@ const ProfilePage = () => {
           <div
             ref={rightPanelRef}
             style={panelHeight ? { height: panelHeight } : undefined}
-            className="bg-[#1f1f1f] border border-gray-800 rounded-2xl overflow-hidden shadow-xl p-6 flex flex-col min-h-0"
+            className="bg-[#1f1f1f] border border-gray-800 rounded-2xl overflow-hidden shadow-xl p-6 flex flex-col"
           >
             <div className="flex items-center justify-between mb-6 flex-shrink-0">
               <TabButtons 

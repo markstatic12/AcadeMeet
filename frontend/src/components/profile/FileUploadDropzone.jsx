@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { noteService } from '../../services/NoteService';
+import { noteService } from '../../services/noteService';
 import { useUser } from '../../context/UserContext';
 
 export default function FileUploadDropzone({ onUploaded, variant = 'tile', active = false }) {

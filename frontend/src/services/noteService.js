@@ -298,5 +298,42 @@ export const noteService = {
       if (!b.createdAt) return -1;
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
+  },
+
+  /**
+   * Uploads a file and creates a FILE type note.
+   * @param {File} file - The file to upload.
+   * @param {object} options - Additional options (title, tagIds).
+   * @param {number} userId - The ID of the user uploading the file.
+   * @returns {Promise<object>} The created note.
+   */
+  async uploadFileNote(file, options = {}, userId) {
+    if (!userId) {
+      throw new Error('User ID is required to upload a file note');
+    }
+
+    if (!file) {
+      throw new Error('File is required');
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('title', options.title || file.name);
+    
+    if (options.tagIds && Array.isArray(options.tagIds)) {
+      options.tagIds.forEach(tagId => formData.append('tagIds', tagId));
+    }
+
+    const response = await fetch(`${API_BASE_URL}/upload`, {
+      method: 'POST',
+      headers: {
+        'X-User-Id': userId.toString(),
+        // Don't set Content-Type - browser will set it with boundary for multipart
+      },
+      body: formData,
+    });
+
+    const data = await handleResponse(response, 'Failed to upload file');
+    return normalizeNote(data);
   }
 };
