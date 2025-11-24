@@ -2,7 +2,7 @@
 import PageHeader from '../components/common/PageHeader';
 import { NoteTitleInput, EditorToolbar, AuthorFooter } from '../components/notes/NotesEditor';
 import RichTextEditor from '../components/notes/NotesEditor';
-import { useCreateNotePage } from '../services/NoteService';
+import { useCreateNotePage } from '../hooks/useNotesHooks';
 import '../styles/createNote/CreateNotePage.css';
 
 const CreateNotePage = () => {

@@ -4,7 +4,7 @@ import { NotesHeader, NotesGrid } from '../components/notes/Notes';
 import LoadingState from '../components/ui/LoadingState';
 import ErrorState from '../components/ui/ErrorState';
 import EmptyState from '../components/ui/EmptyState';
-import { useNotesPage } from '../services/NoteService';
+import { useNotesPage } from '../hooks/useNotesHooks';
 import '../styles/notes/NotesPage.css';
 
 const NotesPage = () => {

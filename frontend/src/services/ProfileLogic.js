@@ -292,137 +292,117 @@ export const useProfilePage = () => {
 };
 
 // Notes hook for profile page
-import { noteService } from './NoteService';
-
 export const useNotes = (activeTab) => {
   const { getUserId } = useUser();
   const [notesData, setNotesData] = useState([]);
 
-  // TTL for trashed notes (days)
-  const NOTE_TRASH_TTL_DAYS = 3;
-
-  const pruneTrashedNotes = (items) => {
-    const now = Date.now();
-    const kept = (items || []).filter(n => !n.deletedAt || (now - n.deletedAt) < NOTE_TRASH_TTL_DAYS * 24 * 60 * 60 * 1000);
-    if (kept.length !== (items || []).length) {
-      // persist cleaned notes list
-      try { localStorage.setItem('notes', JSON.stringify(kept)); } catch (e) { /* ignore */ }
-    }
-    return kept;
-  };
-
   useEffect(() => {
-    let mounted = true;
+    const userId = getUserId();
+    
+    // If no user is authenticated, don't fetch notes - just like useSessions
+    if (!userId) {
+      console.warn('User not authenticated');
+      setNotesData([]);
+      return;
+    }
 
-    const loadNotes = async () => {
+    const fetchNotes = async () => {
       try {
-        const userId = getUserId();
-        const serverNotes = userId ? await noteService.getUserActiveNotes(userId) : [];
-        if (!mounted) return;
-        const normalized = (Array.isArray(serverNotes) ? serverNotes : []).map(n => ({
-          id: n.id || n.noteId,
-          title: n.title,
-          content: n.content || n.richText || '',
-          createdAt: n.createdAt || n.created_at || new Date().toISOString(),
-          isFavourite: n.isFavourite || false,
-          archivedAt: n.archivedAt || null,
-          deletedAt: n.deletedAt || null
+        const res = await fetch(`http://localhost:8080/api/notes/user/${userId}/active`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (!res.ok) throw new Error('Failed to fetch notes');
+
+        const data = await res.json();
+        console.log('Fetched notes for user', userId, ':', data);
+        
+        // Normalize the data to match expected format
+        const normalized = (Array.isArray(data) ? data : []).map(n => ({
+          id: n.noteId || n.id,
+          title: n.title || 'Untitled Note',
+          content: n.content || '',
+          createdAt: n.createdAt || new Date().toISOString(),
+          isFavourite: false,
+          archivedAt: null,
+          deletedAt: null,
         }));
-
-        // Merge server notes with any local overrides stored in localStorage so client-side
-        // actions (delete/archive/favourite) persist across tab switches.
-        let finalNotes = normalized;
-        try {
-          const stored = JSON.parse(localStorage.getItem('notes') || '[]');
-          const map = (Array.isArray(stored) ? stored : []).reduce((acc, item) => {
-            if (item && item.id) acc[item.id] = item;
-            return acc;
-          }, {});
-
-          // Merge overrides into normalized; keep any local-only notes as well
-          const merged = normalized.map(n => ({ ...n, ...(map[n.id] || {}) }));
-          const localOnly = (Array.isArray(stored) ? stored : []).filter(s => !s.id || !merged.find(m => m.id === s.id));
-          finalNotes = [...merged, ...localOnly];
-        } catch (e) {
-          // if parse fails, fall back to normalized
-          finalNotes = normalized;
-        }
-
-        const cleaned = pruneTrashedNotes(finalNotes);
-        setNotesData(cleaned);
-        try { localStorage.setItem('notes', JSON.stringify(cleaned)); } catch (e) { /* ignore */ }
+        
+        setNotesData(normalized);
       } catch (err) {
-        console.warn('Failed to load notes from server, falling back to localStorage', err);
-        try {
-          const storedNotes = JSON.parse(localStorage.getItem('notes') || '[]');
-          if (mounted) setNotesData(pruneTrashedNotes(storedNotes));
-        } catch (e) {
-          console.error('Failed to parse stored notes', e);
-          if (mounted) setNotesData([]);
-        }
+        console.error('Failed to fetch notes from server:', err);
+        setNotesData([]);
       }
     };
 
-    loadNotes();
-
-    return () => {
-      mounted = false;
-    };
+    if (userId) {
+      fetchNotes();
+    }
   }, [activeTab, getUserId]);
 
   const toggleFavourite = (noteId) => {
-    setNotesData(prevNotes => {
-      const updated = prevNotes.map(note =>
+    setNotesData(prevNotes =>
+      prevNotes.map(note =>
         note.id === noteId ? { ...note, isFavourite: !note.isFavourite } : note
-      );
-      localStorage.setItem('notes', JSON.stringify(updated));
-      return updated;
-    });
+      )
+    );
   };
 
   const archiveNote = (noteId) => {
-    setNotesData(prevNotes => {
-      const updated = prevNotes.map(note =>
-        note.id === noteId
-          ? { ...note, archivedAt: note.archivedAt ? null : new Date().toISOString() }
-          : note
-      );
-      localStorage.setItem('notes', JSON.stringify(updated));
-      return updated;
-    });
+    setNotesData(prevNotes =>
+      prevNotes.filter(note => note.id !== noteId)
+    );
   };
 
   const deleteNote = (noteId) => {
-    setNotesData(prevNotes => {
-      const updated = prevNotes.map(note =>
-        note.id === noteId
-          ? { ...note, deletedAt: note.deletedAt ? null : new Date().toISOString() }
-          : note
-      );
-      const cleaned = pruneTrashedNotes(updated);
-      try { localStorage.setItem('notes', JSON.stringify(cleaned)); } catch (e) { /* ignore */ }
-      return updated;
-    });
+    setNotesData(prevNotes =>
+      prevNotes.filter(note => note.id !== noteId)
+    );
   };
 
-  const restoreTrashedNote = (noteId) => {
-    setNotesData(prevNotes => {
-      const updated = prevNotes.map(note =>
-        note.id === noteId ? { ...note, deletedAt: null } : note
-      );
-      localStorage.setItem('notes', JSON.stringify(updated));
-      return updated;
-    });
+  const restoreTrashedNote = () => {
+    // Refresh from server to get the restored notes
+    const userId = getUserId();
+    if (userId) {
+      fetch(`http://localhost:8080/api/notes/user/${userId}/active`)
+        .then(res => res.json())
+        .then(data => {
+          const normalized = (Array.isArray(data) ? data : []).map(n => ({
+            id: n.noteId || n.id,
+            title: n.title || 'Untitled Note',
+            content: n.content || '',
+            createdAt: n.createdAt || new Date().toISOString(),
+            isFavourite: false,
+            archivedAt: null,
+            deletedAt: null,
+          }));
+          setNotesData(normalized);
+        })
+        .catch(err => console.error('Failed to refresh notes:', err));
+    }
   };
 
-  const restoreArchivedNote = (noteId) => {
-    setNotesData(prevNotes => {
-      const updated = prevNotes.map(note =>
-        note.id === noteId ? { ...note, archivedAt: null } : note
-      );
-      localStorage.setItem('notes', JSON.stringify(updated));
-      return updated;
-    });
+  const restoreArchivedNote = () => {
+    // Refresh from server to get the restored notes
+    const userId = getUserId();
+    if (userId) {
+      fetch(`http://localhost:8080/api/notes/user/${userId}/active`)
+        .then(res => res.json())
+        .then(data => {
+          const normalized = (Array.isArray(data) ? data : []).map(n => ({
+            id: n.noteId || n.id,
+            title: n.title || 'Untitled Note',
+            content: n.content || '',
+            createdAt: n.createdAt || new Date().toISOString(),
+            isFavourite: false,
+            archivedAt: null,
+            deletedAt: null,
+          }));
+          setNotesData(normalized);
+        })
+        .catch(err => console.error('Failed to refresh notes:', err));
+    }
   };
 
   // Provide API-compatible names expected by components

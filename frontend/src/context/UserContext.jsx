@@ -34,13 +34,11 @@ export const UserProvider = ({ children }) => {
   const logout = () => {
     setCurrentUser(null);
     localStorage.removeItem('userId');
-    // Also clear old 'student' key if it exists
-    localStorage.removeItem('student');
   };
 
   // Get current user ID (consistent accessor)
   const getUserId = () => {
-    return currentUser?.id || currentUser?.studentId || null;
+    return currentUser?.id || null;
   };
 
   // Update user ID (used after profile updates that might change the ID)
