@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { ThreeDotsVerticalIcon, StarOutlineIcon, StarSolidIcon, ArchiveIcon, TrashIcon, CalendarIcon } from '../../icons';
 import { CreateNewCard } from './ProfileNavigation';
+import FileUploadDropzone from './FileUploadDropzone';
 
 
 // ===== NOTE CARD =====
@@ -150,10 +151,66 @@ export const TrashedNoteCard = ({ note, onRestore }) => {
 // ===== NOTES CONTENT =====
 
 export const NotesContent = ({ notesData, openNoteMenuId, onCreateNote, onMenuToggle, onToggleFavourite, onArchive, onDelete }) => {
+  const [isDragActive, setIsDragActive] = useState(false);
+  const dragCounter = useRef(0);
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current += 1;
+    try {
+      const types = e.dataTransfer?.types || [];
+      if (Array.from(types).indexOf('Files') !== -1) {
+        setIsDragActive(true);
+      }
+    } catch {
+      setIsDragActive(true);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current = Math.max(0, dragCounter.current - 1);
+    if (dragCounter.current === 0) setIsDragActive(false);
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current = 0;
+    setIsDragActive(false);
+    // const files = e.dataTransfer?.files;
+    // if (files && files.length > 0) {
+    //   const file = files[0];
+    //   try {
+    //     const userId = getUserId();
+    //     const created = await noteService.uploadFileNote(file, { title: file.name }, userId);
+    //     if (typeof onCreateNote === 'function') {
+    //       onCreateNote(created);
+    //     } else {
+    //       try { window.location.reload(); } catch (_) {}
+    //     }
+    //   } catch (err) {
+    //     console.warn('File upload failed', err);
+    //   }
+    // }
+  };
+
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
+    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1 relative"
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
-        <CreateNewCard onClick={onCreateNote} label="Create New Note" />
+        <CreateNewCard onClick={onCreateNote} label={"Create New Note or Drag & Drop a File"} />
         {notesData
           .filter((n) => !n.archivedAt && !n.deletedAt)
           .map((note) => (
@@ -168,6 +225,20 @@ export const NotesContent = ({ notesData, openNoteMenuId, onCreateNote, onMenuTo
             />
           ))}
       </div>
+
+      {isDragActive && (
+        <FileUploadDropzone
+          variant="overlay"
+          active={isDragActive}
+          // onUploaded still used for click-select uploads
+          onUploaded={(created) => {
+            if (typeof onCreateNote === 'function') {
+              try { onCreateNote(created); return; } catch (err) { console.warn('onCreateNote handler failed', err); }
+            }
+            try { window.location.reload(); } catch (err) { console.warn('Reload failed', err); }
+          }}
+        />
+      )}
     </div>
   );
 };
