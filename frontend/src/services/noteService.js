@@ -1,24 +1,6 @@
 // noteService.js - handles all note-related HTTP requests
 
-const API_BASE_URL = 'http://localhost:8080/api/notes';
-
-// Helper function to build headers with optional authentication
-const buildHeaders = (userId) => {
-  const headers = { 'Content-Type': 'application/json' };
-  if (userId) {
-    headers['X-User-Id'] = userId.toString();
-  }
-  return headers;
-};
-
-// Helper function to handle API responses
-const handleResponse = async (response, errorMessage = 'Request failed') => {
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || errorData.message || errorMessage);
-  }
-  return await response.json();
-};
+import { buildApiUrl, buildHeaders, handleApiResponse, API_CONFIG } from '../config/api';
 
 /**
  * Utility function to infer the note owner's name from various backend response shapes.
@@ -67,12 +49,12 @@ export const noteService = {
    * @returns {Promise<Array<object>>} A promise that resolves to an array of normalized notes.
    */
   async getAllActiveNotes() {
-    const response = await fetch(`${API_BASE_URL}/all/active`, {
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.NOTES}/all/active`), {
       method: 'GET',
       headers: buildHeaders(),
     });
     
-    const data = await handleResponse(response, 'Failed to load all active notes');
+    const data = await handleApiResponse(response, 'Failed to load all active notes');
     const arr = Array.isArray(data) ? data : [];
     
     // Normalize and sort by creation date (newest first)
@@ -101,12 +83,12 @@ export const noteService = {
       throw new Error('User ID is required to fetch user notes');
     }
 
-    const response = await fetch(`${API_BASE_URL}/user/${userId}/active`, {
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.NOTES}/user/${userId}/active`), {
       method: 'GET',
       headers: buildHeaders(userId),
     });
     
-    const data = await handleResponse(response, 'Failed to load user notes');
+    const data = await handleApiResponse(response, 'Failed to load user notes');
     const arr = Array.isArray(data) ? data : [];
     
     // Normalize and sort by creation date (newest first)
@@ -135,13 +117,13 @@ export const noteService = {
       sessionIds,
     };
 
-    const response = await fetch(API_BASE_URL, {
+    const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.NOTES), {
       method: 'POST',
       headers: buildHeaders(userId),
       body: JSON.stringify(payload),
     });
 
-    const created = await handleResponse(response, 'Failed to create note');
+    const created = await handleApiResponse(response, 'Failed to create note');
     return normalizeNote(created);
   },
 
@@ -154,13 +136,13 @@ export const noteService = {
   async updateNote(noteId, { title, content, tagIds = [], sessionIds = [], userId }) {
     const payload = { title, content, tagIds, sessionIds };
 
-    const response = await fetch(`${API_BASE_URL}/${noteId}`, {
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.NOTES}/${noteId}`), {
       method: 'PUT',
       headers: buildHeaders(userId),
       body: JSON.stringify(payload),
     });
 
-    const updated = await handleResponse(response, 'Failed to update note');
+    const updated = await handleApiResponse(response, 'Failed to update note');
     return normalizeNote(updated);
   },
 
@@ -174,12 +156,12 @@ export const noteService = {
       throw new Error('User ID is required to delete a note');
     }
 
-    const response = await fetch(`${API_BASE_URL}/${noteId}`, {
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.NOTES}/${noteId}`), {
       method: 'DELETE',
       headers: buildHeaders(userId),
     });
 
-    return handleResponse(response, 'Failed to delete note');
+    return handleApiResponse(response, 'Failed to delete note');
   },
 
   /**
@@ -192,12 +174,12 @@ export const noteService = {
       throw new Error('User ID is required to archive a note');
     }
 
-    const response = await fetch(`${API_BASE_URL}/${noteId}/archive`, {
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.NOTES}/${noteId}/archive`), {
       method: 'PUT',
       headers: buildHeaders(userId),
     });
 
-    return handleResponse(response, 'Failed to archive note');
+    return handleApiResponse(response, 'Failed to archive note');
   },
 
   /**
@@ -210,12 +192,12 @@ export const noteService = {
       throw new Error('User ID is required to unarchive a note');
     }
 
-    const response = await fetch(`${API_BASE_URL}/${noteId}/unarchive`, {
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.NOTES}/${noteId}/unarchive`), {
       method: 'PUT',
       headers: buildHeaders(userId),
     });
 
-    return handleResponse(response, 'Failed to unarchive note');
+    return handleApiResponse(response, 'Failed to unarchive note');
   },
 
   /**
@@ -228,12 +210,12 @@ export const noteService = {
       throw new Error('User ID is required to save a note');
     }
 
-    const response = await fetch(`${API_BASE_URL}/${noteId}/save`, {
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.NOTES}/${noteId}/save`), {
       method: 'POST',
       headers: buildHeaders(userId),
     });
 
-    return handleResponse(response, 'Failed to save note');
+    return handleApiResponse(response, 'Failed to save note');
   },
 
   /**
@@ -246,12 +228,12 @@ export const noteService = {
       throw new Error('User ID is required to unsave a note');
     }
 
-    const response = await fetch(`${API_BASE_URL}/${noteId}/unsave`, {
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.NOTES}/${noteId}/unsave`), {
       method: 'DELETE',
       headers: buildHeaders(userId),
     });
 
-    return handleResponse(response, 'Failed to unsave note');
+    return handleApiResponse(response, 'Failed to unsave note');
   },
 
   /**
@@ -264,12 +246,12 @@ export const noteService = {
       throw new Error('User ID is required to fetch saved notes');
     }
 
-    const response = await fetch(`${API_BASE_URL}/saved`, {
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.NOTES}/saved`), {
       method: 'GET',
       headers: buildHeaders(userId),
     });
 
-    const data = await handleResponse(response, 'Failed to load saved notes');
+    const data = await handleApiResponse(response, 'Failed to load saved notes');
     const arr = Array.isArray(data) ? data : [];
     
     return arr.map(normalizeNote).sort((a, b) => {
@@ -285,12 +267,12 @@ export const noteService = {
    * @returns {Promise<Array<object>>} Array of notes.
    */
   async getNotesBySession(sessionId) {
-    const response = await fetch(`${API_BASE_URL}/session/${sessionId}`, {
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.NOTES}/session/${sessionId}`), {
       method: 'GET',
       headers: buildHeaders(),
     });
 
-    const data = await handleResponse(response, 'Failed to load session notes');
+    const data = await handleApiResponse(response, 'Failed to load session notes');
     const arr = Array.isArray(data) ? data : [];
     
     return arr.map(normalizeNote).sort((a, b) => {
@@ -324,7 +306,7 @@ export const noteService = {
       options.tagIds.forEach(tagId => formData.append('tagIds', tagId));
     }
 
-    const response = await fetch(`${API_BASE_URL}/upload`, {
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.NOTES}/upload`), {
       method: 'POST',
       headers: {
         'X-User-Id': userId.toString(),
@@ -333,7 +315,7 @@ export const noteService = {
       body: formData,
     });
 
-    const data = await handleResponse(response, 'Failed to upload file');
+    const data = await handleApiResponse(response, 'Failed to upload file');
     return normalizeNote(data);
   }
 };
