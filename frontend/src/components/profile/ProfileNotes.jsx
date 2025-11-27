@@ -3,7 +3,7 @@ import { ThreeDotsVerticalIcon, StarOutlineIcon, StarSolidIcon, ArchiveIcon, Tra
 import { CreateNewCard } from './ProfileNavigation';
 import FileUploadDropzone from './FileUploadDropzone';
 import FileNoteCard from '../notes/FileNoteCard';
-import { noteService } from '../../services/noteService';
+import { noteService } from '../../services/NoteService';
 import { useUser } from '../../context/UserContext';
 
 
