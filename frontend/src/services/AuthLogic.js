@@ -67,7 +67,7 @@ export const useSignupPage = () => {
   const [program, setProgram] = useState('');
   const [yearLevel, setYearLevel] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [success] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login, isAuthenticated } = useUser();

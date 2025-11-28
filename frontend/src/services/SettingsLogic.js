@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import { buildApiUrl, buildHeaders, API_CONFIG } from '../config/api';
 
 export const useSettingsPage = () => {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ export const useSettingsPage = () => {
   useEffect(() => {
     const userId = getUserId();
     if (userId) {
-      fetch(`http://localhost:8080/api/users/${userId}`)
+      fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.USERS}/${userId}`))
         .then(res => res.json())
         .then(s => {
           setStudent(s);
@@ -78,9 +79,9 @@ export const useSettingsPage = () => {
     
     try {
       setSaving(true);
-      const res = await fetch(`http://localhost:8080/api/users/${userId}`, {
+      const res = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.USERS}/${userId}`), {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: buildHeaders(),
         body: JSON.stringify({
           name: form.name,
           school: form.school,
@@ -94,7 +95,7 @@ export const useSettingsPage = () => {
       const data = await res.json();
       
       // Reload user data
-      const updatedUser = await fetch(`http://localhost:8080/api/users/${userId}`).then(r => r.json());
+      const updatedUser = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.USERS}/${userId}`)).then(r => r.json());
       setStudent(updatedUser);
       
       showToast(data?.message || 'Profile updated', 'success');
@@ -192,9 +193,9 @@ export const usePasswordReset = () => {
 
     try {
       setBusy(true);
-      const res = await fetch('http://localhost:8080/api/auth/change-password', {
+      const res = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.AUTH}/change-password`), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: buildHeaders(),
         body: JSON.stringify({
           userId: userId,
           currentPassword: curr,

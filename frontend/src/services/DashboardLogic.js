@@ -1,6 +1,6 @@
 // Dashboard Service
 import { useState, useEffect } from 'react';
-import { noteService } from './noteService';
+import { noteService } from './NoteService';
 import { useUser } from '../context/UserContext';
 
 export const useDashboardPage = () => {

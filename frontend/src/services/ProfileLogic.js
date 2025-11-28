@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import { buildApiUrl, buildHeaders, handleApiResponse, API_CONFIG } from '../config/api';
 
 
 
@@ -51,7 +52,7 @@ export const useProfilePage = () => {
       if (!userId) return;
 
       try {
-        const response = await fetch(`http://localhost:8080/api/users/${userId}`);
+        const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.USERS}/${userId}`));
         if (response.ok) {
           const data = await response.json();
           setUserData({
@@ -126,11 +127,9 @@ export const useProfilePage = () => {
         return;
       }
       
-      const response = await fetch(`http://localhost:8080/api/users/${currentUserId}`, {
+      const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.USERS}/${currentUserId}`), {
         method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json'
-        },
+        headers: buildHeaders(),
         body: JSON.stringify({
           name: editForm.name,
           school: editForm.school,
@@ -215,8 +214,8 @@ export const useProfilePage = () => {
       const userId = getUserId();
       if(!userId) return;
       const [foRes, fiRes] = await Promise.all([
-        fetch(`http://localhost:8080/api/followers/${userId}/followers`),
-        fetch(`http://localhost:8080/api/followers/${userId}/following`)
+        fetch(buildApiUrl(`/followers/${userId}/followers`)),
+        fetch(buildApiUrl(`/followers/${userId}/following`))
       ]);
       const [followers, following] = await Promise.all([
         foRes.ok ? foRes.json() : Promise.resolve([]),
@@ -247,9 +246,9 @@ export const useProfilePage = () => {
     const userId = getUserId();
     if(!userId) return;
     try{
-      await fetch('http://localhost:8080/api/followers/unfollow',{
-        method:'DELETE', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ followerId: userId, followingId })
+      await fetch(buildApiUrl('/followers/unfollow'),{
+        method:'DELETE', headers:buildHeaders(),
+        body: JSON.stringify({ followerId:userId, followingId })
       });
       setFollowingList(prev=> prev.filter(u=>u.id!==followingId));
     }catch(e){ console.error('Unfollow failed', e); }
@@ -317,9 +316,9 @@ export const useNotes = (activeTab) => {
 
     const fetchNotes = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/notes/user/${userId}/active`, {
+        const res = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.NOTES}/user/${userId}/active`), {
           method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
+          headers: buildHeaders(),
         });
 
         if (!res.ok) throw new Error('Failed to fetch notes');

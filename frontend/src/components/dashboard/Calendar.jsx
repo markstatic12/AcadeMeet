@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { getDaysInMonth, getMonthName, isCurrentMonth as checkIsCurrentMonth, getCurrentDay } from '../../utils/calendarUtils';
 import SessionTabs from './SessionTabs';
 import { ChevronLeftIcon, ChevronRightIcon } from '../../icons';
-import { useCalendarSessions } from '../../services/useCalendarSessions';
+import { useCalendarSessions } from '../../services/UseCalendarSessions';
 import DaySessionsModal from './DaySessionsModal';
 import { useUser } from '../../context/UserContext';
 

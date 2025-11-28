@@ -1,12 +1,15 @@
-// Comment Service  
-export const getSessionComments = async (sessionId) => {
-  const response = await fetch(`http://localhost:8080/api/comments/session/${sessionId}`);
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch comments');
-  }
+// Comment Service
+import { buildApiUrl, buildHeaders, handleApiResponse, API_CONFIG } from '../config/api';
 
-  const comments = await response.json();
+/**
+ * Retrieves all comments for a specific session, organized in thread structure
+ * @param {string|number} sessionId - The session identifier
+ * @returns {Promise<Array>} Top-level comments with nested replies
+ */
+export const getSessionComments = async (sessionId) => {
+  const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.COMMENTS}/session/${sessionId}`));
+  
+  const comments = await handleApiResponse(response, 'Failed to fetch comments');
   
   // Organize comments into thread structure (top-level comments with nested replies)
   const topLevelComments = comments.filter(comment => !comment.parentCommentId);
@@ -21,9 +24,9 @@ export const getSessionComments = async (sessionId) => {
 };
 
 export const createComment = async (sessionId, userId, content, parentCommentId = null) => {
-  const response = await fetch('http://localhost:8080/api/comments', {
+  const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.COMMENTS), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: buildHeaders(userId),
     body: JSON.stringify({
       sessionId,
       userId,
@@ -32,48 +35,39 @@ export const createComment = async (sessionId, userId, content, parentCommentId 
     })
   });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to create comment');
-  }
-
-  return await response.json();
+  return await handleApiResponse(response, 'Failed to create comment');
 };
 
 export const updateComment = async (commentId, content) => {
-  const response = await fetch(`http://localhost:8080/api/comments/${commentId}`, {
+  const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.COMMENTS}/${commentId}`), {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: buildHeaders(),
     body: JSON.stringify({ content })
   });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to update comment');
-  }
-
-  return await response.json();
+  return await handleApiResponse(response, 'Failed to update comment');
 };
 
+/**
+ * Deletes a comment
+ * @param {string|number} commentId - The comment identifier
+ * @returns {Promise<object>} Deletion confirmation
+ */
 export const deleteComment = async (commentId) => {
-  const response = await fetch(`http://localhost:8080/api/comments/${commentId}`, {
+  const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.COMMENTS}/${commentId}`), {
     method: 'DELETE'
   });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to delete comment');
-  }
-
-  return await response.json();
+  return await handleApiResponse(response, 'Failed to delete comment');
 };
 
+/**
+ * Retrieves replies for a specific comment
+ * @param {string|number} parentCommentId - The parent comment identifier
+ * @returns {Promise<Array>} Array of reply comments
+ */
 export const getCommentReplies = async (parentCommentId) => {
-  const response = await fetch(`http://localhost:8080/api/comments/replies/${parentCommentId}`);
+  const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.COMMENTS}/replies/${parentCommentId}`));
   
-  if (!response.ok) {
-    throw new Error('Failed to fetch replies');
-  }
-
-  return await response.json();
+  return await handleApiResponse(response, 'Failed to fetch replies');
 };

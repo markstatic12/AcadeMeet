@@ -1,16 +1,19 @@
 // Reminder Service
 import { useUser } from '../context/UserContext';
+import { buildApiUrl, buildHeaders, handleApiResponse, API_CONFIG } from '../config/api';
 
-// Hook-based reminder service
+/**
+ * Hook-based reminder service for managing session reminders
+ */
 export const useReminderService = () => {
   const { getUserId } = useUser();
 
   const createReminder = async (sessionId, reminderTime, message = '', notificationType = 'IN_APP') => {
     const userId = getUserId();
     if (!userId) throw new Error('User not authenticated');
-    const response = await fetch('http://localhost:8080/api/reminders', {
+    const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.REMINDERS), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: buildHeaders(userId),
       body: JSON.stringify({
         userId,
         sessionId,
@@ -32,7 +35,7 @@ export const useReminderService = () => {
     const userId = getUserId();
     if (!userId) throw new Error('User not authenticated');
     
-    const response = await fetch(`http://localhost:8080/api/reminders?userId=${userId}`);
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.REMINDERS}?userId=${userId}`));
     
     if (!response.ok) {
       throw new Error('Failed to fetch reminders');
@@ -45,13 +48,10 @@ export const useReminderService = () => {
     const userId = getUserId();
     if (!userId) throw new Error('User not authenticated');
     
-    const response = await fetch(`http://localhost:8080/api/reminders/pending?userId=${userId}`);
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.REMINDERS}/pending?userId=${userId}`));
     
     if (!response.ok) {
       throw new Error('Failed to fetch pending reminders');
-    }
-
-    return await response.json();o fetch reminder count');
     }
 
     return await response.json();
@@ -60,16 +60,15 @@ export const useReminderService = () => {
   return {
     createReminder,
     getUserReminders,
-    getPendingReminders,
-    getPendingReminderCount
+    getPendingReminders
   };
 };
 
 // Legacy exports for backward compatibility - will be deprecated
 export const createReminder = async (userId, sessionId, reminderTime, message = '', notificationType = 'IN_APP') => {
-  const response = await fetch('http://localhost:8080/api/reminders', {
+  const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.REMINDERS), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: buildHeaders(userId),
     body: JSON.stringify({ userId, sessionId, reminderTime, reminderMessage: message, notificationType })
   });
   if (!response.ok) {
@@ -80,38 +79,26 @@ export const createReminder = async (userId, sessionId, reminderTime, message = 
 };
 
 export const getUserReminders = async (userId) => {
-  const response = await fetch(`http://localhost:8080/api/reminders?userId=${userId}`);
-  if (!response.ok) throw new Error('Failed to fetch reminders');
-  return await response.json();
+  const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.REMINDERS}?userId=${userId}`));
+  return await handleApiResponse(response, 'Failed to fetch reminders');
 };
 
 export const getPendingReminders = async (userId) => {
-  const response = await fetch(`http://localhost:8080/api/reminders/pending?userId=${userId}`);
-  if (!response.ok) throw new Error('Failed to fetch pending reminders');
-  return await response.json();
+  const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.REMINDERS}/pending?userId=${userId}`));
+  return await handleApiResponse(response, 'Failed to fetch pending reminders');
 };
 
 export const getPendingReminderCount = async (userId) => {
-  const response = await fetch(`http://localhost:8080/api/reminders/count?userId=${userId}`);
-  if (!response.ok) throw new Error('Failed to fetch reminder count');
-  return await response.json();
+  const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.REMINDERS}/count?userId=${userId}`));
+  return await handleApiResponse(response, 'Failed to fetch reminder count');
 };
 
-export const getPendingReminderCount = async (userId) => {
-  const response = await fetch(`http://localhost:8080/api/reminders/count?userId=${userId}`);
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch reminder count');
-  }
-
-  const data = await response.json();
-  return data.count;
-};
+// Duplicate function removed - use the one above
 
 export const updateReminder = async (reminderId, reminderTime, message = '', notificationType = 'IN_APP') => {
-  const response = await fetch(`http://localhost:8080/api/reminders/${reminderId}`, {
+  const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.REMINDERS}/${reminderId}`), {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: buildHeaders(),
     body: JSON.stringify({
       reminderTime,
       reminderMessage: message,
@@ -119,23 +106,13 @@ export const updateReminder = async (reminderId, reminderTime, message = '', not
     })
   });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to update reminder');
-  }
-
-  return await response.json();
+  return await handleApiResponse(response, 'Failed to update reminder');
 };
 
 export const deleteReminder = async (reminderId) => {
-  const response = await fetch(`http://localhost:8080/api/reminders/${reminderId}`, {
+  const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.REMINDERS}/${reminderId}`), {
     method: 'DELETE'
   });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to delete reminder');
-  }
-
-  return await response.json();
+  return await handleApiResponse(response, 'Failed to delete reminder');
 };

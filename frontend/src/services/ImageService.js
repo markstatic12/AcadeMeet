@@ -1,11 +1,14 @@
-const API_BASE_URL = 'http://localhost:8080/api';
+import { buildApiUrl, handleApiResponse, API_CONFIG } from '../config/api';
 
+/**
+ * Image upload and management service
+ */
 export const imageService = {
   async uploadProfileImage(userId, imageFile) {
     const formData = new FormData();
     formData.append('image', imageFile);
 
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/profile-image`, {
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.USERS}/${userId}/profile-image`), {
       method: 'POST',
       body: formData,
     });
@@ -22,7 +25,7 @@ export const imageService = {
     const formData = new FormData();
     formData.append('image', imageFile);
 
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/cover-image`, {
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.USERS}/${userId}/cover-image`), {
       method: 'POST',
       body: formData,
     });
@@ -39,7 +42,7 @@ export const imageService = {
     const formData = new FormData();
     formData.append('image', imageFile);
 
-    const response = await fetch(`${API_BASE_URL}/sessions/${sessionId}/image`, {
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.SESSIONS}/${sessionId}/image`), {
       method: 'POST',
       body: formData,
     });
@@ -53,7 +56,7 @@ export const imageService = {
   },
 
   async deleteUserImage(userId, imageType) {
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/${imageType}-image`, {
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.USERS}/${userId}/${imageType}-image`), {
       method: 'DELETE',
     });
 
@@ -66,7 +69,7 @@ export const imageService = {
   },
 
   async deleteSessionImage(sessionId) {
-    const response = await fetch(`${API_BASE_URL}/sessions/${sessionId}/image`, {
+    const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.SESSIONS}/${sessionId}/image`), {
       method: 'DELETE',
     });
 
