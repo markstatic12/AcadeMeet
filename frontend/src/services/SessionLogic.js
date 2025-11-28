@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
-import { SessionService } from './SessionService';
+import { sessionService } from './SessionService';
 
 // Session Form Logic Hook
 export const useSessionForm = () => {
@@ -66,7 +66,7 @@ export const useSessionForm = () => {
     }
 
     try {
-      await SessionService.createSession(sessionData, userId);
+      await sessionService.createSession(sessionData, userId);
       
       // Instead of a blocking alert, navigate to dashboard and pass a success flag
       // so the dashboard or sessions page can render a non-blocking success modal.
@@ -105,7 +105,7 @@ export const useSessionsPage = () => {
     try {
       setLoading(true);
       const userId = getUserId();
-      const data = await SessionService.getAllSessions(userId);
+      const data = await sessionService.getAllSessions(userId);
       setSessions(data);
       setError(null);
     } catch (err) {
