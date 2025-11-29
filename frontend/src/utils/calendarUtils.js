@@ -14,8 +14,8 @@ export const getMonthName = (date) => {
 };
 
 export const isCurrentMonth = (date) => {
-  const currentMonthNum = new Date().getMonth();
-  return date.getMonth() === currentMonthNum;
+  const today = new Date();
+  return date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
 };
 
 export const getCurrentDay = () => {
