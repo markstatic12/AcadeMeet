@@ -7,6 +7,7 @@ import EmptyState from '../components/ui/EmptyState';
 import { useSessionsPage } from '../services/SessionLogic';
 import '../styles/sessions/SessionsPage.css';
 
+
 const SessionsPage = () => {
   const { sessions, loading, error } = useSessionsPage();
 

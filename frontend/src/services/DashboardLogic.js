@@ -105,6 +105,10 @@ export const useDashboardPage = () => {
     });
   };
 
+  // Convenience wrappers to match DashboardPage props
+  const goToPreviousMonth = () => handleMonthChange('prev');
+  const goToNextMonth = () => handleMonthChange('next');
+
   return {
     activeSessionTab,
     activeNotesTab,
@@ -114,6 +118,8 @@ export const useDashboardPage = () => {
     notesError,
     handleSessionTabChange,
     handleNotesTabChange,
-    handleMonthChange
+    handleMonthChange,
+    goToPreviousMonth,
+    goToNextMonth
   };
 };

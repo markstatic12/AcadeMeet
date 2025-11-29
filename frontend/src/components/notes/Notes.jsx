@@ -1,6 +1,8 @@
 import React from 'react';
 import { StarSolidIcon, CalendarIcon } from '../../icons';
 import { getCategoryColor } from '../../utils/categoryUtils';
+import { useNavigate } from 'react-router-dom';
+import { CreateNewCard } from '../profile/ProfileNavigation';
 
 // Category Badge Component
 const CategoryBadge = ({ category }) => {
@@ -81,8 +83,16 @@ const NoteCardDashboard = ({ note }) => {
 
 // Notes Grid Component
 const NotesGrid = ({ notes }) => {
+
+  const navigate = useNavigate();
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+      
+      <CreateNewCard
+        
+      />
+
       {notes.map((note) => (
         <NoteCard
           key={note.noteId || note.id}
@@ -122,16 +132,6 @@ const NotesTabs = ({ activeTab, onTabChange }) => {
         }`}
       >
         My Notes
-      </button>
-      <button
-        onClick={() => onTabChange('saved')}
-        className={`px-5 py-2 rounded-full font-semibold transition-all text-sm ${
-          activeTab === 'saved'
-            ? 'bg-indigo-600 text-white'
-            : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-        }`}
-      >
-        Saved Notes
       </button>
     </div>
   );

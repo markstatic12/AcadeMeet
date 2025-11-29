@@ -6,9 +6,11 @@ import ErrorState from '../components/ui/ErrorState';
 import EmptyState from '../components/ui/EmptyState';
 import { useNotesPage } from '../hooks/useNotesHooks';
 import '../styles/notes/NotesPage.css';
+import { useNavigate } from 'react-router-dom';
 
 const NotesPage = () => {
   const { notes, loading, error } = useNotesPage();
+  const navigate = useNavigate();
 
   return (
     <DashboardLayout>
@@ -25,7 +27,7 @@ const NotesPage = () => {
           <NotesGrid notes={notes} />
         )}
       </div>
-    </DashboardLayout>
+    </DashboardLayout>  
   );
 };
 

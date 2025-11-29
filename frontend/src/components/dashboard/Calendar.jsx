@@ -6,7 +6,7 @@ import { useCalendarSessions } from '../../services/useCalendarSessions';
 import DaySessionsModal from './DaySessionsModal';
 import { useUser } from '../../context/UserContext';
 
-const CalendarHeader = ({ monthName, onPrevious, onNext }) => {
+const CalendarHeader = ({ monthName, year, onPrevious, onNext }) => {
   return (
     <div className="flex items-center justify-between mb-6">
       <button
@@ -15,7 +15,7 @@ const CalendarHeader = ({ monthName, onPrevious, onNext }) => {
       >
         <ChevronLeftIcon className="w-6 h-6 text-gray-400" />
       </button>
-      <h3 className="text-2xl font-bold text-white">{monthName}</h3>
+      <h3 className="text-2xl font-bold text-white">{monthName} {year}</h3>
       <button
         onClick={onNext}
         className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
@@ -80,6 +80,7 @@ const Calendar = ({ currentMonth, onPrevious, onNext }) => {
   
   const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentMonth);
   const monthName = getMonthName(currentMonth);
+  const year = currentMonth.getFullYear();
   const today = getCurrentDay();
   const isCurrentMonth = checkIsCurrentMonth(currentMonth);
 
@@ -101,6 +102,7 @@ const Calendar = ({ currentMonth, onPrevious, onNext }) => {
       <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-6">
         <CalendarHeader 
           monthName={monthName}
+          year={year}
           onPrevious={onPrevious}
           onNext={onNext}
         />
