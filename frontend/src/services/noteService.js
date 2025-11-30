@@ -1,10 +1,11 @@
 // noteService.js - handles all note-related HTTP requests
+import { authFetch, authFetchMultipart } from './apiHelper';
 
-const API_BASE_URL = 'http://localhost:8080/api/notes';
+const API_BASE_URL = '/notes';
 
-// Helper function to build headers with optional authentication
+// Helper function to build headers with optional user ID
 const buildHeaders = (userId) => {
-  const headers = { 'Content-Type': 'application/json' };
+  const headers = {};
   if (userId) {
     headers['X-User-Id'] = userId.toString();
   }
@@ -67,7 +68,7 @@ export const noteService = {
    * @returns {Promise<Array<object>>} A promise that resolves to an array of normalized notes.
    */
   async getAllActiveNotes() {
-    const response = await fetch(`${API_BASE_URL}/all/active`, {
+    const response = await authFetch(`${API_BASE_URL}/all/active`, {
       method: 'GET',
       headers: buildHeaders(),
     });
@@ -101,7 +102,7 @@ export const noteService = {
       throw new Error('User ID is required to fetch user notes');
     }
 
-    const response = await fetch(`${API_BASE_URL}/user/${userId}/active`, {
+    const response = await authFetch(`${API_BASE_URL}/user/${userId}/active`, {
       method: 'GET',
       headers: buildHeaders(userId),
     });
@@ -135,7 +136,7 @@ export const noteService = {
       sessionIds,
     };
 
-    const response = await fetch(API_BASE_URL, {
+    const response = await authFetch(API_BASE_URL, {
       method: 'POST',
       headers: buildHeaders(userId),
       body: JSON.stringify(payload),
@@ -154,7 +155,7 @@ export const noteService = {
   async updateNote(noteId, { title, content, tagIds = [], sessionIds = [], userId }) {
     const payload = { title, content, tagIds, sessionIds };
 
-    const response = await fetch(`${API_BASE_URL}/${noteId}`, {
+    const response = await authFetch(`${API_BASE_URL}/${noteId}`, {
       method: 'PUT',
       headers: buildHeaders(userId),
       body: JSON.stringify(payload),
@@ -174,7 +175,7 @@ export const noteService = {
       throw new Error('User ID is required to delete a note');
     }
 
-    const response = await fetch(`${API_BASE_URL}/${noteId}`, {
+    const response = await authFetch(`${API_BASE_URL}/${noteId}`, {
       method: 'DELETE',
       headers: buildHeaders(userId),
     });
@@ -192,7 +193,7 @@ export const noteService = {
       throw new Error('User ID is required to archive a note');
     }
 
-    const response = await fetch(`${API_BASE_URL}/${noteId}/archive`, {
+    const response = await authFetch(`${API_BASE_URL}/${noteId}/archive`, {
       method: 'PUT',
       headers: buildHeaders(userId),
     });
@@ -210,7 +211,7 @@ export const noteService = {
       throw new Error('User ID is required to unarchive a note');
     }
 
-    const response = await fetch(`${API_BASE_URL}/${noteId}/unarchive`, {
+    const response = await authFetch(`${API_BASE_URL}/${noteId}/unarchive`, {
       method: 'PUT',
       headers: buildHeaders(userId),
     });
@@ -228,7 +229,7 @@ export const noteService = {
       throw new Error('User ID is required to save a note');
     }
 
-    const response = await fetch(`${API_BASE_URL}/${noteId}/save`, {
+    const response = await authFetch(`${API_BASE_URL}/${noteId}/save`, {
       method: 'POST',
       headers: buildHeaders(userId),
     });
@@ -246,7 +247,7 @@ export const noteService = {
       throw new Error('User ID is required to unsave a note');
     }
 
-    const response = await fetch(`${API_BASE_URL}/${noteId}/unsave`, {
+    const response = await authFetch(`${API_BASE_URL}/${noteId}/unsave`, {
       method: 'DELETE',
       headers: buildHeaders(userId),
     });
@@ -264,7 +265,7 @@ export const noteService = {
       throw new Error('User ID is required to fetch saved notes');
     }
 
-    const response = await fetch(`${API_BASE_URL}/saved`, {
+    const response = await authFetch(`${API_BASE_URL}/saved`, {
       method: 'GET',
       headers: buildHeaders(userId),
     });
@@ -285,7 +286,7 @@ export const noteService = {
    * @returns {Promise<Array<object>>} Array of notes.
    */
   async getNotesBySession(sessionId) {
-    const response = await fetch(`${API_BASE_URL}/session/${sessionId}`, {
+    const response = await authFetch(`${API_BASE_URL}/session/${sessionId}`, {
       method: 'GET',
       headers: buildHeaders(),
     });
@@ -324,14 +325,11 @@ export const noteService = {
       options.tagIds.forEach(tagId => formData.append('tagIds', tagId));
     }
 
-    const response = await fetch(`${API_BASE_URL}/upload`, {
-      method: 'POST',
-      headers: {
-        'X-User-Id': userId.toString(),
-        // Don't set Content-Type - browser will set it with boundary for multipart
-      },
-      body: formData,
-    });
+    const headers = {
+      'X-User-Id': userId.toString(),
+    };
+    
+    const response = await authFetchMultipart(`${API_BASE_URL}/upload`, formData, headers);
 
     const data = await handleResponse(response, 'Failed to upload file');
     return normalizeNote(data);

@@ -52,4 +52,23 @@ public class AuthController {
         }
         return ResponseEntity.ok(java.util.Map.of("message", "Password changed successfully"));
     }
+    
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody java.util.Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        
+        if (refreshToken == null || refreshToken.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", "Refresh token is required"));
+        }
+        
+        AuthResponse response = authService.refreshAccessToken(refreshToken);
+        
+        if (response.getMessage().contains("failed") || 
+            response.getMessage().contains("Invalid") || 
+            response.getMessage().contains("expired")) {
+            return ResponseEntity.status(401).body(java.util.Map.of("message", response.getMessage()));
+        }
+        
+        return ResponseEntity.ok(response);
+    }
 }
