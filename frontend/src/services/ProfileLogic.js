@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import { noteService } from './noteService';
 
 
 
@@ -60,10 +61,11 @@ export const useProfilePage = () => {
             email: data.email || '',
             school: data.school || 'CIT University', // default school
             program: data.program || 'BSIT', // default program
+            yearLevel: data.yearLevel || null, // year level from backend
             studentId: data.studentId || '23-2684-947', // default student ID
             bio: data.bio || 'No bio yet',
-            profilePic: data.profilePic || null,
-            coverImage: data.coverImage || null,
+            profilePic: data.profilePic || data.profileImageUrl || null,
+            coverImage: data.coverImage || data.coverImageUrl || null,
             followers: 0,
             following: 0,
             isOnline: true
@@ -82,6 +84,28 @@ export const useProfilePage = () => {
     };
 
     fetchUserData();
+
+    // Listen for profile updates from Settings page
+    const handleProfileUpdate = (event) => {
+      if (event.detail?.userId === getUserId()) {
+        fetchUserData();
+      }
+    };
+
+    // Also refetch when the page/tab becomes visible
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchUserData();
+      }
+    };
+
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [getUserId]);
 
   // Open edit modal
@@ -188,20 +212,11 @@ export const useProfilePage = () => {
     navigate('/create-session');
   };
 
-  // Navigate to create note. Also accept a created-note object when called
-  // from upload handlers (they pass the created note, not an event).
-  const handleCreateNote = (eOrNote) => {
-    // If this looks like a DOM event, treat accordingly
-    if (eOrNote && typeof eOrNote.stopPropagation === 'function') {
-      eOrNote.stopPropagation();
-      eOrNote.preventDefault();
-      navigate('/create-note');
-      return;
-    }
-
-    // If a created note object is passed (from file upload), refresh the page
-    // to pick up the new note. Avoid throwing when called with unexpected values.
-    try { window.location.reload(); } catch (_) { /* no-op */ }
+  // Handle note created/added - no reload needed, just update state
+  const handleCreateNote = (createdNote) => {
+    // The NotesContent component will call this with the newly created note
+    // We don't need to do anything here as the parent will handle the refresh
+    console.log('Note created:', createdNote);
   };
 
   // Followers manager helpers
@@ -304,6 +319,8 @@ export const useProfilePage = () => {
 export const useNotes = (activeTab) => {
   const { getUserId } = useUser();
   const [notesData, setNotesData] = useState([]);
+  const [trashedNotes, setTrashedNotes] = useState([]);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     const userId = getUserId();
@@ -355,7 +372,7 @@ export const useNotes = (activeTab) => {
     if (userId) {
       fetchNotes();
     }
-  }, [activeTab, getUserId]);
+  }, [activeTab, getUserId, refreshTrigger]);
 
   const toggleFavourite = (noteId) => {
     setNotesData(prevNotes =>
@@ -365,73 +382,78 @@ export const useNotes = (activeTab) => {
     );
   };
 
-  const archiveNote = (noteId) => {
-    setNotesData(prevNotes =>
-      prevNotes.filter(note => note.id !== noteId)
-    );
-  };
-
-  const deleteNote = (noteId) => {
-    setNotesData(prevNotes =>
-      prevNotes.filter(note => note.id !== noteId)
-    );
-  };
-
-  const restoreTrashedNote = () => {
-    // Refresh from server to get the restored notes
-    const userId = getUserId();
-    if (userId) {
-      fetch(`http://localhost:8080/api/notes/user/${userId}/active`)
-        .then(res => res.json())
-        .then(data => {
-          const normalized = (Array.isArray(data) ? data : []).map(n => ({
-            id: n.noteId || n.id,
-            title: n.title || 'Untitled Note',
-            content: n.content || '',
-            createdAt: n.createdAt || new Date().toISOString(),
-            isFavourite: false,
-            archivedAt: null,
-            deletedAt: null,
-          }));
-          setNotesData(normalized);
-        })
-        .catch(err => console.error('Failed to refresh notes:', err));
-    }
-  };
-
-  const restoreArchivedNote = () => {
-    // Refresh from server to get the restored notes
-    const userId = getUserId();
-    if (userId) {
-      fetch(`http://localhost:8080/api/notes/user/${userId}/active`)
-        .then(res => res.json())
-        .then(data => {
-          const normalized = (Array.isArray(data) ? data : []).map(n => ({
-            id: n.noteId || n.id,
-            title: n.title || 'Untitled Note',
-            content: n.content || '',
-            createdAt: n.createdAt || new Date().toISOString(),
-            isFavourite: false,
-            archivedAt: null,
-            deletedAt: null,
-          }));
-          setNotesData(normalized);
-        })
-        .catch(err => console.error('Failed to refresh notes:', err));
-    }
-  };
-
   // Provide API-compatible names expected by components
   const toggleFavouriteNote = (noteId) => toggleFavourite(noteId);
 
+  const refreshNotes = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
+
+  const deleteNote = async (noteId) => {
+    try {
+      const response = await noteService.deleteNote(noteId, getUserId());
+      console.log('Note deleted:', response);
+      refreshNotes();
+    } catch (err) {
+      console.error('Failed to delete note:', err);
+      alert('Failed to delete note');
+    }
+  };
+
+  const restoreNote = async (noteId) => {
+    try {
+      const response = await noteService.restoreNote(noteId, getUserId());
+      console.log('Note restored:', response);
+      refreshNotes();
+    } catch (err) {
+      console.error('Failed to restore note:', err);
+      alert('Failed to restore note');
+    }
+  };
+
+  const getTrashedNotes = async () => {
+    try {
+      const userId = getUserId();
+      const response = await noteService.getTrashedNotes(userId);
+      console.log('Trashed notes:', response);
+      
+      // Normalize trashed notes
+      const normalized = (Array.isArray(response) ? response : []).map(n => ({
+        id: n.noteId || n.id || n.note_id || null,
+        title: n.title || 'Untitled Note',
+        content: n.content || n.richText || '',
+        createdAt: n.createdAt || n.created_at || n.createdDate || new Date().toISOString(),
+        deletedAt: n.deletedAt || n.deleted_at || null,
+        raw: n,
+        type: n.type || n.noteType || n.note_type || null,
+        filePath: n.filePath || n.file_path || null,
+        notePreviewImageUrl: n.notePreviewImageUrl || n.note_preview_image_url || null,
+        tags: n.tags || n.note_tags || [],
+      }));
+      
+      setTrashedNotes(normalized);
+    } catch (err) {
+      console.error('Failed to fetch trashed notes:', err);
+      setTrashedNotes([]);
+    }
+  };
+
+  // Load trashed notes when switching to trash view
+  useEffect(() => {
+    if (activeTab === 'notes') {
+      getTrashedNotes();
+    }
+  }, [activeTab, refreshTrigger]);
+
   return {
     notesData,
+    trashedNotes,
     toggleFavourite: toggleFavourite,
     toggleFavouriteNote,
-    archiveNote,
+    refreshNotes,
     deleteNote,
-    restoreTrashedNote,
-    restoreArchivedNote
+    restoreNote,
+    getTrashedNotes
   };
 };
 
