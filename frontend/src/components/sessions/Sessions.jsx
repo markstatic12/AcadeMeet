@@ -5,6 +5,7 @@ import { CalendarIcon, ClockIcon, LocationIcon, LockIcon } from '../../icons';
 import { to12Hour } from '../../utils/timeUtils';
 // SessionStatusBadge lives in the shared ui folder
 import SessionStatusBadge from '../ui/SessionStatusBadge';
+import { authFetch } from '../../services/apiHelper';
 
 // Session Card Component (General use - no menu)
 const SessionCard = ({ session }) => {
@@ -141,7 +142,7 @@ const SessionsSection = () => {
   const fetchSessions = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8080/api/sessions/all-sessions');
+      const response = await authFetch('/sessions/all-sessions');
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

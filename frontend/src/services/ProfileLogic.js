@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import { authFetch } from './apiHelper';
 
 
 
@@ -51,7 +52,7 @@ export const useProfilePage = () => {
       if (!userId) return;
 
       try {
-        const response = await fetch(`http://localhost:8080/api/users/${userId}`);
+        const response = await authFetch(`/users/${userId}`);
         if (response.ok) {
           const data = await response.json();
           setUserData({
@@ -126,11 +127,8 @@ export const useProfilePage = () => {
         return;
       }
       
-      const response = await fetch(`http://localhost:8080/api/users/${currentUserId}`, {
+      const response = await authFetch(`/users/${currentUserId}`, {
         method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({
           name: editForm.name,
           school: editForm.school,
@@ -215,8 +213,8 @@ export const useProfilePage = () => {
       const userId = getUserId();
       if(!userId) return;
       const [foRes, fiRes] = await Promise.all([
-        fetch(`http://localhost:8080/api/followers/${userId}/followers`),
-        fetch(`http://localhost:8080/api/followers/${userId}/following`)
+        authFetch(`/followers/${userId}/followers`),
+        authFetch(`/followers/${userId}/following`)
       ]);
       const [followers, following] = await Promise.all([
         foRes.ok ? foRes.json() : Promise.resolve([]),
@@ -235,8 +233,8 @@ export const useProfilePage = () => {
     const userId = getUserId();
     if(!userId) return;
     try{
-      await fetch('http://localhost:8080/api/followers/unfollow',{
-        method:'DELETE', headers:{'Content-Type':'application/json'},
+      await authFetch('/followers/unfollow',{
+        method:'DELETE',
         body: JSON.stringify({ followerId, followingId: userId })
       });
       setFollowersList(prev=> prev.filter(u=>u.id!==followerId));
@@ -247,8 +245,8 @@ export const useProfilePage = () => {
     const userId = getUserId();
     if(!userId) return;
     try{
-      await fetch('http://localhost:8080/api/followers/unfollow',{
-        method:'DELETE', headers:{'Content-Type':'application/json'},
+      await authFetch('/followers/unfollow',{
+        method:'DELETE',
         body: JSON.stringify({ followerId: userId, followingId })
       });
       setFollowingList(prev=> prev.filter(u=>u.id!==followingId));
@@ -317,9 +315,8 @@ export const useNotes = (activeTab) => {
 
     const fetchNotes = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/notes/user/${userId}/active`, {
+        const res = await authFetch(`/notes/user/${userId}/active`, {
           method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
         });
 
         if (!res.ok) throw new Error('Failed to fetch notes');
@@ -381,7 +378,7 @@ export const useNotes = (activeTab) => {
     // Refresh from server to get the restored notes
     const userId = getUserId();
     if (userId) {
-      fetch(`http://localhost:8080/api/notes/user/${userId}/active`)
+      authFetch(`/notes/user/${userId}/active`)
         .then(res => res.json())
         .then(data => {
           const normalized = (Array.isArray(data) ? data : []).map(n => ({
@@ -403,7 +400,7 @@ export const useNotes = (activeTab) => {
     // Refresh from server to get the restored notes
     const userId = getUserId();
     if (userId) {
-      fetch(`http://localhost:8080/api/notes/user/${userId}/active`)
+      authFetch(`/notes/user/${userId}/active`)
         .then(res => res.json())
         .then(data => {
           const normalized = (Array.isArray(data) ? data : []).map(n => ({
@@ -465,9 +462,8 @@ export const useSessions = () => {
 
     const fetchSessions = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/sessions/user/${userId}`, {
+        const res = await authFetch(`/sessions/user/${userId}`, {
           method: "GET",
-          headers: { "Content-Type": "application/json" }
         });
 
         if (!res.ok) throw new Error("Failed to fetch sessions");
