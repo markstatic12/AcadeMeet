@@ -1,13 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
+import AddNoteModal from '../components/profile/AddNoteModal';
 
 const EditSessionPage = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
+  const [showAssociateNotesModal, setShowAssociateNotesModal] = useState(false);
 
   const handleBack = () => {
     navigate(`/session/${sessionId}`);
+  };
+
+  const handleAssociateNotes = () => {
+    setShowAssociateNotesModal(true);
   };
 
   return (
@@ -25,15 +31,33 @@ const EditSessionPage = () => {
           </button>
         </div>
 
-        <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6 text-center">
+        <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
           <h2 className="text-2xl font-bold text-white mb-4">Edit Session</h2>
           <p className="text-gray-300 mb-6">
             Session editing functionality coming soon...
           </p>
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-400 text-sm mb-6">
             Session ID: {sessionId}
           </p>
+          
+          <button
+            onClick={handleAssociateNotes}
+            className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors font-medium"
+          >
+            Associate or Upload Notes
+          </button>
         </div>
+
+        {/* Associate Notes Modal */}
+        <AddNoteModal
+          isOpen={showAssociateNotesModal}
+          onClose={() => setShowAssociateNotesModal(false)}
+          sessionId={Number(sessionId)}
+          onNoteAdded={(note) => {
+            console.log('Note associated with session:', note);
+            setShowAssociateNotesModal(false);
+          }}
+        />
       </div>
     </DashboardLayout>
   );
