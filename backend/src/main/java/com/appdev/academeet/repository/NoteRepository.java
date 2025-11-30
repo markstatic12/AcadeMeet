@@ -36,4 +36,7 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
     List<Note> findByOwnerIdAndTypeAndStatusNotOrderByCreatedAtDesc(Long ownerId, Note.NoteType type, Note.NoteStatus excludedStatus);
     List<Note> findByTypeAndStatusNotOrderByCreatedAtDesc(Note.NoteType type, Note.NoteStatus excludedStatus);
 
+    // Session-based queries
+    List<Note> findBySessionsIdAndStatusNot(Long sessionId, Note.NoteStatus excludedStatus);
+
 }
