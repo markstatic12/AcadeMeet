@@ -1,5 +1,6 @@
 // Reminder Service
 import { useUser } from '../context/UserContext';
+import { authFetch } from './apiHelper';
 
 // Hook-based reminder service
 export const useReminderService = () => {
@@ -8,9 +9,8 @@ export const useReminderService = () => {
   const createReminder = async (sessionId, reminderTime, message = '', notificationType = 'IN_APP') => {
     const userId = getUserId();
     if (!userId) throw new Error('User not authenticated');
-    const response = await fetch('http://localhost:8080/api/reminders', {
+    const response = await authFetch('/reminders', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         userId,
         sessionId,
@@ -32,7 +32,7 @@ export const useReminderService = () => {
     const userId = getUserId();
     if (!userId) throw new Error('User not authenticated');
     
-    const response = await fetch(`http://localhost:8080/api/reminders?userId=${userId}`);
+    const response = await authFetch(`/reminders?userId=${userId}`);
     
     if (!response.ok) {
       throw new Error('Failed to fetch reminders');
@@ -45,16 +45,14 @@ export const useReminderService = () => {
     const userId = getUserId();
     if (!userId) throw new Error('User not authenticated');
     
-    const response = await fetch(`http://localhost:8080/api/reminders/pending?userId=${userId}`);
+    const response = await authFetch(`/reminders/pending?userId=${userId}`);
     
     if (!response.ok) {
       throw new Error('Failed to fetch pending reminders');
     }
 
-    return await response.json();o fetch reminder count');
-    }
-
-    return await response.json();
+    const data = await response.json();
+    return data.count;
   };
 
   return {
@@ -91,11 +89,6 @@ export const getPendingReminders = async (userId) => {
   return await response.json();
 };
 
-export const getPendingReminderCount = async (userId) => {
-  const response = await fetch(`http://localhost:8080/api/reminders/count?userId=${userId}`);
-  if (!response.ok) throw new Error('Failed to fetch reminder count');
-  return await response.json();
-};
 
 export const getPendingReminderCount = async (userId) => {
   const response = await fetch(`http://localhost:8080/api/reminders/count?userId=${userId}`);
