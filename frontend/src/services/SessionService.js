@@ -1,13 +1,12 @@
 /**
  * Session API Service - handles all session-related HTTP requests
  */
-import { authFetch } from './apiHelper';
 
-const API_BASE = '/sessions';
+const API_BASE = 'http://localhost:8080/api/sessions';
 
-// Helper function to build headers with optional user ID
+// Helper function to build headers with optional authentication
 const buildHeaders = (userId) => {
-  const headers = {};
+  const headers = { 'Content-Type': 'application/json' };
   if (userId) {
     headers['X-User-Id'] = userId.toString();
   }
@@ -36,7 +35,7 @@ export const sessionService = {
       password: sessionData.sessionType === 'PUBLIC' ? null : sessionData.password
     };
 
-    const response = await authFetch(API_BASE, {
+    const response = await fetch(API_BASE, {
       method: 'POST',
       headers: buildHeaders(userId),
       credentials: 'include',
@@ -50,7 +49,7 @@ export const sessionService = {
    * Validates session password without joining (for private session access)
    */
   async validateSessionPassword(sessionId, password, userId) {
-    const response = await authFetch(`${API_BASE}/${sessionId}/validate-password`, {
+    const response = await fetch(`${API_BASE}/${sessionId}/validate-password`, {
       method: 'POST',
       headers: buildHeaders(userId),
       credentials: 'include',
@@ -64,7 +63,7 @@ export const sessionService = {
    * Joins a session with password validation and participant increment
    */
   async joinSession(sessionId, password, userId) {
-    const response = await authFetch(`${API_BASE}/${sessionId}/join`, {
+    const response = await fetch(`${API_BASE}/${sessionId}/join`, {
       method: 'POST',
       headers: buildHeaders(userId),
       credentials: 'include',
@@ -78,7 +77,7 @@ export const sessionService = {
    * Updates session status (e.g., ACTIVE, COMPLETED, CANCELLED)
    */
   async updateSessionStatus(sessionId, status, userId) {
-    const response = await authFetch(`${API_BASE}/${sessionId}/status`, {
+    const response = await fetch(`${API_BASE}/${sessionId}/status`, {
       method: 'PATCH',
       headers: buildHeaders(userId),
       credentials: 'include',
@@ -96,7 +95,7 @@ export const sessionService = {
       ? `${API_BASE}?status=${status}`
       : API_BASE;
     
-    const response = await authFetch(url, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: buildHeaders(userId),
       credentials: 'include'
@@ -106,28 +105,24 @@ export const sessionService = {
   },
 
   /**
-   * Fetches sessions available for linking (non-private sessions)
+   * Fetches sessions available for linking (user's sessions)
    */
   async getSessionsForLinking(userId) {
-    const response = await authFetch(`${API_BASE}?status=ACTIVE,SCHEDULED`, {
+    const response = await fetch(`${API_BASE}/user/${userId}`, {
       method: 'GET',
       headers: buildHeaders(userId),
       credentials: 'include'
     });
     
     const sessions = await handleResponse(response, 'Failed to fetch sessions for linking');
-    // Filter out private sessions that user doesn't have access to
-    return sessions.filter(session => 
-      session.sessionType === 'PUBLIC' || 
-      session.sessionType === 'PROTECTED'
-    );
+    return Array.isArray(sessions) ? sessions : [];
   },
 
   /**
    * Fetches all sessions regardless of filters
    */
   async getAllSessions(userId) {
-    const response = await authFetch(`${API_BASE}/all-sessions`, {
+    const response = await fetch(`${API_BASE}/all-sessions`, {
       method: 'GET',
       headers: buildHeaders(userId),
       credentials: 'include'
@@ -140,7 +135,7 @@ export const sessionService = {
    * Fetches session details by ID with enhanced error handling
    */
   async getSessionById(sessionId, userId) {
-    const response = await authFetch(`${API_BASE}/${sessionId}`, {
+    const response = await fetch(`${API_BASE}/${sessionId}`, {
       method: 'GET',
       headers: buildHeaders(userId),
       credentials: 'include'
@@ -166,7 +161,7 @@ export const sessionService = {
       day: day.toString()
     });
     
-    const response = await authFetch(`${API_BASE}/by-date?${params}`, {
+    const response = await fetch(`${API_BASE}/by-date?${params}`, {
       method: 'GET',
       headers: buildHeaders(userId),
       credentials: 'include'

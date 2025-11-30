@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageHeader from '../components/common/PageHeader';
-import { SessionViewHeader, ViewDetailsPanel, ViewOverviewPanel, CommentsPanel } from '../components/sessions/SessionViewComponents';
+import { SessionViewHeader, ViewDetailsPanel, ViewOverviewPanel, CommentsPanel, NotesPanel } from '../components/sessions/SessionViewComponents';
 import { sessionService } from '../services/SessionService';
+import { noteService } from '../services/noteService';
 import { useUser } from '../context/UserContext';
 
 const PasswordModal = ({ isOpen, onClose, onSubmit, sessionTitle, needsAuthentication = false }) => {
@@ -85,6 +86,8 @@ const SessionViewPage = () => {
   const navigate = useNavigate();
   const { getUserId } = useUser();
   const [session, setSession] = useState(null);
+  const [notes, setNotes] = useState([]);
+  const [notesLoading, setNotesLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -139,6 +142,8 @@ const SessionViewPage = () => {
           // Public session or owner - show normally
           setSession(sessionData);
           setNeedsAuthentication(false);
+          // Load associated notes
+          loadNotes(sessionId);
         }
 
       } catch (err) {
@@ -151,6 +156,20 @@ const SessionViewPage = () => {
 
     loadSession();
   }, [sessionId, currentUserId, requiresPasswordAuth]);
+
+  const loadNotes = async (sessionId) => {
+    try {
+      setNotesLoading(true);
+      const sessionNotes = await noteService.getNotesBySession(sessionId);
+      console.log('Loaded notes for session:', sessionId, sessionNotes);
+      setNotes(sessionNotes || []);
+    } catch (err) {
+      console.error('Error loading notes:', err);
+      setNotes([]);
+    } finally {
+      setNotesLoading(false);
+    }
+  };
 
   const fetchSession = async () => {
     try {
@@ -193,6 +212,9 @@ const SessionViewPage = () => {
         setSession(sessionData);
         setNeedsAuthentication(false);
         setShowPasswordModal(false);
+        
+        // Load associated notes after authentication
+        await loadNotes(sessionId);
         
         // Show success message for viewing (not joining)
         alert(`Successfully accessed "${sessionData.title}". Click "Join Session" to participate.`);
@@ -344,6 +366,8 @@ const SessionViewPage = () => {
           <div className="col-span-4">
             <ViewOverviewPanel session={session} />
           </div>
+          
+          <NotesPanel notes={notes} loading={notesLoading} />
           
           <CommentsPanel />
         </div>

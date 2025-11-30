@@ -200,7 +200,7 @@ const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChan
         </div>
       )}
 
-      <div>
+      <div className="mb-4">
         <label className="block text-gray-300 text-sm mb-2">
           Maximum Participants (optional)
         </label>

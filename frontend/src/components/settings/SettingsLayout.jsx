@@ -1,19 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BackIcon, UserIcon, ShieldIcon, LogoutIcon, WarningIcon } from '../../icons';
+import { UserIcon, LogoutIcon, WarningIcon } from '../../icons';
+import PageHeader from '../common/PageHeader';
 
 // ===== SETTINGS HEADER =====
 
 export const SettingsHeader = ({ onBack }) => {
+  // Reuse the shared PageHeader component for a consistent Back button UI
   return (
-    <div className="flex gap-8">
-      <button
-        onClick={onBack}
-        className="flex items-center gap-2 text-indigo-300 hover:text-white mb-4"
-      >
-        <BackIcon className="w-7 h-7 p-1.5 rounded-full bg-indigo-600/80" />
-        <span className="text-lg">Back</span>
-      </button>
+    <div className="mb-4">
+      <PageHeader onBack={onBack} />
     </div>
   );
 };
@@ -37,17 +33,6 @@ export const SettingsSidebar = ({ active, onTabChange, onLogoutClick }) => {
           <span className="text-sm">Public Profile</span>
         </button>
         
-        <button
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border ${
-            active === 'password'
-              ? 'bg-gray-800/70 border-indigo-600 text-white'
-              : 'bg-[#1f1f1f] border-gray-800 text-gray-300 hover:bg-gray-800/60'
-          }`}
-          onClick={() => onTabChange('password')}
-        >
-          <ShieldIcon className="w-4 h-4" />
-          <span className="text-sm">Password Reset</span>
-        </button>
         
         <button
           onClick={onLogoutClick}

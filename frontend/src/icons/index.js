@@ -4,6 +4,7 @@ export {
   HomeIcon,
   SessionsIcon,
   NotesIcon,
+  DocumentIcon,
   ProfileIcon,
   // Search & Action Icons
   SearchIcon,

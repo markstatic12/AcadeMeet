@@ -5,8 +5,9 @@ import { UserCircle, PencilIcon } from '../../icons';
 
 // ===== FORM FIELD =====
 
-export const FormField = ({ label, type = 'text', value, onChange, placeholder, required = false, rows }) => {
+export const FormField = ({ label, type = 'text', value, onChange, placeholder, required = false, rows, options }) => {
   const isTextarea = type === 'textarea';
+  const isSelect = type === 'select';
   
   return (
     <div>
@@ -22,6 +23,19 @@ export const FormField = ({ label, type = 'text', value, onChange, placeholder, 
           className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           placeholder={placeholder}
         />
+      ) : isSelect ? (
+        <select
+          value={value}
+          onChange={onChange}
+          className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none cursor-pointer"
+        >
+          <option value="">Select</option>
+          {options?.map((option) => (
+            <option key={option.value} value={option.value} className="bg-gray-800">
+              {option.label}
+            </option>
+          ))}
+        </select>
       ) : (
         <input
           type={type}
@@ -115,6 +129,13 @@ export const ProfileForm = ({
   onProfileImageChange,
   onCoverImageChange,
 }) => {
+  const YEAR_LEVEL_OPTIONS = [
+    { value: '1', label: '1st Year' },
+    { value: '2', label: '2nd Year' },
+    { value: '3', label: '3rd Year' },
+    { value: '4', label: '4th Year' },
+  ];
+  
   return (
     <>
       <div className="flex items-center justify-between">
@@ -132,12 +153,6 @@ export const ProfileForm = ({
             placeholder="Your name"
           />
           
-          <FormField
-            label="University"
-            value={form.school}
-            onChange={(e) => onFormChange('school', e.target.value)}
-            placeholder="Your university"
-          />
           
           <FormField
             label="Program"
@@ -146,19 +161,15 @@ export const ProfileForm = ({
             placeholder="Your program"
           />
           
+          {/* Year Level - same UI as Program field */}
           <FormField
-            label="School ID"
-            value={form.studentId}
-            onChange={(e) => onFormChange('studentId', e.target.value)}
-            placeholder="ID number"
+            label="Year Level"
+            type="select"
+            value={form.yearLevel ?? ''}
+            onChange={(e) => onFormChange('yearLevel', e.target.value)}
+            options={YEAR_LEVEL_OPTIONS}
           />
           
-          <FormField
-            label="Phone Number"
-            value={form.phone}
-            onChange={(e) => onFormChange('phone', e.target.value)}
-            placeholder="Add a phone number"
-          />
           
           <FormField
             label="Bio"
@@ -208,76 +219,5 @@ export const ProfileForm = ({
 };
 
 // ===== PASSWORD RESET CARD =====
-
-export const PasswordResetCard = ({ showToast }) => {
-  const {
-    curr,
-    next,
-    confirm,
-    busy,
-    setCurr,
-    setNext,
-    setConfirm,
-    reset,
-    submit,
-  } = usePasswordReset();
-
-  return (
-    <>
-      <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-bold text-white">Password Reset</h3>
-      </div>
-      <div className="h-px w-full bg-gray-700 my-4" />
-      
-      <div className="max-w-2xl">
-        <div className="space-y-5">
-          <FormField
-            label="Current Password"
-            type="password"
-            value={curr}
-            onChange={(e) => setCurr(e.target.value)}
-            placeholder=""
-            required
-          />
-          
-          <FormField
-            label="New Password"
-            type="password"
-            value={next}
-            onChange={(e) => setNext(e.target.value)}
-            placeholder="Enter your new password"
-            required
-          />
-          
-          <FormField
-            label="Confirm New Password"
-            type="password"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            placeholder="Re-enter your new password"
-            required
-          />
-          
-          <div className="flex gap-3 pt-2">
-            <button
-              disabled={busy}
-              onClick={reset}
-              className="flex-1 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-medium transition-colors disabled:opacity-50"
-            >
-              Cancel
-            </button>
-            <button
-              disabled={busy}
-              onClick={() => submit(showToast)}
-              className="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors disabled:opacity-50"
-            >
-              {busy ? 'Saving…' : 'Done'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-};
 
 export default ProfileForm;
