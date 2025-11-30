@@ -28,6 +28,9 @@ public class JwtUtil {
     @Value("${jwt.expirationMs}")
     private Long jwtExpirationMs;
 
+    @Value("${jwt.refreshExpirationMs}")
+    private Long jwtRefreshExpirationMs;
+
     private SecretKey getSigningKey() {
         byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
         return Keys.hmacShaKeyFor(keyBytes);
@@ -40,6 +43,20 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(user.getEmail())
                 .claim("id", user.getId())
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(User user) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtRefreshExpirationMs);
+
+        return Jwts.builder()
+                .setSubject(user.getEmail())
+                .claim("id", user.getId())
+                .claim("type", "refresh")
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)

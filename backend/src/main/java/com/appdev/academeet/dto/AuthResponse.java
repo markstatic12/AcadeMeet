@@ -8,15 +8,20 @@ public class AuthResponse {
     private Integer yearLevel;
     private String message;
     private String token;
+    private String refreshToken;
     
     // Constructors
     public AuthResponse() {}
     
     public AuthResponse(Long id, String name, String email, String program, Integer yearLevel, String message) {
-        this(id, name, email, program, yearLevel, message, null);
+        this(id, name, email, program, yearLevel, message, null, null);
     }
     
     public AuthResponse(Long id, String name, String email, String program, Integer yearLevel, String message, String token) {
+        this(id, name, email, program, yearLevel, message, token, null);
+    }
+    
+    public AuthResponse(Long id, String name, String email, String program, Integer yearLevel, String message, String token, String refreshToken) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -24,6 +29,7 @@ public class AuthResponse {
         this.yearLevel = yearLevel;
         this.message = message;
         this.token = token;
+        this.refreshToken = refreshToken;
     }
     
     // Getters and Setters
@@ -81,5 +87,13 @@ public class AuthResponse {
     
     public void setToken(String token) {
         this.token = token;
+    }
+    
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+    
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }

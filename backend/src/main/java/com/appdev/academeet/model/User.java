@@ -55,6 +55,12 @@ public class User {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "refresh_token", length = 500)
+    private String refreshToken;
+
+    @Column(name = "refresh_token_expiry")
+    private LocalDateTime refreshTokenExpiry;
+
     // --- Lifecycle Callbacks ---
     @PrePersist
     protected void onCreate() {
@@ -175,6 +181,22 @@ public class User {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public LocalDateTime getRefreshTokenExpiry() {
+        return refreshTokenExpiry;
+    }
+
+    public void setRefreshTokenExpiry(LocalDateTime refreshTokenExpiry) {
+        this.refreshTokenExpiry = refreshTokenExpiry;
     }
 
     @Override

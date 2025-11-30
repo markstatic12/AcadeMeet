@@ -63,8 +63,14 @@ public class AuthService {
         
         User savedUser = userRepository.save(user);
         
-        // Generate JWT token
+        // Generate JWT access token and refresh token
         String token = jwtUtil.generateToken(savedUser);
+        String refreshToken = jwtUtil.generateRefreshToken(savedUser);
+        
+        // Store refresh token in database
+        savedUser.setRefreshToken(refreshToken);
+        savedUser.setRefreshTokenExpiry(java.time.LocalDateTime.now().plusDays(7));
+        userRepository.save(savedUser);
         
         return new AuthResponse(
             savedUser.getId(),
@@ -73,7 +79,8 @@ public class AuthService {
             savedUser.getProgram(),
             savedUser.getYearLevel(),
             "Signup successful",
-            token
+            token,
+            refreshToken
         );
     }
     
@@ -101,8 +108,14 @@ public class AuthService {
             return new AuthResponse(null, null, null, null, null, "Invalid email or password");
         }
         
-        // Generate JWT token
+        // Generate JWT access token and refresh token
         String token = jwtUtil.generateToken(user);
+        String refreshToken = jwtUtil.generateRefreshToken(user);
+        
+        // Store refresh token in database
+        user.setRefreshToken(refreshToken);
+        user.setRefreshTokenExpiry(java.time.LocalDateTime.now().plusDays(7));
+        userRepository.save(user);
         
         return new AuthResponse(
             user.getId(),
@@ -111,7 +124,8 @@ public class AuthService {
             user.getProgram(),
             user.getYearLevel(),
             "Login successful",
-            token
+            token,
+            refreshToken
         );
     }
 
@@ -137,5 +151,50 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
         return null; // null means success
+    }
+    
+    public AuthResponse refreshAccessToken(String refreshToken) {
+        try {
+            // Validate refresh token
+            if (!jwtUtil.validateToken(refreshToken)) {
+                return new AuthResponse(null, null, null, null, null, "Invalid refresh token");
+            }
+            
+            // Extract email from refresh token
+            String email = jwtUtil.getEmailFromToken(refreshToken);
+            
+            // Find user
+            Optional<User> userOptional = userRepository.findByEmail(email);
+            if (userOptional.isEmpty()) {
+                return new AuthResponse(null, null, null, null, null, "User not found");
+            }
+            
+            User user = userOptional.get();
+            
+            // Verify refresh token matches stored token and is not expired
+            if (user.getRefreshToken() == null || !user.getRefreshToken().equals(refreshToken)) {
+                return new AuthResponse(null, null, null, null, null, "Invalid refresh token");
+            }
+            
+            if (user.getRefreshTokenExpiry() == null || user.getRefreshTokenExpiry().isBefore(java.time.LocalDateTime.now())) {
+                return new AuthResponse(null, null, null, null, null, "Refresh token expired");
+            }
+            
+            // Generate new access token
+            String newAccessToken = jwtUtil.generateToken(user);
+            
+            return new AuthResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getProgram(),
+                user.getYearLevel(),
+                "Token refreshed successfully",
+                newAccessToken,
+                refreshToken  // Return same refresh token
+            );
+        } catch (Exception e) {
+            return new AuthResponse(null, null, null, null, null, "Token refresh failed: " + e.getMessage());
+        }
     }
 }

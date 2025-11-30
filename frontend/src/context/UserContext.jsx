@@ -17,20 +17,24 @@ export const UserProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // Store user ID and token after login/signup
+  // Store user ID and tokens after login/signup
   const login = (userData) => {
     const userId = userData.id || userData.userId || userData.studentId;
     const token = userData.token;
+    const refreshToken = userData.refreshToken;
     
     if (!userId) {
       throw new Error('No user ID found in response');
     }
     
-    // Store user ID and token
+    // Store user ID and tokens
     setCurrentUser({ id: userId });
     localStorage.setItem('userId', userId.toString());
     if (token) {
       localStorage.setItem('token', token);
+    }
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken);
     }
   };
 
@@ -39,6 +43,7 @@ export const UserProvider = ({ children }) => {
     setCurrentUser(null);
     localStorage.removeItem('userId');
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
   };
 
   // Get current user ID (consistent accessor)
