@@ -11,7 +11,18 @@ export const authService = {
         body: JSON.stringify({ name, email, password, program, yearLevel: parseInt(yearLevel) }),
       });
 
-      const data = await response.json();
+      // Check if response has content before parsing JSON
+      const text = await response.text();
+      if (!text) {
+        throw new Error(`Signup failed: Empty response (Status: ${response.status})`);
+      }
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error(`Signup failed: Invalid JSON response (Status: ${response.status})`);
+      }
       
       if (!response.ok) {
         throw new Error(data.message || 'Signup failed');
@@ -33,7 +44,18 @@ export const authService = {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      // Check if response has content before parsing JSON
+      const text = await response.text();
+      if (!text) {
+        throw new Error(`Login failed: Empty response (Status: ${response.status})`);
+      }
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error(`Login failed: Invalid JSON response (Status: ${response.status})`);
+      }
       
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');

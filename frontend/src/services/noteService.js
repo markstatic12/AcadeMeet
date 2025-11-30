@@ -8,6 +8,11 @@ const buildHeaders = (userId) => {
   if (userId) {
     headers['X-User-Id'] = userId.toString();
   }
+  // Add JWT token if present
+  const token = localStorage.getItem('token');
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
   return headers;
 };
 
@@ -324,12 +329,20 @@ export const noteService = {
       options.tagIds.forEach(tagId => formData.append('tagIds', tagId));
     }
 
+    const headers = {
+      'X-User-Id': userId.toString(),
+      // Don't set Content-Type - browser will set it with boundary for multipart
+    };
+    
+    // Add JWT token if present
+    const token = localStorage.getItem('token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
     const response = await fetch(`${API_BASE_URL}/upload`, {
       method: 'POST',
-      headers: {
-        'X-User-Id': userId.toString(),
-        // Don't set Content-Type - browser will set it with boundary for multipart
-      },
+      headers: headers,
       body: formData,
     });
 

@@ -12,6 +12,7 @@ import com.appdev.academeet.dto.LoginRequest;
 import com.appdev.academeet.dto.SignupRequest;
 import com.appdev.academeet.model.User;
 import com.appdev.academeet.repository.UserRepository;
+import com.appdev.academeet.security.JwtUtil;
 
 @Service
 public class AuthService {
@@ -21,6 +22,9 @@ public class AuthService {
     
     @Autowired
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    
+    @Autowired
+    private JwtUtil jwtUtil;
     
     public AuthResponse signup(SignupRequest request) {
         // Check if email already exists
@@ -59,13 +63,17 @@ public class AuthService {
         
         User savedUser = userRepository.save(user);
         
+        // Generate JWT token
+        String token = jwtUtil.generateToken(savedUser);
+        
         return new AuthResponse(
             savedUser.getId(),
             savedUser.getName(),
             savedUser.getEmail(),
             savedUser.getProgram(),
             savedUser.getYearLevel(),
-            "Signup successful"
+            "Signup successful",
+            token
         );
     }
     
@@ -93,13 +101,17 @@ public class AuthService {
             return new AuthResponse(null, null, null, null, null, "Invalid email or password");
         }
         
+        // Generate JWT token
+        String token = jwtUtil.generateToken(user);
+        
         return new AuthResponse(
             user.getId(),
             user.getName(),
             user.getEmail(),
             user.getProgram(),
             user.getYearLevel(),
-            "Login successful"
+            "Login successful",
+            token
         );
     }
 
