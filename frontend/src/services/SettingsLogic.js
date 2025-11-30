@@ -5,7 +5,7 @@ import { useUser } from '../context/UserContext';
 export const useSettingsPage = () => {
   const navigate = useNavigate();
   const { getUserId, logout } = useUser();
-  const [active, setActive] = useState('profile'); // 'profile' | 'password'
+  const [active, setActive] = useState('profile');
   const [saving, setSaving] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [student, setStudent] = useState(null);
@@ -15,12 +15,13 @@ export const useSettingsPage = () => {
     name: '',
     school: '',
     program: '',
+    yearLevel: '',
     studentId: '',
     phone: '',
     bio: '',
   });
 
-  // Image previews
+  // Image previews (base64 or URLs)
   const [profilePreview, setProfilePreview] = useState(null);
   const [coverPreview, setCoverPreview] = useState(null);
   const profileInputRef = useRef(null);
@@ -38,11 +39,12 @@ export const useSettingsPage = () => {
             name: s.name || '',
             school: s.school || '',
             program: s.program || 'BSIT',
+            yearLevel: (s.yearLevel != null ? String(s.yearLevel) : ''),
             studentId: s.studentId || '',
             phone: s.phone || '',
             bio: s.bio || '',
           });
-          setProfilePreview(s.profileImageUrl || null);
+          setProfilePreview(s.profilePic || s.profileImageUrl || null);
           setCoverPreview(s.coverImage || null);
         })
         .catch(err => console.error('Failed to load user', err));
@@ -63,11 +65,12 @@ export const useSettingsPage = () => {
         name: student.name || '',
         school: student.school || '',
         program: student.program || 'BSIT',
+        yearLevel: (student.yearLevel != null ? String(student.yearLevel) : ''),
         studentId: student.studentId || '',
         phone: student.phone || '',
         bio: student.bio || '',
       });
-      setProfilePreview(student.profilePic || null);
+      setProfilePreview(student.profilePic || student.profileImageUrl || null);
       setCoverPreview(student.coverImage || null);
     }
   };
@@ -78,29 +81,44 @@ export const useSettingsPage = () => {
     
     try {
       setSaving(true);
+      // Parse yearLevel to integer before sending
+      const yearLevelInt = form.yearLevel ? parseInt(form.yearLevel, 10) : null;
+      
+      // Save profile data including images (as base64 strings for now)
       const res = await fetch(`http://localhost:8080/api/users/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: form.name,
           school: form.school,
+          program: form.program,
+          yearLevel: yearLevelInt,
           studentId: form.studentId,
           bio: form.bio,
-          profileImageUrl: profilePreview || null,
-          coverImage: coverPreview || null,
+          profilePic: profilePreview,  // Send current preview (base64 or URL)
+          coverImage: coverPreview,     // Send current preview (base64 or URL)
         }),
       });
       
-      const data = await res.json();
-      
-      // Reload user data
+      if (!res.ok) {
+        throw new Error('Failed to update profile');
+      }
+
+      // Reload user data from backend to get updated data
       const updatedUser = await fetch(`http://localhost:8080/api/users/${userId}`).then(r => r.json());
       setStudent(updatedUser);
       
-      showToast(data?.message || 'Profile updated', 'success');
+      // Update preview images from saved data
+      setProfilePreview(updatedUser.profilePic || updatedUser.profileImageUrl || null);
+      setCoverPreview(updatedUser.coverImage || updatedUser.coverImageUrl || null);
+      
+      showToast('Profile updated successfully', 'success');
+
+      // Trigger a custom event to notify other components about profile update
+      window.dispatchEvent(new CustomEvent('profileUpdated', { detail: { userId } }));
     } catch (e) {
       console.error(e);
-      showToast('Failed to update profile', 'error');
+      showToast('Failed to update profile: ' + e.message, 'error');
     } finally {
       setSaving(false);
     }
@@ -109,6 +127,20 @@ export const useSettingsPage = () => {
   const handleProfileImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB');
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('File must be a JPEG, PNG, or GIF image');
+        return;
+      }
+
+      // Convert to base64 and store as preview
       const reader = new FileReader();
       reader.onload = (ev) => setProfilePreview(ev.target.result);
       reader.readAsDataURL(file);
@@ -118,6 +150,20 @@ export const useSettingsPage = () => {
   const handleCoverImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB');
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('File must be a JPEG, PNG, or GIF image');
+        return;
+      }
+
+      // Convert to base64 and store as preview
       const reader = new FileReader();
       reader.onload = (ev) => setCoverPreview(ev.target.result);
       reader.readAsDataURL(file);
@@ -152,80 +198,5 @@ export const useSettingsPage = () => {
     handleProfileImageChange,
     handleCoverImageChange,
     handleLogout,
-  };
-};
-
-// Password Reset Hook
-export const usePasswordReset = () => {
-  const { getUserId } = useUser();
-  const [curr, setCurr] = useState('');
-  const [next, setNext] = useState('');
-  const [confirm, setConfirm] = useState('');
-  const [busy, setBusy] = useState(false);
-
-  const reset = () => {
-    setCurr('');
-    setNext('');
-    setConfirm('');
-  };
-
-  const validatePassword = (showToast) => {
-    if (next.length < 6) {
-      showToast('New password must be at least 6 characters', 'error');
-      return false;
-    }
-    if (next !== confirm) {
-      showToast('New password and confirmation do not match', 'error');
-      return false;
-    }
-    const userId = getUserId();
-    if (!userId) {
-      showToast('No user', 'error');
-      return false;
-    }
-    return true;
-  };
-
-  const submit = async (showToast) => {
-    if (!validatePassword(showToast)) return;
-    const userId = getUserId();
-
-    try {
-      setBusy(true);
-      const res = await fetch('http://localhost:8080/api/auth/change-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: userId,
-          currentPassword: curr,
-          newPassword: next,
-        }),
-      });
-      
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.message || 'Failed to change password');
-      }
-      
-      showToast(data.message || 'Password changed successfully', 'success');
-      reset();
-    } catch (err) {
-      console.error('Password change error:', err);
-      showToast(err.message || 'Failed to change password', 'error');
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return {
-    curr,
-    next,
-    confirm,
-    busy,
-    setCurr,
-    setNext,
-    setConfirm,
-    reset,
-    submit,
   };
 };
