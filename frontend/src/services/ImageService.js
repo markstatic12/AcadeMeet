@@ -1,14 +1,13 @@
-const API_BASE_URL = 'http://localhost:8080/api';
+import { authFetch, authFetchMultipart } from './apiHelper';
+
+const API_BASE_URL = '';
 
 export const imageService = {
   async uploadProfileImage(userId, imageFile) {
     const formData = new FormData();
     formData.append('image', imageFile);
 
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/profile-image`, {
-      method: 'POST',
-      body: formData,
-    });
+    const response = await authFetchMultipart(`/users/${userId}/profile-image`, formData);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -22,10 +21,7 @@ export const imageService = {
     const formData = new FormData();
     formData.append('image', imageFile);
 
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/cover-image`, {
-      method: 'POST',
-      body: formData,
-    });
+    const response = await authFetchMultipart(`/users/${userId}/cover-image`, formData);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -39,10 +35,7 @@ export const imageService = {
     const formData = new FormData();
     formData.append('image', imageFile);
 
-    const response = await fetch(`${API_BASE_URL}/sessions/${sessionId}/image`, {
-      method: 'POST',
-      body: formData,
-    });
+    const response = await authFetchMultipart(`/sessions/${sessionId}/image`, formData);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -53,7 +46,7 @@ export const imageService = {
   },
 
   async deleteUserImage(userId, imageType) {
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/${imageType}-image`, {
+    const response = await authFetch(`/users/${userId}/${imageType}-image`, {
       method: 'DELETE',
     });
 
@@ -66,7 +59,7 @@ export const imageService = {
   },
 
   async deleteSessionImage(sessionId) {
-    const response = await fetch(`${API_BASE_URL}/sessions/${sessionId}/image`, {
+    const response = await authFetch(`/sessions/${sessionId}/image`, {
       method: 'DELETE',
     });
 

@@ -17,28 +17,43 @@ export const UserProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // Store user ID after login/signup
+  // Store user ID and tokens after login/signup
   const login = (userData) => {
     const userId = userData.id || userData.userId || userData.studentId;
+    const token = userData.token;
+    const refreshToken = userData.refreshToken;
     
     if (!userId) {
       throw new Error('No user ID found in response');
     }
     
-    // Only store the user ID - components will fetch full data as needed
+    // Store user ID and tokens
     setCurrentUser({ id: userId });
     localStorage.setItem('userId', userId.toString());
+    if (token) {
+      localStorage.setItem('token', token);
+    }
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken);
+    }
   };
 
   // Clear user data on logout
   const logout = () => {
     setCurrentUser(null);
     localStorage.removeItem('userId');
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
   };
 
   // Get current user ID (consistent accessor)
   const getUserId = () => {
     return currentUser?.id || null;
+  };
+
+  // Get auth token
+  const getToken = () => {
+    return localStorage.getItem('token');
   };
 
   // Update user ID (used after profile updates that might change the ID)
@@ -55,6 +70,7 @@ export const UserProvider = ({ children }) => {
     login,
     logout,
     getUserId,
+    getToken,
     updateUser,
     isAuthenticated: !!currentUser,
   };
