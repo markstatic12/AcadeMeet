@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -20,6 +21,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -54,11 +56,9 @@ public class Session {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    // Multivalued attributes: tags and notes
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "session_tags", joinColumns = @JoinColumn(name = "session_id"))
-    @Column(name = "tag")
-    private List<String> tags = new ArrayList<>();
+    // Multivalued attributes: tags (as separate entity) and notes (as collection)
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<SessionTag> sessionTags = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "session_notes", joinColumns = @JoinColumn(name = "session_id"))
@@ -122,7 +122,7 @@ public class Session {
     public LocalTime getEndTime() { return endTime; }
     public String getLocation() { return location; }
     public String getDescription() { return description; }
-    public List<String> getTags() { return tags; }
+    public List<SessionTag> getSessionTags() { return sessionTags; }
     public List<String> getNotes() { return notes; }
 
     public void setId(Long id) { this.id = id; }
@@ -133,8 +133,34 @@ public class Session {
     public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
     public void setLocation(String location) { this.location = location; }
     public void setDescription(String description) { this.description = description; }
-    public void setTags(List<String> tags) { this.tags = tags; }
+    public void setSessionTags(List<SessionTag> sessionTags) { this.sessionTags = sessionTags; }
     public void setNotes(List<String> notes) { this.notes = notes; }
+
+    // Convenience methods for working with tags (backwards compatibility)
+    public List<String> getTags() {
+        return sessionTags.stream()
+                .map(SessionTag::getTagName)
+                .toList();
+    }
+
+    public void setTags(List<String> tagNames) {
+        this.sessionTags.clear();
+        if (tagNames != null) {
+            for (String tagName : tagNames) {
+                SessionTag tag = new SessionTag(this, tagName);
+                this.sessionTags.add(tag);
+            }
+        }
+    }
+
+    public void addTag(String tagName) {
+        SessionTag tag = new SessionTag(this, tagName);
+        this.sessionTags.add(tag);
+    }
+
+    public void removeTag(String tagName) {
+        this.sessionTags.removeIf(tag -> tag.getTagName().equals(tagName));
+    }
 
     // Convenience methods for backwards compatibility (delegates to SessionDate)
     public String getMonth() { return sessionDate != null ? sessionDate.getMonth() : null; }
