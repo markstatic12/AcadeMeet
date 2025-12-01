@@ -2,10 +2,15 @@ package com.appdev.academeet.model;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -34,9 +39,9 @@ public class Session {
     @JoinColumn(name = "host_id_fk", referencedColumnName = "user_id")
     private User host;  // this is important
 
-    private String month;
-    private String day;
-    private String year;
+    // Composite date attribute
+    @Embedded
+    private SessionDate sessionDate;
 
     @JsonFormat(pattern = "HH:mm")
     private LocalTime startTime;
@@ -48,6 +53,17 @@ public class Session {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    // Multivalued attributes: tags and notes
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "session_tags", joinColumns = @JoinColumn(name = "session_id"))
+    @Column(name = "tag")
+    private List<String> tags = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "session_notes", joinColumns = @JoinColumn(name = "session_id"))
+    @Column(name = "note", columnDefinition = "TEXT")
+    private List<String> notes = new ArrayList<>();
 
     // Session Privacy & Status
     @Enumerated(EnumType.STRING)
@@ -101,24 +117,41 @@ public class Session {
     public Long getId() { return id; }
     public String getTitle() { return title; }
     public User getHost() { return host; }
-    public String getMonth() { return month; }
-    public String getDay() { return day; }
-    public String getYear() { return year; }
+    public SessionDate getSessionDate() { return sessionDate; }
     public LocalTime getStartTime() { return startTime; }
     public LocalTime getEndTime() { return endTime; }
     public String getLocation() { return location; }
     public String getDescription() { return description; }
+    public List<String> getTags() { return tags; }
+    public List<String> getNotes() { return notes; }
 
     public void setId(Long id) { this.id = id; }
     public void setTitle(String title) { this.title = title; }
     public void setHost(User host) { this.host = host; }
-    public void setMonth(String month) { this.month = month; }
-    public void setDay(String day) { this.day = day; }
-    public void setYear(String year) { this.year = year; }
+    public void setSessionDate(SessionDate sessionDate) { this.sessionDate = sessionDate; }
     public void setStartTime(LocalTime startTime) { this.startTime = startTime; }
     public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
     public void setLocation(String location) { this.location = location; }
     public void setDescription(String description) { this.description = description; }
+    public void setTags(List<String> tags) { this.tags = tags; }
+    public void setNotes(List<String> notes) { this.notes = notes; }
+
+    // Convenience methods for backwards compatibility (delegates to SessionDate)
+    public String getMonth() { return sessionDate != null ? sessionDate.getMonth() : null; }
+    public String getDay() { return sessionDate != null ? sessionDate.getDay() : null; }
+    public String getYear() { return sessionDate != null ? sessionDate.getYear() : null; }
+    public void setMonth(String month) { 
+        if (sessionDate == null) sessionDate = new SessionDate();
+        sessionDate.setMonth(month); 
+    }
+    public void setDay(String day) { 
+        if (sessionDate == null) sessionDate = new SessionDate();
+        sessionDate.setDay(day); 
+    }
+    public void setYear(String year) { 
+        if (sessionDate == null) sessionDate = new SessionDate();
+        sessionDate.setYear(year); 
+    }
 
     // New field getters
     public SessionType getSessionType() { return sessionType; }
