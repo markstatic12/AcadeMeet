@@ -1,16 +1,13 @@
 package com.appdev.academeet.model;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
@@ -73,8 +70,6 @@ public class User {
         }
     }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UserSavedNote> savedNotes;
 
     // --- Constructors ---
     public User() {
@@ -214,11 +209,5 @@ public class User {
                 '}';
     }
 
-    public Set<UserSavedNote> getSavedNotes() {
-        return savedNotes;
-    }
 
-    public void setSavedNotes(Set<UserSavedNote> savedNotes) {
-        this.savedNotes = savedNotes;
-    }
 }
