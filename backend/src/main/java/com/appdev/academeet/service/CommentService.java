@@ -61,17 +61,6 @@ public class CommentService {
     }
 
     @Transactional
-    public Comment updateComment(Long commentId, String newContent) {
-        Optional<Comment> commentOpt = commentRepository.findById(commentId);
-        if (commentOpt.isPresent()) {
-            Comment comment = commentOpt.get();
-            comment.setContent(newContent);
-            return commentRepository.save(comment);
-        }
-        throw new RuntimeException("Comment not found");
-    }
-
-    @Transactional
     public void deleteComment(Long commentId) {
         Optional<Comment> commentOpt = commentRepository.findById(commentId);
         if (commentOpt.isPresent()) {

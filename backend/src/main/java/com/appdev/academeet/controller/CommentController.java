@@ -47,16 +47,6 @@ public class CommentController {
         }
     }
 
-    @PatchMapping("/comments/{id}")
-    public ResponseEntity<?> updateComment(@PathVariable Long id, @RequestBody CommentRequest request) {
-        try {
-            Comment updatedComment = commentService.updateComment(id, request.getContent());
-            return ResponseEntity.ok(updatedComment);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
-    }
-
     @DeleteMapping("/comments/{id}")
     public ResponseEntity<?> deleteComment(@PathVariable Long id) {
         try {
