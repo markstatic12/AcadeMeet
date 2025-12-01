@@ -3,13 +3,12 @@ package com.appdev.academeet.model;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
@@ -17,17 +16,17 @@ import jakarta.persistence.Table;
 @Table(name = "session_participants")
 public class SessionParticipant {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "participant_id")
-    private Long participantId;
+    @EmbeddedId
+    private SessionParticipantId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("sessionId")
     @JoinColumn(name = "session_id", nullable = false)
     private Session session;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
+    @MapsId("participantId")
+    @JoinColumn(name = "participant_id", referencedColumnName = "user_id", nullable = false)
     private User user;
 
     @Column(name = "joined_at")
@@ -42,16 +41,17 @@ public class SessionParticipant {
     }
 
     public SessionParticipant(Session session, User user) {
+        this.id = new SessionParticipantId(session.getId(), user.getId());
         this.session = session;
         this.user = user;
     }
 
-    public Long getParticipantId() {
-        return participantId;
+    public SessionParticipantId getId() {
+        return id;
     }
 
-    public void setParticipantId(Long participantId) {
-        this.participantId = participantId;
+    public void setId(SessionParticipantId id) {
+        this.id = id;
     }
 
     public Session getSession() {
@@ -81,7 +81,7 @@ public class SessionParticipant {
     @Override
     public String toString() {
         return "SessionParticipant{" +
-                "participantId=" + participantId +
+                "id=" + id +
                 ", sessionId=" + (session != null ? session.getId() : null) +
                 ", userId=" + (user != null ? user.getId() : null) +
                 ", joinedAt=" + joinedAt +
