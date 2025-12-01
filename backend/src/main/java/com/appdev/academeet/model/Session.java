@@ -65,6 +65,10 @@ public class Session {
     @Column(name = "note", columnDefinition = "TEXT")
     private List<String> notes = new ArrayList<>();
 
+    // Participants relationship
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<SessionParticipant> participants = new ArrayList<>();
+
     // Session Privacy & Status
     @Enumerated(EnumType.STRING)
     @Column(name = "session_type")
@@ -124,6 +128,7 @@ public class Session {
     public String getDescription() { return description; }
     public List<SessionTag> getSessionTags() { return sessionTags; }
     public List<String> getNotes() { return notes; }
+    public List<SessionParticipant> getParticipants() { return participants; }
 
     public void setId(Long id) { this.id = id; }
     public void setTitle(String title) { this.title = title; }
@@ -135,6 +140,7 @@ public class Session {
     public void setDescription(String description) { this.description = description; }
     public void setSessionTags(List<SessionTag> sessionTags) { this.sessionTags = sessionTags; }
     public void setNotes(List<String> notes) { this.notes = notes; }
+    public void setParticipants(List<SessionParticipant> participants) { this.participants = participants; }
 
     // Convenience methods for working with tags (backwards compatibility)
     public List<String> getTags() {
@@ -160,6 +166,25 @@ public class Session {
 
     public void removeTag(String tagName) {
         this.sessionTags.removeIf(tag -> tag.getTagName().equals(tagName));
+    }
+
+    // Convenience methods for working with participants
+    public void addParticipant(User user) {
+        SessionParticipant participant = new SessionParticipant(this, user);
+        this.participants.add(participant);
+    }
+
+    public void removeParticipant(User user) {
+        this.participants.removeIf(p -> p.getUser().equals(user));
+    }
+
+    public boolean hasParticipant(User user) {
+        return this.participants.stream()
+                .anyMatch(p -> p.getUser().equals(user));
+    }
+
+    public int getParticipantCount() {
+        return this.participants.size();
     }
 
     // Convenience methods for backwards compatibility (delegates to SessionDate)
