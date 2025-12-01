@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ThreeDotsVerticalIcon, HistoryIcon, TrashIcon, PlusIcon } from '../../icons';
+import { ThreeDotsVerticalIcon, HistoryIcon, TrashIcon, BookmarkCheckIcon, ArchiveIcon, PlusIcon } from '../../icons';
 
 
 
@@ -42,9 +42,15 @@ export const TabButtons = ({ activeTab, onTabChange }) => {
 
 // ===== TAB OPTIONS MENU =====
 
-export const TabOptionMenu = (props) => {
-  const { showMenu, activeTab, onToggle, onTrashClick } = props;
-  
+export const TabOptionMenu = ({ 
+  showMenu, 
+  activeTab, 
+  onToggle, 
+  onTrashClick, 
+  onFavouritesClick, 
+  onArchivedClick, 
+  onTrashedClick 
+}) => {
   return (
     <div className="relative tab-options-menu">
       <button
@@ -71,13 +77,29 @@ export const TabOptionMenu = (props) => {
               className="w-full px-4 py-3 text-left text-sm text-red-400 hover:bg-gray-800 transition-colors flex items-center gap-3"
             >
               <TrashIcon className="w-4 h-4" />
-              Deleted Sessions
+              Trash
             </button>
           </div>
         ) : (
           <div className="absolute right-0 mt-2 w-56 bg-[#1a1a1a] border border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden">
             <button
-              onClick={onTrashClick}
+              onClick={onFavouritesClick}
+              className="w-full px-5 py-3 text-left text-sm text-white hover:bg-gray-800 transition-colors flex items-center gap-3"
+            >
+              <BookmarkCheckIcon className="w-4 h-4 text-indigo-400" />
+              Favourite Notes
+            </button>
+            <div className="h-px w-full bg-gray-700" />
+            <button
+              onClick={onArchivedClick}
+              className="w-full px-5 py-3 text-left text-sm text-white hover:bg-gray-800 transition-colors flex items-center gap-3"
+            >
+              <ArchiveIcon className="w-4 h-4 text-white" />
+              Archived Notes
+            </button>
+            <div className="h-px w-full bg-gray-700" />
+            <button
+              onClick={onTrashedClick}
               className="w-full px-5 py-3 text-left text-sm text-red-400 hover:bg-gray-800 transition-colors flex items-center gap-3"
             >
               <TrashIcon className="w-4 h-4" />

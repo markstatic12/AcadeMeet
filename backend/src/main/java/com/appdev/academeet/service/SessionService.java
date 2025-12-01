@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -168,45 +167,5 @@ public class SessionService {
     @Transactional(readOnly = true)
     public Optional<Session> findById(Long sessionId) {
         return sessionRepository.findById(sessionId);
-    }
-
-    @Transactional
-    public void deleteSession(Long sessionId, Long userId) {
-        Session session = sessionRepository.findById(sessionId)
-            .orElseThrow(() -> new RuntimeException("Session not found"));
-        
-        if (!session.getHost().getId().equals(userId)) {
-            throw new RuntimeException("Access denied");
-        }
-        
-        session.setStatus(SessionStatus.DELETED);
-        session.setDeletedAt(LocalDateTime.now());
-        sessionRepository.save(session);
-    }
-
-    @Transactional
-    public void restoreSession(Long sessionId, Long userId) {
-        Session session = sessionRepository.findById(sessionId)
-            .orElseThrow(() -> new RuntimeException("Session not found"));
-        
-        if (!session.getHost().getId().equals(userId)) {
-            throw new RuntimeException("Access denied");
-        }
-        
-        session.setStatus(SessionStatus.ACTIVE);
-        session.setDeletedAt(null);
-        sessionRepository.save(session);
-    }
-
-    public List<SessionDTO> getDeletedSessions(Long userId) {
-        return sessionRepository.findByHost_IdAndStatus(userId, SessionStatus.DELETED).stream()
-            .map(SessionDTO::new)
-            .collect(Collectors.toList());
-    }
-
-    public List<SessionDTO> getActiveSessionsForUser(Long userId) {
-        return sessionRepository.findByHost_IdAndStatusNot(userId, SessionStatus.DELETED).stream()
-            .map(SessionDTO::new)
-            .collect(Collectors.toList());
     }
 }

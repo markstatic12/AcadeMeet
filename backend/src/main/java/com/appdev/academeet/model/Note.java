@@ -82,14 +82,6 @@ public class Note {
     )
     private List<Tag> tags = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(
-        name = "note_sessions",
-        joinColumns = @JoinColumn(name = "note_id"),
-        inverseJoinColumns = @JoinColumn(name = "session_id")
-    )
-    private List<Session> sessions = new ArrayList<>();
-
     // Links to the UserSavedNote table to track who has saved this note
     @OneToMany(mappedBy = "note", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserSavedNote> savedByUsers; 
@@ -185,14 +177,6 @@ public class Note {
 
     public void setTags(List<Tag> tags) {
         this.tags = tags;
-    }
-
-    public List<Session> getSessions() {
-        return sessions;
-    }
-
-    public void setSessions(List<Session> sessions) {
-        this.sessions = sessions;
     }
 
     public Set<UserSavedNote> getSavedByUsers() {

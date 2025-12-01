@@ -11,7 +11,6 @@ public class NoteRequest {
     private String filePath;
     private String content;  
     private List<Long> tagIds; 
-    private List<Long> sessionIds;
     private String notePreviewImageUrl;
     
     public String getTitle() {
@@ -52,14 +51,6 @@ public class NoteRequest {
 
     public void setTagIds(List<Long> tagIds) {
         this.tagIds = tagIds;
-    }
-
-    public List<Long> getSessionIds() {
-        return sessionIds;
-    }
-
-    public void setSessionIds(List<Long> sessionIds) {
-        this.sessionIds = sessionIds;
     }
 
     public String getNotePreviewImageUrl() {

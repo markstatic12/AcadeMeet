@@ -26,8 +26,10 @@ export default function FileUploadDropzone({ onUploaded, variant = 'tile', activ
       const userId = getUserId();
       // call the note service upload - backend endpoint expected at /api/notes/upload
       const created = await noteService.uploadFileNote(file, { title: file.name }, userId);
-      // Notify parent
+      // Notify parent and optionally refresh UI
       if (onUploaded) onUploaded(created);
+      // default behaviour: reload to pick up new note
+      try { window.location.reload(); } catch (err) { console.warn('Forced reload failed', err); }
     } catch (err) {
       console.error('Upload failed', err);
       setError(err.message || 'Upload failed');
