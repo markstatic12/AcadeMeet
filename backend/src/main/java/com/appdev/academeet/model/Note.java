@@ -20,6 +20,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
@@ -40,7 +41,7 @@ public class Note {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "owner_user_id", nullable = false)
+    @JoinColumn(name = "owner_user_id", nullable = false, referencedColumnName = "user_id")
     private User owner;
 
     @Column(length = 255)
@@ -67,6 +68,12 @@ public class Note {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "note_preview_image_url", length = 255)
+    private String notePreviewImageUrl;
+
     @ManyToMany
     @JoinTable(
         name = "note_tags",
@@ -74,6 +81,14 @@ public class Note {
         inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private List<Tag> tags = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "note_sessions",
+        joinColumns = @JoinColumn(name = "note_id"),
+        inverseJoinColumns = @JoinColumn(name = "session_id")
+    )
+    private List<Session> sessions = new ArrayList<>();
 
     // Links to the UserSavedNote table to track who has saved this note
     @OneToMany(mappedBy = "note", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -158,6 +173,11 @@ public class Note {
         }
     }
 
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
     
     public List<Tag> getTags() {
         return tags;
@@ -167,11 +187,35 @@ public class Note {
         this.tags = tags;
     }
 
+    public List<Session> getSessions() {
+        return sessions;
+    }
+
+    public void setSessions(List<Session> sessions) {
+        this.sessions = sessions;
+    }
+
     public Set<UserSavedNote> getSavedByUsers() {
         return savedByUsers;
     }
 
     public void setSavedByUsers(Set<UserSavedNote> savedByUsers) {
         this.savedByUsers = savedByUsers;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getNotePreviewImageUrl() {
+        return notePreviewImageUrl;
+    }
+
+    public void setNotePreviewImageUrl(String notePreviewImageUrl) {
+        this.notePreviewImageUrl = notePreviewImageUrl;
     }
 }

@@ -1,54 +1,109 @@
 package com.appdev.academeet.dto;
 
-import com.appdev.academeet.model.Session;
 import java.time.format.DateTimeFormatter;
 
+import com.appdev.academeet.model.Session;
+import com.appdev.academeet.model.SessionStatus;
+import com.appdev.academeet.model.SessionType;
+
+/**
+ * Data Transfer Object for Session entities.
+ * Provides a clean interface for API responses with formatted data.
+ */
 public class SessionDTO {
-
-    private Long id;
-    private String title;
-    private String hostName; // We will send the host's name, not the whole User object
-    private String month;
-    private String day;
-    private String year;
-    private String startTime;
-    private String endTime;
-    private String location;
-
-    // Formatter to convert LocalTime to a string like "09:30"
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
-    // Constructor that converts a Session Entity into a SessionDTO
+    // Basic session info
+    private final Long id;
+    private final String title;
+    private final String description;
+    
+    // Host information
+    private final String hostName;
+    private final HostInfo createdBy; // Frontend expects this structure for ownership checks
+    
+    // Date and time fields
+    private final String month;
+    private final String day;
+    private final String year;
+    private final String startTime;
+    private final String endTime;
+    private final String location;
+    
+    // Session configuration
+    private final SessionType sessionType;
+    private final SessionStatus status;
+    private final Integer maxParticipants;
+    private final Integer currentParticipants;
+    private final String createdAt;
+    
+    /**
+     * Host information structure for frontend compatibility.
+     */
+    public static class HostInfo {
+        private final Long id;
+        private final String name;
+        
+        public HostInfo(Long id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+        
+        public Long getId() { return id; }
+        public String getName() { return name; }
+    }
+
+    /**
+     * Converts a Session entity to a SessionDTO.
+     * Handles null safety and formats time fields for JSON serialization.
+     */
     public SessionDTO(Session session) {
         this.id = session.getId();
         this.title = session.getTitle();
+        this.description = session.getDescription();
         
-        // This is the fix for the LazyInitializationException.
-        // It uses getName() from your User.java entity
-        this.hostName = session.getHost() != null ? session.getHost().getName() : "Unknown Host";
+        // Host info - handle potential null host
+        if (session.getHost() != null) {
+            this.hostName = session.getHost().getName();
+            this.createdBy = new HostInfo(session.getHost().getId(), session.getHost().getName());
+        } else {
+            this.hostName = "Unknown Host";
+            this.createdBy = null;
+        }
         
+        // Date and location
         this.month = session.getMonth();
         this.day = session.getDay();
         this.year = session.getYear();
         this.location = session.getLocation();
+        
+        // Session settings
+        this.sessionType = session.getSessionType();
+        this.status = session.getStatus();
+        this.maxParticipants = session.getMaxParticipants();
+        this.currentParticipants = session.getCurrentParticipants();
+        this.createdAt = session.getCreatedAt() != null ? session.getCreatedAt().toString() : null;
 
-        // Convert LocalTime objects to simple strings for the JSON payload
-        if (session.getStartTime() != null) {
-            this.startTime = session.getStartTime().format(TIME_FORMATTER);
-        }
-        if (session.getEndTime() != null) {
-            this.endTime = session.getEndTime().format(TIME_FORMATTER);
-        }
+        // Format time fields for JSON - handle nulls gracefully
+        this.startTime = session.getStartTime() != null ? session.getStartTime().format(TIME_FORMATTER) : null;
+        this.endTime = session.getEndTime() != null ? session.getEndTime().format(TIME_FORMATTER) : null;
     }
 
-    // Getters are required for Jackson (Spring's JSON converter)
+    // Getters for Jackson JSON serialization
     public Long getId() { return id; }
     public String getTitle() { return title; }
+    public String getDescription() { return description; }
     public String getHostName() { return hostName; }
+    public HostInfo getCreatedBy() { return createdBy; }
     public String getMonth() { return month; }
     public String getDay() { return day; }
     public String getYear() { return year; }
     public String getStartTime() { return startTime; }
     public String getEndTime() { return endTime; }
     public String getLocation() { return location; }
+    public SessionType getSessionType() { return sessionType; }
+    public SessionStatus getStatus() { return status; }
+    public Integer getMaxParticipants() { return maxParticipants; }
+    public Integer getCurrentParticipants() { return currentParticipants; }
+    public String getCreatedAt() { return createdAt; }
 }

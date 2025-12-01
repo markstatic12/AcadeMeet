@@ -5,22 +5,20 @@ import DashboardPage from './pages/DashboardPage';
 import NotesPage from './pages/NotesPage';
 import ProfilePage from './pages/ProfilePage';
 import CreateSessionPage from './pages/CreateSessionPage';
-import CreateNotePage from './pages/CreateNotePage';
 import SettingsPage from './pages/SettingsPage';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/layout/ProtectedRoute';
 import SessionsPage from './pages/SessionsPage';
-
+import SessionViewPage from './pages/SessionViewPage';
+import EditSessionPage from './pages/EditSessionPage';
+import { UserProvider } from './context/UserContext';
 
 function App() {
-  const isAuthenticated = () => {
-    return localStorage.getItem('student') !== null;
-  };
-
   return (
+    <UserProvider>
     <Routes>
       <Route 
         path="/" 
-        element={isAuthenticated() ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} 
+        element={<Navigate to="/login" replace />} 
       />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
@@ -62,14 +60,6 @@ function App() {
         } 
       />
       <Route 
-        path="/create-note" 
-        element={
-          <ProtectedRoute>
-            <CreateNotePage />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
         path="/settings" 
         element={
           <ProtectedRoute>
@@ -87,11 +77,30 @@ function App() {
         } 
       />
 
+      <Route 
+        path="/session/:sessionId" 
+        element={
+          <ProtectedRoute>
+            <SessionViewPage />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/edit-session/:sessionId" 
+        element={
+          <ProtectedRoute>
+            <EditSessionPage />
+          </ProtectedRoute>
+        } 
+      />
+
       {/* Placeholder routes for future pages */}
       <Route path="/files" element={<ProtectedRoute><div className="min-h-screen bg-gray-900 text-white p-8"><h1 className="text-3xl font-bold">Files - Coming Soon</h1></div></ProtectedRoute>} />
       <Route path="/productivity" element={<ProtectedRoute><div className="min-h-screen bg-gray-900 text-white p-8"><h1 className="text-3xl font-bold">Productivity Tools - Coming Soon</h1></div></ProtectedRoute>} />
       <Route path="/messages" element={<ProtectedRoute><div className="min-h-screen bg-gray-900 text-white p-8"><h1 className="text-3xl font-bold">Messages - Coming Soon</h1></div></ProtectedRoute>} />
     </Routes>
+    </UserProvider>
   );
 }
 

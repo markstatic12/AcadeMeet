@@ -1,5 +1,6 @@
 package com.appdev.academeet.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,22 +12,31 @@ import com.appdev.academeet.model.Note;
 @Repository
 public interface NoteRepository extends JpaRepository<Note, Long> {
 
-    // Finds all notes owned by a user, excluding those in TRASH (used for the main "Active" view).
-    List<Note> findByOwnerIdAndStatusNot(Long ownerId, Note.NoteStatus status);
-    
-    // Same as above but ordered by creation date descending (most recent first).
-    List<Note> findByOwnerIdAndStatusNotOrderByCreatedAtDesc(Long ownerId, Note.NoteStatus status);
-    
-    /*Finds a specific note by ID and ownership, excluding TRASH.*/
-    Optional<Note> findByIdAndOwnerIdAndStatusNot(Long noteId, Long ownerId, Note.NoteStatus status);
-    
-    /* Finds notes owned by a user with a specific status (e.g., ARCHIVED or TRASH).
-     */
-    List<Note> findByOwnerIdAndStatus(Long ownerId, Note.NoteStatus status);
+    // ---------- Core queries (most flexible) ----------
+    // Find single note by id and owner (optional status filter)
+    Optional<Note> findByIdAndOwnerId(Long noteId, Long ownerId);
+    Optional<Note> findByIdAndOwnerIdAndStatusNot(Long noteId, Long ownerId, Note.NoteStatus excludedStatus);
 
-    // Ordered variant for listing by status
+    // User's notes with flexible filtering
+    List<Note> findByOwnerIdAndStatusNotOrderByCreatedAtDesc(Long ownerId, Note.NoteStatus excludedStatus);
     List<Note> findByOwnerIdAndStatusOrderByCreatedAtDesc(Long ownerId, Note.NoteStatus status);
+    
+    // Global feed with status filtering
+    List<Note> findByStatusNotOrderByCreatedAtDesc(Note.NoteStatus excludedStatus);
 
-    // Find notes across all users by status ordered by creation date (for public feed)
-    List<Note> findByStatusOrderByCreatedAtDesc(Note.NoteStatus status);
+    // Date range queries
+    List<Note> findByCreatedAtBetweenOrderByCreatedAtDesc(LocalDateTime start, LocalDateTime end);
+    List<Note> findByOwnerIdAndCreatedAtBetweenOrderByCreatedAtDesc(Long ownerId, LocalDateTime start, LocalDateTime end);
+
+    // Tag-based queries (distinct to avoid duplicates from many-to-many joins)
+    List<Note> findDistinctByTags_TagIdInAndStatusNotOrderByCreatedAtDesc(List<Long> tagIds, Note.NoteStatus excludedStatus);
+    List<Note> findDistinctByOwnerIdAndTags_TagIdInOrderByCreatedAtDesc(Long ownerId, List<Long> tagIds);
+
+    // Type-based queries
+    List<Note> findByOwnerIdAndTypeAndStatusNotOrderByCreatedAtDesc(Long ownerId, Note.NoteType type, Note.NoteStatus excludedStatus);
+    List<Note> findByTypeAndStatusNotOrderByCreatedAtDesc(Note.NoteType type, Note.NoteStatus excludedStatus);
+
+    // Session-based queries
+    List<Note> findBySessionsIdAndStatusNot(Long sessionId, Note.NoteStatus excludedStatus);
+
 }

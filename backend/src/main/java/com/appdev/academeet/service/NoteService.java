@@ -1,7 +1,9 @@
 package com.appdev.academeet.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.appdev.academeet.dto.NoteRequest;
 import com.appdev.academeet.model.Note;
 import com.appdev.academeet.model.Note.NoteStatus;
+import com.appdev.academeet.model.Session;
 import com.appdev.academeet.model.Tag;
 import com.appdev.academeet.model.User;
 import com.appdev.academeet.model.UserSavedNote;
 import com.appdev.academeet.repository.NoteRepository;
+import com.appdev.academeet.repository.SessionRepository;
 import com.appdev.academeet.repository.TagRepository;
 import com.appdev.academeet.repository.UserRepository; // Assumed repository
 import com.appdev.academeet.repository.UserSavedNoteRepository; // Assumed repository
@@ -22,16 +26,18 @@ import com.appdev.academeet.repository.UserSavedNoteRepository; // Assumed repos
 @Service
 public class NoteService {
 
-    // Repositories for data access
     @Autowired private NoteRepository noteRepository;
     @Autowired private UserSavedNoteRepository userSavedNoteRepository;
     @Autowired private TagRepository tagRepository;
     @Autowired private UserRepository userRepository;
+    @Autowired private SessionRepository sessionRepository;
+
+    //private static final String DEFAULT_RICHTEXT_PREVIEW_URL = "https://storage.academeet.com/defaults/gradient_01.png";
 
     private Note getOwnedActiveNote(Long noteId, Long ownerId) {
         return noteRepository.findByIdAndOwnerIdAndStatusNot(
-                noteId, ownerId, NoteStatus.TRASH)
-                .orElseThrow(() -> new RuntimeException("Note with ID " + noteId + " not found or access denied."));
+            noteId, ownerId, NoteStatus.TRASH)
+            .orElseThrow(() -> new RuntimeException("Note with ID " + noteId + " not found or access denied."));
     }
 
     private User getUserReference(Long userId) {
@@ -49,10 +55,10 @@ public class NoteService {
         newNote.setTitle(request.getTitle());
         newNote.setType(request.getType());
         newNote.setContent(request.getContent());
+        newNote.setNotePreviewImageUrl(request.getNotePreviewImageUrl());
         newNote.setFilePath(request.getFilePath());
-        newNote.setStatus(NoteStatus.ACTIVE); // Default status on creation
+        newNote.setStatus(NoteStatus.ACTIVE); 
 
-        // Handle Tags
         if (request.getTagIds() != null && !request.getTagIds().isEmpty()) {
             List<Tag> tags = tagRepository.findAllById(request.getTagIds());
             if (tags.size() != request.getTagIds().size()) {
@@ -60,8 +66,28 @@ public class NoteService {
             }
             newNote.setTags(tags);
         }
+
+        if (request.getSessionIds() != null && !request.getSessionIds().isEmpty()) {
+            List<Session> sessions = sessionRepository.findAllById(request.getSessionIds());
+            if (sessions.size() != request.getSessionIds().size()) {
+                 throw new IllegalArgumentException("One or more sessions provided are invalid.");
+            }
+            newNote.setSessions(sessions);
+        }
         
         return noteRepository.save(newNote);
+    }
+
+    @Transactional
+    public Note uploadFileNote(String title, String filePath, String previewImageUrl, Long ownerId, List<Long> tagIds, List<Long> sessionIds) {
+        NoteRequest request = new NoteRequest();
+        request.setTitle(title);
+        request.setType(Note.NoteType.FILE);
+        request.setFilePath(filePath);
+        request.setNotePreviewImageUrl(previewImageUrl);
+        request.setTagIds(tagIds);
+        request.setSessionIds(sessionIds);
+        return createNote(request, ownerId);
     }
     
     @Transactional
@@ -71,14 +97,22 @@ public class NoteService {
         if (request.getTitle() != null) existingNote.setTitle(request.getTitle());
         if (request.getContent() != null) existingNote.setContent(request.getContent());
         if (request.getFilePath() != null) existingNote.setFilePath(request.getFilePath());
+        if (request.getNotePreviewImageUrl() != null) existingNote.setNotePreviewImageUrl(request.getNotePreviewImageUrl());
         
-        // Handle Tag updates
         if (request.getTagIds() != null) {
              List<Tag> newTags = tagRepository.findAllById(request.getTagIds());
              if (newTags.size() != request.getTagIds().size()) {
                  throw new IllegalArgumentException("One or more tags provided are invalid.");
             }
              existingNote.setTags(newTags); 
+        }
+
+        if (request.getSessionIds() != null) {
+             List<Session> newSessions = sessionRepository.findAllById(request.getSessionIds());
+             if (newSessions.size() != request.getSessionIds().size()) {
+                 throw new IllegalArgumentException("One or more sessions provided are invalid.");
+            }
+             existingNote.setSessions(newSessions); 
         }
         
         return noteRepository.save(existingNote);
@@ -88,9 +122,8 @@ public class NoteService {
     public void setNoteStatus(Long noteId, Long ownerId, NoteStatus newStatus) {
         Note note = getOwnedActiveNote(noteId, ownerId);
         
-        // Logic for setting timestamps
         if (newStatus == NoteStatus.TRASH) {
-            note.setDeletedAt(LocalDateTime.now()); // Start 3-day countdown
+            note.setDeletedAt(LocalDateTime.now()); 
         } else {
             note.setDeletedAt(null); // Clear deleted_at if moving out of trash (unarchive/activate)
         }
@@ -125,17 +158,96 @@ public class NoteService {
         userSavedNoteRepository.delete(savedNote);
     }
     
-    public List<Note> getNotesByStatus(Long userId, NoteStatus status) {
+    // ---------- Core query methods ----------
+    
+    public Optional<Note> findNoteByIdAndOwner(Long noteId, Long ownerId) {
+        return noteRepository.findByIdAndOwnerId(noteId, ownerId);
+    }
+
+    public List<Note> getUserNotes(Long userId, NoteStatus status) {
+        // If ACTIVE, exclude TRASH; otherwise get specific status
         if (status == NoteStatus.ACTIVE) {
-            // return active notes excluding trash, most recent first
             return noteRepository.findByOwnerIdAndStatusNotOrderByCreatedAtDesc(userId, NoteStatus.TRASH);
         }
         return noteRepository.findByOwnerIdAndStatusOrderByCreatedAtDesc(userId, status);
     }
     
+    public List<Note> getGlobalNotes(NoteStatus excludedStatus) {
+        return noteRepository.findByStatusNotOrderByCreatedAtDesc(excludedStatus);
+    }
+
+    public List<Note> getNotesByDateRange(Long userId, LocalDateTime start, LocalDateTime end) {
+        if (userId != null) {
+            return noteRepository.findByOwnerIdAndCreatedAtBetweenOrderByCreatedAtDesc(userId, start, end);
+        }
+        return noteRepository.findByCreatedAtBetweenOrderByCreatedAtDesc(start, end);
+    }
+
+    public List<Note> getNotesByTags(Long userId, List<Long> tagIds, NoteStatus excludedStatus) {
+        if (tagIds == null || tagIds.isEmpty()) return new ArrayList<>();
+        
+        if (userId != null) {
+            return noteRepository.findDistinctByOwnerIdAndTags_TagIdInOrderByCreatedAtDesc(userId, tagIds);
+        }
+        return noteRepository.findDistinctByTags_TagIdInAndStatusNotOrderByCreatedAtDesc(tagIds, excludedStatus);
+    }
+
+    public List<Note> getNotesByType(Long userId, Note.NoteType type, NoteStatus excludedStatus) {
+        if (userId != null) {
+            return noteRepository.findByOwnerIdAndTypeAndStatusNotOrderByCreatedAtDesc(userId, type, excludedStatus);
+        }
+        return noteRepository.findByTypeAndStatusNotOrderByCreatedAtDesc(type, excludedStatus);
+    }
+
+    // ---------- Saved/Favorited notes ----------
     public List<Note> getSavedNotes(Long userId) {
         return userSavedNoteRepository.findByUserId(userId).stream()
             .map(UserSavedNote::getNote)
             .collect(Collectors.toList());
+    }
+
+    public List<Note> getSavedNotesExcludingStatus(Long userId, NoteStatus excludedStatus) {
+        return userSavedNoteRepository.findByUserId(userId).stream()
+            .map(UserSavedNote::getNote)
+            .filter(note -> note.getStatus() != excludedStatus)
+            .collect(Collectors.toList());
+    }
+
+    public List<Note> getSavedNotesFromOtherUsers(Long userId) {
+        return userSavedNoteRepository.findByUserId(userId).stream()
+            .map(UserSavedNote::getNote)
+            .filter(note -> !note.getOwner().getId().equals(userId) && note.getStatus() != NoteStatus.TRASH)
+            .collect(Collectors.toList());
+    }
+
+    public List<Note> getNotesBySession(Long sessionId) {
+        return noteRepository.findBySessionsIdAndStatusNot(sessionId, NoteStatus.TRASH);
+    }
+
+    // ---------- Soft Delete & Restore ----------
+    @Transactional
+    public void deleteNote(Long noteId, Long userId) {
+        Note note = getOwnedActiveNote(noteId, userId);
+        note.setStatus(NoteStatus.TRASH);
+        note.setDeletedAt(LocalDateTime.now());
+        noteRepository.save(note);
+    }
+
+    @Transactional
+    public void restoreNote(Long noteId, Long userId) {
+        Note note = noteRepository.findById(noteId)
+            .orElseThrow(() -> new RuntimeException("Note not found"));
+        
+        if (!note.getOwner().getId().equals(userId)) {
+            throw new RuntimeException("Access denied");
+        }
+        
+        note.setStatus(NoteStatus.ACTIVE);
+        note.setDeletedAt(null);
+        noteRepository.save(note);
+    }
+
+    public List<Note> getTrashedNotes(Long userId) {
+        return noteRepository.findByOwnerIdAndStatusOrderByCreatedAtDesc(userId, NoteStatus.TRASH);
     }
 }

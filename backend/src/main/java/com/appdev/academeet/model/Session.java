@@ -1,8 +1,23 @@
 package com.appdev.academeet.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "sessions")
@@ -34,6 +49,54 @@ public class Session {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    // Session Privacy & Status
+    @Enumerated(EnumType.STRING)
+    @Column(name = "session_type")
+    private SessionType sessionType = SessionType.PUBLIC;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private SessionStatus status = SessionStatus.ACTIVE;
+
+    @Column(name = "password")
+    private String password; // nullable - only for PRIVATE sessions
+
+    // Participant Management
+    @Column(name = "max_participants")
+    private Integer maxParticipants;
+
+    @Column(name = "current_participants")
+    private Integer currentParticipants = 0;
+
+    // Images
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+
+    @Column(name = "cover_image_url")
+    private String coverImageUrl;
+
+    // Timestamps
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    // Lifecycle Methods
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
     // Getters & setters
     public Long getId() { return id; }
     public String getTitle() { return title; }
@@ -56,4 +119,28 @@ public class Session {
     public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
     public void setLocation(String location) { this.location = location; }
     public void setDescription(String description) { this.description = description; }
+
+    // New field getters
+    public SessionType getSessionType() { return sessionType; }
+    public SessionStatus getStatus() { return status; }
+    public String getPassword() { return password; }
+    public Integer getMaxParticipants() { return maxParticipants; }
+    public Integer getCurrentParticipants() { return currentParticipants; }
+    public String getProfileImageUrl() { return profileImageUrl; }
+    public String getCoverImageUrl() { return coverImageUrl; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public LocalDateTime getDeletedAt() { return deletedAt; }
+
+    // New field setters
+    public void setSessionType(SessionType sessionType) { this.sessionType = sessionType; }
+    public void setStatus(SessionStatus status) { this.status = status; }
+    public void setPassword(String password) { this.password = password; }
+    public void setMaxParticipants(Integer maxParticipants) { this.maxParticipants = maxParticipants; }
+    public void setCurrentParticipants(Integer currentParticipants) { this.currentParticipants = currentParticipants; }
+    public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
+    public void setCoverImageUrl(String coverImageUrl) { this.coverImageUrl = coverImageUrl; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
 }
