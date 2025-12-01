@@ -35,12 +35,6 @@ public class Comment {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @Column(name = "is_edited")
-    private boolean isEdited = false;
-
     @Column(name = "reply_count")
     private Integer replyCount = 0;
 
@@ -48,13 +42,6 @@ public class Comment {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-        isEdited = true;
     }
 
     // Constructors
@@ -75,8 +62,6 @@ public class Comment {
     public Comment getParentComment() { return parentComment; }
     public List<Comment> getReplies() { return replies; }
     public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public boolean isEdited() { return isEdited; }
     public Integer getReplyCount() { return replyCount; }
 
     // Setters
@@ -87,8 +72,6 @@ public class Comment {
     public void setParentComment(Comment parentComment) { this.parentComment = parentComment; }
     public void setReplies(List<Comment> replies) { this.replies = replies; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-    public void setEdited(boolean edited) { this.isEdited = edited; }
     public void setReplyCount(Integer replyCount) { this.replyCount = replyCount; }
 
     // Helper methods

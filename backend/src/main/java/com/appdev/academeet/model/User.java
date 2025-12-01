@@ -1,15 +1,13 @@
 package com.appdev.academeet.model;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
@@ -46,10 +44,12 @@ public class User {
     @Column(length = 500)
     private String bio;
 
-    @Column(name = "profile_image_url", length = 255)
+    @Lob
+    @Column(name = "profile_image_url", columnDefinition = "TEXT")
     private String profileImageUrl;
 
-    @Column(name = "cover_image_url", length = 255)
+    @Lob
+    @Column(name = "cover_image_url", columnDefinition = "TEXT")
     private String coverImageUrl;
 
     @Column(name = "created_at", updatable = false)
@@ -70,8 +70,6 @@ public class User {
         }
     }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UserSavedNote> savedNotes;
 
     // --- Constructors ---
     public User() {
@@ -211,11 +209,5 @@ public class User {
                 '}';
     }
 
-    public Set<UserSavedNote> getSavedNotes() {
-        return savedNotes;
-    }
 
-    public void setSavedNotes(Set<UserSavedNote> savedNotes) {
-        this.savedNotes = savedNotes;
-    }
 }
