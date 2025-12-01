@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { sessionService } from './SessionService';
-import { noteService } from './noteService';
 
 // Session Form Logic Hook
 export const useSessionForm = () => {
@@ -25,7 +24,6 @@ export const useSessionForm = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [pendingNote, setPendingNote] = useState(null);
 
   const handleChange = (e) => {
     setSessionData({ ...sessionData, [e.target.name]: e.target.value });
@@ -70,27 +68,6 @@ export const useSessionForm = () => {
     try {
       await sessionService.createSession(sessionData, userId);
       
-      // If there's a pending note, upload and associate it with the new session
-      if (pendingNote) {
-        try {
-          // Get the created session ID - we need to fetch it first
-          const sessions = await sessionService.getAllSessions(userId);
-          const newSession = sessions.find(s => s.title === sessionData.title);
-          
-          if (newSession) {
-            await noteService.uploadFileNote(
-              pendingNote,
-              { title: pendingNote.name, sessionIds: [newSession.id] },
-              userId
-            );
-          }
-        } catch (noteError) {
-          console.error("Error uploading note with session:", noteError);
-          // Don't fail the session creation if note upload fails
-        }
-        setPendingNote(null);
-      }
-      
       // Instead of a blocking alert, navigate to dashboard and pass a success flag
       // so the dashboard or sessions page can render a non-blocking success modal.
       navigate('/profile', { state: { sessionCreated: true, title: sessionData.title } });
@@ -113,9 +90,7 @@ export const useSessionForm = () => {
     handlePasswordChange,
     handleParticipantsChange,
     handleSubmit,
-    handleBack,
-    pendingNote,
-    setPendingNote
+    handleBack
   };
 };
 

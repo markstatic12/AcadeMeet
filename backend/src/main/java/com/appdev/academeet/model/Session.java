@@ -102,9 +102,6 @@ public class Session {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
-
     // Lifecycle Methods
     @PrePersist
     protected void onCreate() {
@@ -214,7 +211,6 @@ public class Session {
     public String getCoverImageUrl() { return coverImageUrl; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public LocalDateTime getDeletedAt() { return deletedAt; }
 
     // New field setters
     public void setSessionType(SessionType sessionType) { this.sessionType = sessionType; }
@@ -226,5 +222,4 @@ public class Session {
     public void setCoverImageUrl(String coverImageUrl) { this.coverImageUrl = coverImageUrl; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
 }

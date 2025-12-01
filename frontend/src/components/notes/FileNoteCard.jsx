@@ -1,23 +1,16 @@
 import React from 'react';
-import { ThreeDotsVerticalIcon } from '../../icons';
+import { ThreeDotsVerticalIcon, StarOutlineIcon, StarSolidIcon, ArchiveIcon, TrashIcon } from '../../icons';
 
-export default function FileNoteCard({ note, onOpen, onMenu, openMenuId, onMenuToggle, onDelete }) {
-  const { id, title, notePreviewImageUrl, createdAt, tags, type, filePath } = note || {};
+export default function FileNoteCard({ note, onOpen, onMenu, openMenuId, onMenuToggle, onToggleFavourite, onArchive, onDelete }) {
+  const { id, title, notePreviewImageUrl, createdAt, tags, isFavourite, type } = note || {};
   const formattedDate = createdAt ? new Date(createdAt).toLocaleDateString(undefined,{ month:'short', day:'numeric', year:'numeric'}) : '';
   
   // Get the first tag for the badge
   const firstTag = Array.isArray(tags) && tags.length > 0 ? tags[0] : null;
 
-  const handleDownload = (e) => {
-    e.stopPropagation();
-    if (filePath) {
-      window.open(`http://localhost:8080/${filePath}`, '_blank');
-    }
-  };
-
   return (
     <div
-      className="bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl h-[240px] w-full flex flex-col relative"
+      className={`bg-[#1a1a1a] border ${isFavourite ? 'border-yellow-400/50' : 'border-gray-800'} hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl h-[240px] w-full flex flex-col relative`}
       onClick={() => onOpen && onOpen(note)}
     >
       {/* Preview Image with overlay tag and menu */}
@@ -58,13 +51,31 @@ export default function FileNoteCard({ note, onOpen, onMenu, openMenuId, onMenuT
               <button
                 onClick={(e) => { 
                   e.stopPropagation(); 
-                  onDelete && onDelete(id, title); 
+                  onToggleFavourite && onToggleFavourite(id); 
+                }}
+                className="w-full px-3 py-2 text-left text-sm text-white hover:bg-gray-800 flex items-center gap-2"
+              >
+                {isFavourite ? <StarSolidIcon className="w-4 h-4 text-yellow-400" /> : <StarOutlineIcon className="w-4 h-4 text-yellow-400" />}
+                {isFavourite ? 'Remove Favourite' : 'Add to Favourites'}
+              </button>
+              <button
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  onArchive && onArchive(id); 
+                }}
+                className="w-full px-3 py-2 text-left text-sm text-white hover:bg-gray-800 flex items-center gap-2"
+              >
+                <ArchiveIcon className="w-4 h-4" />
+                Archive
+              </button>
+              <button
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  onDelete && onDelete(id); 
                 }}
                 className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-gray-800 flex items-center gap-2"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
+                <TrashIcon className="w-4 h-4" />
                 Delete
               </button>
             </div>
@@ -77,20 +88,8 @@ export default function FileNoteCard({ note, onOpen, onMenu, openMenuId, onMenuT
         <h3 className="text-white font-bold text-base mb-1 truncate">
           {title || 'Untitled'}
         </h3>
-        <div className="text-xs text-gray-400 mb-3">
+        <div className="text-xs text-gray-400">
           created on {formattedDate}
-        </div>
-        <div className="mt-auto">
-          <button
-            onClick={handleDownload}
-            className="w-full px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors flex items-center justify-center gap-2"
-            title="Download or view file"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            Open File
-          </button>
         </div>
       </div>
     </div>

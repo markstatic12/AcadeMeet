@@ -5,8 +5,6 @@ public class UpdateProfileRequest {
     private String school;
     private String studentId;
     private String bio;
-    private String program;
-    private Integer yearLevel;
     private String profilePic; // allow updating avatar as data URL or URL
     private String coverImage; // allow updating cover image
     
@@ -52,22 +50,6 @@ public class UpdateProfileRequest {
     
     public void setBio(String bio) {
         this.bio = bio;
-    }
-
-    public String getProgram() {
-        return program;
-    }
-
-    public void setProgram(String program) {
-        this.program = program;
-    }
-
-    public Integer getYearLevel() {
-        return yearLevel;
-    }
-
-    public void setYearLevel(Integer yearLevel) {
-        this.yearLevel = yearLevel;
     }
 
     public String getProfilePic() {

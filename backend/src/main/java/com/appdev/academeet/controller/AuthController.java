@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.appdev.academeet.dto.AuthResponse;
+import com.appdev.academeet.dto.ChangePasswordRequest;
 import com.appdev.academeet.dto.LoginRequest;
 import com.appdev.academeet.dto.SignupRequest;
 import com.appdev.academeet.service.AuthService;
@@ -43,4 +44,31 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+        String error = authService.changePassword(request);
+        if (error != null) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", error));
+        }
+        return ResponseEntity.ok(java.util.Map.of("message", "Password changed successfully"));
+    }
+    
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody java.util.Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        
+        if (refreshToken == null || refreshToken.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", "Refresh token is required"));
+        }
+        
+        AuthResponse response = authService.refreshAccessToken(refreshToken);
+        
+        if (response.getMessage().contains("failed") || 
+            response.getMessage().contains("Invalid") || 
+            response.getMessage().contains("expired")) {
+            return ResponseEntity.status(401).body(java.util.Map.of("message", response.getMessage()));
+        }
+        
+        return ResponseEntity.ok(response);
+    }
 }
