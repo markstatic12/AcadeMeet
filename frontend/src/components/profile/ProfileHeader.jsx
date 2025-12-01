@@ -259,7 +259,7 @@ export const ProfileCard = React.forwardRef(({ userData, onManageFollowers }, re
         <div className="text-center mb-4">
           <h2 className="text-xl font-bold text-white mb-1">{userData.name}</h2>
           <p className="text-gray-400 text-xs">
-            {userData.school}, {userData.program}{userData.yearLevel ? `, Year ${userData.yearLevel}` : ''}
+            {userData.school}, {userData.program}, {userData.studentId}
           </p>
         </div>
 

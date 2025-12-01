@@ -41,7 +41,6 @@ public class UserController {
             response.put("studentId", null);
             response.put("bio", user.getBio());
             response.put("profilePic", user.getProfileImageUrl());
-            response.put("coverImage", user.getCoverImageUrl());
             response.put("createdAt", user.getCreatedAt());
             response.put("followers", 0); // TODO: Implement followers feature
             response.put("following", 0); // TODO: Implement following feature
@@ -65,12 +64,6 @@ public class UserController {
             }
             if (request.getSchool() != null) {
                 user.setSchool(request.getSchool().trim());
-            }
-            if (request.getProgram() != null) {
-                user.setProgram(request.getProgram().trim());
-            }
-            if (request.getYearLevel() != null) {
-                user.setYearLevel(request.getYearLevel());
             }
             // studentId is not part of the SQL-backed User model; ignore if provided
             if (request.getBio() != null) {

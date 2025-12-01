@@ -107,16 +107,6 @@ public class NoteController {
         }
     }
     
-    @PostMapping("/{noteId}/restore")
-    public ResponseEntity<?> restoreNote(@PathVariable Long noteId, org.springframework.web.context.request.WebRequest webRequest) {
-        try {
-            noteService.restoreNote(noteId, getCurrentUserId(webRequest));
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
-        }
-    }
-    
     // ----------------------------------------------------------------------------------
     // Retrieval Endpoints
     // ----------------------------------------------------------------------------------
@@ -163,13 +153,6 @@ public class NoteController {
     public ResponseEntity<List<Note>> getSavedNotesFromOthers(org.springframework.web.context.request.WebRequest webRequest) {
         // Get notes saved/favorited by user from other users only
         List<Note> notes = noteService.getSavedNotesFromOtherUsers(getCurrentUserId(webRequest));
-        return ResponseEntity.ok(notes);
-    }
-
-    @GetMapping("/session/{sessionId}")
-    public ResponseEntity<List<Note>> getNotesBySession(@PathVariable Long sessionId) {
-        // Get notes associated with a specific session
-        List<Note> notes = noteService.getNotesBySession(sessionId);
         return ResponseEntity.ok(notes);
     }
 
@@ -247,7 +230,6 @@ public class NoteController {
             @org.springframework.web.bind.annotation.RequestParam("file") org.springframework.web.multipart.MultipartFile file,
             @org.springframework.web.bind.annotation.RequestParam(value = "title", required = false) String title,
             @org.springframework.web.bind.annotation.RequestParam(value = "tagIds", required = false) List<Long> tagIds,
-            @org.springframework.web.bind.annotation.RequestParam(value = "sessionIds", required = false) List<Long> sessionIds,
             org.springframework.web.context.request.WebRequest webRequest) {
         
         try {
@@ -288,8 +270,7 @@ public class NoteController {
                 filePathStr,
                 null, // preview image URL - can be generated later
                 userId,
-                tagIds,
-                sessionIds
+                tagIds
             );
             
             return ResponseEntity.status(HttpStatus.CREATED).body(createdNote);

@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import SettingsHeader, { SettingsSidebar, Toast, LogoutModal } from '../components/settings/SettingsLayout';
-import ProfileForm from '../components/settings/SettingsForm';
+import ProfileForm, { PasswordResetCard } from '../components/settings/SettingsForm';
 import { useSettingsPage } from '../services/SettingsLogic';
 import { useToast } from '../services/CommonUtils';
 import '../styles/settings/SettingsPage.css';
@@ -44,19 +44,23 @@ const SettingsPage = () => {
 
         <div className='flex-1'>
           <div className='bg-[#1f1f1f] border border-gray-800 rounded-2xl p-6'>
-            <ProfileForm
-              form={form}
-              onFormChange={handleFormChange}
-              saving={saving}
-              onCancel={handleCancel}
-              onSave={() => handleSaveProfile(showToast)}
-              profilePreview={profilePreview}
-              coverPreview={coverPreview}
-              profileInputRef={profileInputRef}
-              coverInputRef={coverInputRef}
-              onProfileImageChange={handleProfileImageChange}
-              onCoverImageChange={handleCoverImageChange}
-            />
+            {active === 'profile' ? (
+              <ProfileForm
+                form={form}
+                onFormChange={handleFormChange}
+                saving={saving}
+                onCancel={handleCancel}
+                onSave={() => handleSaveProfile(showToast)}
+                profilePreview={profilePreview}
+                coverPreview={coverPreview}
+                profileInputRef={profileInputRef}
+                coverInputRef={coverInputRef}
+                onProfileImageChange={handleProfileImageChange}
+                onCoverImageChange={handleCoverImageChange}
+              />
+            ) : (
+              <PasswordResetCard showToast={showToast} />
+            )}
           </div>
         </div>
       </div>

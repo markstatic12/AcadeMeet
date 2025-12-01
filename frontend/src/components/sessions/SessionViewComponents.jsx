@@ -1,6 +1,6 @@
 import React from 'react';
 import SessionStatusBadge from '../ui/SessionStatusBadge';
-import { CalendarIcon, ClockIcon, LocationIcon, UserIcon, UsersIcon, LockIcon, GlobeIcon, DocumentIcon } from '../../icons';
+import { CalendarIcon, ClockIcon, LocationIcon, UserIcon, UsersIcon, LockIcon, GlobeIcon } from '../../icons';
 
 // Read-only Session Profile Display
 export const SessionProfileDisplay = ({ session }) => {
@@ -209,93 +209,6 @@ export const CommentsPanel = () => {
           </div>
         </div> */}
       </div>
-    </div>
-  );
-};
-
-// Associated Notes Panel
-export const NotesPanel = ({ notes, loading }) => {
-  const handleNoteClick = (note) => {
-    const filePath = note.filePath || note.raw?.filePath;
-    if (filePath) {
-      window.open(`http://localhost:8080/${filePath}`, '_blank');
-    }
-  };
-
-  const getFileIcon = (filePath) => {
-    if (!filePath) return '📄';
-    const ext = filePath.split('.').pop().toLowerCase();
-    const iconMap = {
-      pdf: '📕',
-      doc: '📘',
-      docx: '📘',
-      txt: '📝',
-      jpg: '🖼️',
-      jpeg: '🖼️',
-      png: '🖼️',
-      gif: '🖼️',
-      zip: '📦',
-      rar: '📦',
-    };
-    return iconMap[ext] || '📄';
-  };
-
-  return (
-    <div className="col-span-4 bg-[#1a1a1a] rounded-2xl p-6">
-      <h3 className="text-white font-bold text-xl mb-6 flex items-center gap-2">
-        <DocumentIcon className="w-5 h-5 text-indigo-400" />
-        Associated Notes
-      </h3>
-
-      {loading ? (
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin w-6 h-6 border-2 border-gray-600 border-t-indigo-500 rounded-full"></div>
-        </div>
-      ) : notes && notes.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {notes.map((note) => {
-            const noteId = note.noteId || note.id || note.raw?.id;
-            const filePath = note.filePath || note.raw?.filePath;
-            const title = note.title || note.raw?.title || 'Untitled Note';
-            const createdAt = note.createdAt || note.raw?.createdAt;
-            
-            return (
-              <div
-                key={noteId}
-                onClick={() => handleNoteClick(note)}
-                className="bg-[#0f0f0f] border border-gray-800 hover:border-indigo-500 rounded-lg p-4 cursor-pointer transition-all hover:shadow-lg hover:shadow-indigo-500/10 group"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="text-3xl flex-shrink-0 group-hover:scale-110 transition-transform">
-                    {getFileIcon(filePath)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-white font-medium text-sm mb-1 truncate group-hover:text-indigo-400 transition-colors">
-                      {title}
-                    </h4>
-                    <p className="text-gray-400 text-xs mb-2">
-                      {createdAt ? new Date(createdAt).toLocaleDateString() : 'No date'}
-                    </p>
-                    {filePath && (
-                      <p className="text-gray-500 text-xs truncate">
-                        {filePath.split('/').pop()}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="text-center py-12 text-gray-400">
-          <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <p className="text-lg mb-2">No notes associated yet</p>
-          <p className="text-sm">Upload notes when creating or editing this session</p>
-        </div>
-      )}
     </div>
   );
 };
