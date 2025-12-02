@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import SettingsHeader, { SettingsSidebar, Toast, LogoutModal } from '../components/settings/SettingsLayout';
+import PageHeader from '../components/common/PageHeader';
+import { SettingsSidebar, Toast, LogoutModal } from '../components/settings/SettingsLayout';
 import ProfileForm from '../components/settings/SettingsForm';
 import { useSettingsPage } from '../services/SettingsLogic';
 import { useToast } from '../services/CommonUtils';
@@ -15,6 +16,7 @@ const SettingsPage = () => {
     coverPreview,
     profileInputRef,
     coverInputRef,
+    hasChanges,
     setShowLogoutConfirm,
     handleBack,
     handleFormChange,
@@ -31,7 +33,7 @@ const SettingsPage = () => {
     <DashboardLayout>
       <Toast toast={toast} />
       
-      <SettingsHeader onBack={handleBack} />
+      <PageHeader onBack={handleBack} />
 
       <div className='flex gap-10'>
         <SettingsSidebar
@@ -44,6 +46,7 @@ const SettingsPage = () => {
               form={form}
               onFormChange={handleFormChange}
               saving={saving}
+              hasChanges={hasChanges}
               onCancel={handleCancel}
               onSave={() => handleSaveProfile(showToast)}
               profilePreview={profilePreview}

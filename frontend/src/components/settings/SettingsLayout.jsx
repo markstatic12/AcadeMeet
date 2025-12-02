@@ -1,22 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BackIcon, UserIcon, LogoutIcon, WarningIcon } from '../../icons';
-
-// ===== SETTINGS HEADER =====
-
-export const SettingsHeader = ({ onBack }) => {
-  return (
-    <div className="flex gap-8">
-      <button
-        onClick={onBack}
-        className="flex items-center gap-2 text-indigo-300 hover:text-white mb-4"
-      >
-        <BackIcon className="w-7 h-7 p-1.5 rounded-full bg-indigo-600/80" />
-        <span className="text-lg">Back</span>
-      </button>
-    </div>
-  );
-};
+import { UserIcon, LogoutIcon, WarningIcon } from '../../icons';
 
 // ===== SETTINGS SIDEBAR =====
 
@@ -103,5 +87,3 @@ export const Toast = ({ toast }) => {
     </div>
   );
 };
-
-export default SettingsHeader;

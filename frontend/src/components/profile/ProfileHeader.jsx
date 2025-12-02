@@ -61,22 +61,9 @@ export const EditProfileModal = ({
             />
           </div>
 
-          {/* Student ID */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Student ID
-            </label>
-            <input
-              type="text"
-              name="studentId"
-              value={editForm.studentId}
-              onChange={onInputChange}
-              dir="ltr"
-              style={{ direction: 'ltr', unicodeBidi: 'normal', textAlign: 'left' }}
-              className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-              placeholder="Enter your student ID"
-            />
-          </div>
+          {/* Program */}
+          {/* Year Level */}
+         
 
           {/* Bio */}
           <div>
@@ -259,7 +246,7 @@ export const ProfileCard = React.forwardRef(({ userData, onManageFollowers }, re
         <div className="text-center mb-4">
           <h2 className="text-xl font-bold text-white mb-1">{userData.name}</h2>
           <p className="text-gray-400 text-xs">
-            {userData.school}, {userData.program}, {userData.studentId}
+            {userData.school || 'CIT University'}, {userData.program || 'N/A'}{userData.yearLevel ? `, ${userData.yearLevel}${userData.yearLevel === 1 ? 'st' : userData.yearLevel === 2 ? 'nd' : userData.yearLevel === 3 ? 'rd' : 'th'} Year` : ''}
           </p>
         </div>
 

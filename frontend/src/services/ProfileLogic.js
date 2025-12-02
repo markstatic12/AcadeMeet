@@ -29,6 +29,7 @@ export const useProfilePage = () => {
     email: '',
     school: '',
     program: '',
+    yearLevel: null,
     studentId: '',
     bio: 'No bio yet',
     coverImage: null,
@@ -55,12 +56,14 @@ export const useProfilePage = () => {
         const response = await authFetch(`/users/${userId}`);
         if (response.ok) {
           const data = await response.json();
+          console.log('Profile loaded user data:', data); // Debug log
           setUserData({
             id: userId,
             name: data.name || 'full (name of the user)',
             email: data.email || '',
             school: data.school || 'CIT University', // default school
-            program: data.program || 'BSIT', // default program
+            program: data.program || '', // Load from backend
+            yearLevel: data.yearLevel || null, // Load year level from backend
             studentId: data.studentId || '23-2684-947', // default student ID
             bio: data.bio || 'No bio yet',
             profilePic: data.profilePic || null,
