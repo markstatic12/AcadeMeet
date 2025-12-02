@@ -56,18 +56,19 @@ export const useProfilePage = () => {
         const response = await authFetch(`/users/${userId}`);
         if (response.ok) {
           const data = await response.json();
-          console.log('Profile loaded user data:', data); // Debug log
+          console.log('Profile loaded user data:', data);
           setUserData({
             id: userId,
-            name: data.name || 'full (name of the user)',
+            name: data.name || 'User',
             email: data.email || '',
-            school: data.school || 'CIT University', // default school
-            program: data.program || '', // Load from backend
-            yearLevel: data.yearLevel || null, // Load year level from backend
-            studentId: data.studentId || '23-2684-947', // default student ID
+            school: data.school || 'CIT University',
+            program: data.program || '',
+            yearLevel: data.yearLevel || null,
+            studentId: data.studentId || '',
             bio: data.bio || 'No bio yet',
             profilePic: data.profilePic || null,
-            coverImage: data.coverImage || null,
+            profileImageUrl: data.profileImageUrl || data.profilePic || null,
+            coverImage: data.coverImage || data.coverImageUrl || null,
             followers: 0,
             following: 0,
             isOnline: true
@@ -75,7 +76,7 @@ export const useProfilePage = () => {
 
           setEditForm({
             name: data.name || '',
-            school: data.school || 'Caraga State University',
+            school: data.school || '',
             studentId: data.studentId || '',
             bio: data.bio || ''
           });
