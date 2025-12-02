@@ -33,30 +33,30 @@ const SettingsPage = () => {
     <DashboardLayout>
       <Toast toast={toast} />
       
-      <PageHeader onBack={handleBack} />
+      <div className="mb-4">
+        <PageHeader onBack={handleBack} />
+      </div>
 
-      <div className='flex gap-10'>
+      <div className='flex gap-5 max-w-[1400px] mx-auto'>
         <SettingsSidebar
           onLogoutClick={() => setShowLogoutConfirm(true)}
         />
 
-        <div className='flex-1'>
-          <div className='bg-[#1f1f1f] border border-gray-800 rounded-2xl p-6'>
-            <ProfileForm
-              form={form}
-              onFormChange={handleFormChange}
-              saving={saving}
-              hasChanges={hasChanges}
-              onCancel={handleCancel}
-              onSave={() => handleSaveProfile(showToast)}
-              profilePreview={profilePreview}
-              coverPreview={coverPreview}
-              profileInputRef={profileInputRef}
-              coverInputRef={coverInputRef}
-              onProfileImageChange={handleProfileImageChange}
-              onCoverImageChange={handleCoverImageChange}
-            />
-          </div>
+        <div className='flex-1 min-w-0'>
+          <ProfileForm
+            form={form}
+            onFormChange={handleFormChange}
+            saving={saving}
+            hasChanges={hasChanges}
+            onCancel={handleCancel}
+            onSave={() => handleSaveProfile(showToast)}
+            profilePreview={profilePreview}
+            coverPreview={coverPreview}
+            profileInputRef={profileInputRef}
+            coverInputRef={coverInputRef}
+            onProfileImageChange={handleProfileImageChange}
+            onCoverImageChange={handleCoverImageChange}
+          />
         </div>
       </div>
 

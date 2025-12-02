@@ -22,6 +22,7 @@ export {
   ShieldIcon,
   LogoutIcon,
   PencilIcon,
+  SettingsIcon,
   // Alert & Status Icons
   WarningIcon,
   CheckIcon,
@@ -36,6 +37,8 @@ export {
   EyeIcon,
   EyeOffIcon,
   LockIcon,
+  SaveIcon,
+  XIcon,
   // Profile-specific Icons
   ThreeDotsIcon,
   ThreeDotsVerticalIcon,
@@ -60,4 +63,10 @@ export {
   ClearIcon,
   UsersIcon,
   GlobeIcon,
+  // Academic & Document Icons
+  AcademicCapIcon,
+  DocumentTextIcon,
+  ImageIcon,
+  SparklesIcon,
 } from './icons';
+
