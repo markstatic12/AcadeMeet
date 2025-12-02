@@ -117,7 +117,7 @@ export const useSettingsPage = () => {
         program: form.program,
         bio: form.bio,
         yearLevel: form.yearLevel ? parseInt(form.yearLevel) : null,
-        profileImageUrl: profilePreview || null,
+        profilePic: profilePreview || null,
         coverImage: coverPreview || null,
       };
       

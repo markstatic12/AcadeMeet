@@ -214,8 +214,8 @@ export const ProfileCard = React.forwardRef(({ userData, onManageFollowers }, re
     <div ref={ref} className="relative bg-[#1f1f1f] border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
       {/* Profile Banner with Avatar */}
       <div className="relative h-44 overflow-visible">
-        {userData?.coverImage ? (
-          <img src={userData.coverImage} alt="cover" className="absolute inset-0 w-full h-full object-cover" />
+        {userData?.coverImage || userData?.coverImageUrl ? (
+          <img src={userData.coverImage || userData.coverImageUrl} alt="cover" className="absolute inset-0 w-full h-full object-cover" />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-[#3949ab] via-[#5e6bbf] to-[#7986cb]" />
         )}
@@ -224,8 +224,8 @@ export const ProfileCard = React.forwardRef(({ userData, onManageFollowers }, re
         
         <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 z-10">
           <div className="w-24 h-24 bg-[#0f0f0f] rounded-full p-1 overflow-hidden ring-4 ring-[#1f1f1f]">
-            {userData?.profilePic ? (
-              <img src={userData.profilePic} alt="avatar" className="w-full h-full rounded-full object-cover" />
+            {userData?.profilePic || userData?.profileImageUrl ? (
+              <img src={userData.profilePic || userData.profileImageUrl} alt="avatar" className="w-full h-full rounded-full object-cover" />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center">
                 <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
