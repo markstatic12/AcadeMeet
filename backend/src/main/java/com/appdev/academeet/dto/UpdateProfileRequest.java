@@ -3,8 +3,10 @@ package com.appdev.academeet.dto;
 public class UpdateProfileRequest {
     private String name;
     private String school;
+    private String program;
     private String studentId;
     private String bio;
+    private Integer yearLevel;
     private String profilePic; // allow updating avatar as data URL or URL
     private String coverImage; // allow updating cover image
     
@@ -12,11 +14,13 @@ public class UpdateProfileRequest {
     public UpdateProfileRequest() {
     }
     
-    public UpdateProfileRequest(String name, String school, String studentId, String bio) {
+    public UpdateProfileRequest(String name, String school, String program, String studentId, String bio, Integer yearLevel) {
         this.name = name;
         this.school = school;
+        this.program = program;
         this.studentId = studentId;
         this.bio = bio;
+        this.yearLevel = yearLevel;
     }
     
     // Getters and Setters
@@ -36,6 +40,14 @@ public class UpdateProfileRequest {
         this.school = school;
     }
     
+    public String getProgram() {
+        return program;
+    }
+    
+    public void setProgram(String program) {
+        this.program = program;
+    }
+    
     public String getStudentId() {
         return studentId;
     }
@@ -50,6 +62,14 @@ public class UpdateProfileRequest {
     
     public void setBio(String bio) {
         this.bio = bio;
+    }
+
+    public Integer getYearLevel() {
+        return yearLevel;
+    }
+
+    public void setYearLevel(Integer yearLevel) {
+        this.yearLevel = yearLevel;
     }
 
     public String getProfilePic() {

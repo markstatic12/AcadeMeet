@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { UserCircle, PencilIcon } from '../../icons';
+import { UserCircle, PencilIcon, EditIcon } from '../../icons';
 
 
 
 // ===== FORM FIELD =====
 
-export const FormField = ({ label, type = 'text', value, onChange, placeholder, required = false, rows }) => {
+export const FormField = ({ label, type = 'text', value, onChange, placeholder, required = false, rows, showEditIcon = true }) => {
   const isTextarea = type === 'textarea';
   
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-300 mb-2">
+      <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
         {label}
         {required && <span className="text-red-400"> *</span>}
+        {showEditIcon && <EditIcon className="w-3.5 h-3.5 text-gray-500" />}
       </label>
       {isTextarea ? (
         <textarea
@@ -106,6 +107,7 @@ const ProfileForm = ({
   form,
   onFormChange,
   saving,
+  hasChanges,
   onCancel,
   onSave,
   profilePreview,
@@ -132,14 +134,59 @@ const ProfileForm = ({
             placeholder="Your name"
           />
           
-        
-          
-          <FormField
-            label="School ID"
-            value={form.studentId}
-            onChange={(e) => onFormChange('studentId', e.target.value)}
-            placeholder="ID number"
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+              Program
+              <EditIcon className="w-3.5 h-3.5 text-gray-500" />
+            </label>
+            <select
+              value={form.program || ''}
+              onChange={(e) => onFormChange('program', e.target.value)}
+              className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none cursor-pointer transition-all hover:border-gray-600"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                backgroundPosition: 'right 0.75rem center',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: '1.5em 1.5em',
+                paddingRight: '2.5rem'
+              }}
+            >
+              <option value="" disabled className="bg-gray-800 text-gray-400">Select program</option>
+              <option value="BSCS" className="bg-gray-800 text-white hover:bg-indigo-600">BSCS</option>
+              <option value="BSIT" className="bg-gray-800 text-white hover:bg-indigo-600">BSIT</option>
+              <option value="BSCE" className="bg-gray-800 text-white hover:bg-indigo-600">BSCE</option>
+              <option value="BSCPE" className="bg-gray-800 text-white hover:bg-indigo-600">BSCpE</option>
+              <option value="BSEE" className="bg-gray-800 text-white hover:bg-indigo-600">BSEE</option>
+              <option value="BSME" className="bg-gray-800 text-white hover:bg-indigo-600">BSME</option>
+              <option value="BSA" className="bg-gray-800 text-white hover:bg-indigo-600">BSA</option>
+              <option value="BSBA" className="bg-gray-800 text-white hover:bg-indigo-600">BSBA</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+              Year Level
+              <EditIcon className="w-3.5 h-3.5 text-gray-500" />
+            </label>
+            <select
+              value={form.yearLevel || ''}
+              onChange={(e) => onFormChange('yearLevel', parseInt(e.target.value))}
+              className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none cursor-pointer transition-all hover:border-gray-600"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                backgroundPosition: 'right 0.75rem center',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: '1.5em 1.5em',
+                paddingRight: '2.5rem'
+              }}
+            >
+              <option value="" disabled className="bg-gray-800 text-gray-400">Select year level</option>
+              <option value="1" className="bg-gray-800 text-white hover:bg-indigo-600">1st Year</option>
+              <option value="2" className="bg-gray-800 text-white hover:bg-indigo-600">2nd Year</option>
+              <option value="3" className="bg-gray-800 text-white hover:bg-indigo-600">3rd Year</option>
+              <option value="4" className="bg-gray-800 text-white hover:bg-indigo-600">4th Year</option>
+            </select>
+          </div>
 
           
           <FormField
@@ -154,16 +201,16 @@ const ProfileForm = ({
           {/* Action buttons */}
           <div className="flex gap-3">
             <button
-              disabled={saving}
+              disabled={saving || !hasChanges}
               onClick={onCancel}
-              className="flex-1 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-medium transition-colors disabled:opacity-50"
+              className="flex-1 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
-              disabled={saving}
+              disabled={saving || !hasChanges}
               onClick={onSave}
-              className="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors shadow-lg shadow-indigo-500/20 disabled:opacity-50"
+              className="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? 'Saving...' : 'Save Changes'}
             </button>

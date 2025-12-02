@@ -15,16 +15,44 @@ export const useSettingsPage = () => {
     name: '',
     school: '',
     program: '',
-    studentId: '',
     phone: '',
     bio: '',
+    yearLevel: '',
+  });
+
+  // Track original form values to detect changes
+  const [originalForm, setOriginalForm] = useState({
+    name: '',
+    school: '',
+    program: '',
+    phone: '',
+    bio: '',
+    yearLevel: '',
   });
 
   // Image previews
   const [profilePreview, setProfilePreview] = useState(null);
   const [coverPreview, setCoverPreview] = useState(null);
+  const [originalProfilePreview, setOriginalProfilePreview] = useState(null);
+  const [originalCoverPreview, setOriginalCoverPreview] = useState(null);
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
+
+  // Detect if form has changes
+  const hasChanges = () => {
+    const formChanged = Object.keys(form).some(key => {
+      // Convert both to strings for comparison to handle number/string differences
+      const current = String(form[key] || '');
+      const original = String(originalForm[key] || '');
+      return current !== original;
+    });
+    
+    const imagesChanged = 
+      profilePreview !== originalProfilePreview ||
+      coverPreview !== originalCoverPreview;
+    
+    return formChanged || imagesChanged;
+  };
 
   // Load student data from backend
   useEffect(() => {
@@ -33,17 +61,27 @@ export const useSettingsPage = () => {
       authFetch(`/users/${userId}`)
         .then(res => res.json())
         .then(s => {
+          console.log('Loaded user data:', s); // Debug log
           setStudent(s);
-          setForm({
+          
+          const loadedForm = {
             name: s.name || '',
             school: s.school || '',
-            program: s.program || 'BSIT',
-            studentId: s.studentId || '',
+            program: s.program || '',
             phone: s.phone || '',
             bio: s.bio || '',
-          });
-          setProfilePreview(s.profileImageUrl || null);
-          setCoverPreview(s.coverImage || null);
+            yearLevel: s.yearLevel || '',
+          };
+          
+          const loadedProfilePic = s.profileImageUrl || s.profilePic || null;
+          const loadedCoverImage = s.coverImage || null;
+          
+          setForm(loadedForm);
+          setOriginalForm(loadedForm);
+          setProfilePreview(loadedProfilePic);
+          setOriginalProfilePreview(loadedProfilePic);
+          setCoverPreview(loadedCoverImage);
+          setOriginalCoverPreview(loadedCoverImage);
         })
         .catch(err => console.error('Failed to load user', err));
     }
@@ -59,16 +97,9 @@ export const useSettingsPage = () => {
 
   const handleCancel = () => {
     if (student) {
-      setForm({
-        name: student.name || '',
-        school: student.school || '',
-        program: student.program || 'BSIT',
-        studentId: student.studentId || '',
-        phone: student.phone || '',
-        bio: student.bio || '',
-      });
-      setProfilePreview(student.profilePic || null);
-      setCoverPreview(student.coverImage || null);
+      setForm({ ...originalForm });
+      setProfilePreview(originalProfilePreview);
+      setCoverPreview(originalCoverPreview);
     }
   };
 
@@ -78,27 +109,55 @@ export const useSettingsPage = () => {
     
     try {
       setSaving(true);
+      
+      // Prepare data to send
+      const updateData = {
+        name: form.name,
+        school: form.school,
+        program: form.program,
+        bio: form.bio,
+        yearLevel: form.yearLevel ? parseInt(form.yearLevel) : null,
+        profileImageUrl: profilePreview || null,
+        coverImage: coverPreview || null,
+      };
+      
+      console.log('Sending update data:', updateData); // Debug log
+      
       const res = await authFetch(`/users/${userId}`, {
         method: 'PUT',
-        body: JSON.stringify({
-          name: form.name,
-          school: form.school,
-          studentId: form.studentId,
-          bio: form.bio,
-          profileImageUrl: profilePreview || null,
-          coverImage: coverPreview || null,
-        }),
+        body: JSON.stringify(updateData),
       });
       
       const data = await res.json();
+      console.log('Update response:', data); // Debug log
       
       // Reload user data
       const updatedUser = await authFetch(`/users/${userId}`).then(r => r.json());
       setStudent(updatedUser);
       
-      showToast(data?.message || 'Profile updated', 'success');
+      // Update original form values to new values
+      const newFormValues = {
+        name: updatedUser.name || '',
+        school: updatedUser.school || '',
+        program: updatedUser.program || '',
+        phone: updatedUser.phone || '',
+        bio: updatedUser.bio || '',
+        yearLevel: updatedUser.yearLevel || '',
+      };
+      
+      const newProfilePic = updatedUser.profileImageUrl || updatedUser.profilePic || null;
+      const newCoverImage = updatedUser.coverImage || null;
+      
+      setForm(newFormValues);
+      setOriginalForm(newFormValues);
+      setProfilePreview(newProfilePic);
+      setOriginalProfilePreview(newProfilePic);
+      setCoverPreview(newCoverImage);
+      setOriginalCoverPreview(newCoverImage);
+      
+      showToast(data?.message || 'Profile updated successfully', 'success');
     } catch (e) {
-      console.error(e);
+      console.error('Update error:', e);
       showToast('Failed to update profile', 'error');
     } finally {
       setSaving(false);
@@ -139,6 +198,7 @@ export const useSettingsPage = () => {
     coverPreview,
     profileInputRef,
     coverInputRef,
+    hasChanges: hasChanges(),
     // Setters
     setShowLogoutConfirm,
     // Handlers
