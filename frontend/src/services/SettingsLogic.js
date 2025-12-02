@@ -13,9 +13,7 @@ export const useSettingsPage = () => {
   // Profile form state
   const [form, setForm] = useState({
     name: '',
-    school: '',
     program: '',
-    phone: '',
     bio: '',
     yearLevel: '',
   });
@@ -23,9 +21,7 @@ export const useSettingsPage = () => {
   // Track original form values to detect changes
   const [originalForm, setOriginalForm] = useState({
     name: '',
-    school: '',
     program: '',
-    phone: '',
     bio: '',
     yearLevel: '',
   });
@@ -66,14 +62,12 @@ export const useSettingsPage = () => {
           
           const loadedForm = {
             name: s.name || '',
-            school: s.school || '',
             program: s.program || '',
-            phone: s.phone || '',
             bio: s.bio || '',
             yearLevel: s.yearLevel || '',
           };
           
-          const loadedProfilePic = s.profileImageUrl || s.profilePic || null;
+          const loadedProfilePic = s.profilePic || null;
           const loadedCoverImage = s.coverImage || null;
           
           setForm(loadedForm);
@@ -113,40 +107,54 @@ export const useSettingsPage = () => {
       // Prepare data to send
       const updateData = {
         name: form.name,
-        school: form.school,
         program: form.program,
         bio: form.bio,
         yearLevel: form.yearLevel ? parseInt(form.yearLevel) : null,
-        profilePic: profilePreview || null,
-        coverImage: coverPreview || null,
+        profilePic: profilePreview,
+        coverImage: coverPreview,
       };
       
-      console.log('Sending update data:', updateData); // Debug log
+      console.log('Sending update data:', {
+        ...updateData,
+        profilePic: updateData.profilePic ? `[Base64 image: ${updateData.profilePic.substring(0, 50)}...]` : null,
+        coverImage: updateData.coverImage ? `[Base64 image: ${updateData.coverImage.substring(0, 50)}...]` : null,
+      });
       
       const res = await authFetch(`/users/${userId}`, {
         method: 'PUT',
         body: JSON.stringify(updateData),
       });
       
+      if (!res.ok) {
+        throw new Error(`Server responded with ${res.status}`);
+      }
+      
       const data = await res.json();
-      console.log('Update response:', data); // Debug log
+      console.log('Update response:', data);
       
-      // Reload user data
-      const updatedUser = await authFetch(`/users/${userId}`).then(r => r.json());
-      setStudent(updatedUser);
+      // Use the response data directly instead of reloading
+      setStudent(data);
       
-      // Update original form values to new values
+      // Update form values from response
       const newFormValues = {
-        name: updatedUser.name || '',
-        school: updatedUser.school || '',
-        program: updatedUser.program || '',
-        phone: updatedUser.phone || '',
-        bio: updatedUser.bio || '',
-        yearLevel: updatedUser.yearLevel || '',
+        name: data.name || '',
+        program: data.program || '',
+        bio: data.bio || '',
+        yearLevel: data.yearLevel || '',
       };
       
-      const newProfilePic = updatedUser.profileImageUrl || updatedUser.profilePic || null;
-      const newCoverImage = updatedUser.coverImage || null;
+      const newProfilePic = data.profilePic || null;
+      const newCoverImage = data.coverImage || null;
+      
+      console.log('Setting new images:', {
+        profilePic: newProfilePic ? `[Image: ${newProfilePic.substring(0, 50)}...]` : null,
+        coverImage: newCoverImage ? `[Image: ${newCoverImage.substring(0, 50)}...]` : null,
+      });
+      
+      console.log('Current previews before update:', {
+        profilePreview: profilePreview ? profilePreview.substring(0, 50) : null,
+        coverPreview: coverPreview ? coverPreview.substring(0, 50) : null,
+      });
       
       setForm(newFormValues);
       setOriginalForm(newFormValues);
@@ -154,6 +162,8 @@ export const useSettingsPage = () => {
       setOriginalProfilePreview(newProfilePic);
       setCoverPreview(newCoverImage);
       setOriginalCoverPreview(newCoverImage);
+      
+      console.log('Images updated successfully');
       
       showToast(data?.message || 'Profile updated successfully', 'success');
     } catch (e) {
@@ -167,8 +177,48 @@ export const useSettingsPage = () => {
   const handleProfileImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      console.log('Profile image selected:', file.name, file.size);
+      
+      // Check file size (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size should be less than 5MB');
+        return;
+      }
+      
       const reader = new FileReader();
-      reader.onload = (ev) => setProfilePreview(ev.target.result);
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          // Compress image to max 800x800 for profile
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          let width = img.width;
+          let height = img.height;
+          const maxSize = 800;
+          
+          if (width > height) {
+            if (width > maxSize) {
+              height = (height * maxSize) / width;
+              width = maxSize;
+            }
+          } else {
+            if (height > maxSize) {
+              width = (width * maxSize) / height;
+              height = maxSize;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          const compressedData = canvas.toDataURL('image/jpeg', 0.8);
+          console.log('Profile image compressed, original:', file.size, 'compressed:', compressedData.length);
+          setProfilePreview(compressedData);
+        };
+        img.src = ev.target.result;
+      };
       reader.readAsDataURL(file);
     }
   };
@@ -176,8 +226,41 @@ export const useSettingsPage = () => {
   const handleCoverImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      console.log('Cover image selected:', file.name, file.size);
+      
+      // Check file size (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size should be less than 5MB');
+        return;
+      }
+      
       const reader = new FileReader();
-      reader.onload = (ev) => setCoverPreview(ev.target.result);
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          // Compress image to max 1200px width for cover
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          let width = img.width;
+          let height = img.height;
+          const maxWidth = 1200;
+          
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          const compressedData = canvas.toDataURL('image/jpeg', 0.8);
+          console.log('Cover image compressed, original:', file.size, 'compressed:', compressedData.length);
+          setCoverPreview(compressedData);
+        };
+        img.src = ev.target.result;
+      };
       reader.readAsDataURL(file);
     }
   };

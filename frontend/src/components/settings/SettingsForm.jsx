@@ -1,105 +1,14 @@
-import React, { useState } from 'react';
-import { UserCircle, PencilIcon, EditIcon } from '../../icons';
+import React from 'react';
+import { EditIcon, UserIcon, AcademicCapIcon, CalendarIcon, DocumentTextIcon, SaveIcon, XIcon } from '../../icons';
+import { Input, Textarea, Select } from '../ui/Input';
+import { Button } from '../ui/Button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
+import { Divider } from '../ui/Divider';
+import { ProfileImageUpload, CoverImageUpload } from './ImageUploadSection';
 
 
 
-// ===== FORM FIELD =====
 
-export const FormField = ({ label, type = 'text', value, onChange, placeholder, required = false, rows, showEditIcon = true }) => {
-  const isTextarea = type === 'textarea';
-  
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-        {label}
-        {required && <span className="text-red-400"> *</span>}
-        {showEditIcon && <EditIcon className="w-3.5 h-3.5 text-gray-500" />}
-      </label>
-      {isTextarea ? (
-        <textarea
-          rows={rows || 4}
-          value={value}
-          onChange={onChange}
-          className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-          placeholder={placeholder}
-        />
-      ) : (
-        <input
-          type={type}
-          value={value}
-          onChange={onChange}
-          className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-          placeholder={placeholder}
-        />
-      )}
-    </div>
-  );
-};
-
-
-// ===== PROFILE PICTURE UPLOAD =====
-
-export const ProfilePictureUpload = ({ preview, inputRef, onChange }) => {
-  return (
-    <div>
-      <p className="text-gray-300 font-semibold mb-2">Profile Picture</p>
-      <div className="relative w-56 h-56">
-        <div className="absolute inset-4 bg-[#262626] rounded-full overflow-hidden flex items-center justify-center">
-          {preview ? (
-            <img src={preview} alt="profile" className="w-full h-full object-cover" />
-          ) : (
-            <UserCircle className="w-24 h-24 text-gray-500" />
-          )}
-        </div>
-        <button
-          onClick={() => inputRef.current?.click()}
-          title="Edit profile picture"
-          className="absolute bottom-4 right-4 w-10 h-10 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg ring-1 ring-white/20 flex items-center justify-center"
-        >
-          <PencilIcon className="w-4 h-4" />
-        </button>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={onChange}
-        />
-      </div>
-    </div>
-  );
-};
-
-
-// ===== COVER IMAGE UPLOAD =====
-
-export const CoverImageUpload = ({ preview, inputRef, onChange }) => {
-  return (
-    <div>
-      <p className="text-gray-300 font-semibold mb-2">Cover Image</p>
-      <div className="relative w-full max-w-md h-28 rounded-xl overflow-hidden bg-[#262626]">
-        {preview ? (
-          <img src={preview} alt="cover" className="w-full h-full object-cover" />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-700 via-indigo-500 to-indigo-300" />
-        )}
-        <button
-          onClick={() => inputRef.current?.click()}
-          className="absolute bottom-3 left-3 px-2 py-1 rounded-lg bg-indigo-600 text-white text-xs flex items-center gap-1"
-        >
-          <PencilIcon className="w-3 h-3" /> Edit
-        </button>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={onChange}
-        />
-      </div>
-    </div>
-  );
-};
 
 // ===== PROFILE FORM =====
 
@@ -118,121 +27,165 @@ const ProfileForm = ({
   onCoverImageChange,
 }) => {
   return (
-    <>
-      <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-bold text-white">Public Profile</h3>
-      </div>
-      <div className="h-px w-full bg-gray-700 my-4" />
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left column - Form fields */}
-        <div className="space-y-5">
-          <FormField
-            label="Name"
-            value={form.name}
-            onChange={(e) => onFormChange('name', e.target.value)}
-            placeholder="Your name"
-          />
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-              Program
-              <EditIcon className="w-3.5 h-3.5 text-gray-500" />
-            </label>
-            <select
-              value={form.program || ''}
-              onChange={(e) => onFormChange('program', e.target.value)}
-              className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none cursor-pointer transition-all hover:border-gray-600"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                backgroundPosition: 'right 0.75rem center',
-                backgroundRepeat: 'no-repeat',
-                backgroundSize: '1.5em 1.5em',
-                paddingRight: '2.5rem'
-              }}
-            >
-              <option value="" disabled className="bg-gray-800 text-gray-400">Select program</option>
-              <option value="BSCS" className="bg-gray-800 text-white hover:bg-indigo-600">BSCS</option>
-              <option value="BSIT" className="bg-gray-800 text-white hover:bg-indigo-600">BSIT</option>
-              <option value="BSCE" className="bg-gray-800 text-white hover:bg-indigo-600">BSCE</option>
-              <option value="BSCPE" className="bg-gray-800 text-white hover:bg-indigo-600">BSCpE</option>
-              <option value="BSEE" className="bg-gray-800 text-white hover:bg-indigo-600">BSEE</option>
-              <option value="BSME" className="bg-gray-800 text-white hover:bg-indigo-600">BSME</option>
-              <option value="BSA" className="bg-gray-800 text-white hover:bg-indigo-600">BSA</option>
-              <option value="BSBA" className="bg-gray-800 text-white hover:bg-indigo-600">BSBA</option>
-            </select>
+    <div className="space-y-4">
+      {/* Header Card with Action Buttons */}
+      <Card variant="glass" padding="default">
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <CardTitle icon={<UserIcon className="w-5 h-5" />}>
+              Public Profile
+            </CardTitle>
+            <CardDescription>
+              This information will be displayed on your profile and visible to other users
+            </CardDescription>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-              Year Level
-              <EditIcon className="w-3.5 h-3.5 text-gray-500" />
-            </label>
-            <select
-              value={form.yearLevel || ''}
-              onChange={(e) => onFormChange('yearLevel', parseInt(e.target.value))}
-              className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none cursor-pointer transition-all hover:border-gray-600"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                backgroundPosition: 'right 0.75rem center',
-                backgroundRepeat: 'no-repeat',
-                backgroundSize: '1.5em 1.5em',
-                paddingRight: '2.5rem'
-              }}
-            >
-              <option value="" disabled className="bg-gray-800 text-gray-400">Select year level</option>
-              <option value="1" className="bg-gray-800 text-white hover:bg-indigo-600">1st Year</option>
-              <option value="2" className="bg-gray-800 text-white hover:bg-indigo-600">2nd Year</option>
-              <option value="3" className="bg-gray-800 text-white hover:bg-indigo-600">3rd Year</option>
-              <option value="4" className="bg-gray-800 text-white hover:bg-indigo-600">4th Year</option>
-            </select>
-          </div>
-
-          
-          <FormField
-            label="Bio"
-            type="textarea"
-            rows={4}
-            value={form.bio}
-            onChange={(e) => onFormChange('bio', e.target.value)}
-            placeholder="Tell us something about yourself..."
-          />
-          
-          {/* Action buttons */}
-          <div className="flex gap-3">
-            <button
-              disabled={saving || !hasChanges}
+          <div className="flex gap-2.5 ml-4">
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={onCancel}
-              className="flex-1 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={saving || !hasChanges}
+              icon={XIcon}
             >
               Cancel
-            </button>
-            <button
-              disabled={saving || !hasChanges}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
               onClick={onSave}
-              className="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={saving || !hasChanges}
+              loading={saving}
+              icon={SaveIcon}
             >
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
+              Save Changes
+            </Button>
           </div>
         </div>
+        {hasChanges && (
+          <p className="text-xs text-amber-400 flex items-center gap-1.5 mt-3">
+            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            You have unsaved changes
+          </p>
+        )}
+      </Card>
 
-        {/* Right column - Avatar and cover */}
-        <div className="space-y-6">
-          <ProfilePictureUpload
-            preview={profilePreview}
-            inputRef={profileInputRef}
-            onChange={onProfileImageChange}
-          />
-          
-          <CoverImageUpload
-            preview={coverPreview}
-            inputRef={coverInputRef}
-            onChange={onCoverImageChange}
-          />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Profile Information Card */}
+        <div className="lg:col-span-2 flex">
+          <Card variant="elevated" padding="default" className="w-full">
+            <CardContent>
+              <h4 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+                <EditIcon className="w-4 h-4 text-indigo-400" />
+                Personal Information
+              </h4>
+              
+              <div className="space-y-3.5">
+                <div>
+                  <label className="block text-xs font-medium text-gray-200 mb-1.5 flex items-center gap-1.5">
+                    <UserIcon className="w-3.5 h-3.5 text-indigo-400" />
+                    Full Name
+                  </label>
+                  <Input
+                    value={form.name}
+                    onChange={(e) => onFormChange('name', e.target.value)}
+                    placeholder="Enter your full name"
+                    required
+                  />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-200 mb-1.5 flex items-center gap-1.5">
+                      <AcademicCapIcon className="w-3.5 h-3.5 text-indigo-400" />
+                      Program
+                    </label>
+                    <Select
+                      value={form.program || ''}
+                      onChange={(e) => onFormChange('program', e.target.value)}
+                      required
+                    >
+                      <option value="" disabled>Select program</option>
+                      <option value="BSCS">BSCS - Computer Science</option>
+                      <option value="BSIT">BSIT - Information Technology</option>
+                      <option value="BSCE">BSCE - Civil Engineering</option>
+                      <option value="BSCPE">BSCpE - Computer Engineering</option>
+                      <option value="BSEE">BSEE - Electrical Engineering</option>
+                      <option value="BSME">BSME - Mechanical Engineering</option>
+                      <option value="BSA">BSA - Accountancy</option>
+                      <option value="BSBA">BSBA - Business Administration</option>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-200 mb-1.5 flex items-center gap-1.5">
+                      <CalendarIcon className="w-3.5 h-3.5 text-indigo-400" />
+                      Year Level
+                    </label>
+                    <Select
+                      value={form.yearLevel || ''}
+                      onChange={(e) => onFormChange('yearLevel', parseInt(e.target.value))}
+                      required
+                    >
+                      <option value="" disabled>Select year level</option>
+                      <option value="1">1st Year</option>
+                      <option value="2">2nd Year</option>
+                      <option value="3">3rd Year</option>
+                      <option value="4">4th Year</option>
+                    </Select>
+                  </div>
+                </div>
+                
+                <Divider className="my-3" />
+                
+                <div>
+                  <label className="block text-xs font-medium text-gray-200 mb-1.5 flex items-center gap-1.5">
+                    <DocumentTextIcon className="w-3.5 h-3.5 text-indigo-400" />
+                    Bio
+                  </label>
+                  <Textarea
+                    rows={5}
+                    value={form.bio}
+                    onChange={(e) => onFormChange('bio', e.target.value)}
+                    placeholder="Tell us something about yourself..."
+                  />
+                  <p className="text-[10px] text-gray-400 mt-1">Write a short bio to let others know more about you</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Image Uploads Card */}
+        <div className="lg:col-span-1 flex">
+          <Card variant="elevated" padding="default" className="w-full">
+            <CardContent>
+              <h4 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+                <EditIcon className="w-4 h-4 text-indigo-400" />
+                Profile Images
+              </h4>
+              
+              <div className="space-y-4">
+                <ProfileImageUpload
+                  preview={profilePreview}
+                  inputRef={profileInputRef}
+                  onChange={onProfileImageChange}
+                />
+                
+                <Divider />
+                
+                <CoverImageUpload
+                  preview={coverPreview}
+                  inputRef={coverInputRef}
+                  onChange={onCoverImageChange}
+                />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
