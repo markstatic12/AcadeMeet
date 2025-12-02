@@ -2,7 +2,7 @@ import React from 'react';
 
 const FormOptions = () => {
   return (
-    <div className="flex items-center justify-between text-sm pt-1">
+    <div className="flex items-center justify-start text-sm pt-1">
       <label className="flex items-center gap-2 cursor-pointer group">
         <input 
           type="checkbox" 
@@ -12,12 +12,6 @@ const FormOptions = () => {
           Remember me
         </span>
       </label>
-      <a 
-        href="#" 
-        className="text-indigo-400 hover:text-indigo-300 transition-colors font-medium"
-      >
-        Forgot password?
-      </a>
     </div>
   );
 };

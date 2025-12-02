@@ -6,7 +6,6 @@ import { authFetch } from './apiHelper';
 export const useSettingsPage = () => {
   const navigate = useNavigate();
   const { getUserId, logout } = useUser();
-  const [active, setActive] = useState('profile'); // 'profile' | 'password'
   const [saving, setSaving] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [student, setStudent] = useState(null);
@@ -132,7 +131,6 @@ export const useSettingsPage = () => {
 
   return {
     // State
-    active,
     saving,
     showLogoutConfirm,
     student,
@@ -142,7 +140,6 @@ export const useSettingsPage = () => {
     profileInputRef,
     coverInputRef,
     // Setters
-    setActive,
     setShowLogoutConfirm,
     // Handlers
     handleBack,
@@ -152,79 +149,5 @@ export const useSettingsPage = () => {
     handleProfileImageChange,
     handleCoverImageChange,
     handleLogout,
-  };
-};
-
-// Password Reset Hook
-export const usePasswordReset = () => {
-  const { getUserId } = useUser();
-  const [curr, setCurr] = useState('');
-  const [next, setNext] = useState('');
-  const [confirm, setConfirm] = useState('');
-  const [busy, setBusy] = useState(false);
-
-  const reset = () => {
-    setCurr('');
-    setNext('');
-    setConfirm('');
-  };
-
-  const validatePassword = (showToast) => {
-    if (next.length < 6) {
-      showToast('New password must be at least 6 characters', 'error');
-      return false;
-    }
-    if (next !== confirm) {
-      showToast('New password and confirmation do not match', 'error');
-      return false;
-    }
-    const userId = getUserId();
-    if (!userId) {
-      showToast('No user', 'error');
-      return false;
-    }
-    return true;
-  };
-
-  const submit = async (showToast) => {
-    if (!validatePassword(showToast)) return;
-    const userId = getUserId();
-
-    try {
-      setBusy(true);
-      const res = await authFetch('/auth/change-password', {
-        method: 'POST',
-        body: JSON.stringify({
-          userId: userId,
-          currentPassword: curr,
-          newPassword: next,
-        }),
-      });
-      
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.message || 'Failed to change password');
-      }
-      
-      showToast(data.message || 'Password changed successfully', 'success');
-      reset();
-    } catch (err) {
-      console.error('Password change error:', err);
-      showToast(err.message || 'Failed to change password', 'error');
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return {
-    curr,
-    next,
-    confirm,
-    busy,
-    setCurr,
-    setNext,
-    setConfirm,
-    reset,
-    submit,
   };
 };

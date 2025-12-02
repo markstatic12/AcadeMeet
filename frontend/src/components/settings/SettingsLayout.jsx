@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BackIcon, UserIcon, ShieldIcon, LogoutIcon, WarningIcon } from '../../icons';
+import { BackIcon, UserIcon, LogoutIcon, WarningIcon } from '../../icons';
 
 // ===== SETTINGS HEADER =====
 
@@ -20,34 +20,15 @@ export const SettingsHeader = ({ onBack }) => {
 
 // ===== SETTINGS SIDEBAR =====
 
-export const SettingsSidebar = ({ active, onTabChange, onLogoutClick }) => {
+export const SettingsSidebar = ({ onLogoutClick }) => {
   return (
     <div className="w-72">
       <h2 className="text-3xl font-bold text-white mb-6">Settings</h2>
       <div className="space-y-3">
-        <button
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border ${
-            active === 'profile'
-              ? 'bg-gray-800/70 border-indigo-600 text-white'
-              : 'bg-[#1f1f1f] border-gray-800 text-gray-300 hover:bg-gray-800/60'
-          }`}
-          onClick={() => onTabChange('profile')}
-        >
+        <div className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border bg-gray-800/70 border-indigo-600 text-white">
           <UserIcon className="w-4 h-4" />
           <span className="text-sm">Public Profile</span>
-        </button>
-        
-        <button
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border ${
-            active === 'password'
-              ? 'bg-gray-800/70 border-indigo-600 text-white'
-              : 'bg-[#1f1f1f] border-gray-800 text-gray-300 hover:bg-gray-800/60'
-          }`}
-          onClick={() => onTabChange('password')}
-        >
-          <ShieldIcon className="w-4 h-4" />
-          <span className="text-sm">Password Reset</span>
-        </button>
+        </div>
         
         <button
           onClick={onLogoutClick}
