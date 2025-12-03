@@ -47,7 +47,7 @@ public class UserService {
     
     // Profile Search
     public List<User> searchUsersByName(String keyword) {
-        return userRepository.findByFullnameContaining(keyword);
+        return userRepository.findByNameContaining(keyword);
     }
     
     public List<User> getUsersByProgram(String program) {

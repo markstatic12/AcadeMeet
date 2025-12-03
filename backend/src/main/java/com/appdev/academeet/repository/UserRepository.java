@@ -18,5 +18,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Profile Search
     Optional<User> findByName(String name);
     List<User> findByProgram(String program);
-    List<User> findByFullnameContaining(String keyword);
+    List<User> findByNameContaining(String keyword);
 }
