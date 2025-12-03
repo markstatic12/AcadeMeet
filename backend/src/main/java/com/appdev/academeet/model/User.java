@@ -29,8 +29,8 @@ public class User {
     @Column(name = "year_level")
     private Integer yearLevel;
 
-    @Column(name = "school_id", length = 45)
-    private String school; 
+    @Column(name = "student_id", unique = true, length = 45)
+    private String studentId; 
 
     @Column(name = "phone_number", length = 45)
     private String phoneNumber;
@@ -119,12 +119,21 @@ public class User {
         this.yearLevel = yearLevel;
     }
 
-    public String getSchool() {
-        return school;
+    public String getStudentId() {
+        return studentId;
     }
 
-    public void setSchool(String school) {
-        this.school = school;
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
+
+    // Alias for fullname (used in repositories)
+    public String getFullname() {
+        return name;
+    }
+
+    public void setFullname(String fullname) {
+        this.name = fullname;
     }
 
     public String getPhoneNumber() {

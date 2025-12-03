@@ -2,7 +2,6 @@ package com.appdev.academeet.dto;
 
 public class UpdateProfileRequest {
     private String name;
-    private String school;
     private String program;
     private String studentId;
     private String bio;
@@ -14,9 +13,8 @@ public class UpdateProfileRequest {
     public UpdateProfileRequest() {
     }
     
-    public UpdateProfileRequest(String name, String school, String program, String studentId, String bio, Integer yearLevel) {
+    public UpdateProfileRequest(String name, String program, String studentId, String bio, Integer yearLevel) {
         this.name = name;
-        this.school = school;
         this.program = program;
         this.studentId = studentId;
         this.bio = bio;
@@ -30,14 +28,6 @@ public class UpdateProfileRequest {
     
     public void setName(String name) {
         this.name = name;
-    }
-    
-    public String getSchool() {
-        return school;
-    }
-    
-    public void setSchool(String school) {
-        this.school = school;
     }
     
     public String getProgram() {

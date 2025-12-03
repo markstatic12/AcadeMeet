@@ -53,8 +53,7 @@ public class UserController {
             response.put("email", user.getEmail());
             response.put("program", user.getProgram());
             response.put("yearLevel", user.getYearLevel());
-            response.put("school", user.getSchool());
-            response.put("studentId", null);
+            response.put("studentId", user.getStudentId());
             response.put("bio", user.getBio());
             response.put("profilePic", user.getProfileImageUrl());
             response.put("coverImage", user.getCoverImageUrl());
@@ -80,8 +79,7 @@ public class UserController {
             response.put("email", user.getEmail());
             response.put("program", user.getProgram());
             response.put("yearLevel", user.getYearLevel());
-            response.put("school", user.getSchool());
-            response.put("studentId", null);
+            response.put("studentId", user.getStudentId());
             response.put("bio", user.getBio());
             response.put("profilePic", user.getProfileImageUrl());
             response.put("coverImage", user.getCoverImageUrl());
@@ -106,13 +104,12 @@ public class UserController {
             if (request.getName() != null && !request.getName().trim().isEmpty()) {
                 user.setName(request.getName().trim());
             }
-            if (request.getSchool() != null) {
-                user.setSchool(request.getSchool().trim());
+            if (request.getStudentId() != null && !request.getStudentId().trim().isEmpty()) {
+                user.setStudentId(request.getStudentId().trim());
             }
             if (request.getProgram() != null && !request.getProgram().trim().isEmpty()) {
                 user.setProgram(request.getProgram().trim());
             }
-            // studentId is not part of the SQL-backed User model; ignore if provided
             if (request.getBio() != null) {
                 user.setBio(request.getBio().trim());
             }
@@ -136,8 +133,7 @@ public class UserController {
             response.put("email", updatedUser.getEmail());
             response.put("program", updatedUser.getProgram());
             response.put("yearLevel", updatedUser.getYearLevel());
-            response.put("school", updatedUser.getSchool());
-            response.put("studentId", null);
+            response.put("studentId", updatedUser.getStudentId());
             response.put("bio", updatedUser.getBio());
             response.put("profilePic", updatedUser.getProfileImageUrl());
             response.put("coverImage", updatedUser.getCoverImageUrl());
