@@ -1,41 +1,68 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import DashboardLayout from '../components/layout/DashboardLayout';
+import { useParams } from 'react-router-dom';
+import PageHeader from '../components/common/PageHeader';
+import SessionHeader, { DetailsPanel, DescriptionPanel } from '../components/sessions/SessionForm';
+import { useEditSessionForm } from '../services/SessionLogic';
+import '../styles/createSession/CreateSessionPage.css';
 
 const EditSessionPage = () => {
   const { sessionId } = useParams();
-  const navigate = useNavigate();
+  const {
+    sessionData,
+    loading,
+    isSubmitting,
+    handleChange,
+    handlePasswordChange,
+    handleParticipantsChange,
+    handleSubmit,
+    handleBack
+  } = useEditSessionForm(sessionId);
 
-  const handleBack = () => {
-    navigate(`/session/${sessionId}`);
-  };
-
-  return (
-    <DashboardLayout>
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Session
-          </button>
-        </div>
-
-        <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6 text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">Edit Session</h2>
-          <p className="text-gray-300 mb-6">
-            Session editing functionality coming soon...
-          </p>
-          <p className="text-gray-400 text-sm">
-            Session ID: {sessionId}
-          </p>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
+        <div className="relative z-10 p-8">
+          <div className="flex items-center justify-center min-h-96">
+            <div className="text-white">Loading session...</div>
+          </div>
         </div>
       </div>
-    </DashboardLayout>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
+      <div className="relative z-10 p-8 animate-fadeIn">
+        <form onSubmit={handleSubmit}>
+          <PageHeader 
+            onBack={handleBack} 
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+            showSubmit={true}
+            submitText="Save Changes"
+          />
+
+          <SessionHeader
+            title={sessionData.title}
+            onChange={handleChange}
+          />
+
+          <div className="grid grid-cols-3 gap-8 mt-6">
+            <DetailsPanel
+              sessionData={sessionData}
+              onChange={handleChange}
+              onPasswordChange={handlePasswordChange}
+              onParticipantsChange={handleParticipantsChange}
+            />
+
+            <DescriptionPanel
+              value={sessionData.description}
+              onChange={handleChange}
+            />
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 
