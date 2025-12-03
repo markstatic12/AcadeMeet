@@ -19,9 +19,9 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     Page<Session> findBySessionStatus(SessionStatus status, Pageable pageable);
     
     // Search/Filter
-    Page<Session> findByTopicTitleContainingAndSessionStatus(String keyword, SessionStatus status, Pageable pageable);
+    Page<Session> findByTitleContainingAndSessionStatus(String keyword, SessionStatus status, Pageable pageable);
     List<Session> findByStartTimeBetween(LocalDateTime start, LocalDateTime end);
     
     // Additional useful methods
-    Page<Session> findByTopicTitleContaining(String keyword, Pageable pageable);
+    Page<Session> findByTitleContaining(String keyword, Pageable pageable);
 }

@@ -172,9 +172,9 @@ public class SessionService {
         Page<Session> sessions;
         
         if (keyword != null && !keyword.trim().isEmpty() && status != null) {
-            sessions = sessionRepository.findByTopicTitleContainingAndSessionStatus(keyword, status, pageable);
+            sessions = sessionRepository.findByTitleContainingAndSessionStatus(keyword, status, pageable);
         } else if (keyword != null && !keyword.trim().isEmpty()) {
-            sessions = sessionRepository.findByTopicTitleContaining(keyword, pageable);
+            sessions = sessionRepository.findByTitleContaining(keyword, pageable);
         } else if (status != null) {
             sessions = sessionRepository.findBySessionStatus(status, pageable);
         } else {
