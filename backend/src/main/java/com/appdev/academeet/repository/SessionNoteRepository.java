@@ -17,16 +17,16 @@ public interface SessionNoteRepository extends JpaRepository<SessionNote, String
     /**
      * Get all notes linked to a specific session.
      */
-    List<SessionNote> findBySession_SessionId(Long sessionId);
+    List<SessionNote> findBySession_Id(Long sessionId);
     
     /**
      * Count notes for a specific session.
      * Essential for enforcing the "maximum of 3 notes" business rule.
      */
-    long countBySession_SessionId(Long sessionId);
+    long countBySession_Id(Long sessionId);
     
     /**
      * Delete all notes for a specific session.
      */
-    void deleteBySession_SessionId(Long sessionId);
+    void deleteBySession_Id(Long sessionId);
 }

@@ -48,7 +48,7 @@ public class SessionNoteService {
                 .orElseThrow(() -> new RuntimeException("Session not found with id: " + sessionId));
         
         // Business Rule 1: Check note limit
-        long currentNoteCount = sessionNoteRepository.countBySession_SessionId(sessionId);
+        long currentNoteCount = sessionNoteRepository.countBySession_Id(sessionId);
         if (currentNoteCount >= MAX_NOTES_PER_SESSION) {
             throw new IllegalStateException("Cannot add more than " + MAX_NOTES_PER_SESSION + " notes to a session");
         }
@@ -95,7 +95,7 @@ public class SessionNoteService {
             throw new SecurityException("Only the host or participants can view notes for this session");
         }
         
-        return sessionNoteRepository.findBySession_SessionId(sessionId);
+        return sessionNoteRepository.findBySession_Id(sessionId);
     }
 
     /**
@@ -124,7 +124,7 @@ public class SessionNoteService {
      * Get the count of notes for a session.
      */
     public long getNoteCount(Long sessionId) {
-        return sessionNoteRepository.countBySession_SessionId(sessionId);
+        return sessionNoteRepository.countBySession_Id(sessionId);
     }
 
     /**
@@ -132,6 +132,6 @@ public class SessionNoteService {
      */
     @Transactional
     public void deleteAllNotesForSession(Long sessionId) {
-        sessionNoteRepository.deleteBySession_SessionId(sessionId);
+        sessionNoteRepository.deleteBySession_Id(sessionId);
     }
 }
