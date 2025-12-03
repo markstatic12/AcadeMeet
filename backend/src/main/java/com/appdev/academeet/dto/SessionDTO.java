@@ -71,10 +71,16 @@ public class SessionDTO {
             this.createdBy = null;
         }
         
-        // Date and location
-        this.month = session.getMonth();
-        this.day = session.getDay();
-        this.year = session.getYear();
+        // Date and location - extract from startTime if available
+        if (session.getStartTime() != null) {
+            this.month = String.valueOf(session.getStartTime().getMonthValue());
+            this.day = String.valueOf(session.getStartTime().getDayOfMonth());
+            this.year = String.valueOf(session.getStartTime().getYear());
+        } else {
+            this.month = null;
+            this.day = null;
+            this.year = null;
+        }
         this.location = session.getLocation();
         
         // Session settings
