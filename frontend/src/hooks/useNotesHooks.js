@@ -7,7 +7,6 @@ const API_BASE_URL = 'http://localhost:8080/api';
 export const useCreateNotePage = () => {
   const navigate = useNavigate();
   const editorRef = useRef(null); 
-  const { getUserId } = useUser();
 
   const [noteData, setNoteData] = useState({
     title: '',
@@ -17,14 +16,15 @@ export const useCreateNotePage = () => {
   const [userName, setUserName] = useState('');
 
   useEffect(() => {
-    const userId = getUserId();
-    if (userId) {
-      fetch(`${API_BASE_URL}/users/${userId}`) 
-        .then(res => res.json())
-        .then(data => setUserName(data.name || ''))
-        .catch(err => console.error('Failed to load user', err));
-    }
-  }, [getUserId]);
+    fetch(`${API_BASE_URL}/users/me`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+      .then(res => res.json())
+      .then(data => setUserName(data.name || ''))
+      .catch(err => console.error('Failed to load user', err));
+  }, []);
 
   const handleInputChange = (e) => {
     const name = e?.target?.name ?? e?.name;
@@ -111,9 +111,8 @@ export const useCreateNotePage = () => {
 
   const handleSave = () => {
     const html = editorRef.current?.innerHTML || '';
-    const userId = getUserId();
     
-    noteService.createNote({ title: noteData.title, content: html, userId })
+    noteService.createNote({ title: noteData.title, content: html })
       .then(() => {
         navigate('/profile'); 
       })
@@ -129,7 +128,6 @@ export const useCreateNotePage = () => {
     editorRef,
     noteData,
     userName,
-    getUserId,
     handleInputChange,
     applyFormatting,
     applyLink,

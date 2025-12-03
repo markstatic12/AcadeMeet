@@ -154,7 +154,6 @@ export const TrashedNoteCard = ({ note, onRestore }) => {
 // ===== NOTES CONTENT =====
 
 export const NotesContent = ({ notesData, openNoteMenuId, onCreateNote, onMenuToggle, onToggleFavourite, onArchive, onDelete }) => {
-  const { getUserId } = useUser();
   const [isDragActive, setIsDragActive] = useState(false);
   const dragCounter = useRef(0);
 
@@ -194,8 +193,7 @@ export const NotesContent = ({ notesData, openNoteMenuId, onCreateNote, onMenuTo
     if (files && files.length > 0) {
       const file = files[0];
       try {
-        const userId = getUserId();
-        const created = await noteService.uploadFileNote(file, { title: file.name }, userId);
+        const created = await noteService.uploadFileNote(file, { title: file.name });
         if (typeof onCreateNote === 'function') {
           onCreateNote(created);
         } else {

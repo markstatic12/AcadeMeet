@@ -120,14 +120,10 @@ export const noteService = {
 
   /**
    * Creates a new note.
-   * @param {object} params - Note details including userId.
+   * @param {object} params - Note details.
    * @returns {Promise<object>} The created note.
    */
-  async createNote({ title, content, tagIds = [], userId, sessionIds = [] }) {
-    if (!userId) {
-      throw new Error('User ID is required to create a note');
-    }
-
+  async createNote({ title, content, tagIds = [], sessionIds = [] }) {
     const payload = {
       title: title || 'Untitled Note',
       type: 'RICHTEXT',
@@ -138,7 +134,6 @@ export const noteService = {
 
     const response = await authFetch(API_BASE_URL, {
       method: 'POST',
-      headers: buildHeaders(userId),
       body: JSON.stringify(payload),
     });
 
@@ -305,14 +300,9 @@ export const noteService = {
    * Uploads a file and creates a FILE type note.
    * @param {File} file - The file to upload.
    * @param {object} options - Additional options (title, tagIds).
-   * @param {number} userId - The ID of the user uploading the file.
    * @returns {Promise<object>} The created note.
    */
-  async uploadFileNote(file, options = {}, userId) {
-    if (!userId) {
-      throw new Error('User ID is required to upload a file note');
-    }
-
+  async uploadFileNote(file, options = {}) {
     if (!file) {
       throw new Error('File is required');
     }
@@ -324,12 +314,8 @@ export const noteService = {
     if (options.tagIds && Array.isArray(options.tagIds)) {
       options.tagIds.forEach(tagId => formData.append('tagIds', tagId));
     }
-
-    const headers = {
-      'X-User-Id': userId.toString(),
-    };
     
-    const response = await authFetchMultipart(`${API_BASE_URL}/upload`, formData, headers);
+    const response = await authFetchMultipart(`${API_BASE_URL}/upload`, formData);
 
     const data = await handleResponse(response, 'Failed to upload file');
     return normalizeNote(data);

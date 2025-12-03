@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { noteService } from '../../services/noteService';
-import { useUser } from '../../context/UserContext';
 
 export default function FileUploadDropzone({ onUploaded, variant = 'tile', active = false }) {
-  const { getUserId } = useUser();
   const [dragOver, setDragOver] = useState(false); // used only for tile variant
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
@@ -23,9 +21,8 @@ export default function FileUploadDropzone({ onUploaded, variant = 'tile', activ
     setError(null);
     setUploading(true);
     try {
-      const userId = getUserId();
       // call the note service upload - backend endpoint expected at /api/notes/upload
-      const created = await noteService.uploadFileNote(file, { title: file.name }, userId);
+      const created = await noteService.uploadFileNote(file, { title: file.name });
       // Notify parent and optionally refresh UI
       if (onUploaded) onUploaded(created);
       // default behaviour: reload to pick up new note
