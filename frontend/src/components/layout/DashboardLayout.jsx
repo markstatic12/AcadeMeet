@@ -108,7 +108,7 @@ const DashboardLayout = ({ children }) => {
         </div>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className={`flex-1 p-8 ${location.pathname === '/profile' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           {children}
         </div>
       </div>

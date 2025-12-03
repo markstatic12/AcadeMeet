@@ -8,32 +8,55 @@ import { ThreeDotsVerticalIcon, HistoryIcon, TrashIcon, BookmarkCheckIcon, Archi
 
 export const TabButtons = ({ activeTab, onTabChange }) => {
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-3">
       <button
         onClick={(e) => {
           e.stopPropagation();
           onTabChange('sessions');
         }}
-        className={`px-8 py-3 rounded-xl font-semibold text-lg transition-all ${
+        className={`relative overflow-hidden px-8 py-3 rounded-xl font-bold text-base transition-all group/tab ${
           activeTab === 'sessions'
-            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
-            : 'text-gray-400 hover:text-white hover:bg-gray-800'
+            ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-xl shadow-indigo-500/50 scale-105 border-2 border-indigo-500/50'
+            : 'text-gray-400 hover:text-white bg-gradient-to-r from-gray-800/50 to-gray-900/50 hover:from-gray-800 hover:to-gray-900 border-2 border-gray-700 hover:border-gray-600'
         }`}
       >
-        Sessions
+        {activeTab === 'sessions' && (
+          <>
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></span>
+            <div className="absolute inset-0 bg-indigo-600/20 animate-pulse"></div>
+          </>
+        )}
+        <span className="relative z-10 flex items-center gap-1.5">
+          <svg className={`w-4 h-4 transition-transform ${activeTab === 'sessions' ? 'rotate-12' : 'group-hover/tab:rotate-12'}`} fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+          </svg>
+          Sessions
+        </span>
       </button>
       <button
         onClick={(e) => {
           e.stopPropagation();
           onTabChange('notes');
         }}
-        className={`px-8 py-3 rounded-xl font-semibold text-lg transition-all ${
+        className={`relative overflow-hidden px-8 py-3 rounded-xl font-bold text-base transition-all group/tab ${
           activeTab === 'notes'
-            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
-            : 'text-gray-400 hover:text-white hover:bg-gray-800'
+            ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-xl shadow-indigo-500/50 scale-105 border-2 border-indigo-500/50'
+            : 'text-gray-400 hover:text-white bg-gradient-to-r from-gray-800/50 to-gray-900/50 hover:from-gray-800 hover:to-gray-900 border-2 border-gray-700 hover:border-gray-600'
         }`}
       >
-        Notes
+        {activeTab === 'notes' && (
+          <>
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></span>
+            <div className="absolute inset-0 bg-indigo-600/20 animate-pulse"></div>
+          </>
+        )}
+        <span className="relative z-10 flex items-center gap-1.5">
+          <svg className={`w-4 h-4 transition-transform ${activeTab === 'notes' ? 'rotate-12' : 'group-hover/tab:rotate-12'}`} fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V6.414A2 2 0 0016.414 5L14 2.586A2 2 0 0012.586 2H9z" />
+            <path d="M3 8a2 2 0 012-2v10h8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
+          </svg>
+          Notes
+        </span>
       </button>
     </div>
   );
@@ -55,56 +78,72 @@ export const TabOptionMenu = ({
     <div className="relative tab-options-menu">
       <button
         onClick={onToggle}
-        className="p-3 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white rounded-xl transition-colors"
+        className="relative overflow-hidden p-3.5 bg-gradient-to-br from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-gray-400 hover:text-white rounded-xl transition-all hover:scale-110 hover:shadow-xl border border-gray-700 hover:border-gray-600 group/btn"
       >
-        <ThreeDotsVerticalIcon className="w-5 h-5" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>
+        <ThreeDotsVerticalIcon className="w-5 h-5 relative z-10 group-hover/btn:rotate-90 transition-transform" />
       </button>
       {showMenu && (
         activeTab === 'sessions' ? (
-          <div className="absolute right-0 mt-2 w-48 bg-[#1a1a1a] border border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden">
-            <button
-              onClick={() => {
-                // Handle history (placeholder)
-                onToggle();
-              }}
-              className="w-full px-4 py-3 text-left text-sm text-white hover:bg-gray-800 transition-colors flex items-center gap-3"
-            >
-              <HistoryIcon className="w-4 h-4" />
-              History
-            </button>
-            <button
-              onClick={onTrashClick}
-              className="w-full px-4 py-3 text-left text-sm text-red-400 hover:bg-gray-800 transition-colors flex items-center gap-3"
-            >
-              <TrashIcon className="w-4 h-4" />
-              Trash
-            </button>
+          <div className="absolute right-0 mt-3 w-52 bg-gradient-to-b from-gray-900 to-gray-800 border border-gray-700/50 rounded-2xl shadow-2xl shadow-indigo-500/20 z-50 overflow-hidden animate-slideDown backdrop-blur-xl">
+            <div className="p-1">
+              <button
+                onClick={() => {
+                  // Handle history (placeholder)
+                  onToggle();
+                }}
+                className="w-full px-4 py-3.5 text-left text-sm text-white hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-gray-700/50 transition-all flex items-center gap-3 group rounded-xl"
+              >
+                <div className="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center border border-indigo-500/30 group-hover:scale-110 group-hover:rotate-6 transition-all">
+                  <HistoryIcon className="w-4 h-4 text-indigo-400" />
+                </div>
+                <span className="font-bold">History</span>
+              </button>
+              <div className="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent my-1"></div>
+              <button
+                onClick={onTrashClick}
+                className="w-full px-4 py-3.5 text-left text-sm text-red-400 hover:bg-gradient-to-r hover:from-red-600/20 hover:to-red-700/20 transition-all flex items-center gap-3 group rounded-xl"
+              >
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500/20 to-red-600/20 flex items-center justify-center border border-red-500/30 group-hover:scale-110 group-hover:rotate-6 transition-all">
+                  <TrashIcon className="w-4 h-4 text-red-400" />
+                </div>
+                <span className="font-bold">Trash</span>
+              </button>
+            </div>
           </div>
         ) : (
-          <div className="absolute right-0 mt-2 w-56 bg-[#1a1a1a] border border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden">
-            <button
-              onClick={onFavouritesClick}
-              className="w-full px-5 py-3 text-left text-sm text-white hover:bg-gray-800 transition-colors flex items-center gap-3"
-            >
-              <BookmarkCheckIcon className="w-4 h-4 text-indigo-400" />
-              Favourite Notes
-            </button>
-            <div className="h-px w-full bg-gray-700" />
-            <button
-              onClick={onArchivedClick}
-              className="w-full px-5 py-3 text-left text-sm text-white hover:bg-gray-800 transition-colors flex items-center gap-3"
-            >
-              <ArchiveIcon className="w-4 h-4 text-white" />
-              Archived Notes
-            </button>
-            <div className="h-px w-full bg-gray-700" />
-            <button
-              onClick={onTrashedClick}
-              className="w-full px-5 py-3 text-left text-sm text-red-400 hover:bg-gray-800 transition-colors flex items-center gap-3"
-            >
-              <TrashIcon className="w-4 h-4" />
-              Trashed Notes
-            </button>
+          <div className="absolute right-0 mt-3 w-60 bg-gradient-to-b from-gray-900 to-gray-800 border border-gray-700/50 rounded-2xl shadow-2xl shadow-indigo-500/20 z-50 overflow-hidden animate-slideDown backdrop-blur-xl">
+            <div className="p-1">
+              <button
+                onClick={onFavouritesClick}
+                className="w-full px-4 py-3.5 text-left text-sm text-white hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-gray-700/50 transition-all flex items-center gap-3 group rounded-xl"
+              >
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-500/20 to-amber-500/20 flex items-center justify-center border border-yellow-500/30 group-hover:scale-110 group-hover:rotate-12 transition-all">
+                  <BookmarkCheckIcon className="w-4 h-4 text-yellow-400" />
+                </div>
+                <span className="font-bold">Favourite Notes</span>
+              </button>
+              <div className="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent my-1" />
+              <button
+                onClick={onArchivedClick}
+                className="w-full px-4 py-3.5 text-left text-sm text-white hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-gray-700/50 transition-all flex items-center gap-3 group rounded-xl"
+              >
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gray-600/20 to-gray-700/20 flex items-center justify-center border border-gray-600/30 group-hover:scale-110 group-hover:rotate-6 transition-all">
+                  <ArchiveIcon className="w-4 h-4 text-gray-400" />
+                </div>
+                <span className="font-bold">Archived Notes</span>
+              </button>
+              <div className="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent my-1" />
+              <button
+                onClick={onTrashedClick}
+                className="w-full px-4 py-3.5 text-left text-sm text-red-400 hover:bg-gradient-to-r hover:from-red-600/20 hover:to-red-700/20 transition-all flex items-center gap-3 group rounded-xl"
+              >
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500/20 to-red-600/20 flex items-center justify-center border border-red-500/30 group-hover:scale-110 group-hover:rotate-6 transition-all">
+                  <TrashIcon className="w-4 h-4 text-red-400" />
+                </div>
+                <span className="font-bold">Trashed Notes</span>
+              </button>
+            </div>
           </div>
         )
       )}
@@ -118,12 +157,28 @@ export const CreateNewCard = ({ onClick, label }) => {
   return (
     <button
       onClick={onClick}
-      className="bg-[#1a1a1a] border-2 border-dashed border-gray-700 hover:border-indigo-500 rounded-xl flex flex-col items-center justify-center transition-all group hover:bg-[#1f1f1f] h-[240px] w-full"
+      className="relative bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-dashed border-gray-700 hover:border-indigo-500 rounded-2xl flex flex-col items-center justify-center transition-all group hover:shadow-xl hover:shadow-indigo-500/20 h-[180px] w-full overflow-hidden"
     >
-      <div className="w-16 h-16 bg-[#2a2a2a] group-hover:bg-indigo-600/20 rounded-full flex items-center justify-center mb-3 transition-colors">
-        <PlusIcon className="w-8 h-8 text-gray-600 group-hover:text-indigo-400" />
+      {/* Decorative background gradient */}
+      <div className="absolute inset-0 bg-indigo-600/0 group-hover:bg-indigo-600/10 transition-all duration-700"></div>
+      
+      {/* Decorative orbs */}
+      <div className="absolute top-4 left-4 w-20 h-20 bg-indigo-600/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+      <div className="absolute bottom-4 right-4 w-24 h-24 bg-indigo-600/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+      
+      {/* Shimmer effect */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out animate-shimmer"></div>
       </div>
-      <p className="text-gray-500 group-hover:text-gray-400 text-xs font-light italic">{label}</p>
+      
+      <div className="relative z-10 flex flex-col items-center">
+        <div className="w-16 h-16 bg-gradient-to-br from-gray-800/80 to-gray-900/80 group-hover:from-indigo-600/30 group-hover:to-indigo-700/30 rounded-xl flex items-center justify-center mb-3 transition-all shadow-xl group-hover:shadow-indigo-500/40 group-hover:scale-110 border border-gray-700 group-hover:border-indigo-500/50">
+          <PlusIcon className="w-8 h-8 text-gray-600 group-hover:text-indigo-400 transition-all group-hover:rotate-180" />
+        </div>
+        <p className="text-gray-500 group-hover:text-gray-300 text-xs font-bold max-w-[180px] text-center leading-relaxed transition-colors">
+          {label}
+        </p>
+      </div>
     </button>
   );
 };
