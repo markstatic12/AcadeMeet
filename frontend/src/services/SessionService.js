@@ -113,9 +113,7 @@ export const sessionService = {
     return handleResponse(response, 'Failed to fetch all sessions');
   },
 
-  /**
-   * Fetches session details by ID with enhanced error handling
-   */
+  //FETCHES SESSION BY SESSION ID
   async getSessionById(sessionId) {
     const response = await authFetch(`${API_BASE}/${sessionId}`, {
       method: 'GET'

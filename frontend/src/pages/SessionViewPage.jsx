@@ -350,14 +350,18 @@ const SessionViewPage = () => {
 
         <SessionViewHeader session={session} />
 
-        <div className="grid grid-cols-6 gap-8 mt-6">
-          <ViewDetailsPanel session={session} />
+        <div className="grid grid-cols-12 gap-6 mt-6">
+          <div className="col-span-3">
+            <ViewDetailsPanel session={session} />
+          </div>
           
-          <div className="col-span-4">
+          <div className="col-span-5">
             <ViewOverviewPanel session={session} />
           </div>
           
-          <CommentsPanel />
+          <div className="col-span-4">
+            <CommentsPanel sessionId={sessionId} />
+          </div>
         </div>
       </div>
     </div>

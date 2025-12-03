@@ -1,5 +1,5 @@
 /**
- * Comment Service - handles basic comment operations (create and get only)
+ * Comment Service - handles comment and reply operations
  */
 import { authFetch } from './apiHelper';
 
@@ -16,17 +16,27 @@ export const getSessionComments = async (sessionId) => {
   const response = await authFetch(`/sessions/${sessionId}/comments`);
   const comments = await handleResponse(response, 'Failed to fetch comments');
   
-  // Return only top-level comments (no replies/threading)
-  return comments.filter(comment => !comment.parentCommentId);
+  // Backend now returns comments grouped with replies as CommentDTO[]
+  return comments;
 };
 
 export const createComment = async (sessionId, content) => {
   const response = await authFetch(`/sessions/${sessionId}/comments`, {
     method: 'POST',
-    body: JSON.stringify({
-      content
-    })
+    body: JSON.stringify({ content })
   });
 
   return await handleResponse(response, 'Failed to create comment');
+};
+
+export const createReply = async (sessionId, commentId, content) => {
+  const response = await authFetch(
+    `/sessions/${sessionId}/comments/${commentId}/replies`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ content })
+    }
+  );
+
+  return await handleResponse(response, 'Failed to create reply');
 };
