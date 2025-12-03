@@ -177,5 +177,16 @@ export const sessionService = {
     });
 
     return handleResponse(response, 'Failed to fetch sessions for date');
+  },
+
+  /**
+   * Gets top 4 trending sessions based on tag popularity
+   */
+  async getTrendingSessions() {
+    const response = await authFetch(`${API_BASE}/trending`, {
+      method: 'GET'
+    });
+
+    return handleResponse(response, 'Failed to fetch trending sessions');
   }
 };
