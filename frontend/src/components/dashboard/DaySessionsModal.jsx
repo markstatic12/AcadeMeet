@@ -3,7 +3,7 @@ import { CloseIcon } from '../../icons';
 import { sessionService } from '../../services/SessionService';
 import { SessionCard } from '../sessions/Sessions';
 
-const DaySessionsModal = ({ isOpen, onClose, selectedDate, userId }) => {
+const DaySessionsModal = ({ isOpen, onClose, selectedDate }) => {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -16,14 +16,14 @@ const DaySessionsModal = ({ isOpen, onClose, selectedDate, userId }) => {
     
     try {
       const { year, month, day } = selectedDate;
-      const sessionsData = await sessionService.getSessionsByDate(year, month, day, userId);
+      const sessionsData = await sessionService.getSessionsByDate(year, month, day);
       setSessions(sessionsData);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [selectedDate, userId]);
+  }, [selectedDate]);
 
   useEffect(() => {
     if (isOpen && selectedDate) {

@@ -4,7 +4,6 @@ import SessionTabs from './SessionTabs';
 import { ChevronLeftIcon, ChevronRightIcon } from '../../icons';
 import { useCalendarSessions } from '../../services/useCalendarSessions';
 import DaySessionsModal from './DaySessionsModal';
-import { useUser } from '../../context/UserContext';
 
 const CalendarHeader = ({ monthName, year, onPrevious, onNext }) => {
   return (
@@ -71,12 +70,10 @@ const CalendarGrid = ({ daysInMonth, startingDayOfWeek, today, isCurrentMonth, h
 };
 
 const Calendar = ({ currentMonth, onPrevious, onNext }) => {
-  const { getUserId } = useUser();
   const [selectedDate, setSelectedDate] = useState(null);
   const [showModal, setShowModal] = useState(false);
   
-  const userId = getUserId();
-  const { hasSessionsOnDay } = useCalendarSessions(currentMonth, userId);
+  const { hasSessionsOnDay } = useCalendarSessions(currentMonth);
   
   const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentMonth);
   const monthName = getMonthName(currentMonth);
@@ -121,7 +118,6 @@ const Calendar = ({ currentMonth, onPrevious, onNext }) => {
         isOpen={showModal}
         onClose={handleCloseModal}
         selectedDate={selectedDate}
-        userId={userId}
       />
     </>
   );
