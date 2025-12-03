@@ -19,17 +19,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.appdev.academeet.dto.SessionDTO;
 import com.appdev.academeet.model.Session;
+import com.appdev.academeet.model.SessionParticipant;
+import com.appdev.academeet.model.SessionParticipantId;
 import com.appdev.academeet.model.SessionStatus;
 import com.appdev.academeet.model.SessionType;
+import com.appdev.academeet.model.User;
+import com.appdev.academeet.repository.SessionParticipantRepository;
 import com.appdev.academeet.repository.SessionRepository;
 
 @Service
 public class SessionService {
 
     private final SessionRepository sessionRepository;
+    private final SessionParticipantRepository sessionParticipantRepository;
 
-    public SessionService(SessionRepository sessionRepository) {
+    public SessionService(SessionRepository sessionRepository, SessionParticipantRepository sessionParticipantRepository) {
         this.sessionRepository = sessionRepository;
+        this.sessionParticipantRepository = sessionParticipantRepository;
     }
 
     public Session createSession(Session session) {
@@ -82,6 +88,60 @@ public class SessionService {
             return currentParticipants < maxParticipants;
         }
         return false;
+    }
+
+    @Transactional
+    public void joinSession(Long sessionId, User user) {
+        // Check if user has already joined
+        if (sessionParticipantRepository.existsBySessionIdAndUserId(sessionId, user.getId())) {
+            throw new RuntimeException("User has already joined this session");
+        }
+
+        // Get session
+        Session session = sessionRepository.findById(sessionId)
+            .orElseThrow(() -> new RuntimeException("Session not found"));
+
+        // Check participant limit
+        Integer maxParticipants = session.getMaxParticipants();
+        Integer currentParticipants = session.getCurrentParticipants();
+        
+        if (maxParticipants != null && currentParticipants >= maxParticipants) {
+            throw new RuntimeException("Session is full");
+        }
+
+        // Create participant record
+        SessionParticipant participant = new SessionParticipant(session, user);
+        sessionParticipantRepository.save(participant);
+
+        // Increment participant count
+        session.setCurrentParticipants(currentParticipants + 1);
+        sessionRepository.save(session);
+    }
+
+    @Transactional
+    public void cancelJoinSession(Long sessionId, User user) {
+        // Check if user is a participant
+        SessionParticipantId participantId = new SessionParticipantId(sessionId, user.getId());
+        SessionParticipant participant = sessionParticipantRepository.findById(participantId)
+            .orElseThrow(() -> new RuntimeException("User is not a participant of this session"));
+
+        // Delete participant record
+        sessionParticipantRepository.delete(participant);
+
+        // Decrement participant count
+        Session session = sessionRepository.findById(sessionId)
+            .orElseThrow(() -> new RuntimeException("Session not found"));
+        
+        Integer currentParticipants = session.getCurrentParticipants();
+        if (currentParticipants > 0) {
+            session.setCurrentParticipants(currentParticipants - 1);
+            sessionRepository.save(session);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isUserParticipant(Long sessionId, Long userId) {
+        return sessionParticipantRepository.existsBySessionIdAndUserId(sessionId, userId);
     }
 
     @Transactional

@@ -60,6 +60,29 @@ export const sessionService = {
   },
 
   /**
+   * Cancels participation in a session
+   */
+  async cancelJoinSession(sessionId) {
+    const response = await authFetch(`${API_BASE}/${sessionId}/cancel-join`, {
+      method: 'POST',
+      body: JSON.stringify({})
+    });
+
+    return handleResponse(response, 'Failed to cancel participation');
+  },
+
+  /**
+   * Checks if the current user is a participant of a session
+   */
+  async isUserParticipant(sessionId) {
+    const response = await authFetch(`${API_BASE}/${sessionId}/is-participant`, {
+      method: 'GET'
+    });
+
+    return handleResponse(response, 'Failed to check participation status');
+  },
+
+  /**
    * Updates session status (e.g., ACTIVE, COMPLETED, CANCELLED, TRASH)
    */
   async updateSessionStatus(sessionId, status) {
