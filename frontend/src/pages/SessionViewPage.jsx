@@ -91,6 +91,7 @@ const SessionViewPage = () => {
   const [sessionTitle, setSessionTitle] = useState('');
   const [validatedPassword, setValidatedPassword] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [isParticipant, setIsParticipant] = useState(false);
 
   // Fetch current user ID on mount
   useEffect(() => {
@@ -150,6 +151,9 @@ const SessionViewPage = () => {
           // Public session or owner - show normally
           setSession(sessionData);
           setNeedsAuthentication(false);
+          
+          // Check if user is already a participant
+          checkParticipationStatus();
         }
 
       } catch (err) {
@@ -165,12 +169,23 @@ const SessionViewPage = () => {
     }
   }, [sessionId]); 
 
+  const checkParticipationStatus = async () => {
+    try {
+      const result = await sessionService.isUserParticipant(sessionId);
+      setIsParticipant(result.isParticipant);
+    } catch (err) {
+      console.error('Error checking participation status:', err);
+    }
+  };
+
   const fetchSession = async () => {
     try {
       setLoading(true);
       setError(null);
       const sessionData = await sessionService.getSessionById(sessionId);
       setSession(sessionData);
+      // Also refresh participation status
+      await checkParticipationStatus();
     } catch (err) {
       console.error('Error fetching session:', err);
       setError(err.message || 'Failed to load session');
@@ -199,10 +214,14 @@ const SessionViewPage = () => {
   };
 
   const handleJoinSession = async () => {
-    // For private sessions, use the stored validated password
-    // For public sessions, no password needed
-    const passwordToUse = session.sessionType === 'PRIVATE' ? validatedPassword : null;
-    await joinSession(passwordToUse);
+    if (isParticipant) {
+      // User is already a participant, cancel their participation
+      await cancelJoinSession();
+    } else {
+      // User is not a participant, join the session
+      const passwordToUse = session.sessionType === 'PRIVATE' ? validatedPassword : null;
+      await joinSession(passwordToUse);
+    }
   };
 
   const handlePrivateSessionJoin = async (password) => {
@@ -256,6 +275,9 @@ const SessionViewPage = () => {
 
       await sessionService.joinSession(sessionId, password);
       
+      // Update participation status
+      setIsParticipant(true);
+      
       // Show success message
       alert(`You have successfully joined "${session.title}"`);
       
@@ -265,6 +287,33 @@ const SessionViewPage = () => {
     } catch (error) {
       console.error('Error joining session:', error);
       showErrorAlert(error, 'Failed to join session');
+    } finally {
+      setIsJoining(false);
+    }
+  };
+
+  const cancelJoinSession = async () => {
+    if (!window.confirm('Are you sure you want to cancel your participation in this session?')) {
+      return;
+    }
+
+    try {
+      setIsJoining(true);
+      
+      await sessionService.cancelJoinSession(sessionId);
+      
+      // Update participation status
+      setIsParticipant(false);
+      
+      // Show success message
+      alert(`You have canceled your participation in "${session.title}"`);
+      
+      // Refresh session data to update participant count
+      await fetchSession();
+      
+    } catch (error) {
+      console.error('Error canceling participation:', error);
+      alert(`Failed to cancel participation: ${error.message}`);
     } finally {
       setIsJoining(false);
     }
@@ -350,13 +399,20 @@ const SessionViewPage = () => {
           onSubmit={isSessionOwner ? handleEditSession : handleJoinSession}
           isSubmitting={isJoining}
           showSubmit={session.status === 'ACTIVE'}
-          submitText={isSessionOwner ? 'Edit Session' : (isJoining ? 'Joining...' : 'Join Session')}
+          submitText={
+            isSessionOwner 
+              ? 'Edit Session' 
+              : (isJoining 
+                  ? (isParticipant ? 'Canceling...' : 'Joining...') 
+                  : (isParticipant ? 'Cancel Join' : 'Join Session')
+                )
+          }
           submitIcon={isSessionOwner ? (
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
           ) : (
-            session.sessionType === 'PRIVATE' && (
+            session.sessionType === 'PRIVATE' && !isParticipant && (
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" />
               </svg>
