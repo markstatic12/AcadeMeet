@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.appdev.academeet.dto.CommentDTO;
 import com.appdev.academeet.dto.CommentRequest;
-import com.appdev.academeet.model.Comment;
 import com.appdev.academeet.model.User;
 import com.appdev.academeet.repository.UserRepository;
 import com.appdev.academeet.service.CommentService;
@@ -39,37 +39,48 @@ public class CommentController {
     @PostMapping("/sessions/{sessionId}/comments")
     public ResponseEntity<?> createComment(@PathVariable Long sessionId, @RequestBody CommentRequest request) {
         try {
-            // Get authenticated user from JWT
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication == null || !authentication.isAuthenticated()) {
-                return ResponseEntity.status(401).body(Map.of("error", "User not authenticated"));
-            }
-            
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String email = userDetails.getUsername();
-            
-            User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-            
-            Comment comment = commentService.createComment(
-                user.getId(), 
-                sessionId, 
-                request.getContent(), 
-                null // No parent comment - only top-level comments
-            );
-            return ResponseEntity.ok(comment);
+            User user = getAuthenticatedUser();
+            commentService.createComment(user.getId(), sessionId, request.getContent());
+            return ResponseEntity.ok(Map.of("message", "Comment created successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/sessions/{sessionId}/comments/{commentId}/replies")
+    public ResponseEntity<?> createReply(
+            @PathVariable Long sessionId,
+            @PathVariable Long commentId,
+            @RequestBody CommentRequest request) {
+        try {
+            User user = getAuthenticatedUser();
+            commentService.createReply(user.getId(), sessionId, commentId, request.getContent());
+            return ResponseEntity.ok(Map.of("message", "Reply created successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     @GetMapping("/sessions/{sessionId}/comments")
-    public ResponseEntity<List<Comment>> getSessionComments(@PathVariable Long sessionId) {
+    public ResponseEntity<?> getSessionComments(@PathVariable Long sessionId) {
         try {
-            List<Comment> comments = commentService.getSessionComments(sessionId);
+            List<CommentDTO> comments = commentService.getSessionCommentsGrouped(sessionId);
             return ResponseEntity.ok(comments);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("User not authenticated");
+        }
+        
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername();
+        
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
