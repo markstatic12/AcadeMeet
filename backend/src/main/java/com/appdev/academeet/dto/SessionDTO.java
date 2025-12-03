@@ -1,6 +1,7 @@
 package com.appdev.academeet.dto;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import com.appdev.academeet.model.Session;
 import com.appdev.academeet.model.SessionStatus;
@@ -36,6 +37,7 @@ public class SessionDTO {
     private final Integer maxParticipants;
     private final Integer currentParticipants;
     private final String createdAt;
+    private final List<String> tags;
     
     /**
      * Host information structure for frontend compatibility.
@@ -83,6 +85,7 @@ public class SessionDTO {
         this.maxParticipants = session.getMaxParticipants();
         this.currentParticipants = session.getCurrentParticipants();
         this.createdAt = session.getCreatedAt() != null ? session.getCreatedAt().toString() : null;
+        this.tags = session.getTags();
 
         // Format time fields for JSON - handle nulls gracefully
         this.startTime = session.getStartTime() != null ? session.getStartTime().format(TIME_FORMATTER) : null;
@@ -106,4 +109,5 @@ public class SessionDTO {
     public Integer getMaxParticipants() { return maxParticipants; }
     public Integer getCurrentParticipants() { return currentParticipants; }
     public String getCreatedAt() { return createdAt; }
+    public List<String> getTags() { return tags; }
 }
