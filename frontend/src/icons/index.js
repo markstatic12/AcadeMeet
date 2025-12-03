@@ -68,5 +68,11 @@ export {
   DocumentTextIcon,
   ImageIcon,
   SparklesIcon,
+  // Search-specific Icons
+  FilterIcon,
+  MailIcon,
+  BookOpenIcon,
+  MapPinIcon,
+  LockClosedIcon,
 } from './icons';
 

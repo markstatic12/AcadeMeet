@@ -83,15 +83,23 @@ const DashboardLayout = ({ children }) => {
                 </span>
               </div>
               
-              {/* Search Bar */}
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search"
-                  className="w-80 px-4 py-2 pl-10 bg-gray-800/50 border border-gray-700/50 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
-                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-              </div>
+              {/* Search Bar - Hide on search page */}
+              {!location.pathname.startsWith('/search') && (
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    onFocus={() => navigate('/search')}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        navigate(`/search?q=${encodeURIComponent(e.target.value)}`);
+                      }
+                    }}
+                    className="w-80 px-4 py-2 pl-10 bg-gray-800/50 border border-gray-700/50 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                </div>
+              )}
             </div>
 
             {/* Right: Settings */}
