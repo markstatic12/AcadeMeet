@@ -59,7 +59,7 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
                 className="w-full px-4 py-2.5 text-left text-sm text-red-400 hover:bg-red-600/20 flex items-center gap-2 transition-all group/delete font-medium"
               >
                 <TrashIcon className="w-4 h-4 group-hover/delete:scale-110 transition-transform" />
-                <span>Delete</span>
+                <span>Trash</span>
               </button>   
             </div>
           )}
@@ -149,7 +149,7 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
 
 // ===== TRASHED SESSION CARD =====
 
-export const TrashedSessionCard = ({ session, daysLeft, onRestore }) => {
+export const TrashedSessionCard = ({ session, onRestore }) => {
   return (
     <div className="relative bg-gradient-to-b from-gray-900 to-gray-800 border border-gray-700/50 rounded-2xl overflow-hidden transition-all hover:border-gray-700 hover:shadow-lg group h-[180px] w-full">
       {/* Vertical Restore action */}
@@ -170,7 +170,7 @@ export const TrashedSessionCard = ({ session, daysLeft, onRestore }) => {
         
         <span className="absolute top-2 left-2 text-[10px] px-2.5 py-1 bg-red-500/20 text-red-300 rounded-full border border-red-500/40 font-bold shadow-lg backdrop-blur-sm">
           <span className="inline-block w-1.5 h-1.5 bg-red-400 rounded-full mr-1.5 animate-pulse"></span>
-          {daysLeft} day{daysLeft !== 1 ? 's' : ''} left
+          Trashed
         </span>
         
         {/* Faded session icon */}
@@ -230,7 +230,7 @@ export const SessionsContent = ({ sessionsData, openCardMenuId, onCreateSession,
 
 // ===== TRASHED SESSIONS CONTENT =====
 
-export const TrashedSessionsContent = ({ trashedSessions, TRASH_TTL_DAYS, onRestore, onBackToSessions }) => {
+export const TrashedSessionsContent = ({ trashedSessions, onRestore, onBackToSessions }) => {
   return (
     <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
       <div className="mb-6 flex items-center justify-between animate-slideInLeft">
@@ -246,25 +246,18 @@ export const TrashedSessionsContent = ({ trashedSessions, TRASH_TTL_DAYS, onRest
         <div className="bg-[#0a0a0a] border border-gray-700 rounded-2xl p-12 text-center text-gray-400 animate-fadeIn">
           <div className="text-5xl mb-4 opacity-50">🗑️</div>
           <p className="text-base">No trashed sessions.</p>
-          <p className="text-sm text-gray-500 mt-2">Deleted sessions stay here for {TRASH_TTL_DAYS} days.</p>
+          <p className="text-sm text-gray-500 mt-2">Sessions you move to trash will appear here.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-          {trashedSessions.map((session, index) => {
-            const msLeft = session.deletedAt
-              ? session.deletedAt + TRASH_TTL_DAYS * 24 * 60 * 60 * 1000 - Date.now()
-              : 0;
-            const daysLeft = Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000)));
-            return (
-              <div key={`trashed-${session.id}-${session.deletedAt || ''}`} className="animate-scaleIn" style={{ animationDelay: `${index * 0.05}s` }}>
-                <TrashedSessionCard
-                  session={session}
-                  daysLeft={daysLeft}
-                  onRestore={onRestore}
-                />
-              </div>
-            );
-          })}
+          {trashedSessions.map((session, index) => (
+            <div key={`trashed-${session.id}`} className="animate-scaleIn" style={{ animationDelay: `${index * 0.05}s` }}>
+              <TrashedSessionCard
+                session={session}
+                onRestore={onRestore}
+              />
+            </div>
+          ))}
         </div>
       )}
     </div>

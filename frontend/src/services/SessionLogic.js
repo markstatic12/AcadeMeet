@@ -85,6 +85,124 @@ export const useSessionForm = () => {
   };
 };
 
+// Edit Session Form Logic Hook
+export const useEditSessionForm = (sessionId) => {
+  const navigate = useNavigate();
+
+  const [sessionData, setSessionData] = useState({
+    title: "",
+    month: "",
+    day: "",
+    year: "",
+    startTime: "",
+    endTime: "",
+    location: "",
+    locationType: "in-person",
+    sessionType: "",
+    password: "",
+    maxParticipants: "",
+    description: ""
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch existing session data
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        setLoading(true);
+        const data = await sessionService.getSessionById(sessionId);
+        setSessionData({
+          title: data.title || "",
+          month: data.month || "",
+          day: data.day || "",
+          year: data.year || "",
+          startTime: data.startTime || "",
+          endTime: data.endTime || "",
+          location: data.location || "",
+          locationType: data.locationType || "in-person",
+          sessionType: data.sessionType || "",
+          password: "", // Don't populate password for security
+          maxParticipants: data.maxParticipants || "",
+          description: data.description || ""
+        });
+      } catch (error) {
+        console.error("Error fetching session:", error);
+        alert("Failed to load session data");
+        navigate(`/session/${sessionId}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (sessionId) {
+      fetchSession();
+    }
+  }, [sessionId, navigate]);
+
+  const handleChange = (e) => {
+    setSessionData({ ...sessionData, [e.target.name]: e.target.value });
+  };
+
+  const handlePasswordChange = (e) => {
+    setSessionData({ ...sessionData, password: e.target.value });
+  };
+
+  const handleParticipantsChange = (e) => {
+    setSessionData({ ...sessionData, maxParticipants: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Validate required fields
+    const requiredFields = ['title', 'month', 'day', 'year', 'startTime', 'endTime', 'location', 'sessionType'];
+    const missingFields = requiredFields.filter(field => !sessionData[field] || sessionData[field].trim() === '');
+    
+    if (missingFields.length > 0) {
+      alert(`Please fill in the following required fields: ${missingFields.join(', ')}`);
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Validate private session password if changed
+    if (sessionData.sessionType === 'PRIVATE' && sessionData.password && sessionData.password.length < 6) {
+      alert("Private session password must be at least 6 characters");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      await sessionService.updateSession(sessionId, sessionData);
+      alert('Session updated successfully!');
+      navigate(`/session/${sessionId}`);
+    } catch (error) {
+      console.error("Error updating session:", error);
+      console.error("Session data being sent:", sessionData);
+      alert("Error updating session: " + (error.message || error));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleBack = () => {
+    navigate(`/session/${sessionId}`);
+  };
+
+  return {
+    sessionData,
+    loading,
+    isSubmitting,
+    handleChange,
+    handlePasswordChange,
+    handleParticipantsChange,
+    handleSubmit,
+    handleBack
+  };
+};
+
 // Sessions Page Logic Hook
 export const useSessionsPage = () => {
   const [sessions, setSessions] = useState([]);

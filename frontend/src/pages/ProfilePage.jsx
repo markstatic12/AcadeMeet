@@ -55,7 +55,7 @@ const ProfilePage = () => {
     unfollowUser,
   } = useProfilePage();
 
-  const { sessionsData, trashedSessions, deleteSession, restoreSession, TRASH_TTL_DAYS } = useSessions();
+  const { sessionsData, trashedSessions, deleteSession, restoreSession } = useSessions();
   const { notesData, toggleFavouriteNote, archiveNote, deleteNote, restoreTrashedNote, restoreArchivedNote } = useNotes(activeTab);
   const panelHeight = usePanelHeight(leftProfileCardRef, [userData, showEditModal, showProfileOptionsMenu]);
 
@@ -156,7 +156,6 @@ const ProfilePage = () => {
             {activeTab === 'sessions' && sessionsView === 'trash' && (
               <TrashedSessionsContent
                 trashedSessions={trashedSessions}
-                TRASH_TTL_DAYS={TRASH_TTL_DAYS}
                 onRestore={restoreSession}
                 onBackToSessions={() => setSessionsView('active')}
               />

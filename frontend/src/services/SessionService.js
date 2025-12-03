@@ -60,7 +60,7 @@ export const sessionService = {
   },
 
   /**
-   * Updates session status (e.g., ACTIVE, COMPLETED, CANCELLED)
+   * Updates session status (e.g., ACTIVE, COMPLETED, CANCELLED, TRASH)
    */
   async updateSessionStatus(sessionId, status) {
     const response = await authFetch(`${API_BASE}/${sessionId}/status`, {
@@ -69,6 +69,37 @@ export const sessionService = {
     });
 
     return handleResponse(response, 'Failed to update session status');
+  },
+
+  /**
+   * Updates session details
+   */
+  async updateSession(sessionId, sessionData) {
+    const submissionData = {
+      ...sessionData,
+      maxParticipants: sessionData.maxParticipants ? parseInt(sessionData.maxParticipants) : null,
+      password: sessionData.sessionType === 'PUBLIC' ? null : sessionData.password
+    };
+
+    console.log('Updating session with data:', submissionData);
+
+    const response = await authFetch(`${API_BASE}/${sessionId}`, {
+      method: 'PUT',
+      body: JSON.stringify(submissionData)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Update session failed. Status:', response.status, 'Response:', errorText);
+      try {
+        const errorData = JSON.parse(errorText);
+        throw new Error(errorData.error || errorData.message || 'Failed to update session');
+      } catch (e) {
+        throw new Error(`Failed to update session: ${response.status} - ${errorText}`);
+      }
+    }
+
+    return await response.json();
   },
 
   /**
@@ -102,13 +133,15 @@ export const sessionService = {
     );
   },
 
-  /**
-   * Fetches all sessions regardless of filters
-   */
+  // MUST FETCH ONLY ACTIVE SESSIONS
   async getAllSessions() {
-    const response = await authFetch(`${API_BASE}/all-sessions`, {
+    const url = `${API_BASE}?status=ACTIVE`;
+    
+    const response = await authFetch(url, {
       method: 'GET'
     });
+    
+    console.log('Fetching all [ACTIVE] sessions:', response);
 
     return handleResponse(response, 'Failed to fetch all sessions');
   },

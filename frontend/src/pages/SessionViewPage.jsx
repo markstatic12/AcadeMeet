@@ -182,6 +182,21 @@ const SessionViewPage = () => {
     navigate(`/edit-session/${sessionId}`);
   };
 
+  const handleTrashSession = async () => {
+    if (!window.confirm('Are you sure you want to move this session to trash?')) {
+      return;
+    }
+
+    try {
+      await sessionService.updateSessionStatus(sessionId, 'TRASH');
+      alert('Session moved to trash successfully');
+      navigate('/sessions');
+    } catch (error) {
+      console.error('Error trashing session:', error);
+      alert(`Failed to move session to trash: ${error.message}`);
+    }
+  };
+
   const handleJoinSession = async () => {
     // For private sessions, use the stored validated password
     // For public sessions, no password needed
@@ -346,7 +361,17 @@ const SessionViewPage = () => {
               </svg>
             )
           )}
-        />
+        >
+          {isSessionOwner && session.status === 'ACTIVE' && (
+            <button
+              type="button"
+              onClick={handleTrashSession}
+              className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-all shadow-lg shadow-red-500/25"
+            >
+              Trash
+            </button>
+          )}
+        </PageHeader>
 
         <SessionViewHeader session={session} />
 
