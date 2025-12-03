@@ -2,6 +2,27 @@ import React from 'react';
 import SessionStatusBadge from '../ui/SessionStatusBadge';
 import { CalendarIcon, ClockIcon, LocationIcon, UserIcon, UsersIcon, LockIcon, GlobeIcon } from '../../icons';
 
+// Read-only Tags Display
+export const TagsDisplay = ({ tags = [] }) => {
+  if (!tags || tags.length === 0) return null;
+  
+  return (
+    <div className="mb-4">
+      <label className="block text-gray-400 text-xs mb-2">Session Tags</label>
+      <div className="flex flex-wrap gap-2">
+        {tags.map((tag, index) => (
+          <div
+            key={index}
+            className="bg-indigo-600/20 border border-indigo-500/50 text-indigo-300 px-3 py-1 rounded-full text-xs"
+          >
+            {tag}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // Read-only Session Profile Display
 export const SessionProfileDisplay = ({ session }) => {
   return (
@@ -147,6 +168,8 @@ export const ViewDetailsPanel = ({ session }) => {
       <SessionTypeDisplay
         sessionType={session?.sessionType}
       />
+
+      <TagsDisplay tags={session?.tags} />
     </div>
   );
 };
