@@ -102,6 +102,12 @@ public class SessionController {
         return sessionService.getAllSessions();
     }
 
+    // Get trending sessions based on tag popularity
+    @GetMapping("/trending")
+    public List<SessionDTO> getTrendingSessions() {
+        return sessionService.getTrendingSessions();
+    }
+
     // Validate session password without joining (for private session access)
     @PostMapping("/{id}/validate-password")
     public ResponseEntity<?> validateSessionPassword(@PathVariable Long id, @RequestBody JoinSessionRequest request) {
