@@ -1,14 +1,29 @@
 package com.appdev.academeet.controller;
 
-import com.appdev.academeet.dto.ReminderRequest;
-import com.appdev.academeet.model.Reminder;
-import com.appdev.academeet.service.ReminderService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.appdev.academeet.dto.ReminderRequest;
+import com.appdev.academeet.model.Reminder;
+import com.appdev.academeet.model.User;
+import com.appdev.academeet.repository.UserRepository;
+import com.appdev.academeet.service.ReminderService;
 
 @RestController
 @RequestMapping("/api/reminders")
@@ -16,17 +31,34 @@ import java.util.Map;
 public class ReminderController {
 
     private final ReminderService reminderService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public ReminderController(ReminderService reminderService) {
+    public ReminderController(ReminderService reminderService, UserRepository userRepository) {
         this.reminderService = reminderService;
+        this.userRepository = userRepository;
+    }
+
+    /**
+     * Helper method to get authenticated user from JWT token
+     */
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("User not authenticated");
+        }
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername();
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     @PostMapping
     public ResponseEntity<?> createReminder(@RequestBody ReminderRequest request) {
         try {
+            User user = getAuthenticatedUser();
             Reminder reminder = reminderService.createReminder(
-                request.getUserId(),
+                user.getId(),
                 request.getSessionId(),
                 request.getReminderTime()
             );
@@ -49,6 +81,20 @@ public class ReminderController {
     public ResponseEntity<List<Reminder>> getUserReminders(@RequestParam Long userId) {
         try {
             List<Reminder> reminders = reminderService.getRemindersByUser(userId);
+            return ResponseEntity.ok(reminders);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Get reminders for authenticated user from JWT
+     */
+    @GetMapping("/me")
+    public ResponseEntity<List<Reminder>> getMyReminders() {
+        try {
+            User user = getAuthenticatedUser();
+            List<Reminder> reminders = reminderService.getRemindersByUser(user.getId());
             return ResponseEntity.ok(reminders);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -88,6 +134,20 @@ public class ReminderController {
     public ResponseEntity<List<Reminder>> getPendingReminders(@RequestParam Long userId) {
         try {
             List<Reminder> pendingReminders = reminderService.getPendingReminders(userId);
+            return ResponseEntity.ok(pendingReminders);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Get pending reminders for authenticated user from JWT
+     */
+    @GetMapping("/me/pending")
+    public ResponseEntity<List<Reminder>> getMyPendingReminders() {
+        try {
+            User user = getAuthenticatedUser();
+            List<Reminder> pendingReminders = reminderService.getPendingReminders(user.getId());
             return ResponseEntity.ok(pendingReminders);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
