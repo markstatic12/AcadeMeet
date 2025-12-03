@@ -3,11 +3,11 @@ import { authFetch, authFetchMultipart } from './apiHelper';
 const API_BASE_URL = '';
 
 export const imageService = {
-  async uploadProfileImage(userId, imageFile) {
+  async uploadProfileImage(imageFile) {
     const formData = new FormData();
     formData.append('image', imageFile);
 
-    const response = await authFetchMultipart(`/users/${userId}/profile-image`, formData);
+    const response = await authFetchMultipart(`/users/me/profile-image`, formData);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -17,11 +17,11 @@ export const imageService = {
     return await response.json();
   },
 
-  async uploadCoverImage(userId, imageFile) {
+  async uploadCoverImage(imageFile) {
     const formData = new FormData();
     formData.append('image', imageFile);
 
-    const response = await authFetchMultipart(`/users/${userId}/cover-image`, formData);
+    const response = await authFetchMultipart(`/users/me/cover-image`, formData);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -45,8 +45,8 @@ export const imageService = {
     return await response.json();
   },
 
-  async deleteUserImage(userId, imageType) {
-    const response = await authFetch(`/users/${userId}/${imageType}-image`, {
+  async deleteUserImage(imageType) {
+    const response = await authFetch(`/users/me/${imageType}-image`, {
       method: 'DELETE',
     });
 
