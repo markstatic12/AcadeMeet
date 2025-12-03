@@ -5,15 +5,6 @@ import { authFetch } from './apiHelper';
 
 const API_BASE = '/sessions';
 
-// Helper function to build headers with optional user ID
-const buildHeaders = (userId) => {
-  const headers = {};
-  if (userId) {
-    headers['X-User-Id'] = userId.toString();
-  }
-  return headers;
-};
-
 // Helper function to handle API responses
 const handleResponse = async (response, errorMessage = 'Request failed') => {
   if (!response.ok) {
@@ -27,7 +18,7 @@ export const sessionService = {
   /**
    * Creates a new session with proper data formatting
    */
-  async createSession(sessionData, userId) {
+  async createSession(sessionData) {
     const submissionData = {
       ...sessionData,
       maxParticipants: sessionData.maxParticipants ? parseInt(sessionData.maxParticipants) : null,
@@ -38,8 +29,6 @@ export const sessionService = {
 
     const response = await authFetch(API_BASE, {
       method: 'POST',
-      headers: buildHeaders(userId),
-      credentials: 'include',
       body: JSON.stringify(submissionData)
     });
 
@@ -49,12 +38,10 @@ export const sessionService = {
   /**
    * Validates session password without joining (for private session access)
    */
-  async validateSessionPassword(sessionId, password, userId) {
+  async validateSessionPassword(sessionId, password) {
     const response = await authFetch(`${API_BASE}/${sessionId}/validate-password`, {
       method: 'POST',
-      headers: buildHeaders(userId),
-      credentials: 'include',
-      body: JSON.stringify({ password, userId })
+      body: JSON.stringify({ password })
     });
 
     return handleResponse(response, 'Failed to validate password');
@@ -63,12 +50,10 @@ export const sessionService = {
   /**
    * Joins a session with password validation and participant increment
    */
-  async joinSession(sessionId, password, userId) {
+  async joinSession(sessionId, password) {
     const response = await authFetch(`${API_BASE}/${sessionId}/join`, {
       method: 'POST',
-      headers: buildHeaders(userId),
-      credentials: 'include',
-      body: JSON.stringify({ password, userId })
+      body: JSON.stringify({ password })
     });
 
     return handleResponse(response, 'Failed to join session');
@@ -77,11 +62,9 @@ export const sessionService = {
   /**
    * Updates session status (e.g., ACTIVE, COMPLETED, CANCELLED)
    */
-  async updateSessionStatus(sessionId, status, userId) {
+  async updateSessionStatus(sessionId, status) {
     const response = await authFetch(`${API_BASE}/${sessionId}/status`, {
       method: 'PATCH',
-      headers: buildHeaders(userId),
-      credentials: 'include',
       body: JSON.stringify({ status })
     });
 
@@ -91,15 +74,13 @@ export const sessionService = {
   /**
    * Fetches sessions filtered by status or all sessions if no status provided
    */
-  async getSessionsByStatus(status, userId) {
+  async getSessionsByStatus(status) {
     const url = status 
       ? `${API_BASE}?status=${status}`
       : API_BASE;
     
     const response = await authFetch(url, {
-      method: 'GET',
-      headers: buildHeaders(userId),
-      credentials: 'include'
+      method: 'GET'
     });
 
     return handleResponse(response, 'Failed to fetch sessions');
@@ -108,11 +89,9 @@ export const sessionService = {
   /**
    * Fetches sessions available for linking (non-private sessions)
    */
-  async getSessionsForLinking(userId) {
+  async getSessionsForLinking() {
     const response = await authFetch(`${API_BASE}?status=ACTIVE,SCHEDULED`, {
-      method: 'GET',
-      headers: buildHeaders(userId),
-      credentials: 'include'
+      method: 'GET'
     });
     
     const sessions = await handleResponse(response, 'Failed to fetch sessions for linking');
@@ -126,11 +105,9 @@ export const sessionService = {
   /**
    * Fetches all sessions regardless of filters
    */
-  async getAllSessions(userId) {
+  async getAllSessions() {
     const response = await authFetch(`${API_BASE}/all-sessions`, {
-      method: 'GET',
-      headers: buildHeaders(userId),
-      credentials: 'include'
+      method: 'GET'
     });
 
     return handleResponse(response, 'Failed to fetch all sessions');
@@ -139,11 +116,9 @@ export const sessionService = {
   /**
    * Fetches session details by ID with enhanced error handling
    */
-  async getSessionById(sessionId, userId) {
+  async getSessionById(sessionId) {
     const response = await authFetch(`${API_BASE}/${sessionId}`, {
-      method: 'GET',
-      headers: buildHeaders(userId),
-      credentials: 'include'
+      method: 'GET'
     });
 
     if (!response.ok) {
@@ -159,7 +134,7 @@ export const sessionService = {
   /**
    * Gets sessions scheduled for a specific date
    */
-  async getSessionsByDate(year, month, day, userId) {
+  async getSessionsByDate(year, month, day) {
     const params = new URLSearchParams({
       year: year.toString(),
       month: month.toString(),
@@ -167,9 +142,7 @@ export const sessionService = {
     });
     
     const response = await authFetch(`${API_BASE}/by-date?${params}`, {
-      method: 'GET',
-      headers: buildHeaders(userId),
-      credentials: 'include'
+      method: 'GET'
     });
 
     return handleResponse(response, 'Failed to fetch sessions for date');
