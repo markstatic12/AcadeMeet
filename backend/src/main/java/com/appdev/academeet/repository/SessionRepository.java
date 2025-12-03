@@ -16,10 +16,10 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     // Read/Status
     List<Session> findByHost_Id(Long userId);
     List<Session> findAllByOrderByStartTime();
-    Page<Session> findBySessionStatus(SessionStatus status, Pageable pageable);
+    Page<Session> findByStatus(SessionStatus status, Pageable pageable);
     
     // Search/Filter
-    Page<Session> findByTitleContainingAndSessionStatus(String keyword, SessionStatus status, Pageable pageable);
+    Page<Session> findByTitleContainingAndStatus(String keyword, SessionStatus status, Pageable pageable);
     List<Session> findByStartTimeBetween(LocalDateTime start, LocalDateTime end);
     
     // Additional useful methods

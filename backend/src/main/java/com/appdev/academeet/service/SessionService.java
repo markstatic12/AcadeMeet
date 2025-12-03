@@ -172,11 +172,11 @@ public class SessionService {
         Page<Session> sessions;
         
         if (keyword != null && !keyword.trim().isEmpty() && status != null) {
-            sessions = sessionRepository.findByTitleContainingAndSessionStatus(keyword, status, pageable);
+            sessions = sessionRepository.findByTitleContainingAndStatus(keyword, status, pageable);
         } else if (keyword != null && !keyword.trim().isEmpty()) {
             sessions = sessionRepository.findByTitleContaining(keyword, pageable);
         } else if (status != null) {
-            sessions = sessionRepository.findBySessionStatus(status, pageable);
+            sessions = sessionRepository.findByStatus(status, pageable);
         } else {
             sessions = sessionRepository.findAll(pageable);
         }
@@ -198,7 +198,7 @@ public class SessionService {
      */
     @Transactional(readOnly = true)
     public Page<Session> getSessionsByStatus(SessionStatus status, Pageable pageable) {
-        return sessionRepository.findBySessionStatus(status, pageable);
+        return sessionRepository.findByStatus(status, pageable);
     }
 
     // Backward compatibility method
