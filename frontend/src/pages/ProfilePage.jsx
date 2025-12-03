@@ -79,9 +79,18 @@ const ProfilePage = () => {
 
   return (
     <DashboardLayout>
-      <h1 className="text-2xl font-bold text-white mb-6">My Profile</h1>
-      <div className="flex gap-6">
-        <div className="w-[350px]">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center">
+            <svg className="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+            </svg>
+          </div>
+          My Profile
+        </h1>
+      </div>
+      <div className="flex gap-6 h-[calc(100vh-180px)]">
+        <div className="w-[280px]">
           <ProfileCard
             ref={leftProfileCardRef}
             userData={userData}
@@ -92,9 +101,13 @@ const ProfilePage = () => {
         <div className="flex-1 relative z-0">
           <div
             ref={rightPanelRef}
-            style={panelHeight ? { height: panelHeight } : undefined}
-            className="bg-[#1f1f1f] border border-gray-800 rounded-2xl overflow-hidden shadow-xl p-6 flex flex-col"
+            className="h-full relative bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 rounded-2xl overflow-hidden shadow-2xl p-6 flex flex-col transition-all hover:border-gray-600 group"
           >
+            {/* Decorative background elements - subtle */}
+            <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-600/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-600/5 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div className="relative z-10 flex flex-col h-full">
             <div className="flex items-center justify-between mb-6 flex-shrink-0">
               <TabButtons 
                 activeTab={activeTab} 
@@ -189,6 +202,7 @@ const ProfilePage = () => {
                 onRestore={restoreTrashedNote}
               />
             )}
+            </div>
           </div>
         </div>
       </div>
