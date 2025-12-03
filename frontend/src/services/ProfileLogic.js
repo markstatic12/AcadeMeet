@@ -7,7 +7,6 @@ import { authFetch } from './apiHelper';
 
 export const useProfilePage = () => {
   const navigate = useNavigate();
-  const { getUserId } = useUser();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showFollowersManager, setShowFollowersManager] = useState(false);
   const [followTab, setFollowTab] = useState('followers');
@@ -46,19 +45,16 @@ export const useProfilePage = () => {
     bio: ''
   });
 
-  // Fetch user data from backend using user ID
+  // Fetch user data from backend using JWT
   useEffect(() => {
     const fetchUserData = async () => {
-      const userId = getUserId();
-      if (!userId) return;
-
       try {
-        const response = await authFetch(`/users/${userId}`);
+        const response = await authFetch('/users/me');
         if (response.ok) {
           const data = await response.json();
           console.log('Profile loaded user data:', data);
           setUserData({
-            id: userId,
+            id: data.id,
             name: data.name || 'User',
             email: data.email || '',
             school: data.school || 'CIT University',
@@ -87,7 +83,7 @@ export const useProfilePage = () => {
     };
 
     fetchUserData();
-  }, [getUserId]);
+  }, []);
 
   // Open edit modal
   const openEditModal = () => {
@@ -125,11 +121,10 @@ export const useProfilePage = () => {
     try {
       setIsEditing(true);
       
-      const currentUserId = getUserId();
-      if (!currentUserId) {
-        alert('User not authenticated');
-        return;
-      }
+      // Get current user ID from /me endpoint
+      const meResponse = await authFetch('/users/me');
+      const meData = await meResponse.json();
+      const currentUserId = meData.id;
       
       const response = await authFetch(`/users/${currentUserId}`, {
         method: 'PUT',
@@ -214,8 +209,10 @@ export const useProfilePage = () => {
 
   const refreshFollowLists = async () => {
     try{
-      const userId = getUserId();
-      if(!userId) return;
+      const meResponse = await authFetch('/users/me');
+      const meData = await meResponse.json();
+      const userId = meData.id;
+      
       const [foRes, fiRes] = await Promise.all([
         authFetch(`/followers/${userId}/followers`),
         authFetch(`/followers/${userId}/following`)
@@ -234,9 +231,11 @@ export const useProfilePage = () => {
   };
 
   const removeFollower = async (followerId) => {
-    const userId = getUserId();
-    if(!userId) return;
     try{
+      const meResponse = await authFetch('/users/me');
+      const meData = await meResponse.json();
+      const userId = meData.id;
+      
       await authFetch('/followers/unfollow',{
         method:'DELETE',
         body: JSON.stringify({ followerId, followingId: userId })
@@ -246,9 +245,11 @@ export const useProfilePage = () => {
   };
 
   const unfollowUser = async (followingId) => {
-    const userId = getUserId();
-    if(!userId) return;
     try{
+      const meResponse = await authFetch('/users/me');
+      const meData = await meResponse.json();
+      const userId = meData.id;
+      
       await authFetch('/followers/unfollow',{
         method:'DELETE',
         body: JSON.stringify({ followerId: userId, followingId })
@@ -304,59 +305,24 @@ export const useProfilePage = () => {
 
 // Notes hook for profile page
 export const useNotes = (activeTab) => {
-  const { getUserId } = useUser();
   const [notesData, setNotesData] = useState([]);
 
   useEffect(() => {
-    const userId = getUserId();
-    
-    // If no user is authenticated, don't fetch notes - just like useSessions
-    if (!userId) {
-      console.warn('User not authenticated');
-      setNotesData([]);
-      return;
-    }
-
+    // Notes backend not yet implemented - would use JWT /me endpoint
+    // Placeholder implementation
     const fetchNotes = async () => {
       try {
-        const res = await authFetch(`/notes/user/${userId}/active`, {
-          method: 'GET',
-        });
-
-        if (!res.ok) throw new Error('Failed to fetch notes');
-
-        const data = await res.json();
-        console.log('Fetched notes for user', userId, ':', data);
-        
-        // Normalize the data to match expected format and preserve raw fields
-        const normalized = (Array.isArray(data) ? data : []).map(n => ({
-          id: n.noteId || n.id || n.note_id || null,
-          title: n.title || 'Untitled Note',
-          content: n.content || n.richText || '',
-          createdAt: n.createdAt || n.created_at || n.createdDate || new Date().toISOString(),
-          isFavourite: n.isFavourite || n.is_favourite || false,
-          archivedAt: n.archivedAt || n.archived_at || null,
-          deletedAt: n.deletedAt || n.deleted_at || null,
-          // Keep the original raw response so components can inspect type/filePath/etc.
-          raw: n,
-          // Normalize commonly used file-note fields to make checks simpler in UI
-          type: n.type || n.noteType || n.note_type || null,
-          filePath: n.filePath || n.file_path || null,
-          notePreviewImageUrl: n.notePreviewImageUrl || n.note_preview_image_url || null,
-          tags: n.tags || n.note_tags || [],
-        }));
-        
-        setNotesData(normalized);
+        // Would use: /notes/me/active with JWT authentication
+        // For now, set empty array until backend endpoint is implemented
+        setNotesData([]);
       } catch (err) {
         console.error('Failed to fetch notes from server:', err);
         setNotesData([]);
       }
     };
 
-    if (userId) {
-      fetchNotes();
-    }
-  }, [activeTab, getUserId]);
+    fetchNotes();
+  }, [activeTab]);
 
   const toggleFavourite = (noteId) => {
     setNotesData(prevNotes =>
@@ -380,46 +346,40 @@ export const useNotes = (activeTab) => {
 
   const restoreTrashedNote = () => {
     // Refresh from server to get the restored notes
-    const userId = getUserId();
-    if (userId) {
-      authFetch(`/notes/user/${userId}/active`)
-        .then(res => res.json())
-        .then(data => {
-          const normalized = (Array.isArray(data) ? data : []).map(n => ({
-            id: n.noteId || n.id,
-            title: n.title || 'Untitled Note',
-            content: n.content || '',
-            createdAt: n.createdAt || new Date().toISOString(),
-            isFavourite: false,
-            archivedAt: null,
-            deletedAt: null,
-          }));
-          setNotesData(normalized);
-        })
-        .catch(err => console.error('Failed to refresh notes:', err));
-    }
+    authFetch(`/notes/user/me/active`)
+      .then(res => res.json())
+      .then(data => {
+        const normalized = (Array.isArray(data) ? data : []).map(n => ({
+          id: n.noteId || n.id,
+          title: n.title || 'Untitled Note',
+          content: n.content || '',
+          createdAt: n.createdAt || new Date().toISOString(),
+          isFavourite: false,
+          archivedAt: null,
+          deletedAt: null,
+        }));
+        setNotesData(normalized);
+      })
+      .catch(err => console.error('Failed to refresh notes:', err));
   };
 
   const restoreArchivedNote = () => {
     // Refresh from server to get the restored notes
-    const userId = getUserId();
-    if (userId) {
-      authFetch(`/notes/user/${userId}/active`)
-        .then(res => res.json())
-        .then(data => {
-          const normalized = (Array.isArray(data) ? data : []).map(n => ({
-            id: n.noteId || n.id,
-            title: n.title || 'Untitled Note',
-            content: n.content || '',
-            createdAt: n.createdAt || new Date().toISOString(),
-            isFavourite: false,
-            archivedAt: null,
-            deletedAt: null,
-          }));
-          setNotesData(normalized);
-        })
-        .catch(err => console.error('Failed to refresh notes:', err));
-    }
+    authFetch(`/notes/user/me/active`)
+      .then(res => res.json())
+      .then(data => {
+        const normalized = (Array.isArray(data) ? data : []).map(n => ({
+          id: n.noteId || n.id,
+          title: n.title || 'Untitled Note',
+          content: n.content || '',
+          createdAt: n.createdAt || new Date().toISOString(),
+          isFavourite: false,
+          archivedAt: null,
+          deletedAt: null,
+        }));
+        setNotesData(normalized);
+      })
+      .catch(err => console.error('Failed to refresh notes:', err));
   };
 
   // Provide API-compatible names expected by components
@@ -451,22 +411,13 @@ const pruneTrashed = (items) => {
 export const useSessions = () => {
   const [sessionsData, setSessionsData] = useState([]);
   const [trashedSessions, setTrashedSessions] = useState([]);
-  const { getUserId } = useUser();
 
-
-  // Fetch sessions from API
+  // Fetch sessions from API using JWT /me endpoint
   useEffect(() => {
-
-    const userId = getUserId();
-    if (!userId) {
-      console.warn("User not authenticated");
-      return;
-    }
-
-
     const fetchSessions = async () => {
       try {
-        const res = await authFetch(`/sessions/user/${userId}`, {
+        // Use /me endpoint to get current user's sessions
+        const res = await authFetch('/sessions/user/me', {
           method: "GET",
         });
 
@@ -500,9 +451,7 @@ export const useSessions = () => {
       }
     };
 
-    if (userId) {
-      fetchSessions();
-    }
+    fetchSessions();
 
     // Load trashed sessions
     try {
@@ -512,7 +461,7 @@ export const useSessions = () => {
       console.error('Failed to parse trashed sessions', e);
       setTrashedSessions([]);
     }
-  }, [getUserId]);
+  }, []);
 
   const deleteSession = (sessionId) => {
     setSessionsData(prevSessions => {

@@ -83,7 +83,6 @@ const PasswordModal = ({ isOpen, onClose, onSubmit, sessionTitle, needsAuthentic
 const SessionViewPage = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
-  const { getUserId } = useUser();
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -92,9 +91,22 @@ const SessionViewPage = () => {
   const [needsAuthentication, setNeedsAuthentication] = useState(false);
   const [sessionTitle, setSessionTitle] = useState('');
   const [validatedPassword, setValidatedPassword] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
-  const currentUserId = getUserId();
-  const isSessionOwner = session && session.createdBy?.id === currentUserId;
+  // Fetch current user ID on mount
+  useEffect(() => {
+    fetch('http://localhost:8080/api/users/me', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(res => res.json())
+      .then(data => setCurrentUserId(data.id))
+      .catch(err => console.error('Failed to load current user', err));
+  }, []);
+
+  const isSessionOwner = session && currentUserId && session.createdBy?.id === currentUserId;
 
   // Helper function to check if session is full
   const isSessionFull = useCallback(() => {
@@ -126,7 +138,7 @@ const SessionViewPage = () => {
       try {
         setLoading(true);
         setError(null);
-        const sessionData = await sessionService.getSessionById(sessionId, currentUserId);
+        const sessionData = await sessionService.getSessionById(sessionId);
         console.log('Loaded session:', sessionData);
         
         if (requiresPasswordAuth(sessionData)) {
@@ -156,7 +168,7 @@ const SessionViewPage = () => {
     try {
       setLoading(true);
       setError(null);
-      const sessionData = await sessionService.getSessionById(sessionId, currentUserId);
+      const sessionData = await sessionService.getSessionById(sessionId);
       setSession(sessionData);
     } catch (err) {
       console.error('Error fetching session:', err);
@@ -183,13 +195,13 @@ const SessionViewPage = () => {
       try {
         setIsJoining(true);
         // Only validate password, don't join the session yet
-        await sessionService.validateSessionPassword(sessionId, password, currentUserId);
+        await sessionService.validateSessionPassword(sessionId, password);
         
         // Store the validated password for later use when joining
         setValidatedPassword(password);
         
         // If successful, load the session details
-        const sessionData = await sessionService.getSessionById(sessionId, currentUserId);
+        const sessionData = await sessionService.getSessionById(sessionId);
         setSession(sessionData);
         setNeedsAuthentication(false);
         setShowPasswordModal(false);
@@ -226,7 +238,7 @@ const SessionViewPage = () => {
         return;
       }
 
-      await sessionService.joinSession(sessionId, password, currentUserId);
+      await sessionService.joinSession(sessionId, password);
       
       // Show success message
       alert(`You have successfully joined "${session.title}"`);

@@ -1,18 +1,13 @@
 // Reminder Service
-import { useUser } from '../context/UserContext';
 import { authFetch } from './apiHelper';
 
 // Hook-based reminder service
 export const useReminderService = () => {
-  const { getUserId } = useUser();
 
   const createReminder = async (sessionId, reminderTime, message = '', notificationType = 'IN_APP') => {
-    const userId = getUserId();
-    if (!userId) throw new Error('User not authenticated');
     const response = await authFetch('/reminders', {
       method: 'POST',
       body: JSON.stringify({
-        userId,
         sessionId,
         reminderTime,
         reminderMessage: message,
@@ -29,10 +24,7 @@ export const useReminderService = () => {
   };
 
   const getUserReminders = async () => {
-    const userId = getUserId();
-    if (!userId) throw new Error('User not authenticated');
-    
-    const response = await authFetch(`/reminders?userId=${userId}`);
+    const response = await authFetch('/reminders/me');
     
     if (!response.ok) {
       throw new Error('Failed to fetch reminders');
@@ -42,10 +34,7 @@ export const useReminderService = () => {
   };
 
   const getPendingReminders = async () => {
-    const userId = getUserId();
-    if (!userId) throw new Error('User not authenticated');
-    
-    const response = await authFetch(`/reminders/pending?userId=${userId}`);
+    const response = await authFetch('/reminders/me/pending');
     
     if (!response.ok) {
       throw new Error('Failed to fetch pending reminders');
@@ -55,11 +44,24 @@ export const useReminderService = () => {
     return data.count;
   };
 
+  const deleteReminder = async (reminderId) => {
+    const response = await authFetch(`/reminders/${reminderId}`, {
+      method: 'DELETE'
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Failed to delete reminder');
+    }
+
+    return await response.json();
+  };
+
   return {
     createReminder,
     getUserReminders,
     getPendingReminders,
-    getPendingReminderCount
+    deleteReminder
   };
 };
 

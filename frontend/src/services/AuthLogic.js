@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
-import { authService } from './AuthService';
+import { authService } from './authService';
 
 // Login Page Logic Hook
 export const useLoginPage = () => {

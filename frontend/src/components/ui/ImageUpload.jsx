@@ -5,7 +5,6 @@ const ImageUpload = ({
   currentImageUrl, 
   onImageUpdate, 
   uploadType = 'profile', // 'profile', 'cover', 'session'
-  userId, 
   sessionId,
   className = ''
 }) => {
@@ -22,10 +21,10 @@ const ImageUpload = ({
       let result;
       switch (uploadType) {
         case 'profile':
-          result = await imageService.uploadProfileImage(userId, file);
+          result = await imageService.uploadProfileImage(file);
           break;
         case 'cover':
-          result = await imageService.uploadCoverImage(userId, file);
+          result = await imageService.uploadCoverImage(file);
           break;
         case 'session':
           result = await imageService.uploadSessionImage(sessionId, file);
@@ -77,7 +76,7 @@ const ImageUpload = ({
       if (uploadType === 'session') {
         await imageService.deleteSessionImage(sessionId);
       } else {
-        await imageService.deleteUserImage(userId, uploadType);
+        await imageService.deleteUserImage(uploadType);
       }
       onImageUpdate(null);
     } catch (error) {

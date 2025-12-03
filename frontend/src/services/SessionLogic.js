@@ -1,12 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '../context/UserContext';
 import { sessionService } from './SessionService';
 
 // Session Form Logic Hook
 export const useSessionForm = () => {
   const navigate = useNavigate();
-  const { getUserId } = useUser();
 
   const [sessionData, setSessionData] = useState({
     title: "",
@@ -41,13 +39,6 @@ export const useSessionForm = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const userId = getUserId();
-    if (!userId) {
-      alert("User not logged in");
-      setIsSubmitting(false);
-      return;
-    }
-
     // Validate required fields
     const requiredFields = ['title', 'month', 'day', 'year', 'startTime', 'endTime', 'location', 'sessionType'];
     const missingFields = requiredFields.filter(field => !sessionData[field] || sessionData[field].trim() === '');
@@ -66,7 +57,7 @@ export const useSessionForm = () => {
     }
 
     try {
-      await sessionService.createSession(sessionData, userId);
+      await sessionService.createSession(sessionData);
       
       // Instead of a blocking alert, navigate to dashboard and pass a success flag
       // so the dashboard or sessions page can render a non-blocking success modal.
@@ -99,13 +90,11 @@ export const useSessionsPage = () => {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { getUserId } = useUser();
 
   const fetchSessions = useCallback(async () => {
     try {
       setLoading(true);
-      const userId = getUserId();
-      const data = await sessionService.getAllSessions(userId);
+      const data = await sessionService.getAllSessions();
       setSessions(data);
       setError(null);
     } catch (err) {
@@ -114,7 +103,7 @@ export const useSessionsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [getUserId]);
+  }, []);
 
   useEffect(() => {
     fetchSessions();

@@ -5,7 +5,7 @@ import { authFetch } from './apiHelper';
 
 export const useSettingsPage = () => {
   const navigate = useNavigate();
-  const { getUserId, logout } = useUser();
+  const { logout } = useUser();
   const [saving, setSaving] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [student, setStudent] = useState(null);
@@ -50,36 +50,33 @@ export const useSettingsPage = () => {
     return formChanged || imagesChanged;
   };
 
-  // Load student data from backend
+  // Load student data from backend using JWT
   useEffect(() => {
-    const userId = getUserId();
-    if (userId) {
-      authFetch(`/users/${userId}`)
-        .then(res => res.json())
-        .then(s => {
-          console.log('Loaded user data:', s); // Debug log
-          setStudent(s);
-          
-          const loadedForm = {
-            name: s.name || '',
-            program: s.program || '',
-            bio: s.bio || '',
-            yearLevel: s.yearLevel || '',
-          };
-          
-          const loadedProfilePic = s.profilePic || null;
-          const loadedCoverImage = s.coverImage || null;
-          
-          setForm(loadedForm);
-          setOriginalForm(loadedForm);
-          setProfilePreview(loadedProfilePic);
-          setOriginalProfilePreview(loadedProfilePic);
-          setCoverPreview(loadedCoverImage);
-          setOriginalCoverPreview(loadedCoverImage);
-        })
-        .catch(err => console.error('Failed to load user', err));
-    }
-  }, [getUserId]);
+    authFetch('/users/me')
+      .then(res => res.json())
+      .then(s => {
+        console.log('Loaded user data:', s); // Debug log
+        setStudent(s);
+        
+        const loadedForm = {
+          name: s.name || '',
+          program: s.program || '',
+          bio: s.bio || '',
+          yearLevel: s.yearLevel || '',
+        };
+        
+        const loadedProfilePic = s.profilePic || null;
+        const loadedCoverImage = s.coverImage || null;
+        
+        setForm(loadedForm);
+        setOriginalForm(loadedForm);
+        setProfilePreview(loadedProfilePic);
+        setOriginalProfilePreview(loadedProfilePic);
+        setCoverPreview(loadedCoverImage);
+        setOriginalCoverPreview(loadedCoverImage);
+      })
+      .catch(err => console.error('Failed to load user', err));
+  }, []);
 
   const handleBack = () => {
     navigate(-1);
@@ -98,11 +95,13 @@ export const useSettingsPage = () => {
   };
 
   const handleSaveProfile = async (showToast) => {
-    const userId = getUserId();
-    if (!userId) return;
-    
     try {
       setSaving(true);
+      
+      // First, get current user ID from /me endpoint
+      const meResponse = await authFetch('/users/me');
+      const userData = await meResponse.json();
+      const userId = userData.id;
       
       // Prepare data to send
       const updateData = {

@@ -1,10 +1,8 @@
 // Dashboard Service
 import { useState, useEffect } from 'react';
 import { noteService } from './noteService';
-import { useUser } from '../context/UserContext';
 
 export const useDashboardPage = () => {
-  const { getUserId } = useUser();
   const [activeSessionTab, setActiveSessionTab] = useState('available');
   const [activeNotesTab, setActiveNotesTab] = useState('my');
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -19,28 +17,12 @@ export const useDashboardPage = () => {
     const loadNotes = async () => {
       if (activeNotesTab !== 'my') return;
       
-      const userId = getUserId();
-      if (!userId) return;
-      
-      setNotesLoading(true);
-      setNotesError(null);
-      
-      try {
-        const data = await noteService.getUserActiveNotes(userId);
-        if (cancelled) return;
-        
-        setNotes(data);
-        console.log('Dashboard loaded user notes:', data);
-      } catch (err) {
-        if (cancelled) return;
-        
-        console.error('Failed to load user notes:', err);
-        setNotesError(err.message || 'Failed to load notes');
-      } finally {
-        if (!cancelled) {
-          setNotesLoading(false);
-        }
-      }
+      // Note: Notes backend not yet implemented
+      // Skip loading for now to avoid errors
+      setNotesLoading(false);
+      setNotes([]);
+      setNotesError('Notes feature coming soon');
+      return;
     };
 
     loadNotes();
@@ -48,7 +30,7 @@ export const useDashboardPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [activeNotesTab, getUserId]);
+  }, [activeNotesTab]);
 
   // Load all notes when the All Notes tab is active
   useEffect(() => {
@@ -57,25 +39,18 @@ export const useDashboardPage = () => {
     const loadAllNotes = async () => {
       if (activeNotesTab !== 'all') return;
       
-      setNotesLoading(true);
-      setNotesError(null);
+      // Notes backend not yet implemented
+      setNotesLoading(false);
+      setNotes([]);
+      setNotesError('Notes feature coming soon');
+      return;
+      if (activeNotesTab !== 'all') return;
       
-      try {
-        const data = await noteService.getAllActiveNotes();
-        if (cancelled) return;
-        
-        setNotes(data);
-        console.log('Dashboard loaded all notes:', data);
-      } catch (err) {
-        if (cancelled) return;
-        
-        console.error('Failed to load all notes:', err);
-        setNotesError(err.message || 'Failed to load notes');
-      } finally {
-        if (!cancelled) {
-          setNotesLoading(false);
-        }
-      }
+      // Notes backend not yet implemented
+      setNotesLoading(false);
+      setNotes([]);
+      setNotesError('Notes feature coming soon');
+      return;
     };
 
     loadAllNotes();

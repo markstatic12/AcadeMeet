@@ -41,7 +41,7 @@ export const authFetch = async (endpoint, options = {}) => {
   if (response.status === 401 && !options._isRetry) {
     try {
       // Import authService dynamically to avoid circular dependency
-      const { authService } = await import('./AuthService.js');
+      const { authService } = await import('./authService.js');
       await authService.refreshAccessToken();
       
       // Retry request with new token

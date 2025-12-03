@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from 'react';
-// Reminder service exports: createReminder, getUserReminders, deleteReminder
-import { createReminder, getUserReminders, deleteReminder } from '../../services/ReminderService';
+import React, { useState, useEffect, useCallback } from 'react';
+// Reminder service hook for JWT authentication
+import { useReminderService } from '../../services/ReminderService';
 import { formatDistance, format } from 'date-fns';
 import { useUser } from '../../context/UserContext';
 
 
-export const ReminderCard = ({ reminder, onUpdate, onDelete }) => {
+export const ReminderCard = ({ reminder, onDelete }) => {
   const handleDelete = async () => {
     if (!window.confirm('Are you sure you want to delete this reminder?')) {
       return;
     }
 
     try {
-      await deleteReminder(reminder.id);
       onDelete(reminder.id);
     } catch (err) {
       console.error('Failed to delete reminder:', err);
@@ -135,7 +134,7 @@ export const ReminderCard = ({ reminder, onUpdate, onDelete }) => {
 
 // ===== ADD REMINDER MODAL =====
 
-export const AddReminderModal = ({ sessionId, userId, onClose, onAdd }) => {
+export const AddReminderModal = ({ sessionId, onClose, onAdd }) => {
   const [formData, setFormData] = useState({
     reminderTime: '',
     reminderMessage: '',
@@ -143,6 +142,7 @@ export const AddReminderModal = ({ sessionId, userId, onClose, onAdd }) => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const { createReminder } = useReminderService();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -158,7 +158,6 @@ export const AddReminderModal = ({ sessionId, userId, onClose, onAdd }) => {
     try {
       const reminderTime = new Date(formData.reminderTime).toISOString();
       const newReminder = await createReminder(
-        userId,
         sessionId,
         reminderTime,
         formData.reminderMessage,
@@ -287,18 +286,13 @@ export const ReminderPanel = ({ sessionId, className = '' }) => {
   const [error, setError] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const { user } = useUser();
+  const { getUserReminders, deleteReminder } = useReminderService();
 
-  useEffect(() => {
-    if (user) {
-      loadReminders();
-    }
-  }, [user]);
-
-  const loadReminders = async () => {
+  const loadReminders = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const remindersData = await getUserReminders(user.id);
+      const remindersData = await getUserReminders();
       // Filter reminders for this session if sessionId is provided
       const filteredReminders = sessionId 
         ? remindersData.filter(reminder => reminder.sessionId === sessionId)
@@ -310,7 +304,13 @@ export const ReminderPanel = ({ sessionId, className = '' }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [getUserReminders, sessionId]);
+
+  useEffect(() => {
+    if (user) {
+      loadReminders();
+    }
+  }, [user, loadReminders]);
 
   const handleAddReminder = (newReminder) => {
     setReminders(prev => [newReminder, ...prev]);
@@ -399,7 +399,6 @@ export const ReminderPanel = ({ sessionId, className = '' }) => {
       {showAddModal && (
         <AddReminderModal
           sessionId={sessionId}
-          userId={user.id}
           onClose={() => setShowAddModal(false)}
           onAdd={handleAddReminder}
         />
