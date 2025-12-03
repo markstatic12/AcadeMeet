@@ -5,13 +5,15 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,24 +59,48 @@ public class SessionController {
     }
 
     /**
-     * Creates a new session with the specified user as host.
+     * Helper method to get authenticated user from JWT token
      */
-    @PostMapping
-    public SessionDTO createSession(@RequestBody Session session, @RequestHeader("X-User-Id") Long userId) {
-        User host = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("User not authenticated");
+        }
         
-        session.setHost(host);
-        Session savedSession = sessionService.createSession(session);
-        return new SessionDTO(savedSession);
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername();
+        
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     /**
-     * Gets all sessions for a specific user.
+     * Creates a new session with the authenticated user as host.
      */
-    @GetMapping("/user/{userId}")
-    public List<SessionDTO> getSessionsByUser(@PathVariable Long userId) { 
-        return sessionService.getSessionsByUserId(userId);
+    @PostMapping
+    public ResponseEntity<?> createSession(@RequestBody Session session) {
+        try {
+            User host = getAuthenticatedUser();
+            session.setHost(host);
+            Session savedSession = sessionService.createSession(session);
+            return ResponseEntity.ok(new SessionDTO(savedSession));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Gets all sessions for the authenticated user.
+     */
+    @GetMapping("/user/me")
+    public ResponseEntity<?> getMySessionsByUser() {
+        try {
+            User user = getAuthenticatedUser();
+            List<SessionDTO> sessions = sessionService.getSessionsByUserId(user.getId());
+            return ResponseEntity.ok(sessions);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     /**
@@ -135,8 +161,7 @@ public class SessionController {
      * Gets a single session by ID.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<SessionDTO> getSessionById(@PathVariable Long id, 
-                                                   @RequestHeader(value = "X-User-Id", required = false) Long userId) {
+    public ResponseEntity<SessionDTO> getSessionById(@PathVariable Long id) {
         try {
             Optional<Session> sessionOpt = sessionService.findById(id);
             return sessionOpt.map(session -> ResponseEntity.ok(new SessionDTO(session)))
