@@ -1,14 +1,26 @@
 package com.appdev.academeet.controller;
 
-import com.appdev.academeet.dto.CommentRequest;
-import com.appdev.academeet.model.Comment;
-import com.appdev.academeet.service.CommentService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.appdev.academeet.dto.CommentRequest;
+import com.appdev.academeet.model.Comment;
+import com.appdev.academeet.model.User;
+import com.appdev.academeet.repository.UserRepository;
+import com.appdev.academeet.service.CommentService;
 
 @RestController
 @RequestMapping("/api")
@@ -16,20 +28,34 @@ import java.util.Map;
 public class CommentController {
 
     private final CommentService commentService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public CommentController(CommentService commentService) {
+    public CommentController(CommentService commentService, UserRepository userRepository) {
         this.commentService = commentService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/sessions/{sessionId}/comments")
     public ResponseEntity<?> createComment(@PathVariable Long sessionId, @RequestBody CommentRequest request) {
         try {
+            // Get authenticated user from JWT
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(401).body(Map.of("error", "User not authenticated"));
+            }
+            
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String email = userDetails.getUsername();
+            
+            User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+            
             Comment comment = commentService.createComment(
-                request.getUserId(), 
+                user.getId(), 
                 sessionId, 
                 request.getContent(), 
-                request.getParentCommentId()
+                null // No parent comment - only top-level comments
             );
             return ResponseEntity.ok(comment);
         } catch (Exception e) {
@@ -42,41 +68,6 @@ public class CommentController {
         try {
             List<Comment> comments = commentService.getSessionComments(sessionId);
             return ResponseEntity.ok(comments);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @DeleteMapping("/comments/{id}")
-    public ResponseEntity<?> deleteComment(@PathVariable Long id) {
-        try {
-            commentService.deleteComment(id);
-            return ResponseEntity.ok(Map.of("message", "Comment deleted successfully"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
-    }
-
-    @PostMapping("/comments/{id}/reply")
-    public ResponseEntity<?> replyToComment(@PathVariable Long id, @RequestBody CommentRequest request) {
-        try {
-            Comment reply = commentService.createComment(
-                request.getUserId(),
-                null, // Session will be inferred from parent comment
-                request.getContent(),
-                id // Parent comment ID
-            );
-            return ResponseEntity.ok(reply);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
-    }
-
-    @GetMapping("/comments/{parentId}/replies")
-    public ResponseEntity<List<Comment>> getReplies(@PathVariable Long parentId) {
-        try {
-            List<Comment> replies = commentService.getReplies(parentId);
-            return ResponseEntity.ok(replies);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
