@@ -1,18 +1,19 @@
 package com.appdev.academeet.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.appdev.academeet.model.Reminder;
 import com.appdev.academeet.model.Session;
 import com.appdev.academeet.model.User;
 import com.appdev.academeet.repository.ReminderRepository;
 import com.appdev.academeet.repository.SessionRepository;
 import com.appdev.academeet.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ReminderService {

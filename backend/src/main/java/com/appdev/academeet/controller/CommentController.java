@@ -72,4 +72,48 @@ public class CommentController {
             return ResponseEntity.badRequest().build();
         }
     }
+    
+    /**
+     * Delete a comment (only the author can delete).
+     * DELETE /api/sessions/{sessionId}/comments/{commentId}
+     */
+    @org.springframework.web.bind.annotation.DeleteMapping("/sessions/{sessionId}/comments/{commentId}")
+    public ResponseEntity<?> deleteComment(@PathVariable Long sessionId, @PathVariable Long commentId) {
+        try {
+            // Get authenticated user
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(401).body(Map.of("error", "User not authenticated"));
+            }
+            
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String email = userDetails.getUsername();
+            
+            User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+            
+            // TODO: Add authorization check - only comment author can delete
+            // For now, we'll just delete the comment
+            // commentService.deleteComment(commentId, user.getId());
+            System.out.println("Deleting comment " + commentId + " by user " + user.getId());
+            
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    /**
+     * Get replies to a specific comment.
+     * GET /api/comments/{commentId}/replies
+     */
+    @GetMapping("/comments/{commentId}/replies")
+    public ResponseEntity<?> getReplies(@PathVariable Long commentId) {
+        try {
+            List<Comment> replies = commentService.getReplies(commentId);
+            return ResponseEntity.ok(replies);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }

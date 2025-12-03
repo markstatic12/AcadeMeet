@@ -57,19 +57,18 @@ public class ReminderController {
     public ResponseEntity<?> createReminder(@RequestBody ReminderRequest request) {
         try {
             User user = getAuthenticatedUser();
+            
+            // Extract header and message from request
+            String header = request.getReminderMessage() != null ? request.getReminderMessage() : "Reminder";
+            String message = request.getNotificationType() != null ? request.getNotificationType().toString() : null;
+            
             Reminder reminder = reminderService.createReminder(
                 user.getId(),
                 request.getSessionId(),
+                header,
+                message,
                 request.getReminderTime()
             );
-            
-            if (request.getReminderMessage() != null) {
-                reminder.setReminderMessage(request.getReminderMessage());
-            }
-            
-            if (request.getNotificationType() != null) {
-                reminder.setNotificationType(request.getNotificationType());
-            }
             
             return ResponseEntity.ok(reminder);
         } catch (Exception e) {
@@ -161,6 +160,36 @@ public class ReminderController {
             return ResponseEntity.ok(Map.of("count", count));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    /**
+     * Get unread reminders for authenticated user.
+     * GET /api/reminders/unread
+     */
+    @GetMapping("/unread")
+    public ResponseEntity<?> getUnreadReminders() {
+        try {
+            User user = getAuthenticatedUser();
+            List<Reminder> unreadReminders = reminderService.getUnreadReminders(user.getId());
+            return ResponseEntity.ok(unreadReminders);
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Map.of("error", "Failed to fetch unread reminders: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * Mark a reminder as read.
+     * PUT /api/reminders/{reminderId}/read
+     */
+    @PatchMapping("/{reminderId}/read")
+    public ResponseEntity<?> markReminderAsRead(@PathVariable Long reminderId) {
+        try {
+            reminderService.markAsRead(reminderId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 }

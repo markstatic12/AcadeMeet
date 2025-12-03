@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -126,24 +127,54 @@ public class SessionController {
 
     /**
      * Joins a session with password validation and participant limit checks.
+     * Uses the new business logic in SessionService.joinSession()
      */
-    @PostMapping("/{id}/join")
-    public ResponseEntity<?> joinSession(@PathVariable Long id, @RequestBody JoinSessionRequest request) {
-        return handleSessionOperation(() -> {
-            // Validate password for private sessions
-            if (!sessionService.validateSessionPassword(id, request.getPassword())) {
-                throw new RuntimeException("Invalid password or session not found");
-            }
-            
-            // Check if session has space
-            if (!sessionService.checkParticipantLimit(id)) {
-                throw new RuntimeException("Session is full");
-            }
-            
-            // Add participant
-            sessionService.incrementParticipant(id);
-            return "Successfully joined session";
-        });
+    @PostMapping("/{sessionId}/join")
+    public ResponseEntity<?> joinSession(@PathVariable Long sessionId, @RequestBody(required = false) JoinSessionRequest request) {
+        try {
+            User user = getAuthenticatedUser();
+            String password = (request != null) ? request.getPassword() : null;
+            sessionService.joinSession(sessionId, user.getId(), password);
+            return ResponseEntity.ok(Map.of("message", "Successfully joined session"));
+        } catch (IllegalStateException | SecurityException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to join session: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * Leave a session.
+     * DELETE /api/sessions/{sessionId}/leave
+     */
+    @org.springframework.web.bind.annotation.DeleteMapping("/{sessionId}/leave")
+    public ResponseEntity<?> leaveSession(@PathVariable Long sessionId) {
+        try {
+            User user = getAuthenticatedUser();
+            sessionService.leaveSession(sessionId, user.getId());
+            return ResponseEntity.noContent().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to leave session: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * Close a session (only host can close).
+     * PUT /api/sessions/{sessionId}/close
+     */
+    @org.springframework.web.bind.annotation.PutMapping("/{sessionId}/close")
+    public ResponseEntity<?> closeSession(@PathVariable Long sessionId) {
+        try {
+            User user = getAuthenticatedUser();
+            sessionService.closeSession(sessionId, user.getId());
+            return ResponseEntity.ok(Map.of("message", "Session closed successfully"));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to close session: " + e.getMessage()));
+        }
     }
 
     /**
@@ -179,15 +210,7 @@ public class SessionController {
         return status != null ? sessionService.getSessionsByStatus(status) : sessionService.getAllSessions();
     }
 
-    /**
-     * Gets sessions scheduled for a specific date.
-     */
-    @GetMapping("/by-date")
-    public List<SessionDTO> getSessionsByDate(@RequestParam String year, 
-                                            @RequestParam String month, 
-                                            @RequestParam String day) {
-        return sessionService.getSessionsByDate(year, month, day);
-    }
+    // Removed getSessionsByDate - session dates now use LocalDateTime (startTime/endTime)
 
     /**
      * Uploads an image for a session (profile or cover).
