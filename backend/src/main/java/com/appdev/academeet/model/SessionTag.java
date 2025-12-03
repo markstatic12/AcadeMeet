@@ -9,9 +9,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "session_tags")
+@Table(name = "session_tag", uniqueConstraints = {
+    @UniqueConstraint(name = "uk_session_tag", columnNames = {"session_id", "tag_name"})
+})
 public class SessionTag {
 
     @Id
@@ -23,7 +26,7 @@ public class SessionTag {
     @JoinColumn(name = "session_id", nullable = false)
     private Session session;
 
-    @Column(name = "tag_name", nullable = false, length = 100)
+    @Column(name = "tag_name", nullable = false, length = 50)
     private String tagName;
 
     public SessionTag() {

@@ -1,7 +1,6 @@
 package com.appdev.academeet.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,21 +29,49 @@ public class CommentService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Add a comment or reply to a session.
+     * 
+     * Business Rules:
+     * 1. Content cannot be empty
+     * 2. If replyTo is provided, ensure parent comment exists in the same session
+     */
     @Transactional
     public Comment createComment(Long userId, Long sessionId, String content, Long parentCommentId) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        Optional<Session> sessionOpt = sessionRepository.findById(sessionId);
-        
-        if (userOpt.isPresent() && sessionOpt.isPresent()) {
-            User user = userOpt.get();
-            Session session = sessionOpt.get();
-            
-            // Only create top-level comments (no parent comments)
-            Comment comment = new Comment(session, user, content, null);
-            return commentRepository.save(comment);
+        // Business Rule 1: Validate content is not empty
+        if (content == null || content.trim().isEmpty()) {
+            throw new IllegalArgumentException("Comment content cannot be empty");
         }
         
-        throw new RuntimeException("User or Session not found");
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Session not found with id: " + sessionId));
+        
+        Comment parentComment = null;
+        
+        // Business Rule 2: If replyTo is provided, validate parent comment
+        if (parentCommentId != null) {
+            parentComment = commentRepository.findById(parentCommentId)
+                    .orElseThrow(() -> new RuntimeException("Parent comment not found with id: " + parentCommentId));
+            
+            // Ensure parent comment is in the same session
+            if (!parentComment.getSession().getId().equals(sessionId)) {
+                throw new IllegalArgumentException("Parent comment must be in the same session");
+            }
+        }
+        
+        Comment comment = new Comment(session, user, content, parentComment);
+        return commentRepository.save(comment);
+    }
+
+    /**
+     * Get all replies to a specific comment.
+     */
+    @Transactional(readOnly = true)
+    public List<Comment> getReplies(Long commentId) {
+        return commentRepository.findByReplyTo_CommentId(commentId);
     }
 
     @Transactional(readOnly = true)

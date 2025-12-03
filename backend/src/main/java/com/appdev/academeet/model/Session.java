@@ -1,17 +1,11 @@
 package com.appdev.academeet.model;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -27,11 +21,12 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "sessions")
+@Table(name = "session")
 public class Session {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "session_id")
     private Long id;
 
     private String title;
@@ -41,29 +36,23 @@ public class Session {
     @JoinColumn(name = "host_id_fk", referencedColumnName = "user_id")
     private User host;  // this is important
 
-    // Composite date attribute
-    @Embedded
-    private SessionDate sessionDate;
+    @Column(name = "start_time", nullable = false)
+    private LocalDateTime startTime;
 
-    @JsonFormat(pattern = "HH:mm")
-    private LocalTime startTime;
-
-    @JsonFormat(pattern = "HH:mm")
-    private LocalTime endTime;
+    @Column(name = "end_time")
+    private LocalDateTime endTime;
 
     private String location;
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    // Multivalued attributes: tags (as separate entity) and notes (as collection)
+    // Multivalued attributes: tags (as separate entity) and notes (as separate entity)
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SessionTag> sessionTags = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "session_notes", joinColumns = @JoinColumn(name = "session_id"))
-    @Column(name = "note", columnDefinition = "TEXT")
-    private List<String> notes = new ArrayList<>();
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<SessionNote> sessionNotes = new ArrayList<>();
 
     // Participants relationship
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -71,14 +60,14 @@ public class Session {
 
     // Session Privacy & Status
     @Enumerated(EnumType.STRING)
-    @Column(name = "session_type")
+    @Column(name = "session_privacy")
     private SessionType sessionType = SessionType.PUBLIC;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @Column(name = "session_status")
     private SessionStatus status = SessionStatus.ACTIVE;
 
-    @Column(name = "password")
+    @Column(name = "session_password")
     private String password; // nullable - only for PRIVATE sessions
 
     // Participant Management
@@ -105,8 +94,12 @@ public class Session {
     // Lifecycle Methods
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (updatedAt == null) {
+            updatedAt = LocalDateTime.now();
+        }
     }
 
     @PreUpdate
@@ -118,26 +111,43 @@ public class Session {
     public Long getId() { return id; }
     public String getTitle() { return title; }
     public User getHost() { return host; }
-    public SessionDate getSessionDate() { return sessionDate; }
-    public LocalTime getStartTime() { return startTime; }
-    public LocalTime getEndTime() { return endTime; }
+    public LocalDateTime getStartTime() { return startTime; }
+    public LocalDateTime getEndTime() { return endTime; }
     public String getLocation() { return location; }
     public String getDescription() { return description; }
     public List<SessionTag> getSessionTags() { return sessionTags; }
-    public List<String> getNotes() { return notes; }
+    public List<SessionNote> getSessionNotes() { return sessionNotes; }
     public List<SessionParticipant> getParticipants() { return participants; }
 
     public void setId(Long id) { this.id = id; }
     public void setTitle(String title) { this.title = title; }
     public void setHost(User host) { this.host = host; }
-    public void setSessionDate(SessionDate sessionDate) { this.sessionDate = sessionDate; }
-    public void setStartTime(LocalTime startTime) { this.startTime = startTime; }
-    public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
+    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
+    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
     public void setLocation(String location) { this.location = location; }
     public void setDescription(String description) { this.description = description; }
     public void setSessionTags(List<SessionTag> sessionTags) { this.sessionTags = sessionTags; }
-    public void setNotes(List<String> notes) { this.notes = notes; }
+    public void setSessionNotes(List<SessionNote> sessionNotes) { this.sessionNotes = sessionNotes; }
     public void setParticipants(List<SessionParticipant> participants) { this.participants = participants; }
+
+    // Backward compatibility for notes
+    @Deprecated
+    public List<String> getNotes() {
+        return sessionNotes.stream()
+                .map(SessionNote::getFilepath)
+                .toList();
+    }
+
+    @Deprecated
+    public void setNotes(List<String> notePaths) {
+        this.sessionNotes.clear();
+        if (notePaths != null) {
+            for (String path : notePaths) {
+                SessionNote note = new SessionNote(this, path);
+                this.sessionNotes.add(note);
+            }
+        }
+    }
 
     // Convenience methods for working with tags (backwards compatibility)
     public List<String> getTags() {
@@ -182,23 +192,6 @@ public class Session {
 
     public int getParticipantCount() {
         return this.participants.size();
-    }
-
-    // Convenience methods for backwards compatibility (delegates to SessionDate)
-    public String getMonth() { return sessionDate != null ? sessionDate.getMonth() : null; }
-    public String getDay() { return sessionDate != null ? sessionDate.getDay() : null; }
-    public String getYear() { return sessionDate != null ? sessionDate.getYear() : null; }
-    public void setMonth(String month) { 
-        if (sessionDate == null) sessionDate = new SessionDate();
-        sessionDate.setMonth(month); 
-    }
-    public void setDay(String day) { 
-        if (sessionDate == null) sessionDate = new SessionDate();
-        sessionDate.setDay(day); 
-    }
-    public void setYear(String year) { 
-        if (sessionDate == null) sessionDate = new SessionDate();
-        sessionDate.setYear(year); 
     }
 
     // New field getters

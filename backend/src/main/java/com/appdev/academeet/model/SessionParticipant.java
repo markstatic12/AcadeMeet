@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
@@ -13,7 +14,9 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "session_participants")
+@Table(name = "session_participant", indexes = {
+    @Index(name = "idx_participant_id", columnList = "participant_id")
+})
 public class SessionParticipant {
 
     @EmbeddedId
