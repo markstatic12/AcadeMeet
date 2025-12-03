@@ -28,35 +28,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        // Skip JWT filter for auth endpoints
-        boolean skip = path.startsWith("/api/auth/");
-        System.out.println("JWT Filter - Path: " + path + ", Skip: " + skip);
-        return skip;
+        // Skip JWT filter for auth endpoints and public paths
+        return path.startsWith("/api/auth/") || path.startsWith("/uploads/");
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        final String header = request.getHeader("Authorization");
-        String token = null;
-        String email = null;
+        try {
+            final String header = request.getHeader("Authorization");
+            String email = null;
 
-        if (header != null && header.startsWith("Bearer ")) {
-            token = header.substring(7);
-            try {
-                if (jwtUtil.validateToken(token)) {
-                    email = jwtUtil.getEmailFromToken(token);
+            if (header != null && header.startsWith("Bearer ")) {
+                String token = header.substring(7);
+                try {
+                    if (jwtUtil.validateToken(token)) {
+                        email = jwtUtil.getEmailFromToken(token);
+                    }
+                } catch (IllegalArgumentException | io.jsonwebtoken.JwtException ex) {
+                    // Log but don't fail - proceed without authentication
+                    logger.debug("JWT validation failed: " + ex.getMessage());
                 }
-            } catch (Exception ex) {
-                // ignore and proceed without authentication
             }
-        }
 
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, userDetails.getAuthorities()
+                );
+                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
+        } catch (org.springframework.security.core.userdetails.UsernameNotFoundException ex) {
+            logger.debug("User not found: " + ex.getMessage());
+        } catch (Exception ex) {
+            logger.error("Cannot set user authentication: " + ex.getMessage());
         }
 
         filterChain.doFilter(request, response);

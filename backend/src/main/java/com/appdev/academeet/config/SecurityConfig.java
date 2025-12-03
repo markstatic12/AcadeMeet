@@ -35,12 +35,28 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // Public endpoints - must come first
+                // Public endpoints - authentication not required
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
-                // Allow read-only access to tags and notes listing without auth (GET)
-                .requestMatchers(HttpMethod.GET, "/api/tags/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/notes/**").permitAll()
+                
+                // Session endpoints - public read access for discovery
+                .requestMatchers(HttpMethod.GET, "/api/sessions").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/sessions/all-sessions").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/sessions/{id}").permitAll()
+                
+                // Comments - public read access
+                .requestMatchers(HttpMethod.GET, "/api/sessions/{sessionId}/comments").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/comments/{commentId}/replies").permitAll()
+                
+                // Resources (notes and tags) - public read access
+                .requestMatchers(HttpMethod.GET, "/api/sessions/{sessionId}/resources/notes").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/sessions/{sessionId}/resources/tags").permitAll()
+                
+                // User profiles - public read access
+                .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/users/{userId}/followers").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/users/{userId}/following").permitAll()
+                
                 // All other endpoints require authentication
                 .anyRequest().authenticated()
             )
