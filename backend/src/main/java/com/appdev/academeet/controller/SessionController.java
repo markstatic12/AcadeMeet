@@ -122,21 +122,44 @@ public class SessionController {
     // Join a session with password validation and participant limit checks
     @PostMapping("/{id}/join")
     public ResponseEntity<?> joinSession(@PathVariable Long id, @RequestBody JoinSessionRequest request) {
-        return handleSessionOperation(() -> {
+        try {
+            User user = getAuthenticatedUser();
+            
             // Validate password for private sessions
             if (!sessionService.validateSessionPassword(id, request.getPassword())) {
                 throw new RuntimeException("Invalid password or session not found");
             }
             
-            // Check if session has space
-            if (!sessionService.checkParticipantLimit(id)) {
-                throw new RuntimeException("Session is full");
-            }
-            
-            // Add participant
-            sessionService.incrementParticipant(id);
-            return "Successfully joined session";
-        });
+            // Join session (creates participant record and increments count)
+            sessionService.joinSession(id, user);
+            return ResponseEntity.ok(Map.of("message", "Successfully joined session"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // Cancel participation in a session
+    @PostMapping("/{id}/cancel-join")
+    public ResponseEntity<?> cancelJoinSession(@PathVariable Long id) {
+        try {
+            User user = getAuthenticatedUser();
+            sessionService.cancelJoinSession(id, user);
+            return ResponseEntity.ok(Map.of("message", "Successfully canceled participation"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // Check if user is a participant of a session
+    @GetMapping("/{id}/is-participant")
+    public ResponseEntity<?> isUserParticipant(@PathVariable Long id) {
+        try {
+            User user = getAuthenticatedUser();
+            boolean isParticipant = sessionService.isUserParticipant(id, user.getId());
+            return ResponseEntity.ok(Map.of("isParticipant", isParticipant));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     // Update session status (ACTIVE, SCHEDULED, COMPLETED, TRASH, etc.)
