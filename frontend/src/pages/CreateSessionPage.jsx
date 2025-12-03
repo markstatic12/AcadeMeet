@@ -12,6 +12,7 @@ const CreateSessionPage = () => {
     handleChange,
     handlePasswordChange,
     handleParticipantsChange,
+    handleTagsChange,
     handleSubmit,
     handleBack
   } = useSessionForm();
@@ -39,6 +40,7 @@ const CreateSessionPage = () => {
               onChange={handleChange}
               onPasswordChange={handlePasswordChange}
               onParticipantsChange={handleParticipantsChange}
+              onTagsChange={handleTagsChange}
             />
 
             <DescriptionPanel

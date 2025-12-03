@@ -14,6 +14,7 @@ const EditSessionPage = () => {
     handleChange,
     handlePasswordChange,
     handleParticipantsChange,
+    handleTagsChange,
     handleSubmit,
     handleBack
   } = useEditSessionForm(sessionId);
@@ -53,6 +54,7 @@ const EditSessionPage = () => {
               onChange={handleChange}
               onPasswordChange={handlePasswordChange}
               onParticipantsChange={handleParticipantsChange}
+              onTagsChange={handleTagsChange}
             />
 
             <DescriptionPanel
