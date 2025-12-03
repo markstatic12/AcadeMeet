@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import PageHeader from '../components/common/PageHeader';
 import { SessionViewHeader, ViewDetailsPanel, ViewOverviewPanel, CommentsPanel } from '../components/sessions/SessionViewComponents';
 import { sessionService } from '../services/SessionService';
-import { useUser } from '../context/UserContext';
 
 const PasswordModal = ({ isOpen, onClose, onSubmit, sessionTitle, needsAuthentication = false }) => {
   const [password, setPassword] = useState('');
@@ -161,8 +160,10 @@ const SessionViewPage = () => {
       }
     };
 
-    loadSession();
-  }, [sessionId, currentUserId, requiresPasswordAuth]);
+    if (sessionId) {
+      loadSession();
+    }
+  }, [sessionId]); 
 
   const fetchSession = async () => {
     try {
