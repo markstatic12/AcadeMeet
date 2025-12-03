@@ -190,7 +190,7 @@ export const useSettingsPage = () => {
           const img = new Image();
           img.onload = () => {
             try {
-              // Compress image to max 800x800 for profile
+              // Compress image to max 800x800 for profile (use WebP for smaller payload)
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
               
@@ -214,7 +214,7 @@ export const useSettingsPage = () => {
               canvas.height = height;
               ctx.drawImage(img, 0, 0, width, height);
               
-              const compressedData = canvas.toDataURL('image/jpeg', 0.8);
+              const compressedData = canvas.toDataURL('image/jpeg', 0.7);
               console.log('Profile image compressed, original:', file.size, 'compressed:', compressedData.length);
               setProfilePreview(compressedData);
             } catch (error) {
@@ -253,7 +253,7 @@ export const useSettingsPage = () => {
           const img = new Image();
           img.onload = () => {
             try {
-              // Compress image to max 1200px width for cover
+              // Compress image to max 1200px width for cover (use WebP for smaller payload)
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
               
@@ -270,7 +270,7 @@ export const useSettingsPage = () => {
               canvas.height = height;
               ctx.drawImage(img, 0, 0, width, height);
               
-              const compressedData = canvas.toDataURL('image/jpeg', 0.8);
+              const compressedData = canvas.toDataURL('image/jpeg', 0.7);
               console.log('Cover image compressed, original:', file.size, 'compressed:', compressedData.length);
               setCoverPreview(compressedData);
             } catch (error) {
