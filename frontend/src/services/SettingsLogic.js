@@ -186,37 +186,51 @@ export const useSettingsPage = () => {
       
       const reader = new FileReader();
       reader.onload = (ev) => {
-        const img = new Image();
-        img.onload = () => {
-          // Compress image to max 800x800 for profile
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          
-          let width = img.width;
-          let height = img.height;
-          const maxSize = 800;
-          
-          if (width > height) {
-            if (width > maxSize) {
-              height = (height * maxSize) / width;
-              width = maxSize;
+        try {
+          const img = new Image();
+          img.onload = () => {
+            try {
+              // Compress image to max 800x800 for profile
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              
+              let width = img.width;
+              let height = img.height;
+              const maxSize = 800;
+              
+              if (width > height) {
+                if (width > maxSize) {
+                  height = (height * maxSize) / width;
+                  width = maxSize;
+                }
+              } else {
+                if (height > maxSize) {
+                  width = (width * maxSize) / height;
+                  height = maxSize;
+                }
+              }
+              
+              canvas.width = width;
+              canvas.height = height;
+              ctx.drawImage(img, 0, 0, width, height);
+              
+              const compressedData = canvas.toDataURL('image/jpeg', 0.8);
+              console.log('Profile image compressed, original:', file.size, 'compressed:', compressedData.length);
+              setProfilePreview(compressedData);
+            } catch (error) {
+              console.error('Error compressing profile image, using original:', error);
+              setProfilePreview(ev.target.result);
             }
-          } else {
-            if (height > maxSize) {
-              width = (width * maxSize) / height;
-              height = maxSize;
-            }
-          }
-          
-          canvas.width = width;
-          canvas.height = height;
-          ctx.drawImage(img, 0, 0, width, height);
-          
-          const compressedData = canvas.toDataURL('image/jpeg', 0.8);
-          console.log('Profile image compressed, original:', file.size, 'compressed:', compressedData.length);
-          setProfilePreview(compressedData);
-        };
-        img.src = ev.target.result;
+          };
+          img.onerror = () => {
+            console.error('Error loading profile image, using original');
+            setProfilePreview(ev.target.result);
+          };
+          img.src = ev.target.result;
+        } catch (error) {
+          console.error('Error processing profile image:', error);
+          setProfilePreview(ev.target.result);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -235,30 +249,44 @@ export const useSettingsPage = () => {
       
       const reader = new FileReader();
       reader.onload = (ev) => {
-        const img = new Image();
-        img.onload = () => {
-          // Compress image to max 1200px width for cover
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          
-          let width = img.width;
-          let height = img.height;
-          const maxWidth = 1200;
-          
-          if (width > maxWidth) {
-            height = (height * maxWidth) / width;
-            width = maxWidth;
-          }
-          
-          canvas.width = width;
-          canvas.height = height;
-          ctx.drawImage(img, 0, 0, width, height);
-          
-          const compressedData = canvas.toDataURL('image/jpeg', 0.8);
-          console.log('Cover image compressed, original:', file.size, 'compressed:', compressedData.length);
-          setCoverPreview(compressedData);
-        };
-        img.src = ev.target.result;
+        try {
+          const img = new Image();
+          img.onload = () => {
+            try {
+              // Compress image to max 1200px width for cover
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              
+              let width = img.width;
+              let height = img.height;
+              const maxWidth = 1200;
+              
+              if (width > maxWidth) {
+                height = (height * maxWidth) / width;
+                width = maxWidth;
+              }
+              
+              canvas.width = width;
+              canvas.height = height;
+              ctx.drawImage(img, 0, 0, width, height);
+              
+              const compressedData = canvas.toDataURL('image/jpeg', 0.8);
+              console.log('Cover image compressed, original:', file.size, 'compressed:', compressedData.length);
+              setCoverPreview(compressedData);
+            } catch (error) {
+              console.error('Error compressing cover image, using original:', error);
+              setCoverPreview(ev.target.result);
+            }
+          };
+          img.onerror = () => {
+            console.error('Error loading cover image, using original');
+            setCoverPreview(ev.target.result);
+          };
+          img.src = ev.target.result;
+        } catch (error) {
+          console.error('Error processing cover image:', error);
+          setCoverPreview(ev.target.result);
+        }
       };
       reader.readAsDataURL(file);
     }
