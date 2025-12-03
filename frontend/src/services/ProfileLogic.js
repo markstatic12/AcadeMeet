@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { authFetch } from './apiHelper';
+import { sessionService } from './SessionService';
 
 
 
@@ -20,6 +21,7 @@ export const useProfilePage = () => {
   const [notesView, setNotesView] = useState('all');
   const [openNoteMenuId, setOpenNoteMenuId] = useState(null);
   const [openCardMenuId, setOpenCardMenuId] = useState(null);
+  const [completedSessions, setCompletedSessions] = useState([]); //NOT YET IMPLEMENTED
 
   // User data from centralized context
   const [userData, setUserData] = useState({
@@ -397,116 +399,94 @@ export const useNotes = (activeTab) => {
 };
 
 // Sessions hook for profile page
-const TRASH_TTL_DAYS = 3;
-
-const pruneTrashed = (items) => {
-  const now = Date.now();
-  const kept = items.filter(s => !s.deletedAt || (now - s.deletedAt) < TRASH_TTL_DAYS * 24 * 60 * 60 * 1000);
-  if (kept.length !== items.length) {
-    localStorage.setItem('trashedSessions', JSON.stringify(kept));
-  }
-  return kept;
-};
-
 export const useSessions = () => {
   const [sessionsData, setSessionsData] = useState([]);
   const [trashedSessions, setTrashedSessions] = useState([]);
 
-  // Fetch sessions from API using JWT /me endpoint
-  useEffect(() => {
-    const fetchSessions = async () => {
-      try {
-        // Use /me endpoint to get current user's sessions
-        const res = await authFetch('/sessions/user/me', {
-          method: "GET",
-        });
-
-        if (!res.ok) throw new Error("Failed to fetch sessions");
-
-        const data = await res.json();
-        console.log("Fetched sessions:", data);
-        
-        // Normalize the data
-        const normalized = (Array.isArray(data) ? data : []).map(s => ({
-          id: s.id,
-          title: s.title,
-          date: s.date || new Date().toISOString(),
-          time: s.time || '00:00',
-          location: s.location || 'TBD',
-          participants: s.participants || 0,
-          status: s.status || 'ACTIVE'
-        }));
-        
-        setSessionsData(normalized);
-        localStorage.setItem('sessions', JSON.stringify(normalized));
-      } catch (err) {
-        console.warn("Failed to fetch sessions from server, falling back to localStorage", err);
-        try {
-          const storedSessions = JSON.parse(localStorage.getItem('sessions') || '[]');
-          setSessionsData(storedSessions);
-        } catch (e) {
-          console.error("Failed to parse stored sessions", e);
-          setSessionsData([]);
-        }
-      }
-    };
-
-    fetchSessions();
-
-    // Load trashed sessions
+  // Fetch ACTIVE sessions from backend
+  const fetchActiveSessions = async () => {
     try {
-      const stored = JSON.parse(localStorage.getItem('trashedSessions') || '[]');
-      setTrashedSessions(pruneTrashed(stored));
-    } catch (e) {
-      console.error('Failed to parse trashed sessions', e);
-      setTrashedSessions([]);
-    }
-  }, []);
-
-  const deleteSession = (sessionId) => {
-    setSessionsData(prevSessions => {
-      const toDelete = prevSessions.find(s => s.id === sessionId);
-      if (!toDelete) return prevSessions;
-
-      const withoutDeleted = prevSessions.filter(s => s.id !== sessionId);
-      const deletedSession = { ...toDelete, deletedAt: Date.now() };
-      
-      setTrashedSessions(prevTrash => {
-        const newTrash = [...prevTrash, deletedSession];
-        localStorage.setItem('trashedSessions', JSON.stringify(newTrash));
-        return newTrash;
+      const res = await authFetch('/sessions/user/me', {
+        method: "GET",
       });
 
-      localStorage.setItem('sessions', JSON.stringify(withoutDeleted));
-      return withoutDeleted;
-    });
+      if (!res.ok) throw new Error("Failed to fetch sessions");
+
+      const data = await res.json();
+      console.log("Fetched sessions:", data);
+      
+      // Filter only ACTIVE sessions
+      const activeSessions = (Array.isArray(data) ? data : []).filter(s => s.status === 'ACTIVE');
+      setSessionsData(activeSessions);
+    } catch (err) {
+      console.error("Failed to fetch active sessions:", err);
+      setSessionsData([]);
+    }
   };
 
-  const restoreSession = (sessionId) => {
-    setTrashedSessions(prevTrash => {
-      const toRestore = prevTrash.find(s => s.id === sessionId);
-      if (!toRestore) return prevTrash;
-
-      const updatedTrash = prevTrash.filter(s => s.id !== sessionId);
-      // Clear deletedAt and re-add to sessions
-      const restored = { ...toRestore, deletedAt: null };
-
-      setSessionsData(prev => {
-        const newSessions = [restored, ...prev];
-        localStorage.setItem('sessions', JSON.stringify(newSessions));
-        return newSessions;
+  // Fetch TRASH sessions from backend
+  const fetchTrashedSessions = async () => {
+    try {
+      const res = await authFetch('/sessions/user/me', {
+        method: "GET",
       });
 
-      localStorage.setItem('trashedSessions', JSON.stringify(updatedTrash));
-      return updatedTrash;
-    });
+      if (!res.ok) throw new Error("Failed to fetch trashed sessions");
+
+      const data = await res.json();
+      
+      // Filter only TRASH sessions
+      const trashed = (Array.isArray(data) ? data : []).filter(s => s.status === 'TRASH');
+      setTrashedSessions(trashed);
+    } catch (err) {
+      console.error("Failed to fetch trashed sessions:", err);
+      setTrashedSessions([]);
+    }
+  };
+
+  //NOT YET IMPLEMENTED
+  const fetchCompletedSessions = async () => {
+    try {
+      const res = await authFetch('/sessions/user/me', {
+        method: "GET",
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch completed sessions");
+      const data = await res.json();
+      
+      const completed = (Array.isArray(data) ? data : []).filter(s => s.status === 'COMPLETED');
+      setCompletedSessions(completed);
+    } catch (err) {
+      console.error("Failed to fetch completed sessions:", err);
+      setCompletedSessions([]);
+    }
+  };
+
+  // Initial fetch on mount
+  useEffect(() => {
+    fetchActiveSessions();
+    fetchTrashedSessions();
+    fetchCompletedSessions();
+  }, []);
+
+
+
+  const restoreSession = async (sessionId) => {
+    try {
+      await sessionService.updateSessionStatus(sessionId, 'ACTIVE');
+      
+      // Refresh both active and trashed sessions from backend
+      await fetchActiveSessions();
+      await fetchTrashedSessions();
+    } catch (error) {
+      console.error('Error restoring session:', error);
+      alert(`Failed to restore session: ${error.message}`);
+    }
   };
 
   return {
     sessionsData,
     trashedSessions,
-    deleteSession,
-    restoreSession,
-    TRASH_TTL_DAYS
+    restoreSession
   };
 };
