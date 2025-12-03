@@ -1,12 +1,24 @@
 package com.appdev.academeet.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+
 @Entity
-@Table(name = "comments")
+@Table(name = "session_comment")
 public class Comment {
 
     @Id
@@ -19,69 +31,73 @@ public class Comment {
     private Session session;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "author_id", nullable = false)
+    private User author;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_comment_id")
-    private Comment parentComment;
+    @JoinColumn(name = "reply_to")
+    private Comment replyTo;
 
-    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "replyTo", cascade = CascadeType.ALL)
     private List<Comment> replies = new ArrayList<>();
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "reply_count")
-    private Integer replyCount = 0;
-
     // Lifecycle Methods
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 
     // Constructors
     public Comment() {}
 
-    public Comment(Session session, User user, String content, Comment parentComment) {
+    public Comment(Session session, User author, String content, Comment replyTo) {
         this.session = session;
-        this.user = user;
+        this.author = author;
         this.content = content;
-        this.parentComment = parentComment;
+        this.replyTo = replyTo;
     }
 
     // Getters
     public Long getCommentId() { return commentId; }
     public Session getSession() { return session; }
-    public User getUser() { return user; }
+    public User getAuthor() { return author; }
     public String getContent() { return content; }
-    public Comment getParentComment() { return parentComment; }
+    public Comment getReplyTo() { return replyTo; }
     public List<Comment> getReplies() { return replies; }
     public LocalDateTime getCreatedAt() { return createdAt; }
-    public Integer getReplyCount() { return replyCount; }
 
     // Setters
     public void setCommentId(Long commentId) { this.commentId = commentId; }
     public void setSession(Session session) { this.session = session; }
-    public void setUser(User user) { this.user = user; }
+    public void setAuthor(User author) { this.author = author; }
     public void setContent(String content) { this.content = content; }
-    public void setParentComment(Comment parentComment) { this.parentComment = parentComment; }
+    public void setReplyTo(Comment replyTo) { this.replyTo = replyTo; }
     public void setReplies(List<Comment> replies) { this.replies = replies; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public void setReplyCount(Integer replyCount) { this.replyCount = replyCount; }
 
     // Helper methods
-    public void incrementReplyCount() {
-        this.replyCount++;
+    public int getReplyCount() {
+        return replies != null ? replies.size() : 0;
     }
 
-    public void decrementReplyCount() {
-        if (this.replyCount > 0) {
-            this.replyCount--;
-        }
-    }
+    // Backward compatibility
+    @Deprecated
+    public User getUser() { return author; }
+    
+    @Deprecated
+    public void setUser(User user) { this.author = user; }
+    
+    @Deprecated
+    public Comment getParentComment() { return replyTo; }
+    
+    @Deprecated
+    public void setParentComment(Comment parentComment) { this.replyTo = parentComment; }
 }

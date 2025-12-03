@@ -41,6 +41,9 @@ public class User {
     @Column(name = "password_hash", nullable = false, length = 255)
     private String password;
 
+    @Column(name = "password_salt", length = 64)
+    private String passwordSalt;
+
     @Column(length = 500)
     private String bio;
 
@@ -147,6 +150,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getPasswordSalt() {
+        return passwordSalt;
+    }
+
+    public void setPasswordSalt(String passwordSalt) {
+        this.passwordSalt = passwordSalt;
     }
 
     public String getBio() {
