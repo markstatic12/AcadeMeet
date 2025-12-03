@@ -1,4 +1,79 @@
-import React from 'react';
+import React, { useState } from 'react';
+
+
+// ===== TAGS INPUT COMPONENT =====
+
+export const TagsInput = ({ tags = [], onTagsChange, maxTags = 5 }) => {
+  const [inputValue, setInputValue] = useState('');
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const trimmedValue = inputValue.trim();
+      
+      // Validate tag
+      if (!trimmedValue) return;
+      if (tags.length >= maxTags) {
+        alert(`Maximum ${maxTags} tags allowed`);
+        return;
+      }
+      if (tags.includes(trimmedValue)) {
+        alert('Tag already exists');
+        return;
+      }
+      
+      // Add tag
+      onTagsChange([...tags, trimmedValue]);
+      setInputValue('');
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    onTagsChange(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  return (
+    <div className="mb-6">
+      <label className="block text-gray-400 text-sm mb-2">
+        Tags ({tags.length}/{maxTags})
+      </label>
+      
+      {/* Tags Display */}
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-3">
+          {tags.map((tag, index) => (
+            <div
+              key={index}
+              className="bg-indigo-600/20 border border-indigo-500/50 text-indigo-300 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+            >
+              <span>{tag}</span>
+              <button
+                type="button"
+                onClick={() => removeTag(tag)}
+                className="text-indigo-400 hover:text-indigo-200 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      {/* Input Field */}
+      <input
+        type="text"
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={tags.length >= maxTags ? `Max ${maxTags} tags reached` : "Type and press Enter to add tag"}
+        disabled={tags.length >= maxTags}
+        className="w-full px-3 py-2 bg-[#2a2a2a] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      />
+    </div>
+  );
+};
 
 
 // ===== SESSION PROFILE PIC =====
@@ -222,7 +297,7 @@ const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChan
 
 // ===== DETAILS PANEL =====
 
-export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onParticipantsChange }) => {
+export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onParticipantsChange, onTagsChange }) => {
   return (
     <div className="bg-[#1a1a1a] rounded-2xl p-6">
       <h3 className="text-white font-bold text-xl mb-6"> Session Details</h3>
@@ -252,6 +327,12 @@ export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onPartic
         onChange={onChange}
         onPasswordChange={onPasswordChange}
         onParticipantsChange={onParticipantsChange}
+      />
+
+      <TagsInput
+        tags={sessionData.tags || []}
+        onTagsChange={onTagsChange}
+        maxTags={5}
       />
     </div>
   );

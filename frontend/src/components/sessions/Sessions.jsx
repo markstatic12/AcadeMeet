@@ -5,7 +5,7 @@ import { CalendarIcon, ClockIcon, LocationIcon, LockIcon } from '../../icons';
 import { to12Hour } from '../../utils/timeUtils';
 // SessionStatusBadge lives in the shared ui folder
 import SessionStatusBadge from '../ui/SessionStatusBadge';
-import { authFetch } from '../../services/apiHelper';
+import { sessionService } from '../../services/SessionService';
 
 // Session Card Component (General use - no menu)
 const SessionCard = ({ session }) => {
@@ -67,9 +67,24 @@ const SessionCard = ({ session }) => {
 
       {/* Session Info */}
       <div className="p-4 bg-[#0a0a0a]">
-        <h3 className="text-white font-bold text-sm mb-2 group-hover:text-indigo-400 transition-colors">
-          {session.title}
-        </h3>
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h3 className="text-white font-bold text-sm group-hover:text-indigo-400 transition-colors flex-1">
+            {session.title}
+          </h3>
+          {/* Tags Display */}
+          {session.tags && session.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 justify-end flex-shrink-0 max-w-[40%]">
+              {session.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="bg-indigo-600/20 border border-indigo-500/50 text-indigo-300 px-2 py-0.5 rounded-full text-[10px] whitespace-nowrap"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
         <div className="space-y-1.5">
           <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
             <CalendarIcon className="w-3 h-3 text-indigo-400" />
@@ -142,19 +157,12 @@ const SessionsSection = () => {
   const fetchSessions = async () => {
     try {
       setLoading(true);
-      const response = await authFetch('/sessions/all-sessions');
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      // Only display first 4 sessions on dashboard
-      setSessions(Array.isArray(data) ? data.slice(0, 4) : []);
+      const data = await sessionService.getTrendingSessions();
+      setSessions(Array.isArray(data) ? data : []);
       setError(null);
     } catch (err) {
-      setError('Failed to fetch sessions. Please try again later.');
-      console.error("Error fetching sessions:", err);
+      setError('Failed to fetch trending sessions. Please try again later.');
+      console.error("Error fetching trending sessions:", err);
     } finally {
       setLoading(false);
     }
@@ -162,11 +170,11 @@ const SessionsSection = () => {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-white mb-4">Active Sessions</h2>
-      {loading && <p className="text-white/60">Loading sessions...</p>}
+      <h2 className="text-xl font-bold text-white mb-4">Trending Sessions</h2>
+      {loading && <p className="text-white/60">Loading trending sessions...</p>}
       {error && <p className="text-red-400">{error}</p>}
       {!loading && !error && sessions.length === 0 && (
-        <p className="text-white/60">No sessions available.</p>
+        <p className="text-white/60">No trending sessions available.</p>
       )}
       {!loading && sessions.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

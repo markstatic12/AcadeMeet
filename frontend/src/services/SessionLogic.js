@@ -18,7 +18,8 @@ export const useSessionForm = () => {
     sessionType: "",
     password: "",
     maxParticipants: "",
-    description: ""
+    description: "",
+    tags: []
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,6 +34,10 @@ export const useSessionForm = () => {
 
   const handleParticipantsChange = (e) => {
     setSessionData({ ...sessionData, maxParticipants: e.target.value });
+  };
+
+  const handleTagsChange = (tags) => {
+    setSessionData({ ...sessionData, tags });
   };
 
   const handleSubmit = async (e) => {
@@ -80,6 +85,7 @@ export const useSessionForm = () => {
     handleChange,
     handlePasswordChange,
     handleParticipantsChange,
+    handleTagsChange,
     handleSubmit,
     handleBack
   };
@@ -101,7 +107,8 @@ export const useEditSessionForm = (sessionId) => {
     sessionType: "",
     password: "",
     maxParticipants: "",
-    description: ""
+    description: "",
+    tags: []
   });
 
   const [loading, setLoading] = useState(true);
@@ -125,7 +132,8 @@ export const useEditSessionForm = (sessionId) => {
           sessionType: data.sessionType || "",
           password: "", // Don't populate password for security
           maxParticipants: data.maxParticipants || "",
-          description: data.description || ""
+          description: data.description || "",
+          tags: data.tags || []
         });
       } catch (error) {
         console.error("Error fetching session:", error);
@@ -151,6 +159,10 @@ export const useEditSessionForm = (sessionId) => {
 
   const handleParticipantsChange = (e) => {
     setSessionData({ ...sessionData, maxParticipants: e.target.value });
+  };
+
+  const handleTagsChange = (tags) => {
+    setSessionData({ ...sessionData, tags });
   };
 
   const handleSubmit = async (e) => {
@@ -198,6 +210,7 @@ export const useEditSessionForm = (sessionId) => {
     handleChange,
     handlePasswordChange,
     handleParticipantsChange,
+    handleTagsChange,
     handleSubmit,
     handleBack
   };
