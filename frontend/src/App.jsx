@@ -4,6 +4,7 @@ import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
 import NotesPage from './pages/NotesPage';
 import ProfilePage from './pages/ProfilePage';
+import SearchPage from './pages/SearchPage';
 import CreateSessionPage from './pages/CreateSessionPage';
 import CreateNotePage from './pages/CreateNotePage';
 import SettingsPage from './pages/SettingsPage';
@@ -48,6 +49,15 @@ function App() {
         element={
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/search" 
+        element={
+          <ProtectedRoute>
+            <SearchPage />
           </ProtectedRoute>
         } 
       />
