@@ -6,7 +6,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -144,6 +146,11 @@ public class SessionService {
         existingSession.setStartTime(updatedSession.getStartTime());
         existingSession.setEndTime(updatedSession.getEndTime());
         
+        // Update tags if provided
+        if (updatedSession.getTags() != null) {
+            existingSession.setTags(updatedSession.getTags());
+        }
+        
         // Only update password if provided (for PRIVATE sessions)
         if (updatedSession.getPassword() != null && !updatedSession.getPassword().isEmpty()) {
             existingSession.setPassword(updatedSession.getPassword());
@@ -207,5 +214,40 @@ public class SessionService {
     @Transactional(readOnly = true)
     public Optional<Session> findById(Long sessionId) {
         return sessionRepository.findById(sessionId);
+    }
+
+    /**
+     * Get trending sessions based on tag popularity.
+     * Calculates a score for each session based on how frequently its tags appear globally.
+     * Returns the top 4 sessions with the highest scores.
+     */
+    @Transactional(readOnly = true)
+    public List<SessionDTO> getTrendingSessions() {
+        // Get all active sessions
+        List<Session> allSessions = sessionRepository.findAll().stream()
+                .filter(s -> s.getStatus() == SessionStatus.ACTIVE)
+                .toList();
+        
+        // Count global tag frequency
+        Map<String, Long> tagFrequency = new HashMap<>();
+        for (Session session : allSessions) {
+            for (String tag : session.getTags()) {
+                tagFrequency.merge(tag, 1L, Long::sum);
+            }
+        }
+        
+        // Calculate score for each session and sort
+        return allSessions.stream()
+                .map(session -> {
+                    // Calculate trending score based on sum of tag frequencies
+                    long score = session.getTags().stream()
+                            .mapToLong(tag -> tagFrequency.getOrDefault(tag, 0L))
+                            .sum();
+                    return Map.entry(session, score);
+                })
+                .sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue())) // Sort descending by score
+                .limit(4) // Top 4 trending sessions
+                .map(entry -> new SessionDTO(entry.getKey()))
+                .collect(Collectors.toList());
     }
 }
