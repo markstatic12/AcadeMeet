@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,6 +48,7 @@ public class SessionService {
     public List<SessionDTO> getAllSessions() {
         return sessionRepository.findAllByOrderByStartTime()
             .stream()
+            .filter(session -> session.getStatus() == SessionStatus.ACTIVE)
             .map(SessionDTO::new)
             .collect(Collectors.toList());
     }
@@ -112,6 +114,44 @@ public class SessionService {
             session.setStatus(newStatus);
             sessionRepository.save(session);
         }
+    }
+
+    @Transactional
+    public Session updateSession(Long sessionId, Session updatedSession, Long userId) {
+        Optional<Session> sessionOpt = sessionRepository.findById(sessionId);
+        if (sessionOpt.isEmpty()) {
+            throw new RuntimeException("Session not found");
+        }
+
+        Session existingSession = sessionOpt.get();
+        
+        // Verify that the user is the session owner
+        if (!existingSession.getHost().getId().equals(userId)) {
+            throw new RuntimeException("Unauthorized: Only the session owner can edit this session");
+        }
+
+        // Update session fields
+        existingSession.setTitle(updatedSession.getTitle());
+        existingSession.setDescription(updatedSession.getDescription());
+        existingSession.setLocation(updatedSession.getLocation());
+        existingSession.setSessionType(updatedSession.getSessionType());
+        existingSession.setMaxParticipants(updatedSession.getMaxParticipants());
+        
+        // Update date and time fields
+        existingSession.setMonth(updatedSession.getMonth());
+        existingSession.setDay(updatedSession.getDay());
+        existingSession.setYear(updatedSession.getYear());
+        existingSession.setStartTime(updatedSession.getStartTime());
+        existingSession.setEndTime(updatedSession.getEndTime());
+        
+        // Only update password if provided (for PRIVATE sessions)
+        if (updatedSession.getPassword() != null && !updatedSession.getPassword().isEmpty()) {
+            existingSession.setPassword(updatedSession.getPassword());
+        }
+
+        existingSession.setUpdatedAt(LocalDateTime.now());
+
+        return sessionRepository.save(existingSession);
     }
 
     public List<SessionDTO> getSessionsByStatus(SessionStatus status) {
