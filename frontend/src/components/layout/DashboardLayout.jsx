@@ -7,20 +7,19 @@ import logo from '../../assets/academeet-white.svg';
 const DashboardLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { getUserId } = useUser();
   const [currentUser, setCurrentUser] = useState(null);
-  const [darkMode, setDarkMode] = useState(true); // retained for future theme work
-  // Removed global logout from sidebar (now handled inside Settings)
 
   useEffect(() => {
-    const userId = getUserId();
-    if (userId) {
-      fetch(`http://localhost:8080/api/users/${userId}`)
-        .then(res => res.json())
-        .then(data => setCurrentUser(data))
-        .catch(err => console.error('Failed to load user', err));
-    }
-  }, [getUserId]);
+    fetch('http://localhost:8080/api/users/me', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(res => res.json())
+      .then(data => setCurrentUser(data))
+      .catch(err => console.error('Failed to load user', err));
+  }, []);
 
   // Logout handlers removed with sidebar logout button
 
