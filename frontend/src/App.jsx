@@ -6,7 +6,6 @@ import NotesPage from './pages/NotesPage';
 import ProfilePage from './pages/ProfilePage';
 import SearchPage from './pages/SearchPage';
 import CreateSessionPage from './pages/CreateSessionPage';
-import CreateNotePage from './pages/CreateNotePage';
 import SettingsPage from './pages/SettingsPage';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import SessionsPage from './pages/SessionsPage';
@@ -67,14 +66,6 @@ function App() {
         element={
           <ProtectedRoute>
             <CreateSessionPage />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/create-note" 
-        element={
-          <ProtectedRoute>
-            <CreateNotePage />
           </ProtectedRoute>
         } 
       />

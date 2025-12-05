@@ -315,21 +315,21 @@ export const ProfileCard = React.forwardRef(({ userData, onManageFollowers }, re
         {/* Decorative corner accent */}
         <div className="absolute top-3 right-3 w-12 h-12 border-t-2 border-r-2 border-white/20 rounded-tr-2xl"></div>
         
-        <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 z-10">
+        <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2">
           <div className="relative">
             <div className="w-20 h-20 bg-gradient-to-br from-gray-900 to-gray-800 rounded-full p-1 overflow-hidden ring-4 ring-gray-800 shadow-2xl transition-all duration-300 group-hover:ring-indigo-500 group-hover:ring-6 group-hover:scale-110 group-hover:shadow-indigo-500/50">
               {userData?.profilePic || userData?.profileImageUrl ? (
                 <img src={userData.profilePic || userData.profileImageUrl} alt="avatar" className="w-full h-full rounded-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-full flex items-center justify-center relative overflow-hidden">
-                  <svg className="w-10 h-10 text-white relative z-10" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-10 h-10 text-white relative" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                   </svg>
                 </div>
               )}
             </div>
             {userData.isOnline && (
-              <div className="absolute bottom-0.5 right-0.5 w-4 h-4 bg-green-500 rounded-full border-3 border-[#0f0f0f] z-20 shadow-lg shadow-green-500/50">
+              <div className="absolute bottom-0.5 right-0.5 w-4 h-4 bg-green-500 rounded-full border-3 border-[#0f0f0f] shadow-lg shadow-green-500/50">
                 <div className="w-full h-full bg-green-400 rounded-full animate-ping"></div>
               </div>
             )}

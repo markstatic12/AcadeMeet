@@ -19,7 +19,8 @@ export const useSessionForm = () => {
     password: "",
     maxParticipants: "",
     description: "",
-    tags: []
+    tags: [],
+    noteIds: []
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,6 +39,10 @@ export const useSessionForm = () => {
 
   const handleTagsChange = (tags) => {
     setSessionData({ ...sessionData, tags });
+  };
+
+  const handleNotesChange = (noteIds) => {
+    setSessionData({ ...sessionData, noteIds });
   };
 
   const handleSubmit = async (e) => {
@@ -163,6 +168,10 @@ export const useEditSessionForm = (sessionId) => {
 
   const handleTagsChange = (tags) => {
     setSessionData({ ...sessionData, tags });
+  };
+
+  const handleNotesChange = (noteIds) => {
+    setSessionData({ ...sessionData, noteIds });
   };
 
   const handleSubmit = async (e) => {

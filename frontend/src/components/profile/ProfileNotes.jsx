@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { ThreeDotsVerticalIcon, StarOutlineIcon, StarSolidIcon, ArchiveIcon, TrashIcon, CalendarIcon } from '../../icons';
-import { CreateNewCard } from './ProfileNavigation';
-import FileUploadDropzone from './FileUploadDropzone';
 import FileNoteCard from '../notes/FileNoteCard';
+import UploadNoteModal from '../notes/UploadNoteModal';
+import { CreateNewCard } from './ProfileNavigation';
 import { noteService } from '../../services/noteService';
 import { useUser } from '../../context/UserContext';
 
@@ -283,8 +283,9 @@ export const TrashedNoteCard = ({ note, onRestore }) => {
 
 // ===== NOTES CONTENT =====
 
-export const NotesContent = ({ notesData, openNoteMenuId, onCreateNote, onMenuToggle, onToggleFavourite, onArchive, onDelete }) => {
+export const NotesContent = ({ notesData, openNoteMenuId, onMenuToggle, onToggleFavourite, onArchive, onDelete }) => {
   const [isDragActive, setIsDragActive] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const dragCounter = useRef(0);
 
   const handleDragEnter = (e) => {
@@ -323,12 +324,9 @@ export const NotesContent = ({ notesData, openNoteMenuId, onCreateNote, onMenuTo
     if (files && files.length > 0) {
       const file = files[0];
       try {
-        const created = await noteService.uploadFileNote(file, { title: file.name });
-        if (typeof onCreateNote === 'function') {
-          onCreateNote(created);
-        } else {
-          try { window.location.reload(); } catch (_) {}
-        }
+        await noteService.uploadFileNote(file, { title: file.name });
+        // Reload page to show new note
+        window.location.reload();
       } catch (err) {
         console.error('File upload failed', err);
         alert(`Failed to upload file: ${err.message}`);
@@ -343,10 +341,20 @@ export const NotesContent = ({ notesData, openNoteMenuId, onCreateNote, onMenuTo
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
-        <div className="animate-scaleIn" style={{ animationDelay: '0s' }}>
-          <CreateNewCard onClick={onCreateNote} label={"Create New Note or Drag & Drop a File"} />
+      {isDragActive && (
+        <div className="absolute inset-0 z-50 bg-indigo-600/10 border-4 border-dashed border-indigo-400 rounded-2xl flex items-center justify-center pointer-events-none">
+          <div className="text-center">
+            <div className="text-6xl mb-4">📁</div>
+            <p className="text-white text-xl font-bold">Drop files here to upload</p>
+            <p className="text-gray-300 text-sm mt-2">Supported formats: PDF, images, documents</p>
+          </div>
         </div>
+      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
+        <CreateNewCard 
+          onClick={() => setShowUploadModal(true)} 
+          label="Upload Note File" 
+        />
         {notesData
           .filter((n) => !n.archivedAt && !n.deletedAt)
           .map((note, index) => {
@@ -395,17 +403,12 @@ export const NotesContent = ({ notesData, openNoteMenuId, onCreateNote, onMenuTo
           })}
       </div>
 
-      {isDragActive && (
-        <FileUploadDropzone
-          variant="overlay"
-          active={isDragActive}
-          // onUploaded still used for click-select uploads
-          onUploaded={(created) => {
-            if (typeof onCreateNote === 'function') {
-              try { onCreateNote(created); return; } catch (err) { console.warn('onCreateNote handler failed', err); }
-            }
-            try { window.location.reload(); } catch (err) { console.warn('Reload failed', err); }
-          }}
+      {/* Upload Modal */}
+      {showUploadModal && (
+        <UploadNoteModal
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          mode="profile"
         />
       )}
     </div>

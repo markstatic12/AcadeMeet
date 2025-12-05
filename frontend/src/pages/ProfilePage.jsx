@@ -49,7 +49,6 @@ const ProfilePage = () => {
     toggleProfileOptionsMenu,
     toggleTabOptionsMenu,
     handleCreateSession,
-    handleCreateNote,
     openFollowersManager,
     removeFollower,
     unfollowUser,
@@ -165,7 +164,6 @@ const ProfilePage = () => {
               <NotesContent
                 notesData={notesData}
                 openNoteMenuId={openNoteMenuId}
-                onCreateNote={handleCreateNote}
                 onMenuToggle={setOpenNoteMenuId}
                 onToggleFavourite={(id) => {
                   toggleFavouriteNote(id);

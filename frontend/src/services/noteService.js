@@ -120,9 +120,11 @@ export const noteService = {
 
   /**
    * Creates a new note.
-   * @param {object} params - Note details.
-   * @returns {Promise<object>} The created note.
+   * DEPRECATED: Manual note creation has been removed. Notes are now only created
+   * via drag-and-drop file upload or associated with sessions.
+   * @deprecated
    */
+  /*
   async createNote({ title, content, tagIds = [], sessionIds = [] }) {
     const payload = {
       title: title || 'Untitled Note',
@@ -140,6 +142,7 @@ export const noteService = {
     const created = await handleResponse(response, 'Failed to create note');
     return normalizeNote(created);
   },
+  */
 
   /**
    * Updates an existing note.
@@ -299,7 +302,7 @@ export const noteService = {
   /**
    * Uploads a file and creates a FILE type note.
    * @param {File} file - The file to upload.
-   * @param {object} options - Additional options (title, tagIds).
+   * @param {object} options - Additional options (title, tagIds, sessionId).
    * @returns {Promise<object>} The created note.
    */
   async uploadFileNote(file, options = {}) {
@@ -313,6 +316,10 @@ export const noteService = {
     
     if (options.tagIds && Array.isArray(options.tagIds)) {
       options.tagIds.forEach(tagId => formData.append('tagIds', tagId));
+    }
+    
+    if (options.sessionId) {
+      formData.append('sessionId', options.sessionId);
     }
     
     const response = await authFetchMultipart(`${API_BASE_URL}/upload`, formData);
