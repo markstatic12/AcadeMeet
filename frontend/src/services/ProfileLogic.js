@@ -187,22 +187,6 @@ export const useProfilePage = () => {
     navigate('/create-session');
   };
 
-  // Navigate to create note. Also accept a created-note object when called
-  // from upload handlers (they pass the created note, not an event).
-  const handleCreateNote = (eOrNote) => {
-    // If this looks like a DOM event, treat accordingly
-    if (eOrNote && typeof eOrNote.stopPropagation === 'function') {
-      eOrNote.stopPropagation();
-      eOrNote.preventDefault();
-      navigate('/create-note');
-      return;
-    }
-
-    // If a created note object is passed (from file upload), refresh the page
-    // to pick up the new note. Avoid throwing when called with unexpected values.
-    try { window.location.reload(); } catch (_) { /* no-op */ }
-  };
-
   // Followers manager helpers
   const openFollowersManager = async () => {
     setShowFollowersManager(true);
@@ -298,7 +282,6 @@ export const useProfilePage = () => {
     toggleProfileOptionsMenu,
     toggleTabOptionsMenu,
     handleCreateSession,
-    handleCreateNote,
     openFollowersManager,
     removeFollower,
     unfollowUser,
