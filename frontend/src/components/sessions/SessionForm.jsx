@@ -33,18 +33,18 @@ export const TagsInput = ({ tags = [], onTagsChange, maxTags = 5 }) => {
   };
 
   return (
-    <div className="mb-6">
-      <label className="block text-gray-400 text-sm mb-2">
-        Tags ({tags.length}/{maxTags})
+    <div className="space-y-3">
+      <label className="block text-gray-300 text-sm font-medium">
+        Tags <span className="text-gray-500">({tags.length}/{maxTags})</span>
       </label>
       
       {/* Tags Display */}
       {tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-3">
+        <div className="flex flex-wrap gap-2">
           {tags.map((tag, index) => (
             <div
               key={index}
-              className="bg-indigo-600/20 border border-indigo-500/50 text-indigo-300 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+              className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border border-indigo-500/30 text-indigo-300 px-3 py-1.5 rounded-full text-sm flex items-center gap-2 transition-all duration-200 hover:border-indigo-500/50"
             >
               <span>{tag}</span>
               <button
@@ -52,7 +52,7 @@ export const TagsInput = ({ tags = [], onTagsChange, maxTags = 5 }) => {
                 onClick={() => removeTag(tag)}
                 className="text-indigo-400 hover:text-indigo-200 transition-colors"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -69,7 +69,7 @@ export const TagsInput = ({ tags = [], onTagsChange, maxTags = 5 }) => {
         onKeyDown={handleKeyDown}
         placeholder={tags.length >= maxTags ? `Max ${maxTags} tags reached` : "Type and press Enter to add tag"}
         disabled={tags.length >= maxTags}
-        className="w-full px-3 py-2 bg-[#2a2a2a] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full px-3 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
       />
     </div>
   );
@@ -80,17 +80,17 @@ export const TagsInput = ({ tags = [], onTagsChange, maxTags = 5 }) => {
 
 export const SessionProfilePic = () => {
   return (
-    <div className="relative">
-      <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center overflow-hidden">
-        <svg className="w-16 h-16 text-indigo-400" fill="currentColor">
+    <div className="relative group">
+      <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center overflow-hidden shadow-lg transition-all duration-300 group-hover:shadow-indigo-500/50 group-hover:scale-105">
+        <svg className="w-12 h-12 text-white" fill="currentColor">
           <path d="M4 5h13v7h2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h8v-2H4V5zm16 10l-4-4v3H9v2h7v3l4-4z" />
         </svg>
       </div>
       <button 
         type="button"
-        className="absolute bottom-0 right-0 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 rounded-full flex items-center justify-center transition-colors shadow-lg"
+        className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-lg flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
       >
-        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor">
+        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/>
         </svg>
       </button>
@@ -103,13 +103,15 @@ export const SessionProfilePic = () => {
 export const SessionTitleInput = ({ value, onChange }) => {
   return (
     <div className="flex-1">
+      <label className="block text-gray-400 text-sm font-medium mb-2">Session Title</label>
       <input
         type="text"
         name="title"
         value={value}
         onChange={onChange}
-        placeholder="Enter Session Name"
-        className="w-full bg-transparent text-4xl font-bold text-indigo-300 placeholder-indigo-300/50 focus:outline-none focus:text-white transition-colors"
+        placeholder="Enter session name"
+        required
+        className="w-full bg-gray-800/30 border border-gray-700/50 text-3xl font-bold text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 px-4 py-3 rounded-lg"
       />
     </div>
   );
@@ -120,7 +122,7 @@ export const SessionTitleInput = ({ value, onChange }) => {
 
 export const SessionHeader = ({ title, onChange }) => {
   return (
-    <div className="flex items-center gap-6 mb-12">
+    <div className="flex items-start gap-6 pb-8 border-b border-gray-700/30">
       <SessionProfilePic />
       <SessionTitleInput value={title} onChange={onChange} />
     </div>
@@ -140,13 +142,14 @@ export const DateSelector = ({ month, day, year, onChange }) => {
   const years = Array.from({ length: 10 }, (_, i) => 2025 + i);
 
   return (
-    <div className="mb-6">
-      <div className="flex gap-2">
+    <div className="space-y-3">
+      <label className="block text-gray-300 text-sm font-medium">Date</label>
+      <div className="grid grid-cols-3 gap-2">
         <select
           name="month"
           value={month}
           onChange={onChange}
-          className="flex-1 px-3 py-2 bg-[#2a2a2a] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+          className="px-3 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
         >
           <option value="">Month</option>
           {months.map((m) => (
@@ -158,7 +161,7 @@ export const DateSelector = ({ month, day, year, onChange }) => {
           name="day"
           value={day}
           onChange={onChange}
-          className="flex-1 px-3 py-2 bg-[#2a2a2a] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+          className="px-3 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
         >
           <option value="">Day</option>
           {days.map((d) => (
@@ -170,7 +173,7 @@ export const DateSelector = ({ month, day, year, onChange }) => {
           name="year"
           value={year}
           onChange={onChange}
-          className="flex-1 px-3 py-2 bg-[#2a2a2a] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+          className="px-3 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
         >
           <option value="">Year</option>
           {years.map((y) => (
@@ -187,23 +190,29 @@ export const DateSelector = ({ month, day, year, onChange }) => {
 
 export const TimeSelector = ({ startTime, endTime, onChange }) => {
   return (
-    <div className="mb-6">
-      <div className="flex items-center gap-2">
-        <input
-          type="time"
-          name="startTime"
-          value={startTime}
-          onChange={onChange}
-          className="flex-1 px-3 py-2 bg-[#2a2a2a] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
-        />
-        <span className="text-gray-500">—</span>
-        <input
-          type="time"
-          name="endTime"
-          value={endTime}
-          onChange={onChange}
-          className="flex-1 px-3 py-2 bg-[#2a2a2a] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
-        />
+    <div className="space-y-3">
+      <label className="block text-gray-300 text-sm font-medium">Time</label>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-gray-400 text-xs mb-1.5">Start Time</label>
+          <input
+            type="time"
+            name="startTime"
+            value={startTime}
+            onChange={onChange}
+            className="w-full px-3 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
+          />
+        </div>
+        <div>
+          <label className="block text-gray-400 text-xs mb-1.5">End Time</label>
+          <input
+            type="time"
+            name="endTime"
+            value={endTime}
+            onChange={onChange}
+            className="w-full px-3 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
+          />
+        </div>
       </div>
     </div>
   );
@@ -214,14 +223,15 @@ export const TimeSelector = ({ startTime, endTime, onChange }) => {
 
 export const LocationInput = ({ value, onChange }) => {
   return (
-    <div className="mb-6">
+    <div className="space-y-3">
+      <label className="block text-gray-300 text-sm font-medium">Location</label>
       <input
         type="text"
         name="location"
         value={value}
         onChange={onChange}
         placeholder="Enter session location"
-        className="w-full px-3 py-2 bg-[#2a2a2a] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+        className="w-full px-3 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
       />
     </div>
   );
@@ -232,43 +242,43 @@ export const LocationInput = ({ value, onChange }) => {
 
 const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChange, onPasswordChange, onParticipantsChange }) => {
   return (
-    <div className="mb-6">
-      <h4 className="text-white font-semibold mb-3">Session Privacy</h4>
+    <div className="space-y-4">
+      <h4 className="text-gray-300 font-semibold text-sm">Session Privacy</h4>
       
-      <div className="flex gap-4 mb-4">
-        <label className="flex items-center gap-2 cursor-pointer">
+      <div className="flex gap-4">
+        <label className="flex items-center gap-2 cursor-pointer group">
           <input
             type="radio"
             name="sessionType"
             value="PUBLIC"
             checked={sessionType === 'PUBLIC'}
             onChange={onChange}
-            className="accent-indigo-500"
+            className="w-4 h-4 accent-indigo-500"
           />
-          <span className="text-gray-300">Public Session</span>
+          <span className="text-gray-300 text-sm group-hover:text-white transition-colors">Public Session</span>
         </label>
-        <label className="flex items-center gap-2 cursor-pointer">
+        <label className="flex items-center gap-2 cursor-pointer group">
           <input
             type="radio"
             name="sessionType"
             value="PRIVATE"
             checked={sessionType === 'PRIVATE'}
             onChange={onChange}
-            className="accent-indigo-500"
+            className="w-4 h-4 accent-indigo-500"
           />
-          <span className="text-gray-300">Private Session</span>
+          <span className="text-gray-300 text-sm group-hover:text-white transition-colors">Private Session</span>
         </label>
       </div>
 
       {sessionType === 'PRIVATE' && (
-        <div className="mb-4">
+        <div className="animate-fadeIn">
           <input
             type="password"
             name="password"
             value={password}
             onChange={onPasswordChange}
             placeholder="Enter session password (min 6 characters)"
-            className="w-full px-3 py-2 bg-[#2a2a2a] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+            className="w-full px-3 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
             minLength={6}
             required
           />
@@ -276,8 +286,8 @@ const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChan
       )}
 
       <div>
-        <label className="block text-gray-300 text-sm mb-2">
-          Maximum Participants (optional)
+        <label className="block text-gray-400 text-xs mb-2">
+          Maximum Participants <span className="text-gray-500">(optional)</span>
         </label>
         <input
           type="number"
@@ -287,7 +297,7 @@ const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChan
           placeholder="Enter max participants"
           min="1"
           max="100"
-          className="w-full px-3 py-2 bg-[#2a2a2a] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+          className="w-full px-3 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
         />
       </div>
     </div>
@@ -299,8 +309,15 @@ const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChan
 
 export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onParticipantsChange, onTagsChange }) => {
   return (
-    <div className="bg-[#1a1a1a] rounded-2xl p-6">
-      <h3 className="text-white font-bold text-xl mb-6"> Session Details</h3>
+    <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 space-y-6 shadow-lg hover:border-gray-600/50 transition-all duration-300">
+      <div className="flex items-center gap-3 pb-4 border-b border-gray-700/30">
+        <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        </div>
+        <h3 className="text-white font-bold text-lg">Session Details</h3>
+      </div>
 
       <DateSelector
         month={sessionData.month}
@@ -320,20 +337,24 @@ export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onPartic
         onChange={onChange}
       />
 
-      <SessionPrivacySelector
-        sessionType={sessionData.sessionType}
-        password={sessionData.password}
-        maxParticipants={sessionData.maxParticipants}
-        onChange={onChange}
-        onPasswordChange={onPasswordChange}
-        onParticipantsChange={onParticipantsChange}
-      />
+      <div className="pt-4 border-t border-gray-700/30">
+        <SessionPrivacySelector
+          sessionType={sessionData.sessionType}
+          password={sessionData.password}
+          maxParticipants={sessionData.maxParticipants}
+          onChange={onChange}
+          onPasswordChange={onPasswordChange}
+          onParticipantsChange={onParticipantsChange}
+        />
+      </div>
 
-      <TagsInput
-        tags={sessionData.tags || []}
-        onTagsChange={onTagsChange}
-        maxTags={5}
-      />
+      <div className="pt-4 border-t border-gray-700/30">
+        <TagsInput
+          tags={sessionData.tags || []}
+          onTagsChange={onTagsChange}
+          maxTags={5}
+        />
+      </div>
     </div>
   );
 };
@@ -344,17 +365,29 @@ export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onPartic
 // export the DescriptionPanel as a named export
 export const DescriptionPanel = ({ value, onChange }) => {
   return (
-    <div className="col-span-2 bg-[#1a1a1a] rounded-2xl p-6">
-      <h3 className="text-white font-bold text-xl mb-6">Session Overview</h3>
+    <div className="lg:col-span-2 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 space-y-6 shadow-lg hover:border-gray-600/50 transition-all duration-300">
+      <div className="flex items-center gap-3 pb-4 border-b border-gray-700/30">
+        <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+          </svg>
+        </div>
+        <h3 className="text-white font-bold text-lg">Session Overview</h3>
+      </div>
 
-      <textarea
-        name="description"
-        value={value}
-        onChange={onChange}
-        placeholder="Write an overview of the session..."
-        rows={18}
-        className="w-full px-4 py-3 bg-[#0f0f0f] border border-gray-800 rounded-lg text-gray-300 text-sm resize-none focus:outline-none focus:border-indigo-500 transition-colors"
-      />
+      <div className="relative">
+        <textarea
+          name="description"
+          value={value}
+          onChange={onChange}
+          placeholder="Write a compelling overview of your session. Describe the topics, objectives, and what participants will learn..."
+          rows={16}
+          className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-gray-300 text-sm resize-none focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 placeholder-gray-600"
+        />
+        <div className="absolute bottom-3 right-3 text-xs text-gray-500">
+          {value.length} characters
+        </div>
+      </div>
     </div>
   );
 };
