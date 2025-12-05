@@ -172,10 +172,10 @@ export const CreateNewCard = ({ onClick, label }) => {
       </div>
       
       <div className="relative z-10 flex flex-col items-center">
-        <div className="w-16 h-16 bg-gradient-to-br from-gray-800/80 to-gray-900/80 group-hover:from-indigo-600/30 group-hover:to-indigo-700/30 rounded-xl flex items-center justify-center mb-3 transition-all shadow-xl group-hover:shadow-indigo-500/40 group-hover:scale-110 border border-gray-700 group-hover:border-indigo-500/50">
-          <PlusIcon className="w-8 h-8 text-gray-600 group-hover:text-indigo-400 transition-all group-hover:rotate-180" />
+        <div className="w-12 h-12 bg-gradient-to-br from-gray-800/80 to-gray-900/80 group-hover:from-indigo-600/30 group-hover:to-indigo-700/30 rounded-lg flex items-center justify-center mb-2.5 transition-all shadow-xl group-hover:shadow-indigo-500/40 group-hover:scale-110 border border-gray-700 group-hover:border-indigo-500/50">
+          <PlusIcon className="w-6 h-6 text-gray-600 group-hover:text-indigo-400 transition-all group-hover:rotate-180" />
         </div>
-        <p className="text-gray-500 group-hover:text-gray-300 text-xs font-bold max-w-[180px] text-center leading-relaxed transition-colors">
+        <p className="text-gray-500 group-hover:text-gray-300 text-[11px] font-bold max-w-[160px] text-center leading-relaxed transition-colors">
           {label}
         </p>
       </div>

@@ -29,7 +29,8 @@ const ProfileForm = ({
   return (
     <div className="space-y-4">
       {/* Header Card with Action Buttons */}
-      <Card variant="glass" padding="default">
+      <div className="animate-slideUp" style={{ animationDelay: '0s' }}>
+        <Card variant="glass" padding="default">
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <CardTitle icon={<UserIcon className="w-5 h-5" />}>
@@ -70,12 +71,17 @@ const ProfileForm = ({
           </p>
         )}
       </Card>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 animate-slideUp" style={{ animationDelay: '0.05s' }}>
         {/* Profile Information Card */}
         <div className="lg:col-span-2 flex">
-          <Card variant="elevated" padding="default" className="w-full">
-            <CardContent>
+          <Card variant="elevated" padding="default" className="w-full relative overflow-hidden group/infocard">
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 opacity-0 group-hover/infocard:opacity-100 transition-opacity duration-500 pointer-events-none">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/infocard:translate-x-full transition-transform duration-1000 ease-out"></div>
+            </div>
+            <CardContent className="relative z-10">
               <h4 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
                 <EditIcon className="w-4 h-4 text-indigo-400" />
                 Personal Information
@@ -159,8 +165,12 @@ const ProfileForm = ({
 
         {/* Image Uploads Card */}
         <div className="lg:col-span-1 flex">
-          <Card variant="elevated" padding="default" className="w-full">
-            <CardContent>
+          <Card variant="elevated" padding="default" className="w-full relative overflow-hidden group/imagecard">
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 opacity-0 group-hover/imagecard:opacity-100 transition-opacity duration-500 pointer-events-none">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/imagecard:translate-x-full transition-transform duration-1000 ease-out"></div>
+            </div>
+            <CardContent className="relative z-10">
               <h4 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
                 <EditIcon className="w-4 h-4 text-indigo-400" />
                 Profile Images

@@ -2,10 +2,10 @@ import React from 'react';
 
 export const Card = ({ children, className = '', variant = 'default', padding = 'default' }) => {
   const variants = {
-    default: 'bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-gray-700/50',
-    elevated: 'bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 shadow-2xl shadow-black/20',
-    glass: 'bg-gray-900/40 backdrop-blur-xl border border-gray-700/30',
-    solid: 'bg-gray-900 border border-gray-800',
+    default: 'bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-gray-700/50 transition-all hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/10',
+    elevated: 'bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 shadow-2xl shadow-black/20 transition-all hover:border-indigo-500/40 hover:shadow-indigo-500/20',
+    glass: 'bg-gray-900/40 backdrop-blur-xl border border-gray-700/30 transition-all hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/10',
+    solid: 'bg-gray-900 border border-gray-800 transition-all hover:border-gray-700 hover:shadow-lg hover:shadow-indigo-500/10',
   };
 
   const paddings = {
