@@ -103,6 +103,20 @@ input:-moz-autofill-preview {
   .animate-shake {
     animation: shake 0.5s ease-in-out;
   }
+
+  /* Sweep animation on mount */
+  @keyframes sweepOnce {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-sweepOnce {
+    animation: sweepOnce 1.2s ease-in-out;
+  }
 }
 
 /* Smooth Scrolling */
