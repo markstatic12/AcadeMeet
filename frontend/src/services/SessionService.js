@@ -211,5 +211,16 @@ export const sessionService = {
     });
 
     return handleResponse(response, 'Failed to fetch trending sessions');
+  },
+
+  /**
+   * Gets all sessions hosted by the current user
+   */
+  async getUserHostedSessions() {
+    const response = await authFetch(`${API_BASE}/user/me`, {
+      method: 'GET'
+    });
+
+    return handleResponse(response, 'Failed to fetch user hosted sessions');
   }
 };
