@@ -209,13 +209,13 @@ export const SessionsContent = ({ sessionsData, openCardMenuId, onCreateSession,
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full flex-1 min-h-0 overflow-y-auto pr-1 custom-scrollbar">
       {/* Create New Session Card */}
-      <div className="animate-scaleIn" style={{ animationDelay: '0s' }}>
+      <div className="animate-fadeIn">
         <CreateNewCard onClick={onCreateSession} label="Create New Session" />
       </div>
 
-      {/* Session Cards with staggered animation */}
+      {/* Session Cards - All animate together */}
       {sessionsData.map((session, index) => (
-        <div key={`session-${session.id}-${session.deletedAt || ''}`} className="animate-scaleIn" style={{ animationDelay: `${(index + 1) * 0.05}s` }}>
+        <div key={`session-${session.id}-${session.deletedAt || ''}`} className="animate-fadeIn">
           <SessionCard
             session={session}
             openMenuId={openCardMenuId}
@@ -251,7 +251,7 @@ export const TrashedSessionsContent = ({ trashedSessions, onRestore, onBackToSes
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
           {trashedSessions.map((session, index) => (
-            <div key={`trashed-${session.id}`} className="animate-scaleIn" style={{ animationDelay: `${index * 0.05}s` }}>
+            <div key={`trashed-${session.id}`} className="animate-fadeIn">
               <TrashedSessionCard
                 session={session}
                 onRestore={onRestore}

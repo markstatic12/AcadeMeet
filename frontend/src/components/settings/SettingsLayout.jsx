@@ -10,10 +10,10 @@ export const SettingsSidebar = ({ onLogoutClick }) => {
   return (
     <div className="w-64 space-y-4">
       {/* Header */}
-      <div>
+      <div className="animate-slideInLeft" style={{ animationDelay: '0s' }}>
         <div className="flex items-center gap-2.5 mb-1">
-          <div className="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center">
-            <SettingsIcon className="w-4 h-4 text-indigo-400" />
+          <div className="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center group/icon hover:scale-110 hover:rotate-6 transition-all duration-300 cursor-pointer hover:bg-indigo-600/30 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/30">
+            <SettingsIcon className="w-4 h-4 text-indigo-400 group-hover/icon:rotate-180 transition-transform duration-500" />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-white">Settings</h2>
@@ -23,17 +23,26 @@ export const SettingsSidebar = ({ onLogoutClick }) => {
       </div>
 
       {/* Navigation Card */}
-      <Card variant="elevated" padding="sm">
-        <div className="space-y-1 p-2">
+      <div className="animate-slideInLeft" style={{ animationDelay: '0.05s' }}>
+        <Card variant="elevated" padding="sm" className="relative overflow-hidden group/navcard">
+        {/* Shimmer effect for card */}
+        <div className="absolute inset-0 opacity-0 group-hover/navcard:opacity-100 transition-opacity duration-500 pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/navcard:translate-x-full transition-transform duration-1000 ease-out"></div>
+        </div>
+        <div className="space-y-1 p-2 relative z-10">
           {/* Active: Public Profile */}
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 rounded-lg blur-sm" />
-            <div className="relative w-full flex items-center justify-between px-4 py-3 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-500/20">
-              <div className="flex items-center gap-3">
-                <UserIcon className="w-5 h-5" />
+          <div className="relative group/profile cursor-pointer">
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 rounded-lg blur-sm group-hover/profile:blur-md transition-all" />
+            <div className="relative w-full flex items-center justify-between px-4 py-3 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-500/20 overflow-hidden group-hover/profile:shadow-indigo-500/40 group-hover/profile:scale-[1.02] transition-all">
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 opacity-0 group-hover/profile:opacity-100 transition-opacity duration-500">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/profile:translate-x-full transition-transform duration-1000 ease-out"></div>
+              </div>
+              <div className="flex items-center gap-3 relative z-10">
+                <UserIcon className="w-5 h-5 group-hover/profile:scale-110 transition-transform duration-300" />
                 <span className="font-medium">Public Profile</span>
               </div>
-              <Badge variant="success" size="sm">Active</Badge>
+              <Badge variant="success" size="sm" className="relative z-10">Active</Badge>
             </div>
           </div>
           
@@ -45,23 +54,31 @@ export const SettingsSidebar = ({ onLogoutClick }) => {
           {/* Logout Button */}
           <button
             onClick={onLogoutClick}
-            className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-gray-800/50 hover:bg-red-600/20 border border-gray-700/50 hover:border-red-500/30 text-gray-300 hover:text-red-400 transition-all duration-200 group"
+            className="relative w-full flex items-center justify-between px-4 py-3 rounded-lg bg-gray-800/50 hover:bg-red-600/20 border border-gray-700/50 hover:border-red-500/30 text-gray-300 hover:text-red-400 transition-all duration-200 group overflow-hidden hover:scale-[1.02] hover:shadow-lg hover:shadow-red-500/20"
           >
-            <div className="flex items-center gap-3">
-              <LogoutIcon className="w-5 h-5 group-hover:rotate-12 transition-transform duration-200" />
+            {/* Hover background effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-red-600/0 via-red-600/10 to-red-600/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="flex items-center gap-3 relative z-10">
+              <LogoutIcon className="w-5 h-5 group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300" />
               <span className="font-medium">Log Out</span>
             </div>
-            <svg className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
         </div>
       </Card>
+      </div>
 
       {/* Developers */}
-      <Card variant="solid" padding="sm">
+      <div className="animate-slideInLeft" style={{ animationDelay: '0.1s' }}>
+        <Card variant="solid" padding="sm" className="relative overflow-hidden group/devcard">
+        {/* Shimmer effect for card */}
+        <div className="absolute inset-0 opacity-0 group-hover/devcard:opacity-100 transition-opacity duration-500 pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/devcard:translate-x-full transition-transform duration-1000 ease-out"></div>
+        </div>
         {/* Header */}
-        <div className="flex items-center gap-2 pb-2 border-b border-gray-800">
+        <div className="flex items-center gap-2 pb-2 border-b border-gray-800 relative z-10">
           <div className="flex-shrink-0 w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-md shadow-blue-500/20">
             <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
@@ -71,13 +88,17 @@ export const SettingsSidebar = ({ onLogoutClick }) => {
         </div>
         
         {/* Members List */}
-        <div className="mt-2.5 space-y-2">
+        <div className="mt-2.5 space-y-2 relative z-10">
           {/* Lead Developer */}
-          <div className="flex items-center gap-2 p-1.5 rounded-md bg-gradient-to-r from-blue-500/10 to-transparent border-l border-blue-500 hover:from-blue-500/15 transition-all duration-200">
-            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-[8px] shadow-sm">
+          <div className="flex items-center gap-2 p-1.5 rounded-md bg-gradient-to-r from-blue-500/10 to-transparent border-l border-blue-500 hover:from-blue-500/15 transition-all duration-200 hover:shadow-md hover:shadow-blue-500/20 hover:scale-[1.02] relative overflow-hidden group/dev">
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 opacity-0 group-hover/dev:opacity-100 transition-opacity duration-300 pointer-events-none">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/10 to-transparent -translate-x-full group-hover/dev:translate-x-full transition-transform duration-700 ease-out"></div>
+            </div>
+            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-[8px] shadow-sm relative z-10">
               ZA
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 relative z-10">
               <div className="flex items-center gap-1">
                 <p className="text-[11px] font-bold text-blue-400 truncate">Zander Aligato</p>
                 <svg className="w-2.5 h-2.5 text-blue-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -89,11 +110,15 @@ export const SettingsSidebar = ({ onLogoutClick }) => {
           </div>
           
           {/* Backend Developer */}
-          <div className="flex items-center gap-2 p-1.5 rounded-md bg-gradient-to-r from-purple-500/10 to-transparent border-l border-purple-500 hover:from-purple-500/15 transition-all duration-200">
-            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold text-[8px] shadow-sm">
+          <div className="flex items-center gap-2 p-1.5 rounded-md bg-gradient-to-r from-purple-500/10 to-transparent border-l border-purple-500 hover:from-purple-500/15 transition-all duration-200 hover:shadow-md hover:shadow-purple-500/20 hover:scale-[1.02] relative overflow-hidden group/dev">
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 opacity-0 group-hover/dev:opacity-100 transition-opacity duration-300 pointer-events-none">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-400/10 to-transparent -translate-x-full group-hover/dev:translate-x-full transition-transform duration-700 ease-out"></div>
+            </div>
+            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold text-[8px] shadow-sm relative z-10">
               RB
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 relative z-10">
               <div className="flex items-center gap-1">
                 <p className="text-[11px] font-bold text-purple-400 truncate">Richemmae Bigno</p>
                 <svg className="w-2.5 h-2.5 text-purple-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -105,11 +130,15 @@ export const SettingsSidebar = ({ onLogoutClick }) => {
           </div>
           
           {/* Frontend Developer */}
-          <div className="flex items-center gap-2 p-1.5 rounded-md bg-gradient-to-r from-indigo-500/10 to-transparent border-l border-indigo-500 hover:from-indigo-500/15 transition-all duration-200">
-            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-[8px] shadow-sm">
+          <div className="flex items-center gap-2 p-1.5 rounded-md bg-gradient-to-r from-indigo-500/10 to-transparent border-l border-indigo-500 hover:from-indigo-500/15 transition-all duration-200 hover:shadow-md hover:shadow-indigo-500/20 hover:scale-[1.02] relative overflow-hidden group/dev">
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 opacity-0 group-hover/dev:opacity-100 transition-opacity duration-300 pointer-events-none">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-400/10 to-transparent -translate-x-full group-hover/dev:translate-x-full transition-transform duration-700 ease-out"></div>
+            </div>
+            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-[8px] shadow-sm relative z-10">
               MC
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 relative z-10">
               <div className="flex items-center gap-1">
                 <p className="text-[11px] font-bold text-indigo-400 truncate">Mark Anton Camoro</p>
                 <svg className="w-2.5 h-2.5 text-indigo-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -121,6 +150,7 @@ export const SettingsSidebar = ({ onLogoutClick }) => {
           </div>
         </div>
       </Card>
+      </div>
     </div>
   );
 };
