@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
-import NotesPage from './pages/NotesPage';
 import ProfilePage from './pages/ProfilePage';
 import SearchPage from './pages/SearchPage';
 import CreateSessionPage from './pages/CreateSessionPage';
@@ -34,15 +33,6 @@ function App() {
         } 
       />
       
-      <Route 
-        path="/notes" 
-        element={
-          <ProtectedRoute>
-            <NotesPage />
-          </ProtectedRoute>
-        } 
-      />
-
       <Route 
         path="/profile" 
         element={
