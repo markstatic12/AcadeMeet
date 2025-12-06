@@ -102,7 +102,7 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
       </div>
 
       {/* Session Info */}
-      <div className="p-3 bg-gradient-to-b from-gray-900 to-gray-800 group-hover:from-gray-800 group-hover:to-gray-900 transition-all relative">
+      <div className="p-3 bg-[#161A2B] transition-all relative">
         {/* Top gradient accent line */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent"></div>
         
@@ -151,7 +151,7 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
 
 export const TrashedSessionCard = ({ session, onRestore }) => {
   return (
-    <div className="relative bg-gradient-to-b from-gray-900 to-gray-800 border border-gray-700/50 rounded-2xl overflow-hidden transition-all hover:border-gray-700 hover:shadow-lg group h-[180px] w-full">
+    <div className="relative bg-[#161A2B] border border-gray-700/50 rounded-2xl overflow-hidden transition-all hover:border-gray-700 hover:shadow-lg group h-[180px] w-full">
       {/* Vertical Restore action */}
       <div className="absolute top-3 right-3 flex flex-col gap-2 z-20">
         <button
@@ -162,7 +162,7 @@ export const TrashedSessionCard = ({ session, onRestore }) => {
         </button>
       </div>
       
-      <div className="relative h-[105px] bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden">
+      <div className="relative h-[105px] bg-[#161A2B] overflow-hidden">
         {/* Diagonal stripes pattern for deleted items */}
         <div className="absolute inset-0 opacity-10" style={{
           backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px)'
@@ -181,7 +181,7 @@ export const TrashedSessionCard = ({ session, onRestore }) => {
         </div>
       </div>
       
-      <div className="p-3 bg-gradient-to-b from-gray-900 to-gray-800">
+      <div className="p-3 bg-[#161A2B]">
         <h3 className="text-white/60 font-bold text-xs mb-1.5 line-through">{session.title}</h3>
         <div className="space-y-0.5 text-gray-600 text-[10px]">">
           <div className="flex items-center gap-1.5">

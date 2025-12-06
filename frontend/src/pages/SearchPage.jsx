@@ -2,8 +2,9 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { SearchIcon } from '../icons';
-import { SessionCard } from '../components/sessions/Sessions';
+import SessionCard from '../components/search/SessionCard';
 import SearchUserCard from '../components/search/SearchUserCard';
+import SearchEmptyState from '../components/search/SearchEmptyState';
 
 // Static mock data
 const mockUsers = [
@@ -134,16 +135,23 @@ const SearchPage = () => {
     <DashboardLayout>
       <div className="flex gap-6 h-[calc(100vh-120px)] -mt-8">
         {/* Left Sidebar - Fixed, Non-scrollable */}
-        <div className="w-[380px] bg-[#2a2a2a] flex-shrink-0 h-full flex flex-col rounded-2xl overflow-hidden shadow-xl">
+        <div className="w-[380px] bg-[#161A2B] flex-shrink-0 h-full flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-gray-800/50 hover:border-indigo-500/30 transition-all duration-300">
           <div className="p-6 flex flex-col h-full">
-            <h1 className="text-2xl font-bold text-white mb-5">Search</h1>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2.5 bg-indigo-600/10 rounded-xl">
+                <SearchIcon className="w-5 h-5 text-indigo-400" />
+              </div>
+              <h1 className="text-2xl font-bold text-white">Search</h1>
+            </div>
             
             {/* Search Input */}
-            <div className="relative mb-4 group">
-              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 transition-colors group-focus-within:text-indigo-400" />
+            <div className="relative mb-5 group">
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 transition-all duration-200">
+                <SearchIcon className="w-4 h-4 text-gray-500 group-focus-within:text-indigo-400 group-focus-within:scale-110 transition-all" />
+              </div>
               <input
                 type="text"
-                placeholder="Search for sessions or users here..."
+                placeholder="Search for sessions or users..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
@@ -151,58 +159,58 @@ const SearchPage = () => {
                     navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
                   }
                 }}
-                className="w-full pl-10 pr-4 py-3 bg-[#1a1a1a] border-none rounded-xl text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200"
+                className="w-full pl-11 pr-4 py-3.5 bg-gray-900/50 border border-gray-700/50 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 hover:border-gray-600 transition-all duration-200"
               />
             </div>
             
             {/* Filter Tabs */}
-            <div className="flex gap-2 mb-5">
+            <div className="flex gap-2 mb-6 p-1 bg-gray-900/50 rounded-xl border border-gray-700/50">
               <button
                 onClick={() => setActiveTab('all')}
-                className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                className={`flex-1 px-4 py-2.5 text-sm font-bold rounded-lg transition-all duration-300 ${
                   activeTab === 'all'
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-[1.02]'
-                    : 'bg-[#1a1a1a] text-gray-400 hover:text-white hover:bg-[#1f1f1f] hover:scale-[1.01]'
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-[1.02] border border-indigo-500/50'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-800/50 border border-transparent'
                 }`}
               >
                 All
               </button>
               <button
                 onClick={() => setActiveTab('users')}
-                className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                className={`flex-1 px-4 py-2.5 text-sm font-bold rounded-lg transition-all duration-300 ${
                   activeTab === 'users'
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-[1.02]'
-                    : 'bg-[#1a1a1a] text-gray-400 hover:text-white hover:bg-[#1f1f1f] hover:scale-[1.01]'
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-[1.02] border border-indigo-500/50'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-800/50 border border-transparent'
                 }`}
               >
                 Users
               </button>
               <button
                 onClick={() => setActiveTab('session')}
-                className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                className={`flex-1 px-4 py-2.5 text-sm font-bold rounded-lg transition-all duration-300 ${
                   activeTab === 'session'
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-[1.02]'
-                    : 'bg-[#1a1a1a] text-gray-400 hover:text-white hover:bg-[#1f1f1f] hover:scale-[1.01]'
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-[1.02] border border-indigo-500/50'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-800/50 border border-transparent'
                 }`}
               >
-                Session
+                Sessions
               </button>
             </div>
             
             {/* Filters Container - Scrollable if needed */}
-            <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+            <div className="flex-1 overflow-y-auto space-y-4 pr-1 custom-scrollbar">
             {/* Sort By */}
-            <div className="bg-[#1a1a1a] rounded-xl p-5 hover:bg-[#1f1f1f] transition-colors duration-200">
+            <div className="bg-gray-900/30 rounded-xl p-5 hover:bg-gray-900/50 transition-all duration-200 border border-gray-800/30 hover:border-gray-700/50">
               <div className="flex items-center gap-2 mb-3">
-                <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
                 </svg>
-                <span className="text-sm text-gray-400 font-medium">Sort by</span>
+                <span className="text-sm text-gray-300 font-bold">Sort by</span>
               </div>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="w-full px-3 py-2.5 bg-[#2a2a2a] border-none rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:bg-[#2f2f2f]"
+                className="w-full px-3.5 py-2.5 bg-[#161A2B] border border-gray-700/50 rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:border-gray-600"
                 style={{
                   backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                   backgroundRepeat: 'no-repeat',
@@ -218,21 +226,21 @@ const SearchPage = () => {
             
             {/* Filter - Only show for Users */}
             {activeTab === 'users' && (
-              <div className="bg-[#1a1a1a] rounded-xl p-5 hover:bg-[#1f1f1f] transition-all duration-200 animate-in fade-in slide-in-from-top-2">
+              <div className="bg-gray-900/30 rounded-xl p-5 hover:bg-gray-900/50 transition-all duration-300 animate-in fade-in slide-in-from-top-2 border border-gray-800/30 hover:border-gray-700/50">
                 <div className="flex items-center gap-2 mb-4">
-                  <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                   </svg>
-                  <span className="text-sm text-gray-400 font-medium">Filter</span>
+                  <span className="text-sm text-gray-300 font-bold">User Filters</span>
                 </div>
                 
                 {/* Program */}
                 <div className="mb-4">
-                  <label className="block text-white text-xs font-medium mb-2">Program</label>
+                  <label className="block text-white text-xs font-bold mb-2">Program</label>
                   <select
                     value={programFilter}
                     onChange={(e) => setProgramFilter(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#2a2a2a] border-none rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:bg-[#2f2f2f]"
+                    className="w-full px-3.5 py-2.5 bg-[#161A2B] border border-gray-700/50 rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:border-gray-600"
                     style={{
                       backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                       backgroundRepeat: 'no-repeat',
@@ -250,11 +258,11 @@ const SearchPage = () => {
                 
                 {/* Year Level */}
                 <div>
-                  <label className="block text-white text-xs font-medium mb-2">Year Level</label>
+                  <label className="block text-white text-xs font-bold mb-2">Year Level</label>
                   <select
                     value={yearLevelFilter}
                     onChange={(e) => setYearLevelFilter(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#2a2a2a] border-none rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:bg-[#2f2f2f]"
+                    className="w-full px-3.5 py-2.5 bg-[#161A2B] border border-gray-700/50 rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:border-gray-600"
                     style={{
                       backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                       backgroundRepeat: 'no-repeat',
@@ -274,33 +282,33 @@ const SearchPage = () => {
             
             {/* Filter - Only show for Sessions */}
             {activeTab === 'session' && (
-              <div className="bg-[#1a1a1a] rounded-xl p-5 hover:bg-[#1f1f1f] transition-all duration-200 animate-in fade-in slide-in-from-top-2">
+              <div className="bg-gray-900/30 rounded-xl p-5 hover:bg-gray-900/50 transition-all duration-300 animate-in fade-in slide-in-from-top-2 border border-gray-800/30 hover:border-gray-700/50">
                 <div className="flex items-center gap-2 mb-4">
-                  <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                   </svg>
-                  <span className="text-sm text-gray-400 font-medium">Filter</span>
+                  <span className="text-sm text-gray-300 font-bold">Session Filters</span>
                 </div>
                 
                 {/* Date */}
                 <div className="mb-4">
-                  <label className="block text-white text-xs font-medium mb-2">Date</label>
+                  <label className="block text-white text-xs font-bold mb-2">Date</label>
                   <input
                     type="text"
                     placeholder="dd/mm/yyyy"
                     value={dateFilter}
                     onChange={(e) => setDateFilter(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#2a2a2a] border-none rounded-lg text-gray-300 text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200 hover:bg-[#2f2f2f]"
+                    className="w-full px-3.5 py-2.5 bg-[#161A2B] border border-gray-700/50 rounded-lg text-gray-300 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200 hover:border-gray-600"
                   />
                 </div>
                 
                 {/* Time of Day */}
                 <div className="mb-4">
-                  <label className="block text-white text-xs font-medium mb-2">Time of Day</label>
+                  <label className="block text-white text-xs font-bold mb-2">Time of Day</label>
                   <select
                     value={timeFilter}
                     onChange={(e) => setTimeFilter(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#2a2a2a] border-none rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:bg-[#2f2f2f]"
+                    className="w-full px-3.5 py-2.5 bg-[#161A2B] border border-gray-700/50 rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:border-gray-600"
                     style={{
                       backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                       backgroundRepeat: 'no-repeat',
@@ -317,11 +325,11 @@ const SearchPage = () => {
                 
                 {/* Privacy */}
                 <div>
-                  <label className="block text-white text-xs font-medium mb-2">Privacy</label>
+                  <label className="block text-white text-xs font-bold mb-2">Privacy</label>
                   <select
                     value={privacyFilter}
                     onChange={(e) => setPrivacyFilter(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#2a2a2a] border-none rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:bg-[#2f2f2f]"
+                    className="w-full px-3.5 py-2.5 bg-[#161A2B] border border-gray-700/50 rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:border-gray-600"
                     style={{
                       backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                       backgroundRepeat: 'no-repeat',
@@ -350,15 +358,25 @@ const SearchPage = () => {
           
           {/* Users Section */}
           {displayUsers.length > 0 && (
-            <div className="mb-10">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl text-white font-semibold">Users</h3>
+            <div className="mb-10 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '100ms' }}>
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-600/10 rounded-lg">
+                    <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl text-white font-bold">Users</h3>
+                  <span className="px-2.5 py-0.5 bg-indigo-500/10 text-indigo-400 text-xs font-bold rounded-full border border-indigo-500/30">
+                    {filteredUsers.length}
+                  </span>
+                </div>
                 {(activeTab === 'all' || activeTab === 'users') && filteredUsers.length > ITEMS_PER_PAGE && (
                   <button
                     onClick={handleViewAllUsers}
-                    className="px-4 py-2 bg-[#2a2a2a] hover:bg-[#333333] text-indigo-400 hover:text-indigo-300 text-sm font-medium rounded-lg transition-all duration-200"
+                    className="px-4 py-2 bg-[#161A2B] hover:bg-[#1a1f35] text-indigo-400 hover:text-indigo-300 text-sm font-bold rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/20 hover:scale-105"
                   >
-                    View All Users ({filteredUsers.length})
+                    View All →
                   </button>
                 )}
               </div>
@@ -368,17 +386,23 @@ const SearchPage = () => {
                 {totalUserPages > 1 && (
                   <button
                     onClick={() => setUserPage(userPage > 0 ? userPage - 1 : totalUserPages - 1)}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 z-10 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-14 z-10 w-11 h-11 bg-indigo-600 hover:bg-indigo-500 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-2xl shadow-indigo-500/40 border border-indigo-500/50"
                   >
                     <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
                 )}
                 
-                <div className="grid grid-cols-2 gap-6 transition-all duration-300">
-                  {displayUsers.map(user => (
-                    <SearchUserCard key={user.id} user={user} />
+                <div className="grid grid-cols-2 gap-5 transition-all duration-300">
+                  {displayUsers.map((user, index) => (
+                    <div 
+                      key={user.id} 
+                      className="animate-in fade-in slide-in-from-bottom-2 duration-500"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      <SearchUserCard user={user} />
+                    </div>
                   ))}
                 </div>
                 
@@ -386,10 +410,10 @@ const SearchPage = () => {
                 {totalUserPages > 1 && (
                   <button
                     onClick={() => setUserPage(userPage < totalUserPages - 1 ? userPage + 1 : 0)}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 z-10 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-14 z-10 w-11 h-11 bg-indigo-600 hover:bg-indigo-500 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-2xl shadow-indigo-500/40 border border-indigo-500/50"
                   >
                     <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
                 )}
@@ -399,15 +423,25 @@ const SearchPage = () => {
           
           {/* Sessions Section */}
           {displaySessions.length > 0 && (
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl text-white font-semibold">Sessions</h3>
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '200ms' }}>
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-600/10 rounded-lg">
+                    <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl text-white font-bold">Sessions</h3>
+                  <span className="px-2.5 py-0.5 bg-indigo-500/10 text-indigo-400 text-xs font-bold rounded-full border border-indigo-500/30">
+                    {filteredSessions.length}
+                  </span>
+                </div>
                 {(activeTab === 'all' || activeTab === 'session') && filteredSessions.length > ITEMS_PER_PAGE && (
                   <button
                     onClick={handleViewAllSessions}
-                    className="px-4 py-2 bg-[#2a2a2a] hover:bg-[#333333] text-indigo-400 hover:text-indigo-300 text-sm font-medium rounded-lg transition-all duration-200"
+                    className="px-4 py-2 bg-[#161A2B] hover:bg-[#1a1f35] text-indigo-400 hover:text-indigo-300 text-sm font-bold rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/20 hover:scale-105"
                   >
-                    View All Sessions ({filteredSessions.length})
+                    View All →
                   </button>
                 )}
               </div>
@@ -417,17 +451,23 @@ const SearchPage = () => {
                 {totalSessionPages > 1 && (
                   <button
                     onClick={() => setSessionPage(sessionPage > 0 ? sessionPage - 1 : totalSessionPages - 1)}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 z-10 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-14 z-10 w-11 h-11 bg-indigo-600 hover:bg-indigo-500 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-2xl shadow-indigo-500/40 border border-indigo-500/50"
                   >
                     <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
                 )}
                 
-                <div className="grid grid-cols-4 gap-6 transition-all duration-300">
-                  {displaySessions.map(session => (
-                    <SessionCard key={session.id} session={session} />
+                <div className="grid grid-cols-4 gap-5 transition-all duration-300">
+                  {displaySessions.map((session, index) => (
+                    <div 
+                      key={session.id}
+                      className="animate-in fade-in slide-in-from-bottom-2 duration-500"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      <SessionCard session={session} />
+                    </div>
                   ))}
                 </div>
                 
@@ -435,10 +475,10 @@ const SearchPage = () => {
                 {totalSessionPages > 1 && (
                   <button
                     onClick={() => setSessionPage(sessionPage < totalSessionPages - 1 ? sessionPage + 1 : 0)}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 z-10 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-14 z-10 w-11 h-11 bg-indigo-600 hover:bg-indigo-500 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-2xl shadow-indigo-500/40 border border-indigo-500/50"
                   >
                     <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
                 )}
@@ -447,16 +487,8 @@ const SearchPage = () => {
           )}
           
           {/* Empty State */}
-          {displayUsers.length === 0 && displaySessions.length === 0 && searchQuery && (
-            <div className="text-center py-12">
-              <SearchIcon className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-400 text-lg">
-                No results found for "{searchQuery}"
-              </p>
-              <p className="text-gray-500 text-sm mt-2">
-                Try adjusting your search terms
-              </p>
-            </div>
+          {displayUsers.length === 0 && displaySessions.length === 0 && (
+            <SearchEmptyState searchQuery={searchQuery} type={activeTab} />
           )}
         </div>
       </div>

@@ -169,7 +169,7 @@ export const FavouriteNoteCard = ({ note }) => {
 
 export const ArchivedNoteCard = ({ note, onRestore }) => {
   return (
-    <div className="relative bg-gradient-to-b from-gray-900 to-gray-800 border border-gray-700/50 rounded-2xl overflow-hidden h-[180px] w-full flex flex-col hover:border-gray-700 hover:shadow-lg transition-all group">
+    <div className="relative bg-[#161A2B] border border-gray-700/50 rounded-2xl overflow-hidden h-[180px] w-full flex flex-col hover:border-gray-700 hover:shadow-lg transition-all group">
       {/* Muted decorative elements */}
       <div className="absolute top-4 left-4 w-16 h-16 bg-gradient-to-br from-gray-600/10 to-gray-700/10 rounded-full blur-2xl"></div>
       
@@ -223,7 +223,7 @@ export const ArchivedNoteCard = ({ note, onRestore }) => {
 
 export const TrashedNoteCard = ({ note, onRestore }) => {
   return (
-    <div className="relative bg-gradient-to-b from-gray-900 to-gray-800 border border-gray-700/50 rounded-2xl overflow-hidden h-[180px] w-full flex flex-col hover:border-gray-700 hover:shadow-lg transition-all group">
+    <div className="relative bg-[#161A2B] border border-gray-700/50 rounded-2xl overflow-hidden h-[180px] w-full flex flex-col hover:border-gray-700 hover:shadow-lg transition-all group">
       {/* Diagonal stripes pattern for deleted items */}
       <div className="absolute inset-0 opacity-10" style={{
         backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px)'
