@@ -1,6 +1,7 @@
 package com.appdev.academeet.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,8 +82,8 @@ public class UserController {
             response.put("profilePic", user.getProfileImageUrl());
             response.put("coverImage", user.getCoverImageUrl());
             response.put("createdAt", user.getCreatedAt());
-            response.put("followers", 0); // TODO: Implement followers feature
-            response.put("following", 0); // TODO: Implement following feature
+            response.put("followers", userService.getFollowerCount(user.getId()));
+            response.put("following", userService.getFollowingCount(user.getId()));
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -151,87 +152,87 @@ public class UserController {
      * Follow a user.
      * POST /api/users/{userId}/follow
      */
-    // @org.springframework.web.bind.annotation.PostMapping("/{userId}/follow")
-    // public ResponseEntity<?> followUser(@PathVariable Long userId) {
-    //     try {
-    //         User currentUser = getAuthenticatedUser();
-    //         userService.followUser(currentUser.getId(), userId);
-    //         return ResponseEntity.noContent().build();
-    //     } catch (IllegalArgumentException | IllegalStateException e) {
-    //         return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-    //                 .body(Map.of("error", "Failed to follow user: " + e.getMessage()));
-    //     }
-    // }
+    @org.springframework.web.bind.annotation.PostMapping("/{userId}/follow")
+    public ResponseEntity<?> followUser(@PathVariable Long userId) {
+        try {
+            User currentUser = getAuthenticatedUser();
+            userService.followUser(currentUser.getId(), userId);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to follow user: " + e.getMessage()));
+        }
+    }
     
     /**
      * Unfollow a user.
      * DELETE /api/users/{userId}/follow
      */
-    // @org.springframework.web.bind.annotation.DeleteMapping("/{userId}/follow")
-    // public ResponseEntity<?> unfollowUser(@PathVariable Long userId) {
-    //     try {
-    //         User currentUser = getAuthenticatedUser();
-    //         userService.unfollowUser(currentUser.getId(), userId);
-    //         return ResponseEntity.noContent().build();
-    //     } catch (IllegalStateException e) {
-    //         return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-    //                 .body(Map.of("error", "Failed to unfollow user: " + e.getMessage()));
-    //     }
-    // }
+    @org.springframework.web.bind.annotation.DeleteMapping("/{userId}/follow")
+    public ResponseEntity<?> unfollowUser(@PathVariable Long userId) {
+        try {
+            User currentUser = getAuthenticatedUser();
+            userService.unfollowUser(currentUser.getId(), userId);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to unfollow user: " + e.getMessage()));
+        }
+    }
     
     /**
      * Get a user's followers.
      * GET /api/users/{userId}/followers
      */
-    // @GetMapping("/{userId}/followers")
-    // public ResponseEntity<?> getFollowers(@PathVariable Long userId) {
-    //     try {
-    //         List<User> followers = userService.getFollowers(userId);
-    //         List<Map<String, Object>> response = followers.stream()
-    //             .map(user -> {
-    //                 Map<String, Object> userMap = new HashMap<>();
-    //                 userMap.put("id", user.getId());
-    //                 userMap.put("name", user.getName());
-    //                 userMap.put("email", user.getEmail());
-    //                 userMap.put("program", user.getProgram());
-    //                 userMap.put("profilePic", user.getProfileImageUrl());
-    //                 return userMap;
-    //             })
-    //             .toList();
-    //         return ResponseEntity.ok(response);
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-    //                 .body(Map.of("error", "Failed to fetch followers: " + e.getMessage()));
-    //     }
-    // }
+    @GetMapping("/{userId}/followers")
+    public ResponseEntity<?> getFollowers(@PathVariable Long userId) {
+        try {
+            List<User> followers = userService.getFollowers(userId);
+            List<Map<String, Object>> response = followers.stream()
+                .map(user -> {
+                    Map<String, Object> userMap = new HashMap<>();
+                    userMap.put("id", user.getId());
+                    userMap.put("name", user.getName());
+                    userMap.put("email", user.getEmail());
+                    userMap.put("program", user.getProgram());
+                    userMap.put("profilePic", user.getProfileImageUrl());
+                    return userMap;
+                })
+                .toList();
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to fetch followers: " + e.getMessage()));
+        }
+    }
     
     /**
      * Get users that a user is following.
      * GET /api/users/{userId}/following
      */
-    // @GetMapping("/{userId}/following")
-    // public ResponseEntity<?> getFollowing(@PathVariable Long userId) {
-    //     try {
-    //         List<User> following = userService.getFollowing(userId);
-    //         List<Map<String, Object>> response = following.stream()
-    //             .map(user -> {
-    //                 Map<String, Object> userMap = new HashMap<>();
-    //                 userMap.put("id", user.getId());
-    //                 userMap.put("name", user.getName());
-    //                 userMap.put("email", user.getEmail());
-    //                 userMap.put("program", user.getProgram());
-    //                 userMap.put("profilePic", user.getProfileImageUrl());
-    //                 return userMap;
-    //             })
-    //             .toList();
-    //         return ResponseEntity.ok(response);
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-    //                 .body(Map.of("error", "Failed to fetch following: " + e.getMessage()));
-    //     }
-    // }
+    @GetMapping("/{userId}/following")
+    public ResponseEntity<?> getFollowing(@PathVariable Long userId) {
+        try {
+            List<User> following = userService.getFollowing(userId);
+            List<Map<String, Object>> response = following.stream()
+                .map(user -> {
+                    Map<String, Object> userMap = new HashMap<>();
+                    userMap.put("id", user.getId());
+                    userMap.put("name", user.getName());
+                    userMap.put("email", user.getEmail());
+                    userMap.put("program", user.getProgram());
+                    userMap.put("profilePic", user.getProfileImageUrl());
+                    return userMap;
+                })
+                .toList();
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to fetch following: " + e.getMessage()));
+        }
+    }
 }
