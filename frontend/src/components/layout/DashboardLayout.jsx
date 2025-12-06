@@ -33,9 +33,9 @@ const DashboardLayout = ({ children }) => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a14] via-[#0f0f1e] to-[#1a1a2e] flex">
       {/* Left Sidebar - Narrow Vertical */}
-      <div className="w-16 bg-[#0f0f0f] flex flex-col items-center py-6 border-r border-gray-800">
+      <div className="w-16 bg-gradient-to-b from-[#0a0a14] to-[#0f0f1e] flex flex-col items-center py-6 border-r border-indigo-900/20 shadow-2xl shadow-indigo-950/50">
         {/* Logo */}
         <Link to="/dashboard" className="mb-12 group relative">
           <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/40 transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl ring-1 ring-inset ring-white/20 group-hover:ring-white/30">
@@ -73,7 +73,7 @@ const DashboardLayout = ({ children }) => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         {/* Top Bar */}
-        <div className="bg-[#141414] border-b border-gray-800 px-8 py-4">
+        <div className="bg-gradient-to-r from-[#0a0a14] via-[#0f0f1e] to-[#0a0a14] border-b border-indigo-900/20 px-8 py-4 backdrop-blur-xl">
           <div className="flex items-center justify-between">
             {/* Left: Logo Text & Search */}
             <div className="flex items-center gap-6">
@@ -116,8 +116,13 @@ const DashboardLayout = ({ children }) => {
         </div>
 
         {/* Page Content */}
-        <div className={`flex-1 p-8 ${location.pathname === '/profile' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
-          {children}
+        <div className={`flex-1 p-8 ${location.pathname === '/profile' ? 'overflow-hidden' : 'overflow-y-auto'} bg-gradient-to-br from-[#0f0f1e] via-[#1a1a2e] to-[#0f0f1e] relative`}>
+          {/* Subtle animated gradient orbs for depth */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/5 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+          <div className="relative z-10">
+            {children}
+          </div>
         </div>
       </div>
 
