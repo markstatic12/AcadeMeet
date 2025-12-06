@@ -133,25 +133,19 @@ const SearchPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="flex gap-6 h-[calc(100vh-120px)] -mt-8">
-        {/* Left Sidebar - Fixed, Non-scrollable */}
-        <div className="w-[380px] bg-[#161A2B] flex-shrink-0 h-full flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-gray-800/50 hover:border-indigo-500/30 transition-all duration-300">
-          <div className="p-6 flex flex-col h-full">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 bg-indigo-600/10 rounded-xl">
-                <SearchIcon className="w-5 h-5 text-indigo-400" />
-              </div>
-              <h1 className="text-2xl font-bold text-white">Search</h1>
-            </div>
-            
-            {/* Search Input */}
-            <div className="relative mb-5 group">
-              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 transition-all duration-200">
-                <SearchIcon className="w-4 h-4 text-gray-500 group-focus-within:text-indigo-400 group-focus-within:scale-110 transition-all" />
+      {/* Full-Width Discovery Layout */}
+      <div className="flex flex-col h-full">
+        {/* STICKY SEARCH HEADER - Top Section */}
+        <div className="sticky top-0 z-20 pb-6 px-12 mx-8">
+          {/* Hero Search Input - Full Width */}
+          <div className="w-full mb-6 pt-6">
+            <div className="relative group">
+              <div className="absolute left-5 top-1/2 -translate-y-1/2 transition-all duration-200">
+                <SearchIcon className="w-6 h-6 text-gray-500 group-focus-within:text-indigo-400 group-focus-within:scale-110 transition-all" />
               </div>
               <input
                 type="text"
-                placeholder="Search for sessions or users..."
+                placeholder="Search for sessions, users, topics..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
@@ -159,58 +153,56 @@ const SearchPage = () => {
                     navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
                   }
                 }}
-                className="w-full pl-11 pr-4 py-3.5 bg-gray-900/50 border border-gray-700/50 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 hover:border-gray-600 transition-all duration-200"
+                className="w-full h-12 pl-16 pr-6 bg-[#161A2B] border-2 border-gray-800/50 rounded-2xl text-white text-base placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 hover:border-gray-700 transition-all duration-200 shadow-xl"
               />
             </div>
-            
+          </div>
+          {/* Filters Toolbar - Horizontal Layout */}
+          <div className="flex items-center justify-between gap-6 w-full">
             {/* Filter Tabs */}
-            <div className="flex gap-2 mb-6 p-1 bg-gray-900/50 rounded-xl border border-gray-700/50">
-              <button
-                onClick={() => setActiveTab('all')}
-                className={`flex-1 px-4 py-2.5 text-sm font-bold rounded-lg transition-all duration-300 ${
-                  activeTab === 'all'
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-[1.02] border border-indigo-500/50'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-800/50 border border-transparent'
-                }`}
-              >
-                All
-              </button>
-              <button
-                onClick={() => setActiveTab('users')}
-                className={`flex-1 px-4 py-2.5 text-sm font-bold rounded-lg transition-all duration-300 ${
-                  activeTab === 'users'
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-[1.02] border border-indigo-500/50'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-800/50 border border-transparent'
-                }`}
-              >
-                Users
-              </button>
-              <button
-                onClick={() => setActiveTab('session')}
-                className={`flex-1 px-4 py-2.5 text-sm font-bold rounded-lg transition-all duration-300 ${
-                  activeTab === 'session'
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-[1.02] border border-indigo-500/50'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-800/50 border border-transparent'
-                }`}
-              >
-                Sessions
-              </button>
-            </div>
-            
-            {/* Filters Container - Scrollable if needed */}
-            <div className="flex-1 overflow-y-auto space-y-4 pr-1 custom-scrollbar">
-            {/* Sort By */}
-            <div className="bg-gray-900/30 rounded-xl p-5 hover:bg-gray-900/50 transition-all duration-200 border border-gray-800/30 hover:border-gray-700/50">
-              <div className="flex items-center gap-2 mb-3">
-                <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-                </svg>
-                <span className="text-sm text-gray-300 font-bold">Sort by</span>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-400 font-medium mr-2">Filter by:</span>
+              <div className="flex gap-2 p-1 bg-[#161A2B] rounded-xl border border-gray-800/50">
+                <button
+                  onClick={() => setActiveTab('all')}
+                  className={`px-6 py-2 text-sm font-bold rounded-lg transition-all duration-300 ${
+                    activeTab === 'all'
+                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                  }`}
+                >
+                  All Results
+                </button>
+                <button
+                  onClick={() => setActiveTab('users')}
+                  className={`px-6 py-2 text-sm font-bold rounded-lg transition-all duration-300 ${
+                    activeTab === 'users'
+                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                  }`}
+                >
+                  People
+                </button>
+                <button
+                  onClick={() => setActiveTab('session')}
+                  className={`px-6 py-2 text-sm font-bold rounded-lg transition-all duration-300 ${
+                    activeTab === 'session'
+                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                  }`}
+                >
+                  Sessions
+                </button>
               </div>
+            </div>
+
+            {/* Sort By Dropdown */}
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-400 font-medium">Sort by:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-[#161A2B] border border-gray-700/50 rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:border-gray-600"
+                className="px-4 py-2 bg-[#161A2B] border border-gray-800/50 rounded-lg text-gray-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:border-gray-700 min-w-[160px]"
                 style={{
                   backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                   backgroundRepeat: 'no-repeat',
@@ -223,178 +215,52 @@ const SearchPage = () => {
                 <option value="Name">Name</option>
               </select>
             </div>
-            
-            {/* Filter - Only show for Users */}
-            {activeTab === 'users' && (
-              <div className="bg-gray-900/30 rounded-xl p-5 hover:bg-gray-900/50 transition-all duration-300 animate-in fade-in slide-in-from-top-2 border border-gray-800/30 hover:border-gray-700/50">
-                <div className="flex items-center gap-2 mb-4">
-                  <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                  </svg>
-                  <span className="text-sm text-gray-300 font-bold">User Filters</span>
-                </div>
-                
-                {/* Program */}
-                <div className="mb-4">
-                  <label className="block text-white text-xs font-bold mb-2">Program</label>
-                  <select
-                    value={programFilter}
-                    onChange={(e) => setProgramFilter(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-[#161A2B] border border-gray-700/50 rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:border-gray-600"
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'right 0.75rem center',
-                      backgroundSize: '1.25em 1.25em',
-                    }}
-                  >
-                    <option value="All Programs">All Programs</option>
-                    <option value="BSIT">BSIT</option>
-                    <option value="BSCS">BSCS</option>
-                    <option value="BSIS">BSIS</option>
-                    <option value="ACT">ACT</option>
-                  </select>
-                </div>
-                
-                {/* Year Level */}
-                <div>
-                  <label className="block text-white text-xs font-bold mb-2">Year Level</label>
-                  <select
-                    value={yearLevelFilter}
-                    onChange={(e) => setYearLevelFilter(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-[#161A2B] border border-gray-700/50 rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:border-gray-600"
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'right 0.75rem center',
-                      backgroundSize: '1.25em 1.25em',
-                    }}
-                  >
-                    <option value="All Year Levels">All Year Levels</option>
-                    <option value="1st Year">1st Year</option>
-                    <option value="2nd Year">2nd Year</option>
-                    <option value="3rd Year">3rd Year</option>
-                    <option value="4th Year">4th Year</option>
-                  </select>
-                </div>
-              </div>
-            )}
-            
-            {/* Filter - Only show for Sessions */}
-            {activeTab === 'session' && (
-              <div className="bg-gray-900/30 rounded-xl p-5 hover:bg-gray-900/50 transition-all duration-300 animate-in fade-in slide-in-from-top-2 border border-gray-800/30 hover:border-gray-700/50">
-                <div className="flex items-center gap-2 mb-4">
-                  <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                  </svg>
-                  <span className="text-sm text-gray-300 font-bold">Session Filters</span>
-                </div>
-                
-                {/* Date */}
-                <div className="mb-4">
-                  <label className="block text-white text-xs font-bold mb-2">Date</label>
-                  <input
-                    type="text"
-                    placeholder="dd/mm/yyyy"
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-[#161A2B] border border-gray-700/50 rounded-lg text-gray-300 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200 hover:border-gray-600"
-                  />
-                </div>
-                
-                {/* Time of Day */}
-                <div className="mb-4">
-                  <label className="block text-white text-xs font-bold mb-2">Time of Day</label>
-                  <select
-                    value={timeFilter}
-                    onChange={(e) => setTimeFilter(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-[#161A2B] border border-gray-700/50 rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:border-gray-600"
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'right 0.75rem center',
-                      backgroundSize: '1.25em 1.25em',
-                    }}
-                  >
-                    <option value="Any Time">Any Time</option>
-                    <option value="Morning">Morning</option>
-                    <option value="Afternoon">Afternoon</option>
-                    <option value="Evening">Evening</option>
-                  </select>
-                </div>
-                
-                {/* Privacy */}
-                <div>
-                  <label className="block text-white text-xs font-bold mb-2">Privacy</label>
-                  <select
-                    value={privacyFilter}
-                    onChange={(e) => setPrivacyFilter(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-[#161A2B] border border-gray-700/50 rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:border-gray-600"
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'right 0.75rem center',
-                      backgroundSize: '1.25em 1.25em',
-                    }}
-                  >
-                    <option value="All Sessions">All Sessions</option>
-                    <option value="Public">Public</option>
-                    <option value="Private">Private</option>
-                  </select>
-                </div>
-              </div>
-            )}
+          </div>
+
+          {/* Search Results Count */}
+          {searchQuery && (
+            <div className="w-full mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+              <p className="text-gray-400 text-sm">
+                Found <span className="text-white font-bold">{filteredUsers.length + filteredSessions.length}</span> results for "<span className="text-indigo-400 font-medium">{searchQuery}</span>"
+              </p>
             </div>
-          </div>
+          )}
         </div>
-        
-        {/* Main Content - Scrollable when viewing all, carousel otherwise */}
-        <div className={`flex-1 h-full pl-6 ${viewMode === 'all' ? 'overflow-y-auto' : 'overflow-hidden'}`}>
-          <div className="mb-8">
-            <h2 className="text-2xl text-white font-normal">
-              Searching {activeTab === 'users' ? 'Users' : activeTab === 'session' ? 'Sessions' : 'All'} for "<span className="italic">{searchQuery || '...'}</span>"
-            </h2>
-          </div>
-          
-          {/* Users Section */}
-          {displayUsers.length > 0 && (
-            <div className="mb-10 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '100ms' }}>
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-indigo-600/10 rounded-lg">
-                    <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+
+        {/* SCROLLABLE RESULTS AREA - Full Width Masonry Grid */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="w-full px-8 py-8 pb-20">
+            
+            {/* Users Section */}
+            {displayUsers.length > 0 && (
+              <div className="mb-16 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '100ms' }}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-indigo-600/10 rounded-xl border border-indigo-500/20">
+                      <svg className="w-6 h-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl text-white font-bold">People</h3>
+                    <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-sm font-bold rounded-full border border-indigo-500/30">
+                      {filteredUsers.length}
+                    </span>
                   </div>
-                  <h3 className="text-xl text-white font-bold">Users</h3>
-                  <span className="px-2.5 py-0.5 bg-indigo-500/10 text-indigo-400 text-xs font-bold rounded-full border border-indigo-500/30">
-                    {filteredUsers.length}
-                  </span>
+                  {(activeTab === 'all' || activeTab === 'users') && filteredUsers.length > (viewMode === 'all' ? displayUsers.length : ITEMS_PER_PAGE) && (
+                    <button
+                      onClick={handleViewAllUsers}
+                      className="px-5 py-2.5 bg-[#161A2B] hover:bg-[#1a1f35] text-indigo-400 hover:text-indigo-300 text-sm font-bold rounded-xl transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/20 hover:scale-105 flex items-center gap-2"
+                    >
+                      View All
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
-                {(activeTab === 'all' || activeTab === 'users') && filteredUsers.length > ITEMS_PER_PAGE && (
-                  <button
-                    onClick={handleViewAllUsers}
-                    className="px-4 py-2 bg-[#161A2B] hover:bg-[#1a1f35] text-indigo-400 hover:text-indigo-300 text-sm font-bold rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/20 hover:scale-105"
-                  >
-                    View All →
-                  </button>
-                )}
-              </div>
-              
-              <div className="relative">
-                {/* Left Arrow */}
-                {totalUserPages > 1 && (
-                  <button
-                    onClick={() => setUserPage(userPage > 0 ? userPage - 1 : totalUserPages - 1)}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-14 z-10 w-11 h-11 bg-indigo-600 hover:bg-indigo-500 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-2xl shadow-indigo-500/40 border border-indigo-500/50"
-                  >
-                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                )}
                 
-                <div className="grid grid-cols-2 gap-5 transition-all duration-300">
+                {/* Users Grid - Full Width Responsive */}
+                <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
                   {displayUsers.map((user, index) => (
                     <div 
                       key={user.id} 
@@ -405,61 +271,39 @@ const SearchPage = () => {
                     </div>
                   ))}
                 </div>
-                
-                {/* Right Arrow */}
-                {totalUserPages > 1 && (
-                  <button
-                    onClick={() => setUserPage(userPage < totalUserPages - 1 ? userPage + 1 : 0)}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-14 z-10 w-11 h-11 bg-indigo-600 hover:bg-indigo-500 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-2xl shadow-indigo-500/40 border border-indigo-500/50"
-                  >
-                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                )}
               </div>
-            </div>
-          )}
-          
-          {/* Sessions Section */}
-          {displaySessions.length > 0 && (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '200ms' }}>
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-indigo-600/10 rounded-lg">
-                    <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
+            )}
+            
+            {/* Sessions Section */}
+            {displaySessions.length > 0 && (
+              <div className="mb-16 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '200ms' }}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-indigo-600/10 rounded-xl border border-indigo-500/20">
+                      <svg className="w-6 h-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl text-white font-bold">Study Sessions</h3>
+                    <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-sm font-bold rounded-full border border-indigo-500/30">
+                      {filteredSessions.length}
+                    </span>
                   </div>
-                  <h3 className="text-xl text-white font-bold">Sessions</h3>
-                  <span className="px-2.5 py-0.5 bg-indigo-500/10 text-indigo-400 text-xs font-bold rounded-full border border-indigo-500/30">
-                    {filteredSessions.length}
-                  </span>
+                  {(activeTab === 'all' || activeTab === 'session') && filteredSessions.length > (viewMode === 'all' ? displaySessions.length : ITEMS_PER_PAGE) && (
+                    <button
+                      onClick={handleViewAllSessions}
+                      className="px-5 py-2.5 bg-[#161A2B] hover:bg-[#1a1f35] text-indigo-400 hover:text-indigo-300 text-sm font-bold rounded-xl transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/20 hover:scale-105 flex items-center gap-2"
+                    >
+                      View All
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
-                {(activeTab === 'all' || activeTab === 'session') && filteredSessions.length > ITEMS_PER_PAGE && (
-                  <button
-                    onClick={handleViewAllSessions}
-                    className="px-4 py-2 bg-[#161A2B] hover:bg-[#1a1f35] text-indigo-400 hover:text-indigo-300 text-sm font-bold rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/20 hover:scale-105"
-                  >
-                    View All →
-                  </button>
-                )}
-              </div>
-              
-              <div className="relative">
-                {/* Left Arrow */}
-                {totalSessionPages > 1 && (
-                  <button
-                    onClick={() => setSessionPage(sessionPage > 0 ? sessionPage - 1 : totalSessionPages - 1)}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-14 z-10 w-11 h-11 bg-indigo-600 hover:bg-indigo-500 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-2xl shadow-indigo-500/40 border border-indigo-500/50"
-                  >
-                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                )}
                 
-                <div className="grid grid-cols-4 gap-5 transition-all duration-300">
+                {/* Sessions Grid - Full Width Responsive */}
+                <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
                   {displaySessions.map((session, index) => (
                     <div 
                       key={session.id}
@@ -470,26 +314,14 @@ const SearchPage = () => {
                     </div>
                   ))}
                 </div>
-                
-                {/* Right Arrow */}
-                {totalSessionPages > 1 && (
-                  <button
-                    onClick={() => setSessionPage(sessionPage < totalSessionPages - 1 ? sessionPage + 1 : 0)}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-14 z-10 w-11 h-11 bg-indigo-600 hover:bg-indigo-500 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-2xl shadow-indigo-500/40 border border-indigo-500/50"
-                  >
-                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                )}
               </div>
-            </div>
-          )}
-          
-          {/* Empty State */}
-          {displayUsers.length === 0 && displaySessions.length === 0 && (
-            <SearchEmptyState searchQuery={searchQuery} type={activeTab} />
-          )}
+            )}
+            
+            {/* Empty State */}
+            {displayUsers.length === 0 && displaySessions.length === 0 && (
+              <SearchEmptyState searchQuery={searchQuery} type={activeTab} />
+            )}
+          </div>
         </div>
       </div>
     </DashboardLayout>
