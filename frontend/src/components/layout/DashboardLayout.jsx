@@ -36,14 +36,14 @@ const DashboardLayout = ({ children }) => {
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a14] via-[#0f0f1e] to-[#1a1a2e] flex">
-      {/* Left Sidebar - Expanded with Labels */}
-      <div className="w-56 bg-gradient-to-b from-[#0e0e1a] via-[#12121f] to-[#0e0e1a] flex flex-col py-6 px-3 border-r border-indigo-900/30 shadow-2xl shadow-black/50 relative">
+    <div className="h-screen overflow-hidden bg-gradient-to-br from-[#0a0a14] via-[#0f0f1e] to-[#1a1a2e] flex">
+      {/* Left Sidebar - Fixed Height, Never Scrolls */}
+      <div className="w-56 h-full bg-gradient-to-b from-[#0e0e1a] via-[#12121f] to-[#0e0e1a] flex flex-col py-6 px-3 border-r-2 border-indigo-900/40 shadow-2xl shadow-black/50 relative">
         {/* Subtle gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-indigo-600/5 via-purple-600/5 to-indigo-600/5 pointer-events-none"></div>
         
-        {/* Logo with Text */}
-        <Link to="/dashboard" className="mb-8 group relative z-10 flex items-center gap-2.5 px-3">
+        {/* Logo with Text - Fixed at top */}
+        <Link to="/dashboard" className="mb-8 group relative z-10 flex items-center gap-2.5 px-3 flex-shrink-0">
           <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-500/40 transition-all duration-300 group-hover:scale-110 group-hover:shadow-2xl group-hover:shadow-indigo-500/50 ring-2 ring-inset ring-white/10 group-hover:ring-white/20 group-active:scale-95 flex-shrink-0">
             <img src={logo} alt="AcadeMeet Logo" className="w-8 h-8 object-contain transition-transform duration-300 group-hover:rotate-12" />
           </div>
@@ -54,8 +54,8 @@ const DashboardLayout = ({ children }) => {
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-400 opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300"></div>
         </Link>
 
-        {/* Navigation with Labels */}
-        <nav className="flex-1 flex flex-col gap-1.5 relative z-10">
+        {/* Main Navigation - Takes available space */}
+        <nav className="flex flex-col gap-3 relative z-10 flex-shrink-0">
           {navigation.map((item, index) => {
             const active = isActive(item.href);
             return (
@@ -97,11 +97,17 @@ const DashboardLayout = ({ children }) => {
           })}
         </nav>
 
-        {/* Separator */}
-        <div className="relative z-10 my-4 border-t border-indigo-900/30"></div>
+        {/* Spacer - Pushes settings to bottom */}
+        <div className="flex-1"></div>
 
-        {/* Bottom Navigation - Settings */}
-        <nav className="relative z-10 flex flex-col gap-1.5">
+        {/* Separator - Gradient Shimmering Line */}
+        <div className="relative z-10 my-6 h-[2px] overflow-hidden rounded-full flex-shrink-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent animate-shimmer"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/40 to-transparent animate-shimmer" style={{animationDelay: '0.5s'}}></div>
+        </div>
+
+        {/* Bottom Navigation - Settings - Pinned to bottom */}
+        <nav className="relative z-10 flex flex-col gap-3 flex-shrink-0">
           {bottomNavigation.map((item) => {
             const active = isActive(item.href);
             return (
@@ -144,10 +150,10 @@ const DashboardLayout = ({ children }) => {
         </nav>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Top Bar */}
-        <div className="bg-gradient-to-r from-[#0a0a14] via-[#0f0f1e] to-[#0a0a14] border-b border-indigo-900/20 px-8 py-4 backdrop-blur-xl">
+      {/* Main Content Area - Fixed Height with Internal Scrolling */}
+      <div className="flex-1 h-full flex flex-col overflow-hidden">
+        {/* Top Bar - Fixed at top */}
+        <div className="bg-gradient-to-r from-[#0a0a14] via-[#0f0f1e] to-[#0a0a14] border-b border-indigo-900/20 px-8 py-4 backdrop-blur-xl flex-shrink-0">
           <div className="flex items-center justify-between">
             {/* Left: Logo Text & Search */}
             <div className="flex items-center gap-6">
@@ -183,13 +189,15 @@ const DashboardLayout = ({ children }) => {
           </div>
         </div>
 
-        {/* Page Content */}
-        <div className={`flex-1 p-8 ${location.pathname === '/profile' ? 'overflow-hidden' : 'overflow-y-auto'} bg-gradient-to-br from-[#0f0f1e] via-[#1a1a2e] to-[#0f0f1e] relative`}>
-          {/* Subtle animated gradient orbs for depth */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/5 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
-          <div className="relative z-10">
-            {children}
+        {/* Scrollable Page Content - Only this area scrolls */}
+        <div className="flex-1 overflow-y-auto bg-gradient-to-br from-[#0f0f1e] via-[#1a1a2e] to-[#0f0f1e] relative">
+          <div className="p-8">
+            {/* Subtle animated gradient orbs for depth */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/5 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl animate-pulse pointer-events-none" style={{animationDelay: '1s'}}></div>
+            <div className="relative z-10">
+              {children}
+            </div>
           </div>
         </div>
       </div>
