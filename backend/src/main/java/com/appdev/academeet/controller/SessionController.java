@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,7 +43,9 @@ public class SessionController {
         this.userRepository = userRepository;
     }
 
-    // Helper method to handle common session operation error patterns
+    /**
+     * Helper method to handle common session operation error patterns.
+     */
     private ResponseEntity<?> handleSessionOperation(SessionOperation operation) {
         try {
             String message = operation.execute();
@@ -57,7 +60,9 @@ public class SessionController {
         String execute() throws Exception;
     }
 
-    // Extract authenticated user from JWT token
+    /**
+     * Helper method to get authenticated user from JWT token
+     */
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -71,7 +76,9 @@ public class SessionController {
             .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    // Create a new session with authenticated user as host
+    /**
+     * Creates a new session with the authenticated user as host.
+     */
     @PostMapping
     public ResponseEntity<?> createSession(@RequestBody Session session) {
         try {
@@ -84,7 +91,9 @@ public class SessionController {
         }
     }
 
-    // Get all sessions for authenticated user
+    /**
+     * Gets all sessions for the authenticated user.
+     */
     @GetMapping("/user/me")
     public ResponseEntity<?> getMySessionsByUser() {
         try {
@@ -96,19 +105,25 @@ public class SessionController {
         }
     }
 
-    // Get all sessions in the system
+    /**
+     * Gets all sessions in the system.
+     */
     @GetMapping("/all-sessions")
     public List<SessionDTO> getAllSessions() {
         return sessionService.getAllSessions();
     }
 
-    // Get trending sessions based on tag popularity
+    /**
+     * Gets trending sessions based on tag popularity.
+     */
     @GetMapping("/trending")
     public List<SessionDTO> getTrendingSessions() {
         return sessionService.getTrendingSessions();
     }
 
-    // Validate session password without joining (for private session access)
+    /**
+     * Validates session password without joining (for private session access).
+     */
     @PostMapping("/{id}/validate-password")
     public ResponseEntity<?> validateSessionPassword(@PathVariable Long id, @RequestBody JoinSessionRequest request) {
         return handleSessionOperation(() -> {
@@ -119,26 +134,27 @@ public class SessionController {
         });
     }
 
-    // Join a session with password validation and participant limit checks
-    @PostMapping("/{id}/join")
-    public ResponseEntity<?> joinSession(@PathVariable Long id, @RequestBody JoinSessionRequest request) {
+    /**
+     * Joins a session with password validation and participant limit checks.
+     * Uses the new business logic in SessionService.joinSession()
+     */
+    @PostMapping("/{sessionId}/join")
+    public ResponseEntity<?> joinSession(@PathVariable Long sessionId, @RequestBody(required = false) JoinSessionRequest request) {
         try {
             User user = getAuthenticatedUser();
-            
-            // Validate password for private sessions
-            if (!sessionService.validateSessionPassword(id, request.getPassword())) {
-                throw new RuntimeException("Invalid password or session not found");
-            }
-            
-            // Join session (creates participant record and increments count)
-            sessionService.joinSession(id, user);
+            String password = (request != null) ? request.getPassword() : null;
+            sessionService.joinSession(sessionId, user, password);
             return ResponseEntity.ok(Map.of("message", "Successfully joined session"));
-        } catch (Exception e) {
+        } catch (IllegalStateException | SecurityException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to join session: " + e.getMessage()));
         }
     }
 
-    // Cancel participation in a session
+    /**
+     * Cancel participation in a session.
+     */
     @PostMapping("/{id}/cancel-join")
     public ResponseEntity<?> cancelJoinSession(@PathVariable Long id) {
         try {
@@ -150,7 +166,26 @@ public class SessionController {
         }
     }
 
-    // Check if user is a participant of a session
+    /**
+     * Leave a session.
+     * DELETE /api/sessions/{sessionId}/leave
+     */
+    @org.springframework.web.bind.annotation.DeleteMapping("/{sessionId}/leave")
+    public ResponseEntity<?> leaveSession(@PathVariable Long sessionId) {
+        try {
+            User user = getAuthenticatedUser();
+            sessionService.leaveSession(sessionId, user.getId());
+            return ResponseEntity.noContent().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to leave session: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Check if user is a participant of a session.
+     */
     @GetMapping("/{id}/is-participant")
     public ResponseEntity<?> isUserParticipant(@PathVariable Long id) {
         try {
@@ -162,7 +197,9 @@ public class SessionController {
         }
     }
 
-    // Update session status (ACTIVE, SCHEDULED, COMPLETED, TRASH, etc.)
+    /**
+     * Updates session status (ACTIVE, SCHEDULED, COMPLETED, etc.).
+     */
     @PatchMapping("/{id}/status")
     public ResponseEntity<?> updateSessionStatus(@PathVariable Long id, @RequestBody UpdateStatusRequest request) {
         return handleSessionOperation(() -> {
@@ -171,7 +208,26 @@ public class SessionController {
         });
     }
 
-    // Update session details
+    /**
+     * Close a session (only host can close).
+     * PUT /api/sessions/{sessionId}/close
+     */
+    @org.springframework.web.bind.annotation.PutMapping("/{sessionId}/close")
+    public ResponseEntity<?> closeSession(@PathVariable Long sessionId) {
+        try {
+            User user = getAuthenticatedUser();
+            sessionService.closeSession(sessionId, user.getId());
+            return ResponseEntity.ok(Map.of("message", "Session closed successfully"));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to close session: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Update session details.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSession(@PathVariable Long id, @RequestBody Session session) {
         try {
@@ -183,7 +239,9 @@ public class SessionController {
         }
     }
 
-    // Get a single session by ID
+    /**
+     * Gets a single session by ID.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<SessionDTO> getSessionById(@PathVariable Long id) {
         try {
@@ -195,13 +253,17 @@ public class SessionController {
         }
     }
 
-    // Get sessions filtered by status, or all sessions if no status provided
+    /**
+     * Gets sessions filtered by status, or all sessions if no status provided.
+     */
     @GetMapping
     public List<SessionDTO> getSessionsByStatus(@RequestParam(required = false) SessionStatus status) {
         return status != null ? sessionService.getSessionsByStatus(status) : sessionService.getAllSessions();
     }
 
-    // Get sessions scheduled for a specific date
+    /**
+     * Gets sessions scheduled for a specific date.
+     */
     @GetMapping("/by-date")
     public List<SessionDTO> getSessionsByDate(@RequestParam String year, 
                                             @RequestParam String month, 
@@ -209,7 +271,9 @@ public class SessionController {
         return sessionService.getSessionsByDate(year, month, day);
     }
 
-    // Upload an image for a session (profile or cover)
+    /**
+     * Uploads an image for a session (profile or cover).
+     */
     @PostMapping("/{id}/upload-image")
     public ResponseEntity<?> uploadSessionImage(@PathVariable Long id, 
                                               @RequestParam("file") MultipartFile file, 

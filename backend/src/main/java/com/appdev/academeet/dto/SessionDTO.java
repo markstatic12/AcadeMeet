@@ -74,14 +74,20 @@ public class SessionDTO {
         }
         
         // Date and location
-        this.month = session.getMonth();
-        this.day = session.getDay();
-        this.year = session.getYear();
+        if (session.getStartTime() != null) {
+            this.month = session.getStartTime().getMonth().toString();
+            this.day = String.valueOf(session.getStartTime().getDayOfMonth());
+            this.year = String.valueOf(session.getStartTime().getYear());
+        } else {
+            this.month = null;
+            this.day = null;
+            this.year = null;
+        }
         this.location = session.getLocation();
         
         // Session settings
-        this.sessionType = session.getSessionType();
-        this.status = session.getStatus();
+        this.sessionType = session.getSessionPrivacy();
+        this.status = session.getSessionStatus();
         this.maxParticipants = session.getMaxParticipants();
         this.currentParticipants = session.getCurrentParticipants();
         this.createdAt = session.getCreatedAt() != null ? session.getCreatedAt().toString() : null;
