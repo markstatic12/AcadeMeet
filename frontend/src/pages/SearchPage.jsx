@@ -140,10 +140,10 @@ const SearchPage = () => {
         <div className="w-[340px] flex-shrink-0 border-r border-gray-800/30 pr-6">
           <div className="sticky top-8">
             {/* Search Title */}
-            <h1 className="text-2xl font-bold text-white mb-5">Search</h1>
+            <h1 className="text-2xl font-bold text-white mb-5 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '0ms', animationFillMode: 'forwards' }}>Search</h1>
             
             {/* Search Input */}
-            <div className="mb-5">
+            <div className="mb-5 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
               <div className="relative group">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2">
                   <SearchIcon className="w-4 h-4 text-gray-500 group-focus-within:text-indigo-400 transition-all" />
@@ -164,7 +164,7 @@ const SearchPage = () => {
             </div>
 
             {/* Filter Tabs */}
-            <div className="mb-5">
+            <div className="mb-5 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
               <div className="flex gap-2">
                 <button
                   onClick={() => setActiveTab('all')}
@@ -200,7 +200,7 @@ const SearchPage = () => {
             </div>
 
             {/* Sort By */}
-            <div className="bg-[#161A2B] rounded-lg p-3.5 border border-gray-800/50">
+            <div className="bg-[#161A2B] rounded-lg p-3.5 border border-gray-800/50 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}>
               <div className="flex items-center gap-2 mb-2.5">
                 <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
@@ -226,7 +226,7 @@ const SearchPage = () => {
 
             {/* SESSION FILTERS - Show when Session or All tab is active */}
             {(activeTab === 'session' || activeTab === 'all') && (
-              <div className="mt-5 bg-[#161A2B] rounded-lg p-3.5 border border-gray-800/50 animate-in fade-in duration-300">
+              <div className="mt-5 bg-[#161A2B] rounded-lg p-3.5 border border-gray-800/50 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}>
                 <div className="flex items-center gap-2 mb-3">
                   <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -291,7 +291,7 @@ const SearchPage = () => {
 
             {/* USER FILTERS - Show when Users tab is active */}
             {activeTab === 'users' && (
-              <div className="mt-5 bg-[#161A2B] rounded-lg p-3.5 border border-gray-800/50 animate-in fade-in duration-300">
+              <div className="mt-5 bg-[#161A2B] rounded-lg p-3.5 border border-gray-800/50 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}>
                 <div className="flex items-center gap-2 mb-3">
                   <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -357,7 +357,7 @@ const SearchPage = () => {
             
             {/* Users Section */}
             {displayUsers.length > 0 && (
-              <div className="flex-1 flex flex-col mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '100ms' }}>
+              <div className="flex-1 flex flex-col mb-6 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <div className="p-2 bg-indigo-600/10 rounded-lg border border-indigo-500/20">
@@ -395,8 +395,8 @@ const SearchPage = () => {
                   {displayUsers.map((user, index) => (
                     <div 
                       key={user.id} 
-                      className="flex-shrink-0 w-[300px] animate-in fade-in slide-in-from-bottom-2 duration-500"
-                      style={{ animationDelay: `${index * 50}ms`, scrollSnapAlign: 'start' }}
+                      className="flex-shrink-0 w-[300px] opacity-0 animate-fadeSlideUp"
+                      style={{ animationDelay: `${600 + (index * 80)}ms`, scrollSnapAlign: 'start', animationFillMode: 'forwards' }}
                     >
                       <SearchUserCard user={user} />
                     </div>
@@ -407,7 +407,7 @@ const SearchPage = () => {
             
             {/* Sessions Section */}
             {displaySessions.length > 0 && (
-              <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '200ms' }}>
+              <div className="flex-1 flex flex-col opacity-0 animate-fadeSlideUp" style={{ animationDelay: '700ms', animationFillMode: 'forwards' }}>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <div className="p-2 bg-indigo-600/10 rounded-lg border border-indigo-500/20">
@@ -445,8 +445,8 @@ const SearchPage = () => {
                   {displaySessions.map((session, index) => (
                     <div 
                       key={session.id}
-                      className="flex-shrink-0 w-[300px] animate-in fade-in slide-in-from-bottom-2 duration-500"
-                      style={{ animationDelay: `${index * 50}ms`, scrollSnapAlign: 'start' }}
+                      className="flex-shrink-0 w-[300px] opacity-0 animate-fadeSlideUp"
+                      style={{ animationDelay: `${800 + (index * 80)}ms`, scrollSnapAlign: 'start', animationFillMode: 'forwards' }}
                     >
                       <SessionCard session={session} />
                     </div>
