@@ -17,10 +17,10 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     // Read/Status
     List<Session> findByHost_Id(Long userId);
     List<Session> findAllByOrderByStartTime();
-    Page<Session> findByStatus(SessionStatus status, Pageable pageable);
+    Page<Session> findBySessionStatus(SessionStatus status, Pageable pageable);
     
     // Search/Filter
-    Page<Session> findByTitleContainingAndStatus(String keyword, SessionStatus status, Pageable pageable);
+    Page<Session> findByTitleContainingAndSessionStatus(String keyword, SessionStatus status, Pageable pageable);
     List<Session> findByStartTimeBetween(LocalDateTime start, LocalDateTime end);
     
     // Additional useful methods
@@ -28,7 +28,7 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
 
     // Case-insensitive search variants
     Page<Session> findByTitleContainingIgnoreCase(String keyword, Pageable pageable);
-    Page<Session> findByTitleContainingIgnoreCaseAndStatus(String keyword, SessionStatus status, Pageable pageable);
+    Page<Session> findByTitleContainingIgnoreCaseAndSessionStatus(String keyword, SessionStatus status, Pageable pageable);
 
     // Trending sessions ranked by tag popularity (top 4)
     @Query("SELECT s FROM Session s " +

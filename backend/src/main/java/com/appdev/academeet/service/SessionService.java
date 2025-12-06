@@ -332,11 +332,11 @@ public class SessionService {
     public Page<Session> searchSessions(String keyword, SessionStatus status, Long userId, Pageable pageable) {
         Page<Session> sessions;
         if (keyword != null && !keyword.trim().isEmpty() && status != null) {
-            sessions = sessionRepository.findByTitleContainingAndStatus(keyword, status, pageable);
+            sessions = sessionRepository.findByTitleContainingAndSessionStatus(keyword, status, pageable);
         } else if (keyword != null && !keyword.trim().isEmpty()) {
             sessions = sessionRepository.findByTitleContaining(keyword, pageable);
         } else if (status != null) {
-            sessions = sessionRepository.findByStatus(status, pageable);
+            sessions = sessionRepository.findBySessionStatus(status, pageable);
         } else {
             sessions = sessionRepository.findAll(pageable);
         }
@@ -352,7 +352,7 @@ public class SessionService {
 
     @Transactional(readOnly = true)
     public Page<Session> getSessionsByStatus(SessionStatus status, Pageable pageable) {
-        return sessionRepository.findByStatus(status, pageable);
+        return sessionRepository.findBySessionStatus(status, pageable);
     }
 
     public String uploadSessionImage(Long sessionId, MultipartFile file, String imageType) throws IOException {
