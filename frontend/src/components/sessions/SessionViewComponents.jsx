@@ -1,6 +1,7 @@
 import React from 'react';
 import SessionStatusBadge from '../ui/SessionStatusBadge';
 import { CalendarIcon, ClockIcon, LocationIcon, UserIcon, UsersIcon, LockIcon, GlobeIcon } from '../../icons';
+import { formatTime as formatTimeUtil } from '../../utils/dateTimeUtils';
 
 // Read-only Tags Display
 export const TagsDisplay = ({ tags = [] }) => {
@@ -85,7 +86,7 @@ export const DateDisplay = ({ month, day, year }) => {
 export const TimeDisplay = ({ startTime, endTime }) => {
   const formatTime = () => {
     if (!startTime || !endTime) return 'Time not set';
-    return `${startTime} - ${endTime}`;
+    return `${formatTimeUtil(startTime)} - ${formatTimeUtil(endTime)}`;
   };
 
   return (
@@ -123,13 +124,23 @@ export const SessionTypeDisplay = ({ sessionType }) => {
 };
 
 // Read-only Participants Display
-export const ParticipantsDisplay = ({ currentParticipants, maxParticipants }) => {
+export const ParticipantsDisplay = ({ currentParticipants, maxParticipants, participants, participantCount }) => {
   if (!maxParticipants) return null;
+  
+  // Determine the actual participant count from various possible sources
+  let count = 0;
+  if (participantCount !== undefined && participantCount !== null) {
+    count = participantCount; // From backend's getParticipantCount() method
+  } else if (Array.isArray(participants)) {
+    count = participants.length; // From participants array
+  } else if (currentParticipants !== undefined && currentParticipants !== null) {
+    count = currentParticipants; // From currentParticipants field
+  }
   
   return (
     <div className="flex items-center gap-3 text-gray-300">
       <UsersIcon className="w-4 h-4 text-indigo-400 flex-shrink-0" />
-      <span className="text-sm">{currentParticipants || 0} / {maxParticipants} participants</span>
+      <span className="text-sm">{count} / {maxParticipants} participants</span>
     </div>
   );
 };
@@ -147,7 +158,7 @@ export const HostDisplay = ({ host }) => {
 // Read-only Session Details Panel
 export const ViewDetailsPanel = ({ session }) => {
   return (
-    <div className="bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/60 to-[#0f0f1e]/60 backdrop-blur-sm border border-indigo-900/30 rounded-xl shadow-xl h-full flex flex-col">
+    <div className="bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/60 to-[#0f0f1e]/60 backdrop-blur-sm border border-indigo-900/30 rounded-xl shadow-xl h-full flex flex-col min-h-0">
       <div className="flex items-center gap-2.5 px-5 py-4 border-b border-indigo-900/20 flex-shrink-0">
         <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
           <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,12 +168,14 @@ export const ViewDetailsPanel = ({ session }) => {
         <h3 className="text-white font-bold text-base">Session Details</h3>
       </div>
 
-      <div className="flex-1 px-5 py-4 space-y-3 overflow-y-auto custom-scrollbar">
+      <div className="flex-1 px-5 py-4 space-y-3 overflow-y-auto custom-scrollbar min-h-0">
         {session?.maxParticipants && (
           <>
             <ParticipantsDisplay
               currentParticipants={session?.currentParticipants}
               maxParticipants={session?.maxParticipants}
+              participants={session?.participants}
+              participantCount={session?.participantCount}
             />
             <div className="border-t border-indigo-900/10 my-3"></div>
           </>
@@ -205,7 +218,7 @@ export const ViewDetailsPanel = ({ session }) => {
 // Read-only Session Overview Panel
 export const ViewOverviewPanel = ({ session }) => {
   return (
-    <div className="bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/60 to-[#0f0f1e]/60 backdrop-blur-sm border border-indigo-900/30 rounded-xl shadow-xl h-full flex flex-col">
+    <div className="bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/60 to-[#0f0f1e]/60 backdrop-blur-sm border border-indigo-900/30 rounded-xl shadow-xl h-full flex flex-col min-h-0">
       <div className="flex items-center gap-2.5 px-5 py-4 border-b border-indigo-900/20 flex-shrink-0">
         <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
           <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -215,7 +228,7 @@ export const ViewOverviewPanel = ({ session }) => {
         <h3 className="text-white font-bold text-base">Session Overview</h3>
       </div>
 
-      <div className="flex-1 p-5 overflow-y-auto custom-scrollbar">
+      <div className="flex-1 p-5 overflow-y-auto custom-scrollbar min-h-0">
         <div className="h-full px-4 py-4 bg-[#0f0f1e]/40 border border-indigo-900/20 rounded-lg">
           <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
             {session?.description || 'No description provided for this session.'}
@@ -321,7 +334,7 @@ export const CommentsPanel = ({ sessionId }) => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/60 to-[#0f0f1e]/60 backdrop-blur-sm border border-indigo-900/30 rounded-xl shadow-xl h-full flex flex-col">
+    <div className="bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/60 to-[#0f0f1e]/60 backdrop-blur-sm border border-indigo-900/30 rounded-xl shadow-xl h-full flex flex-col min-h-0">
       <div className="flex items-center gap-2.5 px-5 py-4 border-b border-indigo-900/20 flex-shrink-0">
         <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
           <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

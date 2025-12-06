@@ -453,7 +453,7 @@ const SessionViewPage = () => {
 
       <div className="relative z-10 h-screen flex flex-col">
         {/* Hero Header Section */}
-        <div className="flex-shrink-0 px-8 pt-6 pb-4 border-b border-indigo-900/20">
+        <div className="flex-shrink-0 px-6 pt-4 pb-3 border-b border-indigo-900/20">
           {/* Navigation and Actions Bar */}
           <div className="flex items-center justify-between mb-6">
             <button
@@ -515,22 +515,22 @@ const SessionViewPage = () => {
           </div>
 
           {/* Session Title and Icon Hero */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             {/* Session Icon */}
             <div className="relative flex-shrink-0">
-              <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-xl shadow-indigo-500/40 border-2 border-indigo-400/20">
-                <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-xl shadow-indigo-500/40 border-2 border-indigo-400/20">
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M4 5h13v7h2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h8v-2H4V5zm16 10l-4-4v3H9v2h7v3l4-4z" />
                 </svg>
               </div>
-              <div className="absolute -bottom-2 -right-2">
+              <div className="absolute -bottom-1.5 -right-1.5">
                 <SessionStatusBadge status={session?.status || 'ACTIVE'} />
               </div>
             </div>
 
             {/* Title and Metadata */}
             <div className="flex-1 min-w-0">
-              <h1 className="text-4xl font-bold text-white tracking-tight mb-2">
+              <h1 className="text-2xl font-bold text-white tracking-tight mb-1.5">
                 {session?.title || 'Untitled Session'}
               </h1>
               <div className="flex items-center gap-4 text-sm text-gray-400">
@@ -553,20 +553,20 @@ const SessionViewPage = () => {
         </div>
 
         {/* Three Column Grid - No Scrolling */}
-        <div className="flex-1 px-8 py-6 overflow-hidden">
-          <div className="grid grid-cols-12 gap-6 h-full">
+        <div className="flex-1 px-6 py-4 overflow-hidden min-h-0">
+          <div className="grid grid-cols-12 gap-4 h-full">
             {/* Left: Session Details */}
-            <div className="col-span-3 h-full">
+            <div className="col-span-3 h-full min-h-0">
               <ViewDetailsPanel session={session} />
             </div>
             
             {/* Center: Session Overview */}
-            <div className="col-span-5 h-full">
+            <div className="col-span-5 h-full min-h-0">
               <ViewOverviewPanel session={session} />
             </div>
             
             {/* Right: Comments & Replies */}
-            <div className="col-span-4 h-full">
+            <div className="col-span-4 h-full min-h-0">
               <CommentsPanel sessionId={sessionId} />
             </div>
           </div>
