@@ -6,13 +6,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,20 +28,54 @@ import com.appdev.academeet.model.SessionType;
 import com.appdev.academeet.model.User;
 import com.appdev.academeet.repository.SessionParticipantRepository;
 import com.appdev.academeet.repository.SessionRepository;
+import com.appdev.academeet.repository.UserRepository;
 
 @Service
 public class SessionService {
 
     private final SessionRepository sessionRepository;
     private final SessionParticipantRepository sessionParticipantRepository;
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public SessionService(SessionRepository sessionRepository, SessionParticipantRepository sessionParticipantRepository) {
+    public SessionService(SessionRepository sessionRepository,
+                          SessionParticipantRepository sessionParticipantRepository,
+                          UserRepository userRepository) {
         this.sessionRepository = sessionRepository;
         this.sessionParticipantRepository = sessionParticipantRepository;
+        this.userRepository = userRepository;
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
     public Session createSession(Session session) {
         return sessionRepository.save(session);
+    }
+
+    @Transactional
+    public Session createSession(Session session, Long hostId) {
+        User host = userRepository.findById(hostId)
+                .orElseThrow(() -> new RuntimeException("Host user not found with id: " + hostId));
+
+        if (session.getStartTime() != null && session.getStartTime().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Session start time must be in the future");
+        }
+
+        session.setHost(host);
+
+        if (session.getSessionPrivacy() == SessionType.PRIVATE) {
+            if (session.getSessionPassword() == null || session.getSessionPassword().trim().isEmpty()) {
+                throw new IllegalArgumentException("Private sessions must have a password");
+            }
+            session.setSessionPassword(passwordEncoder.encode(session.getSessionPassword()));
+        }
+
+        session.setCurrentParticipants(0);
+        Session saved = sessionRepository.save(session);
+
+        SessionParticipant participant = new SessionParticipant(saved, host);
+        sessionParticipantRepository.save(participant);
+
+        return saved;
     }
 
     // --- MODIFIED METHOD ---
@@ -56,18 +92,22 @@ public class SessionService {
     public List<SessionDTO> getAllSessions() {
         return sessionRepository.findAllByOrderByStartTime()
             .stream()
-            .filter(session -> session.getStatus() == SessionStatus.ACTIVE)
+            .filter(session -> session.getSessionStatus() == SessionStatus.ACTIVE)
             .map(SessionDTO::new)
             .collect(Collectors.toList());
     }
 
-    // Session Privacy & Status Methods
     public boolean validateSessionPassword(Long sessionId, String password) {
         Optional<Session> sessionOpt = sessionRepository.findById(sessionId);
         if (sessionOpt.isPresent()) {
             Session session = sessionOpt.get();
-            if (session.getSessionType() == SessionType.PRIVATE) {
-                return password != null && password.equals(session.getPassword());
+            if (session.getSessionPrivacy() == SessionType.PRIVATE) {
+                String stored = session.getSessionPassword();
+                if (stored == null) return false;
+                if (stored.startsWith("$2a$") || stored.startsWith("$2b$") || stored.startsWith("$2y$")) {
+                    return password != null && passwordEncoder.matches(password, stored);
+                }
+                return password != null && password.equals(stored);
             }
             return true; // Public sessions don't need password validation
         }
@@ -92,6 +132,11 @@ public class SessionService {
 
     @Transactional
     public void joinSession(Long sessionId, User user) {
+        joinSession(sessionId, user, null);
+    }
+
+    @Transactional
+    public void joinSession(Long sessionId, User user, String password) {
         // Check if user has already joined
         if (sessionParticipantRepository.existsBySessionIdAndUserId(sessionId, user.getId())) {
             throw new RuntimeException("User has already joined this session");
@@ -100,6 +145,16 @@ public class SessionService {
         // Get session
         Session session = sessionRepository.findById(sessionId)
             .orElseThrow(() -> new RuntimeException("Session not found"));
+
+        // Validate password if session is PRIVATE
+        if (session.getSessionPrivacy() == SessionType.PRIVATE) {
+            if (password == null || password.trim().isEmpty()) {
+                throw new RuntimeException("Password is required for private sessions");
+            }
+            if (!validateSessionPassword(sessionId, password)) {
+                throw new RuntimeException("Invalid password");
+            }
+        }
 
         // Check participant limit
         Integer maxParticipants = session.getMaxParticipants();
@@ -139,6 +194,25 @@ public class SessionService {
         }
     }
 
+    /**
+     * Leave by user id.
+     */
+    @Transactional
+    public void leaveSession(Long sessionId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Session not found with id: " + sessionId));
+
+        // Don't allow host to leave
+        if (session.getHost() != null && session.getHost().getId().equals(userId)) {
+            throw new IllegalStateException("Host cannot leave their own session. Delete the session instead.");
+        }
+
+        cancelJoinSession(sessionId, user);
+    }
+
     @Transactional(readOnly = true)
     public boolean isUserParticipant(Long sessionId, Long userId) {
         return sessionParticipantRepository.existsBySessionIdAndUserId(sessionId, userId);
@@ -173,9 +247,22 @@ public class SessionService {
         Optional<Session> sessionOpt = sessionRepository.findById(sessionId);
         if (sessionOpt.isPresent()) {
             Session session = sessionOpt.get();
-            session.setStatus(newStatus);
+            session.setSessionStatus(newStatus);
             sessionRepository.save(session);
         }
+    }
+
+    @Transactional
+    public void closeSession(Long sessionId, Long userId) {
+        Session session = sessionRepository.findById(sessionId)
+            .orElseThrow(() -> new RuntimeException("Session not found"));
+
+        if (session.getHost() == null || !session.getHost().getId().equals(userId)) {
+            throw new SecurityException("Only the session host can close the session");
+        }
+
+        session.setSessionStatus(SessionStatus.COMPLETED);
+        sessionRepository.save(session);
     }
 
     @Transactional
@@ -196,13 +283,10 @@ public class SessionService {
         existingSession.setTitle(updatedSession.getTitle());
         existingSession.setDescription(updatedSession.getDescription());
         existingSession.setLocation(updatedSession.getLocation());
-        existingSession.setSessionType(updatedSession.getSessionType());
+        existingSession.setSessionPrivacy(updatedSession.getSessionPrivacy());
         existingSession.setMaxParticipants(updatedSession.getMaxParticipants());
         
         // Update date and time fields
-        existingSession.setMonth(updatedSession.getMonth());
-        existingSession.setDay(updatedSession.getDay());
-        existingSession.setYear(updatedSession.getYear());
         existingSession.setStartTime(updatedSession.getStartTime());
         existingSession.setEndTime(updatedSession.getEndTime());
         
@@ -212,8 +296,8 @@ public class SessionService {
         }
         
         // Only update password if provided (for PRIVATE sessions)
-        if (updatedSession.getPassword() != null && !updatedSession.getPassword().isEmpty()) {
-            existingSession.setPassword(updatedSession.getPassword());
+        if (updatedSession.getSessionPassword() != null && !updatedSession.getSessionPassword().isEmpty()) {
+            existingSession.setSessionPassword(passwordEncoder.encode(updatedSession.getSessionPassword()));
         }
 
         existingSession.setUpdatedAt(LocalDateTime.now());
@@ -224,7 +308,7 @@ public class SessionService {
     public List<SessionDTO> getSessionsByStatus(SessionStatus status) {
         return sessionRepository.findAll()
                 .stream()
-                .filter(session -> session.getStatus() == status)
+                .filter(session -> session.getSessionStatus() == status)
                 .map(SessionDTO::new)
                 .collect(Collectors.toList());
     }
@@ -233,11 +317,42 @@ public class SessionService {
     public List<SessionDTO> getSessionsByDate(String year, String month, String day) {
         return sessionRepository.findAll()
                 .stream()
-                .filter(session -> year.equals(session.getYear()) && 
-                                 month.equals(session.getMonth()) && 
-                                 day.equals(session.getDay()))
+                .filter(session -> session.getStartTime() != null &&
+                                 year.equals(String.valueOf(session.getStartTime().getYear())) && 
+                                 month.equals(String.valueOf(session.getStartTime().getMonthValue())) && 
+                                 day.equals(String.valueOf(session.getStartTime().getDayOfMonth())))
                 .map(SessionDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * New: search sessions with optional keyword/status and pagination.
+     */
+    @Transactional(readOnly = true)
+    public Page<Session> searchSessions(String keyword, SessionStatus status, Long userId, Pageable pageable) {
+        Page<Session> sessions;
+        if (keyword != null && !keyword.trim().isEmpty() && status != null) {
+            sessions = sessionRepository.findByTitleContainingAndStatus(keyword, status, pageable);
+        } else if (keyword != null && !keyword.trim().isEmpty()) {
+            sessions = sessionRepository.findByTitleContaining(keyword, pageable);
+        } else if (status != null) {
+            sessions = sessionRepository.findByStatus(status, pageable);
+        } else {
+            sessions = sessionRepository.findAll(pageable);
+        }
+
+        // TODO: filter out PRIVATE sessions depending on user access (host/participant)
+        return sessions;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Session> getSessionsByDateRange(LocalDateTime start, LocalDateTime end) {
+        return sessionRepository.findByStartTimeBetween(start, end);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Session> getSessionsByStatus(SessionStatus status, Pageable pageable) {
+        return sessionRepository.findByStatus(status, pageable);
     }
 
     public String uploadSessionImage(Long sessionId, MultipartFile file, String imageType) throws IOException {
@@ -261,10 +376,8 @@ public class SessionService {
             // Update appropriate field based on image type
             if ("profile".equals(imageType)) {
                 session.setProfileImageUrl(imageUrl);
-            } else if ("cover".equals(imageType)) {
-                session.setCoverImageUrl(imageUrl);
-            }
-            
+            } 
+
             sessionRepository.save(session);
             return imageUrl;
         }
@@ -277,37 +390,14 @@ public class SessionService {
     }
 
     /**
-     * Get trending sessions based on tag popularity.
-     * Calculates a score for each session based on how frequently its tags appear globally.
-     * Returns the top 4 sessions with the highest scores.
+     * Get trending sessions ranked by tag popularity (top 4).
      */
     @Transactional(readOnly = true)
     public List<SessionDTO> getTrendingSessions() {
-        // Get all active sessions
-        List<Session> allSessions = sessionRepository.findAll().stream()
-                .filter(s -> s.getStatus() == SessionStatus.ACTIVE)
-                .toList();
-        
-        // Count global tag frequency
-        Map<String, Long> tagFrequency = new HashMap<>();
-        for (Session session : allSessions) {
-            for (String tag : session.getTags()) {
-                tagFrequency.merge(tag, 1L, Long::sum);
-            }
-        }
-        
-        // Calculate score for each session and sort
-        return allSessions.stream()
-                .map(session -> {
-                    // Calculate trending score based on sum of tag frequencies
-                    long score = session.getTags().stream()
-                            .mapToLong(tag -> tagFrequency.getOrDefault(tag, 0L))
-                            .sum();
-                    return Map.entry(session, score);
-                })
-                .sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue())) // Sort descending by score
-                .limit(4) // Top 4 trending sessions
-                .map(entry -> new SessionDTO(entry.getKey()))
+        List<Session> trending = sessionRepository.findTrendingSessions(PageRequest.of(0, 4));
+        return trending.stream()
+                .map(SessionDTO::new)
                 .collect(Collectors.toList());
     }
+
 }
