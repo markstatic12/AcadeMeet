@@ -1,18 +1,19 @@
 package com.appdev.academeet.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.appdev.academeet.model.Reminder;
 import com.appdev.academeet.model.Session;
 import com.appdev.academeet.model.User;
 import com.appdev.academeet.repository.ReminderRepository;
 import com.appdev.academeet.repository.SessionRepository;
 import com.appdev.academeet.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ReminderService {
@@ -29,21 +30,36 @@ public class ReminderService {
         this.userRepository = userRepository;
         this.sessionRepository = sessionRepository;
     }
-
+    
     @Transactional
     public Reminder createReminder(Long userId, Long sessionId, LocalDateTime reminderTime) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        Optional<Session> sessionOpt = sessionRepository.findById(sessionId);
-        
-        if (userOpt.isPresent() && sessionOpt.isPresent()) {
-            User user = userOpt.get();
-            Session session = sessionOpt.get();
-            
-            Reminder reminder = new Reminder(user, session, reminderTime);
-            return reminderRepository.save(reminder);
+        return createReminder(userId, sessionId, null, null, reminderTime);
+    }
+
+    @Transactional
+    public Reminder createReminder(Long userId, Long sessionId, String header, String message, LocalDateTime reminderTime) {
+        // Business Rule: Validate reminder_time is in the future
+        if (reminderTime == null || reminderTime.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Reminder time must be in the future");
         }
+
+        if (header != null && header.trim().isEmpty()) {
+            throw new IllegalArgumentException("Reminder header cannot be empty");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Session not found with id: " + sessionId));
+
+        Reminder reminder = new Reminder(user, session, reminderTime);
+        if (header != null) reminder.setHeader(header);
+        if (message != null) reminder.setMessage(message);
         
-        throw new RuntimeException("User or Session not found");
+        reminder.setReadAt(null);
+
+        return reminderRepository.save(reminder);
     }
 
     @Transactional(readOnly = true)
@@ -65,6 +81,14 @@ public class ReminderService {
         }
     }
 
+    /**
+     * Get unread reminders for a user.
+     */
+    @Transactional(readOnly = true)
+    public List<Reminder> getUnreadReminders(Long userId) {
+        return reminderRepository.findByUserIdAndIsReadFalseOrderByReminderTimeAsc(userId);
+    }
+
     @Transactional
     public void deleteReminder(Long reminderId) {
         reminderRepository.deleteById(reminderId);
@@ -76,11 +100,23 @@ public class ReminderService {
         if (reminderOpt.isPresent()) {
             Reminder reminder = reminderOpt.get();
             reminder.setReminderTime(newTime);
-            reminder.setSent(false); // Reset sent status since time changed
+            reminder.setSent(false); 
             reminder.setSentAt(null);
             return reminderRepository.save(reminder);
         }
         throw new RuntimeException("Reminder not found");
+    }
+
+    /**
+     * Mark a reminder as read.
+     */
+    @Transactional
+    public void markAsRead(Long reminderId) {
+        Reminder reminder = reminderRepository.findById(reminderId)
+                .orElseThrow(() -> new RuntimeException("Reminder not found with id: " + reminderId));
+
+        reminder.markAsRead();
+        reminderRepository.save(reminder);
     }
 
     @Transactional(readOnly = true)

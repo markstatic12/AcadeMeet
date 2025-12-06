@@ -2,6 +2,7 @@ package com.appdev.academeet.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +17,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.appdev.academeet.dto.ReminderRequest;
+import com.appdev.academeet.dto.ReminderCreationDTO;
+import com.appdev.academeet.dto.ReminderResponseDTO;
+import com.appdev.academeet.dto.ReminderUpdateDTO;
 import com.appdev.academeet.model.Reminder;
 import com.appdev.academeet.model.User;
 import com.appdev.academeet.repository.UserRepository;
@@ -54,67 +56,65 @@ public class ReminderController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createReminder(@RequestBody ReminderRequest request) {
+    public ResponseEntity<?> createReminder(@RequestBody ReminderCreationDTO request) {
         try {
             User user = getAuthenticatedUser();
+            // Use new service signature: (userId, sessionId, header, message, reminderTime)
+            String header = request.getHeader() != null ? request.getHeader() : "Reminder";
+            String message = request.getMessage();
+
             Reminder reminder = reminderService.createReminder(
                 user.getId(),
                 request.getSessionId(),
+                header,
+                message,
                 request.getReminderTime()
             );
-            
-            if (request.getReminderMessage() != null) {
-                reminder.setReminderMessage(request.getReminderMessage());
-            }
-            
+
             if (request.getNotificationType() != null) {
                 reminder.setNotificationType(request.getNotificationType());
             }
-            
-            return ResponseEntity.ok(reminder);
+
+            ReminderResponseDTO dto = new ReminderResponseDTO(reminder);
+            return ResponseEntity.ok(dto);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
-    @GetMapping
-    public ResponseEntity<List<Reminder>> getUserReminders(@RequestParam Long userId) {
-        try {
-            List<Reminder> reminders = reminderService.getRemindersByUser(userId);
-            return ResponseEntity.ok(reminders);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
 
     /**
      * Get reminders for authenticated user from JWT
      */
     @GetMapping("/me")
-    public ResponseEntity<List<Reminder>> getMyReminders() {
+    public ResponseEntity<List<ReminderResponseDTO>> getMyReminders() {
         try {
             User user = getAuthenticatedUser();
             List<Reminder> reminders = reminderService.getRemindersByUser(user.getId());
-            return ResponseEntity.ok(reminders);
+            List<ReminderResponseDTO> dtos = reminders.stream()
+                    .map(ReminderResponseDTO::new)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(dtos);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> updateReminder(@PathVariable Long id, @RequestBody ReminderRequest request) {
+    public ResponseEntity<?> updateReminder(@PathVariable Long id, @RequestBody ReminderUpdateDTO request) {
         try {
             Reminder updatedReminder = reminderService.updateReminderTime(id, request.getReminderTime());
-            
-            if (request.getReminderMessage() != null) {
-                updatedReminder.setReminderMessage(request.getReminderMessage());
+
+            if (request.getMessage() != null) {
+                updatedReminder.setMessage(request.getMessage());
             }
-            
+
             if (request.getNotificationType() != null) {
                 updatedReminder.setNotificationType(request.getNotificationType());
             }
-            
-            return ResponseEntity.ok(updatedReminder);
+
+            ReminderResponseDTO dto = new ReminderResponseDTO(updatedReminder);
+            return ResponseEntity.ok(dto);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
@@ -131,10 +131,14 @@ public class ReminderController {
     }
 
     @GetMapping("/pending")
-    public ResponseEntity<List<Reminder>> getPendingReminders(@RequestParam Long userId) {
+    public ResponseEntity<List<ReminderResponseDTO>> getPendingReminders() {
         try {
-            List<Reminder> pendingReminders = reminderService.getPendingReminders(userId);
-            return ResponseEntity.ok(pendingReminders);
+            User user = getAuthenticatedUser();
+            List<Reminder> pendingReminders = reminderService.getPendingReminders(user.getId());
+            List<ReminderResponseDTO> dtos = pendingReminders.stream()
+                    .map(ReminderResponseDTO::new)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(dtos);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
@@ -144,23 +148,57 @@ public class ReminderController {
      * Get pending reminders for authenticated user from JWT
      */
     @GetMapping("/me/pending")
-    public ResponseEntity<List<Reminder>> getMyPendingReminders() {
+    public ResponseEntity<List<ReminderResponseDTO>> getMyPendingReminders() {
         try {
             User user = getAuthenticatedUser();
             List<Reminder> pendingReminders = reminderService.getPendingReminders(user.getId());
-            return ResponseEntity.ok(pendingReminders);
+            List<ReminderResponseDTO> dtos = pendingReminders.stream()
+                    .map(ReminderResponseDTO::new)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(dtos);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @GetMapping("/count")
-    public ResponseEntity<Map<String, Long>> getPendingReminderCount(@RequestParam Long userId) {
+    @GetMapping("/me/count")
+    public ResponseEntity<Map<String, Long>> getMyPendingReminderCount() {
         try {
-            Long count = reminderService.countPendingRemindersByUser(userId);
+            User user = getAuthenticatedUser();
+            Long count = reminderService.countPendingRemindersByUser(user.getId());
             return ResponseEntity.ok(Map.of("count", count));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Get unread reminders for authenticated user.
+     */
+    @GetMapping("/unread")
+    public ResponseEntity<?> getUnreadReminders() {
+        try {
+            User user = getAuthenticatedUser();
+            List<Reminder> unreadReminders = reminderService.getUnreadReminders(user.getId());
+            List<ReminderResponseDTO> dtos = unreadReminders.stream()
+                    .map(ReminderResponseDTO::new)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(dtos);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to fetch unread reminders: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Mark a reminder as read.
+     */
+    @PatchMapping("/{reminderId}/read")
+    public ResponseEntity<?> markReminderAsRead(@PathVariable Long reminderId) {
+        try {
+            reminderService.markAsRead(reminderId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 }
