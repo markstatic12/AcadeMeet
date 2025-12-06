@@ -1,26 +1,12 @@
 import React from 'react';
 import RemindersSection from './Reminders';
-import { NotesSection } from './Notes';
 
-const RightSidebar = ({ 
-  reminders,
-  activeNotesTab,
-  onNotesTabChange,
-  notes,
-  notesLoading,
-  notesError
-}) => {
+const RightSidebar = ({ reminders }) => {
   return (
-    <div className="space-y-6">
-      <RemindersSection reminders={reminders} />
-      
-      <NotesSection
-        activeTab={activeNotesTab}
-        onTabChange={onNotesTabChange}
-        notes={notes}
-        loading={notesLoading}
-        error={notesError}
-      />
+    <div className="h-full bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-xl overflow-hidden">
+      <div className="h-full overflow-y-auto custom-scrollbar p-5">
+        <RemindersSection reminders={reminders} />
+      </div>
     </div>
   );
 };

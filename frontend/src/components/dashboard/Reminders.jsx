@@ -20,8 +20,8 @@ const ReminderCard = ({ reminder }) => {
 // Reminders Section Component
 const RemindersSection = ({ reminders }) => {
   return (
-    <div>
-      <h2 className="text-xl font-bold text-white mb-4">Reminders</h2>
+    <div className="flex-shrink-0">
+      <h2 className="text-xl font-bold text-white mb-4">Up Next</h2>
       <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-4 space-y-3">
         {reminders.map((reminder) => (
           <ReminderCard key={reminder.id} reminder={reminder} />

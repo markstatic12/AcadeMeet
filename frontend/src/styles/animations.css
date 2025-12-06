@@ -16,11 +16,20 @@
 
 /* Sweep effect that only plays once on mount */
 @keyframes sweepOnce {
-  from {
+  0% {
     transform: translateX(-100%);
+    opacity: 1;
+    visibility: visible;
   }
-  to {
-    transform: translateX(100%);
+  99% {
+    transform: translateX(200%);
+    opacity: 0;
+    visibility: visible;
+  }
+  100% {
+    transform: translateX(200%);
+    opacity: 0;
+    visibility: hidden;
   }
 }
 

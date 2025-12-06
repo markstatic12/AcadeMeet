@@ -18,7 +18,7 @@ const SessionCard = ({ session }) => {
   return (
     <div 
       onClick={handleClick}
-      className="bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl cursor-pointer group h-[260px] w-full"
+      className="bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f1e] border border-indigo-900/40 hover:border-indigo-500/60 rounded-xl overflow-hidden transition-all hover:shadow-2xl hover:shadow-indigo-950/30 cursor-pointer group h-[260px] w-full"
     >
       {/* Session Thumbnail */}
       <div className="relative h-[120px] bg-gradient-to-br from-[#1e40af] via-[#2563eb] to-[#3b82f6] overflow-hidden">
@@ -66,7 +66,7 @@ const SessionCard = ({ session }) => {
       </div>
 
       {/* Session Info */}
-      <div className="p-4 bg-[#0a0a0a]">
+      <div className="p-4 bg-[#0a0a0a]/50">
         <div className="flex items-start justify-between gap-2 mb-2">
           <h3 className="text-white font-bold text-sm group-hover:text-indigo-400 transition-colors flex-1">
             {session.title}
@@ -169,21 +169,22 @@ const SessionsSection = () => {
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-bold text-white mb-4">Trending Sessions</h2>
-      {loading && <p className="text-white/60">Loading trending sessions...</p>}
-      {error && <p className="text-red-400">{error}</p>}
+    <>
+      {loading && <p className="text-white/60 text-sm">Loading...</p>}
+      {error && <p className="text-red-400 text-sm">{error}</p>}
       {!loading && !error && sessions.length === 0 && (
-        <p className="text-white/60">No trending sessions available.</p>
+        <p className="text-white/60 text-sm">No trending sessions available.</p>
       )}
       {!loading && sessions.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <>
           {sessions.map((session) => (
-            <SessionCard key={session.id} session={session} />
+            <div key={session.id} className="flex-shrink-0 h-full w-64">
+              <SessionCard session={session} />
+            </div>
           ))}
-        </div>
+        </>
       )}
-    </div>
+    </>
   );
 };
 

@@ -11,7 +11,7 @@ import { useUser } from '../../context/UserContext';
 
 export const NoteCard = ({ note, openMenuId, onMenuToggle, onToggleFavourite, onArchive, onDelete }) => {
   return (
-    <div className={`relative bg-gradient-to-b from-gray-900 to-gray-800 border ${note.isFavourite ? 'border-yellow-400/60 shadow-lg shadow-yellow-500/20' : 'border-gray-700/50'} rounded-2xl overflow-hidden transition-all hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/20 h-[180px] w-full flex flex-col group hover:scale-[1.02]`}>
+    <div className={`relative bg-[#161A2B] border ${note.isFavourite ? 'border-yellow-400/60 shadow-lg shadow-yellow-500/20' : 'border-gray-700/50'} rounded-2xl overflow-hidden transition-all hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/20 h-[180px] w-full flex flex-col group hover:scale-[1.02]`}>
       {/* Animated gradient overlay on hover */}
       <div className="absolute inset-0 bg-indigo-600/0 group-hover:bg-indigo-600/5 transition-all duration-700 pointer-events-none"></div>
       

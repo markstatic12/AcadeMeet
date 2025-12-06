@@ -53,7 +53,7 @@ const DashboardLayout = ({ children }) => {
         </Link>
 
         {/* Main Navigation - Takes available space */}
-        <nav className="flex flex-col gap-3 relative z-10 flex-shrink-0">
+        <nav className="flex flex-col gap-6 relative z-10 flex-shrink-0">
           {navigation.map((item, index) => {
             const active = isActive(item.href);
             return (
@@ -104,8 +104,8 @@ const DashboardLayout = ({ children }) => {
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-600 to-transparent animate-shimmer" style={{animationDelay: '0.5s'}}></div>
         </div>
 
-        {/* Bottom Navigation - Settings - Pinned to bottom */}
-        <nav className="relative z-10 flex flex-col gap-3 flex-shrink-0">
+        {/* Bottom Navigation - Settings - Pinned to bottom with safe padding */}
+        <nav className="relative z-10 flex flex-col gap-3 flex-shrink-0 pb-6">
           {bottomNavigation.map((item) => {
             const active = isActive(item.href);
             return (
@@ -153,17 +153,11 @@ const DashboardLayout = ({ children }) => {
         {/* Top Bar - Fixed at top */}
         <div className="bg-gradient-to-r from-[#0a0a14] via-[#0f0f1e] to-[#0a0a14] border-b border-indigo-900/20 px-8 py-4 backdrop-blur-xl flex-shrink-0">
           <div className="flex items-center justify-between">
-            {/* Left: Logo Text & Search */}
-            <div className="flex items-center gap-6">
-              <div>
-                <span className="text-2xl font-bold text-white tracking-tight">
-                  Acade<span className="text-indigo-400">Meet</span>
-                </span>
-              </div>
-              
+            {/* Left: Search Bar */}
+            <div className="flex items-center gap-6 flex-1">
               {/* Search Bar - Hide on search page */}
               {!location.pathname.startsWith('/search') && (
-                <div className="relative">
+                <div className="relative w-full max-w-2xl">
                   <input
                     type="text"
                     placeholder="Search"
@@ -173,7 +167,7 @@ const DashboardLayout = ({ children }) => {
                         navigate(`/search?q=${encodeURIComponent(e.target.value)}`);
                       }
                     }}
-                    className="w-80 px-4 py-2 pl-10 bg-gray-800/50 border border-gray-700/50 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-4 py-2 pl-10 bg-gray-800/50 border border-gray-700/50 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   />
                   <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                 </div>
@@ -187,15 +181,13 @@ const DashboardLayout = ({ children }) => {
           </div>
         </div>
 
-        {/* Scrollable Page Content - Only this area scrolls */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar bg-gradient-to-br from-[#0f0f1e] via-[#1a1a2e] to-[#0f0f1e] relative">
-          <div className="p-8">
-            {/* Subtle animated gradient orbs for depth */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/5 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl animate-pulse pointer-events-none" style={{animationDelay: '1s'}}></div>
-            <div className="relative z-10">
-              {children}
-            </div>
+        {/* Content Area - No scrolling at root level */}
+        <div className="flex-1 h-full bg-gradient-to-br from-[#0f0f1e] via-[#1a1a2e] to-[#0f0f1e] relative overflow-hidden">
+          {/* Subtle animated gradient orbs for depth */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/5 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl animate-pulse pointer-events-none" style={{animationDelay: '1s'}}></div>
+          <div className={`relative z-10 h-full ${location.pathname === '/dashboard' ? '' : 'p-8 overflow-y-auto custom-scrollbar'}`}>
+            {children}
           </div>
         </div>
       </div>
