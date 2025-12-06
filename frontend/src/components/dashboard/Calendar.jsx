@@ -101,10 +101,8 @@ const Calendar = ({ currentMonth, onPrevious, onNext }) => {
 
   return (
     <>
-      <div className="h-full relative overflow-hidden rounded-2xl bg-[#151a2e] border border-gray-700/50 shadow-xl">
-        {/* Glassmorphism overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
-        <div className="relative z-10 h-full flex flex-col p-6">
+      <div className="h-full relative overflow-hidden">
+        <div className="relative z-10 h-full flex flex-col">
           <CalendarHeader 
             monthName={monthName}
             year={year}
@@ -159,10 +157,8 @@ const CalendarSection = ({
 
       {/* Joined Sessions Tab */}
       {activeTab === 'my' && (
-        <div className="flex-1 relative overflow-hidden rounded-2xl bg-[#151a2e] border border-gray-700/50 shadow-xl transition-all duration-500 hover:border-indigo-500/60 hover:shadow-indigo-500/40 animate-fadeSlideUp">
-          {/* Glassmorphism overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
-          <div className="relative z-10 h-full flex flex-col p-6">
+        <div className="flex-1 relative overflow-hidden animate-fadeSlideUp">
+          <div className="relative z-10 h-full flex flex-col">
             <h3 className="text-xl font-bold text-white mb-4">Joined Sessions</h3>
             <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3">
             <div 
@@ -237,11 +233,8 @@ const CalendarSection = ({
 
       {/* Reminders Tab */}
       {activeTab === 'reminders' && (
-        <div className="flex-1 relative overflow-hidden rounded-2xl bg-[#151a2e] border border-gray-700/50 shadow-xl transition-all duration-500 hover:border-indigo-500/60 hover:shadow-indigo-500/40 animate-fadeSlideUp">
-          {/* Glassmorphism overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
-          
-          <div className="relative z-10 h-full flex flex-col p-6">
+        <div className="flex-1 relative overflow-hidden animate-fadeSlideUp">
+          <div className="relative z-10 h-full flex flex-col">
             <h3 className="text-xl font-bold text-white mb-4">Reminders</h3>
             <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3">
             <div className="flex items-start gap-3 p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg">

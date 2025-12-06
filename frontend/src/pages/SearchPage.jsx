@@ -2,8 +2,9 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { SearchIcon } from '../icons';
-import { SessionCard } from '../components/sessions/Sessions';
+import SessionCard from '../components/search/SessionCard';
 import SearchUserCard from '../components/search/SearchUserCard';
+import SearchEmptyState from '../components/search/SearchEmptyState';
 
 // Static mock data
 const mockUsers = [
@@ -132,77 +133,84 @@ const SearchPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="flex gap-6 h-[calc(100vh-120px)] -mt-8">
-        {/* Left Sidebar - Fixed, Non-scrollable */}
-        <div className="w-[380px] bg-[#2a2a2a] flex-shrink-0 h-full flex flex-col rounded-2xl overflow-hidden shadow-xl">
-          <div className="p-6 flex flex-col h-full">
+      {/* Sidebar + Main Content Layout */}
+      <div className="flex h-full animate-in fade-in duration-300 gap-6 p-8">
+        
+        {/* LEFT SIDEBAR - Search & Filters */}
+        <div className="w-[340px] flex-shrink-0 border-r border-gray-800/30 pr-6">
+          <div className="sticky top-8">
+            {/* Search Title */}
             <h1 className="text-2xl font-bold text-white mb-5">Search</h1>
             
             {/* Search Input */}
-            <div className="relative mb-4 group">
-              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 transition-colors group-focus-within:text-indigo-400" />
-              <input
-                type="text"
-                placeholder="Search for sessions or users here..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-                  }
-                }}
-                className="w-full pl-10 pr-4 py-3 bg-[#1a1a1a] border-none rounded-xl text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200"
-              />
+            <div className="mb-5">
+              <div className="relative group">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                  <SearchIcon className="w-4 h-4 text-gray-500 group-focus-within:text-indigo-400 transition-all" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search for sessions or users..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+                    }
+                  }}
+                  className="w-full h-10 pl-10 pr-3 bg-[#161A2B] border border-gray-800/50 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 hover:border-gray-700 transition-all duration-200"
+                />
+              </div>
             </div>
-            
+
             {/* Filter Tabs */}
-            <div className="flex gap-2 mb-5">
-              <button
-                onClick={() => setActiveTab('all')}
-                className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                  activeTab === 'all'
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-[1.02]'
-                    : 'bg-[#1a1a1a] text-gray-400 hover:text-white hover:bg-[#1f1f1f] hover:scale-[1.01]'
-                }`}
-              >
-                All
-              </button>
-              <button
-                onClick={() => setActiveTab('users')}
-                className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                  activeTab === 'users'
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-[1.02]'
-                    : 'bg-[#1a1a1a] text-gray-400 hover:text-white hover:bg-[#1f1f1f] hover:scale-[1.01]'
-                }`}
-              >
-                Users
-              </button>
-              <button
-                onClick={() => setActiveTab('session')}
-                className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                  activeTab === 'session'
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-[1.02]'
-                    : 'bg-[#1a1a1a] text-gray-400 hover:text-white hover:bg-[#1f1f1f] hover:scale-[1.01]'
-                }`}
-              >
-                Session
-              </button>
+            <div className="mb-5">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setActiveTab('all')}
+                  className={`flex-1 px-3 py-2 text-sm font-bold rounded-lg transition-all duration-300 ${
+                    activeTab === 'all'
+                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+                      : 'bg-[#161A2B] text-gray-400 hover:text-white hover:bg-gray-800/50 border border-gray-800/50'
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setActiveTab('users')}
+                  className={`flex-1 px-3 py-2 text-sm font-bold rounded-lg transition-all duration-300 ${
+                    activeTab === 'users'
+                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+                      : 'bg-[#161A2B] text-gray-400 hover:text-white hover:bg-gray-800/50 border border-gray-800/50'
+                  }`}
+                >
+                  Users
+                </button>
+                <button
+                  onClick={() => setActiveTab('session')}
+                  className={`flex-1 px-3 py-2 text-sm font-bold rounded-lg transition-all duration-300 ${
+                    activeTab === 'session'
+                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+                      : 'bg-[#161A2B] text-gray-400 hover:text-white hover:bg-gray-800/50 border border-gray-800/50'
+                  }`}
+                >
+                  Session
+                </button>
+              </div>
             </div>
-            
-            {/* Filters Container - Scrollable if needed */}
-            <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+
             {/* Sort By */}
-            <div className="bg-[#1a1a1a] rounded-xl p-5 hover:bg-[#1f1f1f] transition-colors duration-200">
-              <div className="flex items-center gap-2 mb-3">
-                <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+            <div className="bg-[#161A2B] rounded-lg p-3.5 border border-gray-800/50">
+              <div className="flex items-center gap-2 mb-2.5">
+                <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
                 </svg>
-                <span className="text-sm text-gray-400 font-medium">Sort by</span>
+                <span className="text-sm font-bold text-gray-400">Sort by</span>
               </div>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="w-full px-3 py-2.5 bg-[#2a2a2a] border-none rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:bg-[#2f2f2f]"
+                className="w-full px-3 py-2 bg-white/5 backdrop-blur-sm border border-gray-700/50 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:bg-white/10 appearance-none cursor-pointer"
                 style={{
                   backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                   backgroundRepeat: 'no-repeat',
@@ -210,97 +218,41 @@ const SearchPage = () => {
                   backgroundSize: '1.25em 1.25em',
                 }}
               >
-                <option value="Relevance">Relevance</option>
-                <option value="Date">Date</option>
-                <option value="Name">Name</option>
+                <option value="Relevance" className="bg-gray-800">Relevance</option>
+                <option value="Date" className="bg-gray-800">Date</option>
+                <option value="Name" className="bg-gray-800">Name</option>
               </select>
             </div>
-            
-            {/* Filter - Only show for Users */}
-            {activeTab === 'users' && (
-              <div className="bg-[#1a1a1a] rounded-xl p-5 hover:bg-[#1f1f1f] transition-all duration-200 animate-in fade-in slide-in-from-top-2">
-                <div className="flex items-center gap-2 mb-4">
-                  <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+            {/* SESSION FILTERS - Show when Session or All tab is active */}
+            {(activeTab === 'session' || activeTab === 'all') && (
+              <div className="mt-5 bg-[#161A2B] rounded-lg p-3.5 border border-gray-800/50 animate-in fade-in duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                   </svg>
-                  <span className="text-sm text-gray-400 font-medium">Filter</span>
-                </div>
-                
-                {/* Program */}
-                <div className="mb-4">
-                  <label className="block text-white text-xs font-medium mb-2">Program</label>
-                  <select
-                    value={programFilter}
-                    onChange={(e) => setProgramFilter(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#2a2a2a] border-none rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:bg-[#2f2f2f]"
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'right 0.75rem center',
-                      backgroundSize: '1.25em 1.25em',
-                    }}
-                  >
-                    <option value="All Programs">All Programs</option>
-                    <option value="BSIT">BSIT</option>
-                    <option value="BSCS">BSCS</option>
-                    <option value="BSIS">BSIS</option>
-                    <option value="ACT">ACT</option>
-                  </select>
-                </div>
-                
-                {/* Year Level */}
-                <div>
-                  <label className="block text-white text-xs font-medium mb-2">Year Level</label>
-                  <select
-                    value={yearLevelFilter}
-                    onChange={(e) => setYearLevelFilter(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#2a2a2a] border-none rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:bg-[#2f2f2f]"
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'right 0.75rem center',
-                      backgroundSize: '1.25em 1.25em',
-                    }}
-                  >
-                    <option value="All Year Levels">All Year Levels</option>
-                    <option value="1st Year">1st Year</option>
-                    <option value="2nd Year">2nd Year</option>
-                    <option value="3rd Year">3rd Year</option>
-                    <option value="4th Year">4th Year</option>
-                  </select>
-                </div>
-              </div>
-            )}
-            
-            {/* Filter - Only show for Sessions */}
-            {activeTab === 'session' && (
-              <div className="bg-[#1a1a1a] rounded-xl p-5 hover:bg-[#1f1f1f] transition-all duration-200 animate-in fade-in slide-in-from-top-2">
-                <div className="flex items-center gap-2 mb-4">
-                  <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                  </svg>
-                  <span className="text-sm text-gray-400 font-medium">Filter</span>
+                  <span className="text-sm font-bold text-gray-400">Filter</span>
                 </div>
                 
                 {/* Date */}
-                <div className="mb-4">
-                  <label className="block text-white text-xs font-medium mb-2">Date</label>
-                  <input
-                    type="text"
-                    placeholder="dd/mm/yyyy"
+                <div className="mb-3">
+                  <label className="block text-xs font-medium text-gray-500 mb-2">Date</label>
+                  <input 
+                    type="date"
                     value={dateFilter}
                     onChange={(e) => setDateFilter(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#2a2a2a] border-none rounded-lg text-gray-300 text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200 hover:bg-[#2f2f2f]"
+                    placeholder="dd/mm/yyyy"
+                    className="w-full px-3 py-2 bg-white/5 backdrop-blur-sm border border-gray-700/50 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:bg-white/10"
                   />
                 </div>
-                
+
                 {/* Time of Day */}
-                <div className="mb-4">
-                  <label className="block text-white text-xs font-medium mb-2">Time of Day</label>
-                  <select
+                <div className="mb-3">
+                  <label className="block text-xs font-medium text-gray-500 mb-2">Time of Day</label>
+                  <select 
                     value={timeFilter}
                     onChange={(e) => setTimeFilter(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#2a2a2a] border-none rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:bg-[#2f2f2f]"
+                    className="w-full px-3 py-2 bg-white/5 backdrop-blur-sm border border-gray-700/50 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:bg-white/10 appearance-none cursor-pointer"
                     style={{
                       backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                       backgroundRepeat: 'no-repeat',
@@ -308,20 +260,20 @@ const SearchPage = () => {
                       backgroundSize: '1.25em 1.25em',
                     }}
                   >
-                    <option value="Any Time">Any Time</option>
-                    <option value="Morning">Morning</option>
-                    <option value="Afternoon">Afternoon</option>
-                    <option value="Evening">Evening</option>
+                    <option value="Any Time" className="bg-gray-800">Any Time</option>
+                    <option value="morning" className="bg-gray-800">Morning (6AM - 12PM)</option>
+                    <option value="afternoon" className="bg-gray-800">Afternoon (12PM - 6PM)</option>
+                    <option value="evening" className="bg-gray-800">Evening (6PM - 12AM)</option>
                   </select>
                 </div>
-                
+
                 {/* Privacy */}
                 <div>
-                  <label className="block text-white text-xs font-medium mb-2">Privacy</label>
-                  <select
+                  <label className="block text-xs font-medium text-gray-500 mb-2">Privacy</label>
+                  <select 
                     value={privacyFilter}
                     onChange={(e) => setPrivacyFilter(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#2a2a2a] border-none rounded-lg text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer transition-all duration-200 hover:bg-[#2f2f2f]"
+                    className="w-full px-3 py-2 bg-white/5 backdrop-blur-sm border border-gray-700/50 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:bg-white/10 appearance-none cursor-pointer"
                     style={{
                       backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                       backgroundRepeat: 'no-repeat',
@@ -329,135 +281,185 @@ const SearchPage = () => {
                       backgroundSize: '1.25em 1.25em',
                     }}
                   >
-                    <option value="All Sessions">All Sessions</option>
-                    <option value="Public">Public</option>
-                    <option value="Private">Private</option>
+                    <option value="All Sessions" className="bg-gray-800">All Sessions</option>
+                    <option value="public" className="bg-gray-800">Public Only</option>
+                    <option value="private" className="bg-gray-800">Private Only</option>
                   </select>
                 </div>
               </div>
             )}
-            </div>
+
+            {/* USER FILTERS - Show when Users tab is active */}
+            {activeTab === 'users' && (
+              <div className="mt-5 bg-[#161A2B] rounded-lg p-3.5 border border-gray-800/50 animate-in fade-in duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                  </svg>
+                  <span className="text-sm font-bold text-gray-400">Filter</span>
+                </div>
+                
+                {/* Program */}
+                <div className="mb-3">
+                  <label className="block text-xs font-medium text-gray-500 mb-2">Program</label>
+                  <select 
+                    value={programFilter}
+                    onChange={(e) => setProgramFilter(e.target.value)}
+                    className="w-full px-3 py-2 bg-white/5 backdrop-blur-sm border border-gray-700/50 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:bg-white/10 appearance-none cursor-pointer"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 0.75rem center',
+                      backgroundSize: '1.25em 1.25em',
+                    }}
+                  >
+                    <option value="All Programs" className="bg-gray-800">All Programs</option>
+                    <option value="BSCS" className="bg-gray-800">BSCS</option>
+                    <option value="BSIT" className="bg-gray-800">BSIT</option>
+                    <option value="BSCE" className="bg-gray-800">BSCE</option>
+                    <option value="BSCPE" className="bg-gray-800">BSCpE</option>
+                    <option value="BSEE" className="bg-gray-800">BSEE</option>
+                    <option value="BSME" className="bg-gray-800">BSME</option>
+                    <option value="BSA" className="bg-gray-800">BSA</option>
+                    <option value="BSBA" className="bg-gray-800">BSBA</option>
+                  </select>
+                </div>
+
+                {/* Year Level */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-2">Year Level</label>
+                  <select 
+                    value={yearLevelFilter}
+                    onChange={(e) => setYearLevelFilter(e.target.value)}
+                    className="w-full px-3 py-2 bg-white/5 backdrop-blur-sm border border-gray-700/50 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:bg-white/10 appearance-none cursor-pointer"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 0.75rem center',
+                      backgroundSize: '1.25em 1.25em',
+                    }}
+                  >
+                    <option value="All Year Levels" className="bg-gray-800">All Year Levels</option>
+                    <option value="1" className="bg-gray-800">1st Year</option>
+                    <option value="2" className="bg-gray-800">2nd Year</option>
+                    <option value="3" className="bg-gray-800">3rd Year</option>
+                    <option value="4" className="bg-gray-800">4th Year</option>
+                  </select>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-        
-        {/* Main Content - Scrollable when viewing all, carousel otherwise */}
-        <div className={`flex-1 h-full pl-6 ${viewMode === 'all' ? 'overflow-y-auto' : 'overflow-hidden'}`}>
-          <div className="mb-8">
-            <h2 className="text-2xl text-white font-normal">
-              Searching {activeTab === 'users' ? 'Users' : activeTab === 'session' ? 'Sessions' : 'All'} for "<span className="italic">{searchQuery || '...'}</span>"
-            </h2>
+
+        {/* MAIN CONTENT AREA - Results */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col">
+            
+            {/* Users Section */}
+            {displayUsers.length > 0 && (
+              <div className="flex-1 flex flex-col mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '100ms' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-indigo-600/10 rounded-lg border border-indigo-500/20">
+                      <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl text-white font-bold">People</h3>
+                    <span className="px-2.5 py-0.5 bg-indigo-500/10 text-indigo-400 text-xs font-bold rounded-full border border-indigo-500/30">
+                      {filteredUsers.length}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => document.getElementById('users-carousel').scrollBy({ left: -350, behavior: 'smooth' })}
+                      className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50 hover:scale-105"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => document.getElementById('users-carousel').scrollBy({ left: 350, behavior: 'smooth' })}
+                      className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50 hover:scale-105"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Users Horizontal Carousel */}
+                <div id="users-carousel" className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4" style={{ scrollSnapType: 'x mandatory' }}>
+                  {displayUsers.map((user, index) => (
+                    <div 
+                      key={user.id} 
+                      className="flex-shrink-0 w-[300px] animate-in fade-in slide-in-from-bottom-2 duration-500"
+                      style={{ animationDelay: `${index * 50}ms`, scrollSnapAlign: 'start' }}
+                    >
+                      <SearchUserCard user={user} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Sessions Section */}
+            {displaySessions.length > 0 && (
+              <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '200ms' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-indigo-600/10 rounded-lg border border-indigo-500/20">
+                      <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl text-white font-bold">Study Sessions</h3>
+                    <span className="px-2.5 py-0.5 bg-indigo-500/10 text-indigo-400 text-xs font-bold rounded-full border border-indigo-500/30">
+                      {filteredSessions.length}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => document.getElementById('sessions-carousel').scrollBy({ left: -350, behavior: 'smooth' })}
+                      className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50 hover:scale-105"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => document.getElementById('sessions-carousel').scrollBy({ left: 350, behavior: 'smooth' })}
+                      className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50 hover:scale-105"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Sessions Horizontal Carousel */}
+                <div id="sessions-carousel" className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4" style={{ scrollSnapType: 'x mandatory' }}>
+                  {displaySessions.map((session, index) => (
+                    <div 
+                      key={session.id}
+                      className="flex-shrink-0 w-[300px] animate-in fade-in slide-in-from-bottom-2 duration-500"
+                      style={{ animationDelay: `${index * 50}ms`, scrollSnapAlign: 'start' }}
+                    >
+                      <SessionCard session={session} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Empty State */}
+            {displayUsers.length === 0 && displaySessions.length === 0 && (
+              <SearchEmptyState searchQuery={searchQuery} type={activeTab} />
+            )}
           </div>
-          
-          {/* Users Section */}
-          {displayUsers.length > 0 && (
-            <div className="mb-10">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl text-white font-semibold">Users</h3>
-                {(activeTab === 'all' || activeTab === 'users') && filteredUsers.length > ITEMS_PER_PAGE && (
-                  <button
-                    onClick={handleViewAllUsers}
-                    className="px-4 py-2 bg-[#2a2a2a] hover:bg-[#333333] text-indigo-400 hover:text-indigo-300 text-sm font-medium rounded-lg transition-all duration-200"
-                  >
-                    View All Users ({filteredUsers.length})
-                  </button>
-                )}
-              </div>
-              
-              <div className="relative">
-                {/* Left Arrow */}
-                {totalUserPages > 1 && (
-                  <button
-                    onClick={() => setUserPage(userPage > 0 ? userPage - 1 : totalUserPages - 1)}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 z-10 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg"
-                  >
-                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                )}
-                
-                <div className="grid grid-cols-2 gap-6 transition-all duration-300">
-                  {displayUsers.map(user => (
-                    <SearchUserCard key={user.id} user={user} />
-                  ))}
-                </div>
-                
-                {/* Right Arrow */}
-                {totalUserPages > 1 && (
-                  <button
-                    onClick={() => setUserPage(userPage < totalUserPages - 1 ? userPage + 1 : 0)}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 z-10 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg"
-                  >
-                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-          
-          {/* Sessions Section */}
-          {displaySessions.length > 0 && (
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl text-white font-semibold">Sessions</h3>
-                {(activeTab === 'all' || activeTab === 'session') && filteredSessions.length > ITEMS_PER_PAGE && (
-                  <button
-                    onClick={handleViewAllSessions}
-                    className="px-4 py-2 bg-[#2a2a2a] hover:bg-[#333333] text-indigo-400 hover:text-indigo-300 text-sm font-medium rounded-lg transition-all duration-200"
-                  >
-                    View All Sessions ({filteredSessions.length})
-                  </button>
-                )}
-              </div>
-              
-              <div className="relative">
-                {/* Left Arrow */}
-                {totalSessionPages > 1 && (
-                  <button
-                    onClick={() => setSessionPage(sessionPage > 0 ? sessionPage - 1 : totalSessionPages - 1)}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 z-10 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg"
-                  >
-                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                )}
-                
-                <div className="grid grid-cols-4 gap-6 transition-all duration-300">
-                  {displaySessions.map(session => (
-                    <SessionCard key={session.id} session={session} />
-                  ))}
-                </div>
-                
-                {/* Right Arrow */}
-                {totalSessionPages > 1 && (
-                  <button
-                    onClick={() => setSessionPage(sessionPage < totalSessionPages - 1 ? sessionPage + 1 : 0)}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 z-10 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg"
-                  >
-                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-          
-          {/* Empty State */}
-          {displayUsers.length === 0 && displaySessions.length === 0 && searchQuery && (
-            <div className="text-center py-12">
-              <SearchIcon className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-400 text-lg">
-                No results found for "{searchQuery}"
-              </p>
-              <p className="text-gray-500 text-sm mt-2">
-                Try adjusting your search terms
-              </p>
-            </div>
-          )}
         </div>
       </div>
     </DashboardLayout>

@@ -62,11 +62,10 @@ const DashboardPage = () => {
 
           {/* Trending Sessions - Horizontal Carousel */}
           <div className="flex-1 min-h-0">
-            <div className="h-full bg-[#151a2e] backdrop-blur-xl border border-gray-700/50 rounded-xl overflow-hidden">
-              <div className="h-full flex flex-col p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold text-white">Trending Sessions</h2>
-                </div>
+            <div className="h-full flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-white">Trending Sessions</h2>
+              </div>
                 
                 {/* Horizontal Carousel with Arrow Navigation */}
                 <div className="flex-1 min-h-0 relative group">
@@ -109,7 +108,6 @@ const DashboardPage = () => {
               </div>
             </div>
           </div>
-        </div>
 
         {/* Right Rail - Context Zone (Narrower Column) */}
         <div className="flex-1 flex flex-col gap-6">

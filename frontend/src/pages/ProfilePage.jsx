@@ -100,7 +100,7 @@ const ProfilePage = () => {
         <div className="flex-1 relative z-0">
           <div
             ref={rightPanelRef}
-            className="h-full relative bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f1e] border border-indigo-900/40 rounded-2xl overflow-hidden shadow-2xl shadow-indigo-950/30 p-6 flex flex-col transition-all hover:border-indigo-500/60 hover:shadow-indigo-500/40 group"
+            className="h-full relative bg-[#161A2B] border border-indigo-900/40 rounded-2xl overflow-hidden shadow-2xl shadow-indigo-950/30 p-6 flex flex-col transition-all hover:border-indigo-500/60 hover:shadow-indigo-500/40 group"
           >
             {/* Shimmer effect - plays once on mount then disappears */}
             <div className="absolute inset-0 pointer-events-none animate-sweepOnce" style={{animationFillMode: 'forwards'}}>

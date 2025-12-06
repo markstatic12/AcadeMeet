@@ -150,13 +150,12 @@ const DashboardLayout = ({ children }) => {
 
       {/* Main Content Area - Fixed Height with Internal Scrolling */}
       <div className="flex-1 h-full flex flex-col overflow-hidden">
-        {/* Top Bar - Fixed at top */}
-        <div className="bg-gradient-to-r from-[#0a0a14] via-[#0f0f1e] to-[#0a0a14] border-b border-indigo-900/20 px-8 py-4 backdrop-blur-xl flex-shrink-0">
-          <div className="flex items-center justify-between">
-            {/* Left: Search Bar */}
-            <div className="flex items-center gap-6 flex-1">
-              {/* Search Bar - Hide on search page */}
-              {!location.pathname.startsWith('/search') && (
+        {/* Top Bar - Fixed at top - Hidden on search page */}
+        {!location.pathname.startsWith('/search') && (
+          <div className="bg-gradient-to-r from-[#0a0a14] via-[#0f0f1e] to-[#0a0a14] border-b border-indigo-900/20 px-8 py-4 backdrop-blur-xl flex-shrink-0">
+            <div className="flex items-center justify-between">
+              {/* Left: Search Bar */}
+              <div className="flex items-center gap-6 flex-1">
                 <div className="relative w-full max-w-2xl">
                   <input
                     type="text"
@@ -167,26 +166,26 @@ const DashboardLayout = ({ children }) => {
                         navigate(`/search?q=${encodeURIComponent(e.target.value)}`);
                       }
                     }}
-                    className="w-full px-4 py-2 pl-10 bg-gray-800/50 border border-gray-700/50 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-4 py-2 pl-10 bg-gray-800/50 border border-gray-700/50 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
                   />
                   <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                 </div>
-              )}
-            </div>
+              </div>
 
-            {/* Right: Empty or future notifications */}
-            <div className="flex items-center gap-2">
-              {/* Settings moved to sidebar */}
+              {/* Right: Empty or future notifications */}
+              <div className="flex items-center gap-2">
+                {/* Settings moved to sidebar */}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Content Area - No scrolling at root level */}
         <div className="flex-1 h-full bg-gradient-to-br from-[#0f0f1e] via-[#1a1a2e] to-[#0f0f1e] relative overflow-hidden">
           {/* Subtle animated gradient orbs for depth */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/5 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl animate-pulse pointer-events-none" style={{animationDelay: '1s'}}></div>
-          <div className={`relative z-10 h-full ${location.pathname === '/dashboard' ? '' : 'p-8 overflow-y-auto custom-scrollbar'}`}>
+          <div className={`relative z-10 ${location.pathname === '/dashboard' || location.pathname === '/search' ? 'h-full' : 'h-full p-8 overflow-y-auto custom-scrollbar'}`}>
             {children}
           </div>
         </div>
