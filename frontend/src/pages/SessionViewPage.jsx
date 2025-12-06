@@ -2,10 +2,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageHeader from '../components/common/PageHeader';
 import { SessionViewHeader, ViewDetailsPanel, ViewOverviewPanel, CommentsPanel } from '../components/sessions/SessionViewComponents';
+import SessionStatusBadge from '../components/ui/SessionStatusBadge';
 import { sessionService } from '../services/SessionService';
 
 const PasswordModal = ({ isOpen, onClose, onSubmit, sessionTitle, needsAuthentication = false }) => {
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -38,42 +40,86 @@ const PasswordModal = ({ isOpen, onClose, onSubmit, sessionTitle, needsAuthentic
   const submitButtonText = needsAuthentication ? 'Access Session' : 'Join Session';
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[#1a1a1a] border border-gray-700 rounded-2xl p-6 w-full max-w-md mx-4">
-        <h3 className="text-xl font-bold text-white mb-4">{modalTitle}</h3>
-        <p className="text-gray-300 text-sm mb-6">
-          {modalMessage}
-        </p>
-        
-        <form onSubmit={handleSubmit}>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter password"
-            className="w-full px-4 py-3 bg-[#2a2a2a] border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 mb-4"
-            autoFocus
-            disabled={isSubmitting}
-          />
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md animate-fadeIn p-4" 
+      onClick={handleClose}
+    >
+      <div 
+        className="w-full max-w-md animate-slideUp" 
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 rounded-2xl shadow-2xl overflow-hidden group">
+          {/* Sweep effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-sweepOnce pointer-events-none"></div>
           
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
-              disabled={isSubmitting}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={!password.trim() || isSubmitting}
-              className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
-            >
-              {isSubmitting ? (needsAuthentication ? 'Accessing...' : 'Joining...') : submitButtonText}
-            </button>
+          {/* Top accent line */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500"></div>
+          
+          {/* Lock Icon Header */}
+          <div className="flex items-center justify-center pt-8 pb-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/50">
+              <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" />
+              </svg>
+            </div>
           </div>
-        </form>
+
+          {/* Content */}
+          <div className="px-6 pb-6">
+            <h3 className="text-2xl font-bold text-white mb-3 text-center">{modalTitle}</h3>
+            <p className="text-gray-300 text-sm mb-6 text-center leading-relaxed">
+              {modalMessage}
+            </p>
+            
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter password"
+                  className="w-full px-4 py-3 pr-12 bg-[#1e293b] border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                  autoFocus
+                  disabled={isSubmitting}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-400 transition-colors"
+                >
+                  {showPassword ? (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 hover:bg-gray-600 text-white rounded-lg font-medium transition-all"
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!password.trim() || isSubmitting}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-all shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50"
+                >
+                  {isSubmitting ? (needsAuthentication ? 'Accessing...' : 'Joining...') : submitButtonText}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -392,57 +438,137 @@ const SessionViewPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
-      <div className="relative z-10 p-8 animate-fadeIn">
-        <PageHeader 
-          onBack={handleBack} 
-          onSubmit={isSessionOwner ? handleEditSession : handleJoinSession}
-          isSubmitting={isJoining}
-          showSubmit={session.status === 'ACTIVE'}
-          submitText={
-            isSessionOwner 
-              ? 'Edit Session' 
-              : (isJoining 
-                  ? (isParticipant ? 'Canceling...' : 'Joining...') 
-                  : (isParticipant ? 'Cancel Join' : 'Join Session')
-                )
-          }
-          submitIcon={isSessionOwner ? (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-          ) : (
-            session.sessionType === 'PRIVATE' && !isParticipant && (
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" />
-              </svg>
-            )
-          )}
-        >
-          {isSessionOwner && session.status === 'ACTIVE' && (
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a14] via-[#0f0f1e] to-[#1a1a2e] relative overflow-hidden">
+      {/* Animated gradient orbs */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1.5s'}}></div>
+      
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(99,102,241,0.3) 1px, transparent 0)',
+          backgroundSize: '40px 40px'
+        }}></div>
+      </div>
+
+      <div className="relative z-10 h-screen flex flex-col">
+        {/* Hero Header Section */}
+        <div className="flex-shrink-0 px-6 pt-4 pb-3 border-b border-indigo-900/20 opacity-0 animate-[fadeIn_0.5s_ease-out_forwards]">
+          {/* Navigation and Actions Bar */}
+          <div className="flex items-center justify-between mb-6">
             <button
               type="button"
-              onClick={handleTrashSession}
-              className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-all shadow-lg shadow-red-500/25"
+              onClick={handleBack}
+              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
             >
-              Trash
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              <span className="text-sm font-medium">Back</span>
             </button>
-          )}
-        </PageHeader>
 
-        <SessionViewHeader session={session} />
+            {/* Action Buttons Bar */}
+            <div className="flex items-center gap-3">
+              {isSessionOwner && session.status === 'ACTIVE' && (
+                <button
+                  type="button"
+                  onClick={handleTrashSession}
+                  className="px-5 py-2.5 bg-red-600/10 hover:bg-red-600/20 border border-red-600/30 hover:border-red-600/50 text-red-400 hover:text-red-300 rounded-lg font-semibold transition-all text-sm flex items-center gap-2 hover:scale-105"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Trash
+                </button>
+              )}
+              
+              {session.status === 'ACTIVE' && (
+                <button
+                  type="button"
+                  onClick={isSessionOwner ? handleEditSession : handleJoinSession}
+                  disabled={isJoining}
+                  className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition-all shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 text-sm flex items-center gap-2 hover:scale-105"
+                >
+                  {isSessionOwner ? (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      Edit Session
+                    </>
+                  ) : (
+                    <>
+                      {session.sessionType === 'PRIVATE' && !isParticipant && (
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" />
+                        </svg>
+                      )}
+                      {isJoining 
+                        ? (isParticipant ? 'Canceling...' : 'Joining...') 
+                        : (isParticipant ? 'Cancel Join' : 'Join Session')
+                      }
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
 
-        <div className="grid grid-cols-12 gap-6 mt-6">
-          <div className="col-span-3">
-            <ViewDetailsPanel session={session} />
+          {/* Session Title and Icon Hero */}
+          <div className="flex items-center gap-4">
+            {/* Session Icon */}
+            <div className="relative flex-shrink-0">
+              <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-xl shadow-indigo-500/40 border-2 border-indigo-400/20">
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M4 5h13v7h2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h8v-2H4V5zm16 10l-4-4v3H9v2h7v3l4-4z" />
+                </svg>
+              </div>
+              <div className="absolute -bottom-1.5 -right-1.5">
+                <SessionStatusBadge status={session?.status || 'ACTIVE'} />
+              </div>
+            </div>
+
+            {/* Title and Metadata */}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl font-bold text-white tracking-tight mb-1.5">
+                {session?.title || 'Untitled Session'}
+              </h1>
+              <div className="flex items-center gap-4 text-sm text-gray-400">
+                <div className="flex items-center gap-1.5">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span>Created by {session?.createdBy?.name || 'Unknown'}</span>
+                </div>
+                <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                <div className="flex items-center gap-1.5">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Last updated {new Date().toLocaleDateString()}</span>
+                </div>
+              </div>
+            </div>
           </div>
-          
-          <div className="col-span-5">
-            <ViewOverviewPanel session={session} />
-          </div>
-          
-          <div className="col-span-4">
-            <CommentsPanel sessionId={sessionId} />
+        </div>
+
+        {/* Three Column Grid - No Scrolling */}
+        <div className="flex-1 px-6 py-4 overflow-hidden min-h-0">
+          <div className="grid grid-cols-12 gap-4 h-full">
+            {/* Left: Session Details */}
+            <div className="col-span-3 h-full min-h-0 opacity-0 translate-y-4" style={{ animation: 'slideUpFade 0.5s ease-out 0.1s forwards' }}>
+              <ViewDetailsPanel session={session} />
+            </div>
+            
+            {/* Center: Session Overview */}
+            <div className="col-span-5 h-full min-h-0 opacity-0 translate-y-4" style={{ animation: 'slideUpFade 0.5s ease-out 0.2s forwards' }}>
+              <ViewOverviewPanel session={session} />
+            </div>
+            
+            {/* Right: Comments & Replies */}
+            <div className="col-span-4 h-full min-h-0 opacity-0 translate-y-4" style={{ animation: 'slideUpFade 0.5s ease-out 0.3s forwards' }}>
+              <CommentsPanel sessionId={sessionId} />
+            </div>
           </div>
         </div>
       </div>
