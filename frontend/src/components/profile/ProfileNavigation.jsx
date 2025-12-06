@@ -166,10 +166,7 @@ export const CreateNewCard = ({ onClick, label }) => {
       <div className="absolute top-4 left-4 w-20 h-20 bg-indigo-600/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
       <div className="absolute bottom-4 right-4 w-24 h-24 bg-indigo-600/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
       
-      {/* Shimmer effect */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out animate-shimmer"></div>
-      </div>
+
       
       <div className="relative z-10 flex flex-col items-center">
         <div className="w-12 h-12 bg-gradient-to-br from-gray-800/80 to-gray-900/80 group-hover:from-indigo-600/30 group-hover:to-indigo-700/30 rounded-lg flex items-center justify-center mb-2.5 transition-all shadow-xl group-hover:shadow-indigo-500/40 group-hover:scale-110 border border-gray-700 group-hover:border-indigo-500/50">

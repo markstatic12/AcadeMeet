@@ -19,10 +19,7 @@ export const NoteCard = ({ note, openMenuId, onMenuToggle, onToggleFavourite, on
       <div className="absolute top-4 left-4 w-16 h-16 bg-indigo-600/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
       <div className="absolute bottom-4 right-4 w-20 h-20 bg-indigo-600/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
       
-      {/* Shimmer effect */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out animate-shimmer"></div>
-      </div>
+
       
       {/* Gradient accent line top */}
       <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent group-hover:via-indigo-500 transition-all duration-300"></div>
@@ -129,10 +126,7 @@ export const FavouriteNoteCard = ({ note }) => {
       <div className="absolute top-3 left-3 w-16 h-16 bg-gradient-to-br from-yellow-500/20 to-amber-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
       <div className="absolute bottom-3 right-3 w-20 h-20 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
       
-      {/* Shimmer effect */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out animate-shimmer"></div>
-      </div>
+
       
       {/* Top golden accent */}
       <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-yellow-500/50 via-amber-500 to-yellow-500/50 group-hover:h-[3px] transition-all duration-300"></div>
