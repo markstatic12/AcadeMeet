@@ -287,7 +287,12 @@ export const ProfileCard = React.forwardRef(({ userData, onManageFollowers }, re
   const [imageError, setImageError] = React.useState(false);
   
   return (
-    <div ref={ref} className="relative bg-gradient-to-b from-gray-900 to-gray-800 border border-gray-700/50 rounded-2xl overflow-hidden shadow-2xl transition-all hover:shadow-indigo-500/10 hover:border-gray-700 group h-full flex flex-col">
+    <div ref={ref} className="relative bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f1e] border border-indigo-900/40 rounded-2xl overflow-hidden shadow-2xl shadow-indigo-950/30 transition-all hover:shadow-indigo-500/40 hover:border-indigo-500/60 group/profilecard h-full flex flex-col">
+      {/* Shimmer effect */}
+      <div className="absolute inset-0 opacity-0 group-hover/profilecard:opacity-100 transition-opacity duration-500 pointer-events-none z-10">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/profilecard:translate-x-full transition-transform duration-1000 ease-out"></div>
+      </div>
+      
       {/* Profile Banner with Avatar */}
       <div className="relative h-32 overflow-visible flex-shrink-0">
         {userData?.coverImage || userData?.coverImageUrl ? (

@@ -100,8 +100,13 @@ const ProfilePage = () => {
         <div className="flex-1 relative z-0">
           <div
             ref={rightPanelRef}
-            className="h-full relative bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 rounded-2xl overflow-hidden shadow-2xl p-6 flex flex-col transition-all hover:border-gray-600 group"
+            className="h-full relative bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f1e] border border-indigo-900/40 rounded-2xl overflow-hidden shadow-2xl shadow-indigo-950/30 p-6 flex flex-col transition-all hover:border-indigo-500/60 hover:shadow-indigo-500/40 group"
           >
+            {/* Shimmer effect on hover */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
+            </div>
+            
             {/* Decorative background elements - subtle */}
             <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-600/5 rounded-full blur-3xl pointer-events-none"></div>
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-600/5 rounded-full blur-3xl pointer-events-none"></div>

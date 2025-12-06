@@ -4,9 +4,10 @@ import { sessionService } from '../../services/SessionService';
 
 /**
  * UploadNoteModal Component
- * Two modes:
+ * Three modes:
  * 1. "profile" - Shows session association + upload (from Profile > Notes tab)
  * 2. "session" - Shows only upload (from Session page, auto-associates with that session)
+ * 3. "session" (no sessionId) - Shows upload for session being created (notes stored temporarily)
  */
 const UploadNoteModal = ({ 
   isOpen, 
@@ -168,7 +169,9 @@ const UploadNoteModal = ({
           
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700/50">
-            <h3 className="text-xl font-semibold text-white tracking-tight">Upload Note</h3>
+            <h3 className="text-xl font-semibold text-white tracking-tight">
+              {mode === 'session' && !sessionId ? 'Add Session Notes' : 'Upload Note'}
+            </h3>
             <button
               onClick={handleCancel}
               className="p-1.5 hover:bg-gray-700/50 rounded-full transition-all duration-200 hover:rotate-90"
@@ -180,10 +183,26 @@ const UploadNoteModal = ({
           </div>
           
           {/* Content - Horizontal Layout */}
-          <div className="flex gap-6 px-6 py-5">
+          <div className="flex flex-col gap-4 px-6 py-5">
             
-            {/* Left Column - Session Selection (Only in profile mode) */}
-            {mode === 'profile' && (
+            {/* Info Message for Session Creation Mode */}
+            {mode === 'session' && !sessionId && (
+              <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-lg p-4 flex items-start gap-3 animate-fadeIn">
+                <svg className="w-5 h-5 text-indigo-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="flex-1">
+                  <p className="text-sm text-indigo-200 font-medium mb-1">Notes for New Session</p>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    These notes will be automatically associated with your session once it's created. You can upload multiple files.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-6">
+              {/* Left Column - Session Selection (Only in profile mode) */}
+              {mode === 'profile' && (
               <div className="w-1/3 animate-fadeIn">
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Associate With Session <span className="text-red-400">*</span>
@@ -216,11 +235,11 @@ const UploadNoteModal = ({
               </div>
             )}
 
-            {/* Right Column - Upload Area */}
-            <div className={`${mode === 'profile' ? 'w-2/3' : 'w-full'} animate-fadeIn`}>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                {mode === 'session' ? 'Upload Note for This Session' : 'Upload File'}
-              </label>
+              {/* Right Column - Upload Area */}
+              <div className={`${mode === 'profile' ? 'w-2/3' : 'w-full'} animate-fadeIn`}>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  {mode === 'session' && sessionId ? 'Upload Note for This Session' : mode === 'session' ? 'Upload Session Materials' : 'Upload File'}
+                </label>
               
               {/* Drag and Drop Area - Compact */}
               <div
@@ -299,6 +318,7 @@ const UploadNoteModal = ({
                   </div>
                 )}
               </div>
+            </div>
             </div>
           </div>
 
