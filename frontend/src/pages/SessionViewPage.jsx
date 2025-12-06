@@ -556,17 +556,17 @@ const SessionViewPage = () => {
         <div className="flex-1 px-6 py-4 overflow-hidden min-h-0">
           <div className="grid grid-cols-12 gap-4 h-full">
             {/* Left: Session Details */}
-            <div className="col-span-3 h-full min-h-0 opacity-0 translate-y-4" style={{ animation: 'slideUpFade 0.5s ease-out 0.1s forwards' }}>
+            <div className="col-span-3 h-full min-h-0 opacity-0 translate-y-4 pr-4" style={{ animation: 'slideUpFade 0.5s ease-out 0.1s forwards', borderRight: '1.5px solid rgba(31, 41, 55, 0.3)' }}>
               <ViewDetailsPanel session={session} />
             </div>
             
             {/* Center: Session Overview */}
-            <div className="col-span-5 h-full min-h-0 opacity-0 translate-y-4" style={{ animation: 'slideUpFade 0.5s ease-out 0.2s forwards' }}>
+            <div className="col-span-5 h-full min-h-0 opacity-0 translate-y-4 pr-4 pl-2" style={{ animation: 'slideUpFade 0.5s ease-out 0.2s forwards', borderRight: '1.5px solid rgba(31, 41, 55, 0.3)' }}>
               <ViewOverviewPanel session={session} />
             </div>
             
             {/* Right: Comments & Replies */}
-            <div className="col-span-4 h-full min-h-0 opacity-0 translate-y-4" style={{ animation: 'slideUpFade 0.5s ease-out 0.3s forwards' }}>
+            <div className="col-span-4 h-full min-h-0 opacity-0 translate-y-4 pl-2" style={{ animation: 'slideUpFade 0.5s ease-out 0.3s forwards' }}>
               <CommentsPanel sessionId={sessionId} />
             </div>
           </div>

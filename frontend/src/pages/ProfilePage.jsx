@@ -100,18 +100,9 @@ const ProfilePage = () => {
         <div className="flex-1 relative z-0">
           <div
             ref={rightPanelRef}
-            className="h-full relative bg-[#161A2B] border border-indigo-900/40 rounded-2xl overflow-hidden shadow-2xl shadow-indigo-950/30 p-6 flex flex-col transition-all hover:border-indigo-500/60 hover:shadow-indigo-500/40 group"
+            className="h-full relative overflow-hidden flex flex-col"
           >
-            {/* Shimmer effect - plays once on mount then disappears */}
-            <div className="absolute inset-0 pointer-events-none animate-sweepOnce" style={{animationFillMode: 'forwards'}}>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
-            </div>
-            
-            {/* Decorative background elements - subtle */}
-            <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-600/5 rounded-full blur-3xl pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-600/5 rounded-full blur-3xl pointer-events-none"></div>
-            
-            <div className="relative z-10 flex flex-col h-full">
+            <div className="relative flex flex-col h-full">
             <div className="flex items-center justify-between mb-6 flex-shrink-0">
               <TabButtons 
                 activeTab={activeTab} 

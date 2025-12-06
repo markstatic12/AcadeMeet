@@ -158,8 +158,8 @@ export const HostDisplay = ({ host }) => {
 // Read-only Session Details Panel
 export const ViewDetailsPanel = ({ session }) => {
   return (
-    <div className="bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/60 to-[#0f0f1e]/60 backdrop-blur-sm border border-indigo-900/30 rounded-xl shadow-xl h-full flex flex-col min-h-0">
-      <div className="flex items-center gap-2.5 px-5 py-4 border-b border-indigo-900/20 flex-shrink-0">
+    <div className="h-full flex flex-col min-h-0">
+      <div className="flex items-center gap-2.5 px-5 py-4 bg-[#161A2B] border border-indigo-900/40 rounded-xl mb-4 flex-shrink-0">
         <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
           <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -218,8 +218,8 @@ export const ViewDetailsPanel = ({ session }) => {
 // Read-only Session Overview Panel
 export const ViewOverviewPanel = ({ session }) => {
   return (
-    <div className="bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/60 to-[#0f0f1e]/60 backdrop-blur-sm border border-indigo-900/30 rounded-xl shadow-xl h-full flex flex-col min-h-0">
-      <div className="flex items-center gap-2.5 px-5 py-4 border-b border-indigo-900/20 flex-shrink-0">
+    <div className="h-full flex flex-col min-h-0">
+      <div className="flex items-center gap-2.5 px-5 py-4 bg-[#161A2B] border border-indigo-900/40 rounded-xl mb-4 flex-shrink-0">
         <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
           <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
@@ -334,8 +334,8 @@ export const CommentsPanel = ({ sessionId }) => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/60 to-[#0f0f1e]/60 backdrop-blur-sm border border-indigo-900/30 rounded-xl shadow-xl h-full flex flex-col min-h-0">
-      <div className="flex items-center gap-2.5 px-5 py-4 border-b border-indigo-900/20 flex-shrink-0">
+    <div className="h-full flex flex-col min-h-0">
+      <div className="flex items-center gap-2.5 px-5 py-4 bg-[#161A2B] border border-indigo-900/40 rounded-xl mb-4 flex-shrink-0">
         <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
           <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
