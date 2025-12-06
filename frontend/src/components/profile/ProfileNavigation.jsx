@@ -157,7 +157,7 @@ export const CreateNewCard = ({ onClick, label }) => {
   return (
     <button
       onClick={onClick}
-      className="relative bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-dashed border-gray-700 hover:border-indigo-500 rounded-2xl flex flex-col items-center justify-center transition-all group hover:shadow-xl hover:shadow-indigo-500/20 h-[180px] w-full overflow-hidden"
+      className="relative bg-[#161A2B] border-2 border-dashed border-gray-700 hover:border-indigo-500 rounded-2xl flex flex-col items-center justify-center transition-all group hover:shadow-xl hover:shadow-indigo-500/20 h-[180px] w-full overflow-hidden"
     >
       {/* Decorative background gradient */}
       <div className="absolute inset-0 bg-indigo-600/0 group-hover:bg-indigo-600/10 transition-all duration-700"></div>
@@ -169,7 +169,7 @@ export const CreateNewCard = ({ onClick, label }) => {
 
       
       <div className="relative z-10 flex flex-col items-center">
-        <div className="w-12 h-12 bg-gradient-to-br from-gray-800/80 to-gray-900/80 group-hover:from-indigo-600/30 group-hover:to-indigo-700/30 rounded-lg flex items-center justify-center mb-2.5 transition-all shadow-xl group-hover:shadow-indigo-500/40 group-hover:scale-110 border border-gray-700 group-hover:border-indigo-500/50">
+        <div className="w-12 h-12 bg-[#161A2B] group-hover:from-indigo-600/30 group-hover:to-indigo-700/30 rounded-lg flex items-center justify-center mb-2.5 transition-all shadow-xl group-hover:shadow-indigo-500/40 group-hover:scale-110 border border-gray-700 group-hover:border-indigo-500/50">
           <PlusIcon className="w-6 h-6 text-gray-600 group-hover:text-indigo-400 transition-all group-hover:rotate-180" />
         </div>
         <p className="text-gray-500 group-hover:text-gray-300 text-[11px] font-bold max-w-[160px] text-center leading-relaxed transition-colors">

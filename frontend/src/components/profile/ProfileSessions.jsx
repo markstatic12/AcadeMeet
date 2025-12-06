@@ -17,7 +17,7 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
   return (
     <div 
       onClick={handleClick}
-      className="bg-gradient-to-b from-gray-900 to-gray-800 border border-gray-700/50 hover:border-indigo-500/60 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/30 cursor-pointer group h-[180px] w-full hover:scale-[1.02] relative"
+      className="bg-[#161A2B] border border-gray-700/50 hover:border-indigo-500/60 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/30 cursor-pointer group h-[180px] w-full hover:scale-[1.02] relative"
     >
       {/* Session Thumbnail */}
       <div className="relative h-[90px] bg-gradient-to-br from-indigo-600 to-indigo-700 overflow-hidden group-hover:brightness-110 transition-all">

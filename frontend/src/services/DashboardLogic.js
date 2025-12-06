@@ -86,7 +86,9 @@ export const useDashboardPage = () => {
 
   return {
     activeSessionTab,
+    setActiveSessionTab,
     activeNotesTab,
+    setActiveNotesTab,
     currentMonth,
     notes,
     notesLoading,

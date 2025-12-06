@@ -2,10 +2,10 @@ import React from 'react';
 
 export const Card = ({ children, className = '', variant = 'default', padding = 'default' }) => {
   const variants = {
-    default: 'bg-gradient-to-br from-[#1a1a2e]/90 via-[#16213e]/90 to-[#0f0f1e]/90 backdrop-blur-sm border border-indigo-900/30 transition-all hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/20',
-    elevated: 'bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f1e] border border-indigo-900/40 shadow-2xl shadow-indigo-950/30 transition-all hover:border-indigo-500/60 hover:shadow-indigo-500/30',
-    glass: 'bg-[#0f0f1e]/40 backdrop-blur-xl border border-indigo-900/20 transition-all hover:border-indigo-500/40 hover:shadow-lg hover:shadow-indigo-500/20',
-    solid: 'bg-gradient-to-br from-[#16213e] to-[#0f0f1e] border border-indigo-900/30 transition-all hover:border-indigo-800/50 hover:shadow-lg hover:shadow-indigo-500/10',
+    default: 'bg-[#161A2B]/90 backdrop-blur-sm border border-indigo-900/30 transition-all hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/20',
+    elevated: 'bg-[#161A2B] border border-indigo-900/40 shadow-2xl shadow-indigo-950/30 transition-all hover:border-indigo-500/60 hover:shadow-indigo-500/30',
+    glass: 'bg-[#161A2B]/40 backdrop-blur-xl border border-indigo-900/20 transition-all hover:border-indigo-500/40 hover:shadow-lg hover:shadow-indigo-500/20',
+    solid: 'bg-[#161A2B] border border-indigo-900/30 transition-all hover:border-indigo-800/50 hover:shadow-lg hover:shadow-indigo-500/10',
   };
 
   const paddings = {

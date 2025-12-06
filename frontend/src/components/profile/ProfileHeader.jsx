@@ -287,10 +287,10 @@ export const ProfileCard = React.forwardRef(({ userData, onManageFollowers }, re
   const [imageError, setImageError] = React.useState(false);
   
   return (
-    <div ref={ref} className="relative bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f1e] border border-indigo-900/40 rounded-2xl overflow-hidden shadow-2xl shadow-indigo-950/30 transition-all hover:shadow-indigo-500/40 hover:border-indigo-500/60 group/profilecard h-full flex flex-col">
-      {/* Shimmer effect */}
-      <div className="absolute inset-0 opacity-0 group-hover/profilecard:opacity-100 transition-opacity duration-500 pointer-events-none z-10">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/profilecard:translate-x-full transition-transform duration-1000 ease-out"></div>
+    <div ref={ref} className="relative bg-[#161A2B] border border-indigo-900/40 rounded-2xl overflow-hidden shadow-2xl shadow-indigo-950/30 transition-all hover:shadow-indigo-500/40 hover:border-indigo-500/60 group/profilecard h-full flex flex-col">
+      {/* Shimmer effect - plays once on mount then disappears */}
+      <div className="absolute inset-0 pointer-events-none z-10 animate-sweepOnce" style={{animationFillMode: 'forwards'}}>
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
       </div>
       
       {/* Profile Banner with Avatar */}
@@ -314,8 +314,8 @@ export const ProfileCard = React.forwardRef(({ userData, onManageFollowers }, re
           </div>
         )}
         
-        {/* Diagonal white sweep with enhanced animation */}
-        <div className="absolute top-0 right-0 w-40 h-full bg-gradient-to-br from-white/40 via-white/20 to-transparent transform skew-x-[-20deg] translate-x-12 group-hover:translate-x-16 transition-transform duration-700"></div>
+        {/* Diagonal white sweep - plays once on mount */}
+        <div className="absolute top-0 right-0 w-40 h-full bg-gradient-to-br from-white/40 via-white/20 to-transparent transform skew-x-[-20deg] translate-x-12 animate-sweepOnce"></div>
         
         {/* Decorative corner accent */}
         <div className="absolute top-3 right-3 w-12 h-12 border-t-2 border-r-2 border-white/20 rounded-tr-2xl"></div>

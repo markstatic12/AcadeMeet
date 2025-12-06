@@ -102,9 +102,9 @@ const ProfilePage = () => {
             ref={rightPanelRef}
             className="h-full relative bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f1e] border border-indigo-900/40 rounded-2xl overflow-hidden shadow-2xl shadow-indigo-950/30 p-6 flex flex-col transition-all hover:border-indigo-500/60 hover:shadow-indigo-500/40 group"
           >
-            {/* Shimmer effect on hover */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
+            {/* Shimmer effect - plays once on mount then disappears */}
+            <div className="absolute inset-0 pointer-events-none animate-sweepOnce" style={{animationFillMode: 'forwards'}}>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
             </div>
             
             {/* Decorative background elements - subtle */}
