@@ -101,6 +101,10 @@ public class Session {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    // Note: keep notes as a simple ElementCollection of file paths to avoid
+    // requiring the SessionNote entity at startup if it's not present in the
+    // compiled classpath. Use the "notes" collection above for persisted
+    // note file paths.
 
     // Lifecycle Methods
     @PrePersist
@@ -124,7 +128,6 @@ public class Session {
     public String getLocation() { return location; }
     public String getDescription() { return description; }
     public List<SessionTag> getSessionTags() { return sessionTags; }
-    public List<String> getNotes() { return notes; }
     public List<SessionParticipant> getParticipants() { return participants; }
 
     public void setId(Long id) { this.id = id; }
@@ -136,7 +139,6 @@ public class Session {
     public void setLocation(String location) { this.location = location; }
     public void setDescription(String description) { this.description = description; }
     public void setSessionTags(List<SessionTag> sessionTags) { this.sessionTags = sessionTags; }
-    public void setNotes(List<String> notes) { this.notes = notes; }
     public void setParticipants(List<SessionParticipant> participants) { this.participants = participants; }
 
     // Convenience methods for working with tags (backwards compatibility)
@@ -163,6 +165,20 @@ public class Session {
 
     public void removeTag(String tagName) {
         this.sessionTags.removeIf(tag -> tag.getTagName().equals(tagName));
+    }
+
+    // Backward compatibility for notes
+    @Deprecated
+    public List<String> getNotes() {
+        return notes;
+    }
+
+    @Deprecated
+    public void setNotes(List<String> notePaths) {
+        this.notes.clear();
+        if (notePaths != null) {
+            this.notes.addAll(notePaths);
+        }
     }
 
     // Convenience methods for working with participants
@@ -201,6 +217,9 @@ public class Session {
         sessionDate.setYear(year); 
     }
 
+    // If you need to use SessionNote entity instances, add a proper
+    // relationship and ensure SessionNote.class is compiled and on the
+    // classpath. For now we keep only the simple notes collection above.
     // New field getters
     public SessionType getSessionType() { return sessionType; }
     public SessionStatus getStatus() { return status; }
