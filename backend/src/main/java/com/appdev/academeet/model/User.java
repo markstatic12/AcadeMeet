@@ -29,9 +29,6 @@ public class User {
     @Column(name = "year_level")
     private Integer yearLevel;
 
-    @Column(name = "school_id", length = 45)
-    private String school; 
-
     @Column(name = "phone_number", length = 45)
     private String phoneNumber;
 
@@ -40,6 +37,9 @@ public class User {
 
     @Column(name = "password_hash", nullable = false, length = 255)
     private String password;
+
+    @Column(name = "password_salt", length = 64)
+    private String passwordSalt;
 
     @Column(length = 500)
     private String bio;
@@ -61,16 +61,12 @@ public class User {
     @Column(name = "refresh_token_expiry")
     private LocalDateTime refreshTokenExpiry;
 
-    // --- Lifecycle Callbacks ---
     @PrePersist
     protected void onCreate() {
-        // Sets the timestamp in the Java object right before persistence
         if (this.createdAt == null) {
             this.createdAt = LocalDateTime.now();
         }
     }
-
-
     // --- Constructors ---
     public User() {
     }
@@ -78,7 +74,7 @@ public class User {
     public User(String name, String email, String password, String program, Integer yearLevel) {
         this.name = name;
         this.email = email;
-        this.password = password; // This will hold the HASHED password value
+        this.password = password; 
         this.program = program;
         this.yearLevel = yearLevel;
     }
@@ -116,13 +112,6 @@ public class User {
         this.yearLevel = yearLevel;
     }
 
-    public String getSchool() {
-        return school;
-    }
-
-    public void setSchool(String school) {
-        this.school = school;
-    }
 
     public String getPhoneNumber() {
         return phoneNumber;
@@ -140,13 +129,20 @@ public class User {
         this.email = email;
     }
 
-    // Getter/Setter for password (which maps to password_hash column)
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getPasswordSalt() {
+        return passwordSalt;
+    }
+
+    public void setPasswordSalt(String passwordSalt) {
+        this.passwordSalt = passwordSalt;
     }
 
     public String getBio() {
@@ -208,6 +204,4 @@ public class User {
                 ", createdAt=" + createdAt +
                 '}';
     }
-
-
 }

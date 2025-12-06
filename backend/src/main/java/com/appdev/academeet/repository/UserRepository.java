@@ -1,5 +1,6 @@
 package com.appdev.academeet.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     boolean existsByEmail(String email);
     Optional<User> findByName(String name);
+    List<User> findByProgram(String program);
+    List<User> findByYearLevel(Integer yearLevel);
+    List<User> findByNameContaining(String keyword);
 }
