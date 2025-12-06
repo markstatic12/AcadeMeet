@@ -190,7 +190,7 @@ const DashboardLayout = ({ children }) => {
         </div>
 
         {/* Scrollable Page Content - Only this area scrolls */}
-        <div className="flex-1 overflow-y-auto bg-gradient-to-br from-[#0f0f1e] via-[#1a1a2e] to-[#0f0f1e] relative">
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-gradient-to-br from-[#0f0f1e] via-[#1a1a2e] to-[#0f0f1e] relative">
           <div className="p-8">
             {/* Subtle animated gradient orbs for depth */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/5 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
