@@ -438,7 +438,7 @@ const SessionViewPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a14] via-[#0f0f1e] to-[#1a1a2e] relative overflow-hidden animate-fadeIn">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a14] via-[#0f0f1e] to-[#1a1a2e] relative overflow-hidden">
       {/* Animated gradient orbs */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1.5s'}}></div>
@@ -453,7 +453,7 @@ const SessionViewPage = () => {
 
       <div className="relative z-10 h-screen flex flex-col">
         {/* Hero Header Section */}
-        <div className="flex-shrink-0 px-6 pt-4 pb-3 border-b border-indigo-900/20 animate-slideUp">
+        <div className="flex-shrink-0 px-6 pt-4 pb-3 border-b border-indigo-900/20 opacity-0 animate-[fadeIn_0.5s_ease-out_forwards]">
           {/* Navigation and Actions Bar */}
           <div className="flex items-center justify-between mb-6">
             <button
@@ -556,17 +556,17 @@ const SessionViewPage = () => {
         <div className="flex-1 px-6 py-4 overflow-hidden min-h-0">
           <div className="grid grid-cols-12 gap-4 h-full">
             {/* Left: Session Details */}
-            <div className="col-span-3 h-full min-h-0 animate-slideUp" style={{ animationDelay: '100ms' }}>
+            <div className="col-span-3 h-full min-h-0 opacity-0 translate-y-4" style={{ animation: 'slideUpFade 0.5s ease-out 0.1s forwards' }}>
               <ViewDetailsPanel session={session} />
             </div>
             
             {/* Center: Session Overview */}
-            <div className="col-span-5 h-full min-h-0 animate-slideUp" style={{ animationDelay: '200ms' }}>
+            <div className="col-span-5 h-full min-h-0 opacity-0 translate-y-4" style={{ animation: 'slideUpFade 0.5s ease-out 0.2s forwards' }}>
               <ViewOverviewPanel session={session} />
             </div>
             
             {/* Right: Comments & Replies */}
-            <div className="col-span-4 h-full min-h-0 animate-slideUp" style={{ animationDelay: '300ms' }}>
+            <div className="col-span-4 h-full min-h-0 opacity-0 translate-y-4" style={{ animation: 'slideUpFade 0.5s ease-out 0.3s forwards' }}>
               <CommentsPanel sessionId={sessionId} />
             </div>
           </div>
