@@ -38,9 +38,7 @@ const DashboardLayout = ({ children }) => {
   return (
     <div className="h-screen overflow-hidden bg-gradient-to-br from-[#0a0a14] via-[#0f0f1e] to-[#1a1a2e] flex">
       {/* Left Sidebar - Fixed Height, Never Scrolls */}
-      <div className="w-56 h-full bg-gradient-to-b from-[#0e0e1a] via-[#12121f] to-[#0e0e1a] flex flex-col py-6 px-3 border-r-2 border-indigo-900/40 shadow-2xl shadow-black/50 relative">
-        {/* Subtle gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-indigo-600/5 via-purple-600/5 to-indigo-600/5 pointer-events-none"></div>
+      <div className="w-56 h-full bg-[#0a0a14] flex flex-col py-6 px-3 border-r border-gray-800 shadow-2xl shadow-black/50 relative">
         
         {/* Logo with Text - Fixed at top */}
         <Link to="/dashboard" className="mb-8 group relative z-10 flex items-center gap-2.5 px-3 flex-shrink-0">
@@ -101,9 +99,9 @@ const DashboardLayout = ({ children }) => {
         <div className="flex-1"></div>
 
         {/* Separator - Gradient Shimmering Line */}
-        <div className="relative z-10 my-6 h-[2px] overflow-hidden rounded-full flex-shrink-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent animate-shimmer"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/40 to-transparent animate-shimmer" style={{animationDelay: '0.5s'}}></div>
+        <div className="relative z-10 my-6 h-[1px] overflow-hidden rounded-full flex-shrink-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-700 to-transparent animate-shimmer"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-600 to-transparent animate-shimmer" style={{animationDelay: '0.5s'}}></div>
         </div>
 
         {/* Bottom Navigation - Settings - Pinned to bottom */}
