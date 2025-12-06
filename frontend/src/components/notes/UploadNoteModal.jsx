@@ -162,7 +162,7 @@ const UploadNoteModal = ({
       >
         <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 rounded-lg shadow-2xl overflow-hidden group">
           {/* Sweep bright effect - animates on mount and hover */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-sweepOnce group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-sweepOnce pointer-events-none"></div>
           
           {/* Subtle top accent line */}
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500"></div>

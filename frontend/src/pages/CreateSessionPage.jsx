@@ -75,11 +75,7 @@ const CreateSessionPage = () => {
           </div>
 
           {/* Main Content Card */}
-          <div className="flex-1 bg-gradient-to-br from-[#1a1a2e]/40 via-[#16213e]/40 to-[#0f0f1e]/40 backdrop-blur-sm border border-indigo-900/30 rounded-2xl shadow-2xl relative overflow-hidden group">
-            {/* Sweep effect on mount and hover */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-400/10 to-transparent -translate-x-full animate-sweepOnce pointer-events-none"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none"></div>
-            
+          <div className="flex-1 relative overflow-hidden">
             <div className="relative h-full flex flex-col">
               {/* Session Title Input - Fixed at top */}
               <div className="flex items-center gap-4 p-6 pb-5 border-b border-indigo-900/20 flex-shrink-0">
