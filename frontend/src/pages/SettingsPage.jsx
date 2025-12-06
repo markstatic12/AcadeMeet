@@ -32,10 +32,6 @@ const SettingsPage = () => {
   return (
     <DashboardLayout>
       <Toast toast={toast} />
-      
-      <div className="mb-4">
-        <PageHeader onBack={handleBack} />
-      </div>
 
       <div className='flex gap-5 max-w-[1400px] mx-auto'>
         <SettingsSidebar

@@ -80,6 +80,18 @@ input:-moz-autofill-preview {
     }
   }
 
+  /* Slide In from Left - For sidebar active indicator */
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
   /* Pulse Animation for Buttons */
   @keyframes pulse {
     0%, 100% {
