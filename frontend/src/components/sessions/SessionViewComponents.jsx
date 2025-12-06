@@ -7,13 +7,18 @@ export const TagsDisplay = ({ tags = [] }) => {
   if (!tags || tags.length === 0) return null;
   
   return (
-    <div className="mb-4">
-      <label className="block text-gray-400 text-xs mb-2">Session Tags</label>
+    <div className="space-y-2.5">
+      <div className="flex items-center gap-2">
+        <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+        </svg>
+        <label className="text-gray-300 text-sm font-semibold">Tags</label>
+      </div>
       <div className="flex flex-wrap gap-2">
         {tags.map((tag, index) => (
           <div
             key={index}
-            className="bg-indigo-600/20 border border-indigo-500/50 text-indigo-300 px-3 py-1 rounded-full text-xs"
+            className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border border-indigo-500/30 text-indigo-300 px-3 py-1.5 rounded-full text-sm"
           >
             {tag}
           </div>
@@ -26,14 +31,14 @@ export const TagsDisplay = ({ tags = [] }) => {
 // Read-only Session Profile Display
 export const SessionProfileDisplay = ({ session }) => {
   return (
-    <div className="relative">
-      <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center overflow-hidden">
-        <svg className="w-16 h-16 text-indigo-400" fill="currentColor">
+    <div className="relative group">
+      <div className="w-36 h-36 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center overflow-hidden shadow-2xl shadow-indigo-500/40 border-4 border-gray-900">
+        <svg className="w-18 h-18 text-white" fill="currentColor" viewBox="0 0 20 20">
           <path d="M4 5h13v7h2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h8v-2H4V5zm16 10l-4-4v3H9v2h7v3l4-4z" />
         </svg>
       </div>
       {/* Status Badge positioned on profile */}
-      <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
+      <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2">
         <SessionStatusBadge status={session?.status || 'ACTIVE'} />
       </div>
     </div>
@@ -44,7 +49,7 @@ export const SessionProfileDisplay = ({ session }) => {
 export const SessionTitleDisplay = ({ title }) => {
   return (
     <div className="flex-1">
-      <h1 className="text-4xl font-bold text-white">
+      <h1 className="text-5xl font-bold text-white tracking-tight">
         {title || 'Untitled Session'}
       </h1>
     </div>
@@ -54,7 +59,7 @@ export const SessionTitleDisplay = ({ title }) => {
 // Read-only Session Header
 export const SessionViewHeader = ({ session }) => {
   return (
-    <div className="flex items-center gap-6 mb-12">
+    <div className="flex items-center gap-8 mb-8">
       <SessionProfileDisplay session={session} />
       <SessionTitleDisplay title={session?.title} />
     </div>
@@ -69,7 +74,7 @@ export const DateDisplay = ({ month, day, year }) => {
   };
 
   return (
-    <div className="mb-4 flex items-center gap-3 text-gray-300">
+    <div className="flex items-center gap-3 text-gray-300">
       <CalendarIcon className="w-4 h-4 text-indigo-400 flex-shrink-0" />
       <span className="text-sm">{formatDate()}</span>
     </div>
@@ -84,7 +89,7 @@ export const TimeDisplay = ({ startTime, endTime }) => {
   };
 
   return (
-    <div className="mb-4 flex items-center gap-3 text-gray-300">
+    <div className="flex items-center gap-3 text-gray-300">
       <ClockIcon className="w-4 h-4 text-indigo-400 flex-shrink-0" />
       <span className="text-sm">{formatTime()}</span>
     </div>
@@ -94,7 +99,7 @@ export const TimeDisplay = ({ startTime, endTime }) => {
 // Read-only Location Display
 export const LocationDisplay = ({ location }) => {
   return (
-    <div className="mb-4 flex items-center gap-3 text-gray-300">
+    <div className="flex items-center gap-3 text-gray-300">
       <LocationIcon className="w-4 h-4 text-indigo-400 flex-shrink-0" />
       <span className="text-sm">{location || 'Location not specified'}</span>
     </div>
@@ -106,7 +111,7 @@ export const SessionTypeDisplay = ({ sessionType }) => {
   const isPrivate = sessionType === 'PRIVATE';
   
   return (
-    <div className="mb-4 flex items-center gap-3 text-gray-300">
+    <div className="flex items-center gap-3 text-gray-300">
       {isPrivate ? (
         <LockIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" />
       ) : (
@@ -122,7 +127,7 @@ export const ParticipantsDisplay = ({ currentParticipants, maxParticipants }) =>
   if (!maxParticipants) return null;
   
   return (
-    <div className="mb-4 flex items-center gap-3 text-gray-300">
+    <div className="flex items-center gap-3 text-gray-300">
       <UsersIcon className="w-4 h-4 text-indigo-400 flex-shrink-0" />
       <span className="text-sm">{currentParticipants || 0} / {maxParticipants} participants</span>
     </div>
@@ -132,7 +137,7 @@ export const ParticipantsDisplay = ({ currentParticipants, maxParticipants }) =>
 // Read-only Host Display
 export const HostDisplay = ({ host }) => {
   return (
-    <div className="mb-4 flex items-center gap-3 text-gray-300">
+    <div className="flex items-center gap-3 text-gray-300">
       <UserIcon className="w-4 h-4 text-indigo-400 flex-shrink-0" />
       <span className="text-sm">{host?.name || 'Unknown Host'}</span>
     </div>
@@ -142,34 +147,57 @@ export const HostDisplay = ({ host }) => {
 // Read-only Session Details Panel
 export const ViewDetailsPanel = ({ session }) => {
   return (
-    <div className="bg-[#1a1a1a] rounded-2xl p-6">
-      <h3 className="text-white font-bold text-xl mb-6">Session Details</h3>
+    <div className="bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/60 to-[#0f0f1e]/60 backdrop-blur-sm border border-indigo-900/30 rounded-xl shadow-xl h-full flex flex-col">
+      <div className="flex items-center gap-2.5 px-5 py-4 border-b border-indigo-900/20 flex-shrink-0">
+        <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        </div>
+        <h3 className="text-white font-bold text-base">Session Details</h3>
+      </div>
 
-      <ParticipantsDisplay
-        currentParticipants={session?.currentParticipants}
-        maxParticipants={session?.maxParticipants}
-      />
+      <div className="flex-1 px-5 py-4 space-y-3 overflow-y-auto custom-scrollbar">
+        {session?.maxParticipants && (
+          <>
+            <ParticipantsDisplay
+              currentParticipants={session?.currentParticipants}
+              maxParticipants={session?.maxParticipants}
+            />
+            <div className="border-t border-indigo-900/10 my-3"></div>
+          </>
+        )}
 
-      <DateDisplay
-        month={session?.month}
-        day={session?.day}
-        year={session?.year}
-      />
+        <DateDisplay
+          month={session?.month}
+          day={session?.day}
+          year={session?.year}
+        />
+        <div className="border-t border-indigo-900/10 my-3"></div>
 
-      <TimeDisplay
-        startTime={session?.startTime}
-        endTime={session?.endTime}
-      />
+        <TimeDisplay
+          startTime={session?.startTime}
+          endTime={session?.endTime}
+        />
+        <div className="border-t border-indigo-900/10 my-3"></div>
 
-      <LocationDisplay location={session?.location} />
+        <LocationDisplay location={session?.location} />
+        <div className="border-t border-indigo-900/10 my-3"></div>
 
-      <HostDisplay host={session?.createdBy} />
+        <HostDisplay host={session?.createdBy} />
+        <div className="border-t border-indigo-900/10 my-3"></div>
 
-      <SessionTypeDisplay
-        sessionType={session?.sessionType}
-      />
+        <SessionTypeDisplay
+          sessionType={session?.sessionType}
+        />
 
-      <TagsDisplay tags={session?.tags} />
+        {session?.tags && session.tags.length > 0 && (
+          <>
+            <div className="border-t border-indigo-900/10 my-3"></div>
+            <TagsDisplay tags={session?.tags} />
+          </>
+        )}
+      </div>
     </div>
   );
 };
@@ -177,11 +205,22 @@ export const ViewDetailsPanel = ({ session }) => {
 // Read-only Session Overview Panel
 export const ViewOverviewPanel = ({ session }) => {
   return (
-    <div className="bg-[#1a1a1a] rounded-2xl p-6">
-      <h3 className="text-white font-bold text-xl mb-6">Session Overview</h3>
+    <div className="bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/60 to-[#0f0f1e]/60 backdrop-blur-sm border border-indigo-900/30 rounded-xl shadow-xl h-full flex flex-col">
+      <div className="flex items-center gap-2.5 px-5 py-4 border-b border-indigo-900/20 flex-shrink-0">
+        <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+          </svg>
+        </div>
+        <h3 className="text-white font-bold text-base">Session Overview</h3>
+      </div>
 
-      <div className="px-4 py-3 bg-[#0f0f0f] border border-gray-800 rounded-lg text-gray-300 text-sm min-h-[400px]">
-        {session?.description || 'No description provided for this session.'}
+      <div className="flex-1 p-5 overflow-y-auto custom-scrollbar">
+        <div className="h-full px-4 py-4 bg-[#0f0f1e]/40 border border-indigo-900/20 rounded-lg">
+          <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+            {session?.description || 'No description provided for this session.'}
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -282,118 +321,146 @@ export const CommentsPanel = ({ sessionId }) => {
   };
 
   return (
-    <div className="bg-[#1a1a1a] rounded-2xl p-6 flex flex-col" style={{ height: '600px' }}>
-      <h3 className="text-white font-bold text-xl mb-6 flex-shrink-0">Comments & Replies</h3>
+    <div className="bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/60 to-[#0f0f1e]/60 backdrop-blur-sm border border-indigo-900/30 rounded-xl shadow-xl h-full flex flex-col">
+      <div className="flex items-center gap-2.5 px-5 py-4 border-b border-indigo-900/20 flex-shrink-0">
+        <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+        </div>
+        <h3 className="text-white font-bold text-base">Comments</h3>
+        {comments.length > 0 && (
+          <span className="ml-auto text-xs font-semibold text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-full">
+            {comments.length}
+          </span>
+        )}
+      </div>
       
       {/* Comment Input */}
-      <div className="mb-6 flex-shrink-0">
+      <div className="px-5 py-3 border-b border-indigo-900/20 flex-shrink-0">
         {replyingTo && (
-          <div className="mb-2 flex items-center gap-2 text-sm text-gray-400">
-            <span>Replying to @{replyingTo.userName}</span>
+          <div className="mb-2 flex items-center gap-2 text-xs text-indigo-300 bg-indigo-500/10 px-3 py-2 rounded-lg border border-indigo-500/20">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+            </svg>
+            <span className="flex-1">Replying to <span className="font-semibold">@{replyingTo.userName}</span></span>
             <button
               onClick={cancelReply}
-              className="text-indigo-400 hover:text-indigo-300"
+              className="text-indigo-400 hover:text-indigo-300 transition-colors"
             >
-              Cancel
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
         )}
         <textarea
           placeholder={replyingTo ? `Reply to @${replyingTo.userName}...` : "Add a comment..."}
-          rows={3}
+          rows={2}
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          className="w-full px-4 py-3 bg-[#0f0f0f] border border-gray-800 rounded-lg text-gray-300 text-sm resize-none focus:outline-none focus:border-indigo-500 transition-colors"
+          className="w-full px-3 py-2 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-xs resize-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 transition-all"
         />
         <button
           onClick={handleSubmit}
           disabled={!newComment.trim() || submitting}
-          className="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors"
+          className="mt-2 w-full px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed text-white rounded-lg text-xs font-semibold transition-all shadow-md shadow-indigo-500/20 hover:shadow-lg hover:scale-[1.02]"
         >
           {submitting ? 'Posting...' : (replyingTo ? 'Post Reply' : 'Post Comment')}
         </button>
       </div>
 
       {/* Comments List - Scrollable */}
-      <div className="flex-1 overflow-y-auto space-y-6 pr-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-800">
+      <div className="flex-1 px-5 py-3 overflow-y-auto custom-scrollbar min-h-0">
         {loading ? (
-          <div className="text-center py-8 text-gray-400">Loading comments...</div>
+          <div className="flex flex-col items-center justify-center h-full text-gray-400">
+            <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+            <p className="text-xs">Loading comments...</p>
+          </div>
         ) : comments.length === 0 ? (
-          <div className="text-center py-8 text-gray-400">
-            <svg className="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex flex-col items-center justify-center h-full text-gray-400">
+            <svg className="w-12 h-12 mb-3 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            <p>No comments yet</p>
-            <p className="text-sm">Be the first to leave a comment!</p>
+            <p className="text-sm font-medium mb-1">No comments yet</p>
+            <p className="text-xs text-gray-500">Be the first to comment!</p>
           </div>
         ) : (
-          comments.map((comment) => (
-            <div key={comment.commentId} className="border-b border-gray-800 pb-4 last:border-b-0">
-              {/* Parent Comment */}
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
-                  {getInitials(comment.userName)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-white text-sm font-medium">{comment.userName}</span>
-                    <span className="text-gray-400 text-xs">{formatTimeAgo(comment.createdAt)}</span>
+          <div className="space-y-3">
+            {comments.map((comment) => (
+              <div key={comment.commentId} className="group hover:bg-white/[0.02] rounded-lg p-2.5 transition-colors">
+                {/* Parent Comment */}
+                <div className="flex items-start gap-2.5">
+                  <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-md">
+                    {getInitials(comment.userName)}
                   </div>
-                  <p className="text-gray-300 text-sm mb-2 break-words">{comment.content}</p>
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => handleReply(comment.commentId, comment.userName, comment.userId)}
-                      className="text-indigo-400 hover:text-indigo-300 text-xs font-medium"
-                    >
-                      Reply
-                    </button>
-                    {comment.replies && comment.replies.length > 0 && (
-                      <button
-                        onClick={() => toggleReplies(comment.commentId)}
-                        className="text-gray-400 hover:text-gray-300 text-xs font-medium flex items-center gap-1"
-                      >
-                        <svg 
-                          className={`w-3 h-3 transition-transform ${expandedComments.has(comment.commentId) ? 'rotate-180' : ''}`}
-                          fill="none" 
-                          stroke="currentColor" 
-                          viewBox="0 0 24 24"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                        {comment.replies.length} {comment.replies.length === 1 ? 'reply' : 'replies'}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Replies (single-level indent) - Only show when expanded */}
-              {comment.replies && comment.replies.length > 0 && expandedComments.has(comment.commentId) && (
-                <div className="ml-11 mt-3 space-y-3">
-                  {comment.replies.map((reply) => (
-                    <div key={reply.commentId} className="flex items-start gap-3">
-                      <div className="w-7 h-7 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
-                        {getInitials(reply.userName)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-white text-sm font-medium">{reply.userName}</span>
-                          <span className="text-gray-400 text-xs">{formatTimeAgo(reply.createdAt)}</span>
-                        </div>
-                        <p className="text-gray-300 text-sm mb-2 break-words">{reply.content}</p>
-                        <button
-                          onClick={() => handleReply(comment.commentId, reply.userName, reply.userId)}
-                          className="text-indigo-400 hover:text-indigo-300 text-xs font-medium"
-                        >
-                          Reply
-                        </button>
-                      </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-white text-xs font-semibold">{comment.userName}</span>
+                      <span className="text-gray-500 text-[10px]">{formatTimeAgo(comment.createdAt)}</span>
                     </div>
-                  ))}
+                    <p className="text-gray-300 text-xs mb-2 break-words leading-relaxed">{comment.content}</p>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => handleReply(comment.commentId, comment.userName, comment.userId)}
+                        className="text-indigo-400 hover:text-indigo-300 text-[10px] font-medium flex items-center gap-1 transition-colors"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                        </svg>
+                        Reply
+                      </button>
+                      {comment.replies && comment.replies.length > 0 && (
+                        <button
+                          onClick={() => toggleReplies(comment.commentId)}
+                          className="text-gray-400 hover:text-gray-300 text-[10px] font-medium flex items-center gap-1 transition-colors"
+                        >
+                          <svg 
+                            className={`w-3 h-3 transition-transform ${expandedComments.has(comment.commentId) ? 'rotate-180' : ''}`}
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                          {comment.replies.length} {comment.replies.length === 1 ? 'reply' : 'replies'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
-          ))
+
+                {/* Replies */}
+                {comment.replies && comment.replies.length > 0 && expandedComments.has(comment.commentId) && (
+                  <div className="ml-10 mt-2 space-y-2 pl-3 border-l-2 border-indigo-900/20">
+                    {comment.replies.map((reply) => (
+                      <div key={reply.commentId} className="flex items-start gap-2.5 hover:bg-white/[0.02] rounded-lg p-2 transition-colors">
+                        <div className="w-7 h-7 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-md">
+                          {getInitials(reply.userName)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-white text-xs font-semibold">{reply.userName}</span>
+                            <span className="text-gray-500 text-[10px]">{formatTimeAgo(reply.createdAt)}</span>
+                          </div>
+                          <p className="text-gray-300 text-xs mb-1.5 break-words leading-relaxed">{reply.content}</p>
+                          <button
+                            onClick={() => handleReply(comment.commentId, reply.userName, reply.userId)}
+                            className="text-indigo-400 hover:text-indigo-300 text-[10px] font-medium flex items-center gap-1 transition-colors"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                            </svg>
+                            Reply
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
