@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -251,6 +252,25 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to check follow status: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Remove a follower (force them to unfollow you).
+     * DELETE /api/users/me/followers/{followerId}
+     */
+    @DeleteMapping("/me/followers/{followerId}")
+    public ResponseEntity<?> removeFollower(@PathVariable Long followerId) {
+        try {
+            User currentUser = getAuthenticatedUser();
+            // Remove the follower by unfollowing from their side (followerId -> currentUser.getId())
+            userService.unfollowUser(followerId, currentUser.getId());
+            return ResponseEntity.ok(Map.of("message", "Follower removed successfully"));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to remove follower: " + e.getMessage()));
         }
     }
 }
