@@ -53,6 +53,10 @@ const SearchPage = () => {
   const [viewMode, setViewMode] = useState('paginated'); // 'paginated' or 'all'
   const [viewAllType, setViewAllType] = useState(null); // 'users' or 'sessions'
   
+  // Carousel scroll tracking
+  const [isUsersCarouselAtEnd, setIsUsersCarouselAtEnd] = useState(false);
+  const [isSessionsCarouselAtEnd, setIsSessionsCarouselAtEnd] = useState(false);
+  
   const ITEMS_PER_PAGE = 4;
   
   useEffect(() => {
@@ -89,46 +93,51 @@ const SearchPage = () => {
   const totalSessionPages = Math.ceil(filteredSessions.length / ITEMS_PER_PAGE);
   
   const paginatedUsers = useMemo(() => {
-    // Show all when in "View All" mode
-    if (viewMode === 'all' && viewAllType === 'users') {
+    // 'All' tab: limit to 6 items for preview
+    if (activeTab === 'all') {
+      return filteredUsers.slice(0, 6);
+    }
+    // 'Users' tab: show all items (vertical scroll)
+    if (activeTab === 'users') {
       return filteredUsers;
     }
-    // Show paginated for "All" tab or when in carousel mode
-    if (activeTab === 'all' || activeTab === 'users') {
-      const start = userPage * ITEMS_PER_PAGE;
-      return filteredUsers.slice(start, start + ITEMS_PER_PAGE);
-    }
     return [];
-  }, [filteredUsers, userPage, viewMode, viewAllType, activeTab]);
+  }, [filteredUsers, activeTab]);
   
   const paginatedSessions = useMemo(() => {
-    // Show all when in "View All" mode
-    if (viewMode === 'all' && viewAllType === 'sessions') {
+    // 'All' tab: limit to 6 items for preview
+    if (activeTab === 'all') {
+      return filteredSessions.slice(0, 6);
+    }
+    // 'Session' tab: show all items (vertical scroll)
+    if (activeTab === 'session') {
       return filteredSessions;
     }
-    // Show paginated for "All" tab or when in carousel mode
-    if (activeTab === 'all' || activeTab === 'session') {
-      const start = sessionPage * ITEMS_PER_PAGE;
-      return filteredSessions.slice(start, start + ITEMS_PER_PAGE);
-    }
     return [];
-  }, [filteredSessions, sessionPage, viewMode, viewAllType, activeTab]);
+  }, [filteredSessions, activeTab]);
   
   const displayUsers = paginatedUsers;
   const displaySessions = paginatedSessions;
   
   const handleViewAllUsers = () => {
-    setViewMode('all');
-    setViewAllType('users');
     setActiveTab('users');
-    setUserPage(0);
   };
   
   const handleViewAllSessions = () => {
-    setViewMode('all');
-    setViewAllType('sessions');
     setActiveTab('session');
-    setSessionPage(0);
+  };
+  
+  // Check if carousel is at the end
+  const handleUsersCarouselScroll = (e) => {
+    const element = e.target;
+    const isAtEnd = element.scrollLeft + element.clientWidth >= element.scrollWidth - 10;
+    setIsUsersCarouselAtEnd(isAtEnd);
+  };
+  
+  const handleSessionsCarouselScroll = (e) => {
+    const element = e.target;
+    const isAtEnd = element.scrollLeft + element.clientWidth >= element.scrollWidth - 10;
+    setIsSessionsCarouselAtEnd(isAtEnd);
   };
 
   return (
@@ -353,11 +362,11 @@ const SearchPage = () => {
 
         {/* MAIN CONTENT AREA - Results */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-h-0">
             
             {/* Users Section */}
             {displayUsers.length > 0 && (
-              <div className="flex-1 flex flex-col mb-8 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}>
+              <div className={`flex flex-col opacity-0 animate-fadeSlideUp ${activeTab === 'users' ? 'flex-1 min-h-0' : 'mb-8'}`} style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}>
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
                     <div className="p-2 bg-indigo-600/10 rounded-lg border border-indigo-500/20">
@@ -370,47 +379,82 @@ const SearchPage = () => {
                       {filteredUsers.length}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => document.getElementById('users-carousel').scrollBy({ left: -350, behavior: 'smooth' })}
-                      className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50"
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => document.getElementById('users-carousel').scrollBy({ left: 350, behavior: 'smooth' })}
-                      className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50"
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </div>
+                  {activeTab === 'all' && (
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => document.getElementById('users-carousel').scrollBy({ left: -350, behavior: 'smooth' })}
+                        className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      {/* Right arrow transforms to View All button when at end and more than 6 results */}
+                      {filteredUsers.length > 6 && isUsersCarouselAtEnd ? (
+                        <button
+                          onClick={handleViewAllUsers}
+                          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 font-bold text-sm"
+                        >
+                          <span>View All</span>
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => document.getElementById('users-carousel').scrollBy({ left: 350, behavior: 'smooth' })}
+                          className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
                 
-                {/* Users Horizontal Carousel */}
-                <div className="relative -my-4">
-                  {/* Carousel Container - Vertical Padding Only */}
-                  <div id="users-carousel" className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-4" style={{ scrollSnapType: 'x mandatory' }}>
-                    {displayUsers.map((user, index) => (
-                      <div 
-                        key={user.id} 
-                        className="flex-shrink-0 w-[280px] opacity-0 animate-fadeSlideUp"
-                        style={{ animationDelay: `${600 + (index * 80)}ms`, scrollSnapAlign: 'start', animationFillMode: 'forwards' }}
-                      >
-                        <SearchUserCard user={user} />
-                      </div>
-                    ))}
+                {/* Conditional Layout: Carousel for 'all', Vertical Scroll for 'users' */}
+                {activeTab === 'all' ? (
+                  <div className="relative -my-4">
+                    <div 
+                      id="users-carousel" 
+                      className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-4" 
+                      style={{ scrollSnapType: 'x mandatory' }}
+                      onScroll={handleUsersCarouselScroll}
+                    >
+                      {displayUsers.map((user, index) => (
+                        <div 
+                          key={user.id} 
+                          className="flex-shrink-0 w-[280px] opacity-0 animate-fadeSlideUp"
+                          style={{ animationDelay: `${600 + (index * 80)}ms`, scrollSnapAlign: 'start', animationFillMode: 'forwards' }}
+                        >
+                          <SearchUserCard user={user} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar py-3 px-2 -mx-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {displayUsers.map((user, index) => (
+                        <div 
+                          key={user.id}
+                          className="opacity-0 animate-fadeSlideUp"
+                          style={{ animationDelay: `${600 + (index * 50)}ms`, animationFillMode: 'forwards' }}
+                        >
+                          <SearchUserCard user={user} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             
             {/* Sessions Section */}
             {displaySessions.length > 0 && (
-              <div className="flex-1 flex flex-col mt-6 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '700ms', animationFillMode: 'forwards' }}>
+              <div className={`flex flex-col opacity-0 animate-fadeSlideUp ${activeTab === 'session' ? 'flex-1 min-h-0' : 'mt-6'}`} style={{ animationDelay: '700ms', animationFillMode: 'forwards' }}>
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
                     <div className="p-2 bg-indigo-600/10 rounded-lg border border-indigo-500/20">
@@ -423,41 +467,76 @@ const SearchPage = () => {
                       {filteredSessions.length}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => document.getElementById('sessions-carousel').scrollBy({ left: -350, behavior: 'smooth' })}
-                      className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50"
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => document.getElementById('sessions-carousel').scrollBy({ left: 350, behavior: 'smooth' })}
-                      className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50"
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </div>
+                  {activeTab === 'all' && (
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => document.getElementById('sessions-carousel').scrollBy({ left: -350, behavior: 'smooth' })}
+                        className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      {/* Right arrow transforms to View All button when at end and more than 6 results */}
+                      {filteredSessions.length > 6 && isSessionsCarouselAtEnd ? (
+                        <button
+                          onClick={handleViewAllSessions}
+                          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 font-bold text-sm"
+                        >
+                          <span>View All</span>
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => document.getElementById('sessions-carousel').scrollBy({ left: 350, behavior: 'smooth' })}
+                          className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
                 
-                {/* Sessions Horizontal Carousel */}
-                <div className="relative -my-4">
-                  {/* Carousel Container - Vertical Padding Only */}
-                  <div id="sessions-carousel" className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-4" style={{ scrollSnapType: 'x mandatory' }}>
-                    {displaySessions.map((session, index) => (
-                      <div 
-                        key={session.id}
-                        className="flex-shrink-0 w-[280px] opacity-0 animate-fadeSlideUp"
-                        style={{ animationDelay: `${800 + (index * 80)}ms`, scrollSnapAlign: 'start', animationFillMode: 'forwards' }}
-                      >
-                        <SessionCard session={session} />
-                      </div>
-                    ))}
+                {/* Conditional Layout: Carousel for 'all', Vertical Scroll for 'session' */}
+                {activeTab === 'all' ? (
+                  <div className="relative -my-4">
+                    <div 
+                      id="sessions-carousel" 
+                      className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-4" 
+                      style={{ scrollSnapType: 'x mandatory' }}
+                      onScroll={handleSessionsCarouselScroll}
+                    >
+                      {displaySessions.map((session, index) => (
+                        <div 
+                          key={session.id}
+                          className="flex-shrink-0 w-[280px] opacity-0 animate-fadeSlideUp"
+                          style={{ animationDelay: `${800 + (index * 80)}ms`, scrollSnapAlign: 'start', animationFillMode: 'forwards' }}
+                        >
+                          <SessionCard session={session} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar py-3 px-2 -mx-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {displaySessions.map((session, index) => (
+                        <div 
+                          key={session.id}
+                          className="opacity-0 animate-fadeSlideUp"
+                          style={{ animationDelay: `${800 + (index * 50)}ms`, animationFillMode: 'forwards' }}
+                        >
+                          <SessionCard session={session} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             
