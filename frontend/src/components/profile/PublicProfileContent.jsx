@@ -15,30 +15,10 @@ export const PublicProfileContent = ({ userData, activeTab, onTabChange }) => {
               onClick={() => onTabChange('about')}
               icon={
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              }
-              label="About"
-            />
-            <TabButton
-              active={activeTab === 'schedule'}
-              onClick={() => onTabChange('schedule')}
-              icon={
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               }
-              label="Schedule"
-            />
-            <TabButton
-              active={activeTab === 'reviews'}
-              onClick={() => onTabChange('reviews')}
-              icon={
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-              }
-              label="Reviews"
+              label="Owned Session"
             />
           </div>
         </div>
@@ -47,8 +27,6 @@ export const PublicProfileContent = ({ userData, activeTab, onTabChange }) => {
       {/* Content Area - Scrollable */}
       <div className="flex-1 overflow-y-auto custom-scrollbar py-3 px-3 -mx-3 -my-3">
         {activeTab === 'about' && <AboutTab userData={userData} />}
-        {activeTab === 'schedule' && <ScheduleTab userData={userData} />}
-        {activeTab === 'reviews' && <ReviewsTab userData={userData} />}
       </div>
     </div>
   );
@@ -77,60 +55,66 @@ const TabButton = ({ active, onClick, icon, label }) => {
   );
 };
 
-// ===== ABOUT TAB =====
+// ===== ABOUT TAB (NOW SHOWS OWNED SESSIONS) =====
 
 const AboutTab = ({ userData }) => {
+  // Mock sessions data
+  const sessions = [
+    {
+      id: 1,
+      title: 'Introduction to Machine Learning with Python',
+      description: 'Learn the fundamentals of ML algorithms and practical implementation using Python and scikit-learn',
+      startTime: new Date('2025-12-15T14:00:00'),
+      endTime: new Date('2025-12-15T16:00:00'),
+      location: 'Online via Zoom',
+      sessionType: 'PUBLIC',
+      participants: 12,
+      maxParticipants: 15,
+      tags: ['Python', 'Machine Learning', 'Data Science']
+    },
+    {
+      id: 2,
+      title: 'Advanced React Patterns',
+      description: 'Deep dive into advanced React patterns including custom hooks, context, and performance optimization',
+      startTime: new Date('2025-12-18T10:00:00'),
+      endTime: new Date('2025-12-18T12:00:00'),
+      location: 'Room 301, CIT-U',
+      sessionType: 'PUBLIC',
+      participants: 8,
+      maxParticipants: 20,
+      tags: ['React', 'JavaScript', 'Web Development']
+    },
+    {
+      id: 3,
+      title: 'Data Structures Deep Dive',
+      description: 'Comprehensive study of fundamental data structures and their applications',
+      startTime: new Date('2025-12-20T15:00:00'),
+      endTime: new Date('2025-12-20T17:00:00'),
+      location: 'Online via Teams',
+      sessionType: 'PRIVATE',
+      participants: 5,
+      maxParticipants: 10,
+      tags: ['Algorithms', 'Data Structures', 'CS Fundamentals']
+    }
+  ];
+
   return (
-    <div className="p-6 space-y-6 pt-8">
-      {/* Featured Session Card (Pinned) */}
-      {userData.featuredSession && (
-        <div className="relative">
-          <div className="absolute -top-3 left-4 px-3 py-1 bg-gradient-to-r from-amber-600 to-amber-700 text-white text-xs font-bold rounded-full shadow-lg flex items-center gap-1.5 z-10">
-            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
-            Featured Session
+    <div className="p-6 pt-8">
+      <div className="grid grid-cols-1 gap-5 py-2">
+        {sessions.map((session, index) => (
+          <div key={session.id} className="relative hover:z-10">
+            <PublicSessionCard session={session} index={index} />
           </div>
-          <FeaturedSessionCard session={userData.featuredSession} />
+        ))}
+      </div>
+      
+      {sessions.length === 0 && (
+        <div className="text-center py-20">
+          <div className="text-6xl mb-4 opacity-50">📅</div>
+          <h3 className="text-xl font-bold text-white mb-2">No Owned Sessions</h3>
+          <p className="text-gray-400 text-sm">This user hasn't created any sessions yet.</p>
         </div>
       )}
-
-      {/* About Section */}
-      <div className="bg-gradient-to-br from-gray-800/50 to-gray-800/30 border border-gray-700/50 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center border border-indigo-500/30">
-            <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h3 className="text-white font-bold text-lg">About</h3>
-        </div>
-        <p className="text-gray-300 text-sm leading-relaxed">
-          {userData.bio || 'This user hasn\'t written a bio yet.'}
-        </p>
-      </div>
-
-      {/* Skills/Interests (Mock data) */}
-      <div className="bg-gradient-to-br from-gray-800/50 to-gray-800/30 border border-gray-700/50 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center border border-indigo-500/30">
-            <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-            </svg>
-          </div>
-          <h3 className="text-white font-bold text-lg">Skills & Interests</h3>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {['Python', 'Machine Learning', 'Data Science', 'JavaScript', 'React', 'Node.js'].map((skill, index) => (
-            <span
-              key={index}
-              className="px-3 py-1.5 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border border-indigo-500/30 text-indigo-300 rounded-full text-xs font-medium transition-all hover:border-indigo-500/50 hover:bg-indigo-600/30"
-            >
-              {skill}
-            </span>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };

@@ -4,6 +4,7 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import { PublicProfileCard } from '../components/profile/PublicProfileCard';
 import { PublicProfileContent } from '../components/profile/PublicProfileContent';
 import { useUser } from '../context/UserContext';
+import { mockUsers } from '../data/mockData';
 import '../styles/profile/ProfilePage.css';
 
 const PublicProfilePage = () => {
@@ -12,7 +13,7 @@ const PublicProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [activeTab, setActiveTab] = useState('about'); // 'about', 'schedule', 'reviews'
+  const [activeTab, setActiveTab] = useState('about'); // 'about', 'schedule'
 
   useEffect(() => {
     fetchUserProfile();
@@ -24,37 +25,38 @@ const PublicProfilePage = () => {
       // TODO: Replace with actual API call
       // const response = await userService.getUserProfile(userId);
       
-      // Mock data for now
-      const mockUser = {
-        id: userId,
-        name: 'Sarah Johnson',
-        school: 'CIT University',
-        program: 'Computer Science',
-        yearLevel: 3,
-        bio: 'Passionate about machine learning and data science. Love helping others understand complex algorithms through practical examples. Available for study sessions and project collaboration.',
-        profilePic: null,
-        coverImage: null,
-        isOnline: true,
-        followersCount: 234,
-        followingCount: 189,
-        isMentor: true,
-        rating: 4.8,
-        totalReviews: 47,
-        completedSessions: 89,
-        featuredSession: {
-          id: 1,
-          title: 'Introduction to Machine Learning with Python',
-          description: 'Learn the fundamentals of ML algorithms and practical implementation',
-          participants: 12,
-          maxParticipants: 15,
-          tags: ['Python', 'Machine Learning', 'Data Science'],
-          rating: 4.9
-        }
-      };
+      // Find user from mock data based on userId from URL params
+      const foundUser = mockUsers.find(user => user.id === parseInt(userId));
       
-      setUserData(mockUser);
-      // Check if current user is following this user
-      setIsFollowing(false); // TODO: Get from API
+      if (foundUser) {
+        // Use the complete user data from mockUsers
+        setUserData({
+          ...foundUser,
+          profilePic: foundUser.profileImageUrl,
+          coverImage: foundUser.coverImageUrl
+        });
+        // Check if current user is following this user
+        setIsFollowing(false); // TODO: Get from API
+      } else {
+        // Fallback to default mock user if not found
+        setUserData({
+          id: userId,
+          name: 'User Not Found',
+          school: 'CIT University',
+          program: 'Unknown',
+          yearLevel: 1,
+          bio: 'This user profile is not available.',
+          profilePic: null,
+          coverImage: null,
+          isOnline: false,
+          followersCount: 0,
+          followingCount: 0,
+          isMentor: false,
+          rating: 0,
+          totalReviews: 0,
+          completedSessions: 0
+        });
+      }
     } catch (error) {
       console.error('Failed to load user profile:', error);
     } finally {
@@ -74,16 +76,6 @@ const PublicProfilePage = () => {
     } catch (error) {
       console.error('Failed to follow/unfollow:', error);
     }
-  };
-
-  const handleMessage = () => {
-    // TODO: Navigate to messaging or open chat
-    console.log('Open message to user:', userId);
-  };
-
-  const handleBookSession = () => {
-    // TODO: Navigate to session booking
-    console.log('Book session with user:', userId);
   };
 
   if (loading) {
@@ -133,8 +125,6 @@ const PublicProfilePage = () => {
             userData={userData}
             isFollowing={isFollowing}
             onFollow={handleFollow}
-            onMessage={handleMessage}
-            onBookSession={handleBookSession}
           />
         </div>
 
