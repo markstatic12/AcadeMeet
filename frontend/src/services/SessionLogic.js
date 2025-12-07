@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { sessionService } from './SessionService';
 
 // Session Form Logic Hook
-export const useSessionForm = () => {
+export const useSessionForm = (showToast) => {
   const navigate = useNavigate();
 
   const [sessionData, setSessionData] = useState({
@@ -24,13 +24,21 @@ export const useSessionForm = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleChange = (e) => {
     setSessionData({ ...sessionData, [e.target.name]: e.target.value });
+    // Clear error when user types
+    if (fieldErrors[e.target.name]) {
+      setFieldErrors({ ...fieldErrors, [e.target.name]: null });
+    }
   };
 
   const handlePasswordChange = (e) => {
     setSessionData({ ...sessionData, password: e.target.value });
+    if (fieldErrors.password) {
+      setFieldErrors({ ...fieldErrors, password: null });
+    }
   };
 
   const handleParticipantsChange = (e) => {
@@ -50,18 +58,34 @@ export const useSessionForm = () => {
     setIsSubmitting(true);
 
     // Validate required fields
-    const requiredFields = ['title', 'month', 'day', 'year', 'startTime', 'endTime', 'location', 'sessionType'];
-    const missingFields = requiredFields.filter(field => !sessionData[field] || sessionData[field].trim() === '');
-    
-    if (missingFields.length > 0) {
-      alert(`Please fill in the following required fields: ${missingFields.join(', ')}`);
-      setIsSubmitting(false);
-      return;
-    }
+    const errors = {};
+    const requiredFields = [
+      { name: 'title', label: 'Session Title' },
+      { name: 'month', label: 'Month' },
+      { name: 'day', label: 'Day' },
+      { name: 'year', label: 'Year' },
+      { name: 'startTime', label: 'Start Time' },
+      { name: 'endTime', label: 'End Time' },
+      { name: 'location', label: 'Location' },
+      { name: 'sessionType', label: 'Session Type' }
+    ];
+
+    requiredFields.forEach(field => {
+      if (!sessionData[field.name] || sessionData[field.name].toString().trim() === '') {
+        errors[field.name] = `${field.label} is required`;
+      }
+    });
 
     // Validate private session password
     if (sessionData.sessionType === 'PRIVATE' && (!sessionData.password || sessionData.password.length < 6)) {
-      alert("Private sessions require a password of at least 6 characters");
+      errors.password = 'Password must be at least 6 characters';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      if (showToast) {
+        showToast('error', 'Please fill in all required fields');
+      }
       setIsSubmitting(false);
       return;
     }
@@ -69,12 +93,18 @@ export const useSessionForm = () => {
     try {
       await sessionService.createSession(sessionData);
       
-      // Instead of a blocking alert, navigate to dashboard and pass a success flag
-      // so the dashboard or sessions page can render a non-blocking success modal.
-      navigate('/profile', { state: { sessionCreated: true, title: sessionData.title } });
+      if (showToast) {
+        showToast('success', 'Session created successfully!');
+      }
+      // Navigate after a brief delay to show the toast
+      setTimeout(() => {
+        navigate('/profile', { state: { sessionCreated: true, title: sessionData.title } });
+      }, 1500);
     } catch (error) {
       console.error("Error creating session:", error);
-      alert("Error creating session: " + error.message);
+      if (showToast) {
+        showToast('error', `Error creating session: ${error.message}`);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -87,12 +117,14 @@ export const useSessionForm = () => {
   return {
     sessionData,
     isSubmitting,
+    fieldErrors,
     handleChange,
     handlePasswordChange,
     handleParticipantsChange,
     handleTagsChange,
     handleSubmit,
-    handleBack
+    handleBack,
+    handleNotesChange
   };
 };
 

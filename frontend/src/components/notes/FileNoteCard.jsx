@@ -1,8 +1,7 @@
 import React from 'react';
-import { ThreeDotsVerticalIcon, StarOutlineIcon, StarSolidIcon, ArchiveIcon, TrashIcon } from '../../icons';
 
-export default function FileNoteCard({ note, onOpen, onMenu, openMenuId, onMenuToggle, onToggleFavourite, onArchive, onDelete }) {
-  const { id, title, notePreviewImageUrl, createdAt, tags, isFavourite, type } = note || {};
+export default function FileNoteCard({ note, onOpen }) {
+  const { id, title, notePreviewImageUrl, createdAt, tags, type } = note || {};
   const formattedDate = createdAt ? new Date(createdAt).toLocaleDateString(undefined,{ month:'short', day:'numeric', year:'numeric'}) : '';
   
   // Get the first tag for the badge
@@ -10,7 +9,7 @@ export default function FileNoteCard({ note, onOpen, onMenu, openMenuId, onMenuT
 
   return (
     <div
-      className={`bg-[#1a1a1a] border ${isFavourite ? 'border-yellow-400/50' : 'border-gray-800'} hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl h-[240px] w-full flex flex-col relative`}
+      className="bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 rounded-xl overflow-hidden transition-all hover:shadow-xl h-[240px] w-full flex flex-col relative"
       onClick={() => onOpen && onOpen(note)}
     >
       {/* Preview Image with overlay tag and menu */}
@@ -33,54 +32,6 @@ export default function FileNoteCard({ note, onOpen, onMenu, openMenuId, onMenuT
             </span>
           </div>
         )}
-        
-        {/* Three-dot menu */}
-        <div className="absolute top-3 right-3 card-options-menu z-20">
-          <button
-            onClick={(e) => { 
-              e.stopPropagation(); 
-              onMenuToggle && onMenuToggle(id); 
-            }}
-            className="p-1.5 bg-black/30 hover:bg-black/50 rounded-md text-white/80"
-            title="Options"
-          >
-            <ThreeDotsVerticalIcon className="w-4 h-4" />
-          </button>
-          {openMenuId === id && (
-            <div className="absolute right-0 mt-2 w-40 bg-[#111] border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
-              <button
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  onToggleFavourite && onToggleFavourite(id); 
-                }}
-                className="w-full px-3 py-2 text-left text-sm text-white hover:bg-gray-800 flex items-center gap-2"
-              >
-                {isFavourite ? <StarSolidIcon className="w-4 h-4 text-yellow-400" /> : <StarOutlineIcon className="w-4 h-4 text-yellow-400" />}
-                {isFavourite ? 'Remove Favourite' : 'Add to Favourites'}
-              </button>
-              <button
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  onArchive && onArchive(id); 
-                }}
-                className="w-full px-3 py-2 text-left text-sm text-white hover:bg-gray-800 flex items-center gap-2"
-              >
-                <ArchiveIcon className="w-4 h-4" />
-                Archive
-              </button>
-              <button
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  onDelete && onDelete(id); 
-                }}
-                className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-gray-800 flex items-center gap-2"
-              >
-                <TrashIcon className="w-4 h-4" />
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
       </div>
       
       {/* Bottom content */}

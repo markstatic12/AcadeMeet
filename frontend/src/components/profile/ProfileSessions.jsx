@@ -183,7 +183,7 @@ export const TrashedSessionCard = ({ session, onRestore }) => {
       
       <div className="p-3 bg-[#161A2B]">
         <h3 className="text-white/60 font-bold text-xs mb-1.5 line-through">{session.title}</h3>
-        <div className="space-y-0.5 text-gray-600 text-[10px]">">
+        <div className="space-y-0.5 text-gray-600 text-[10px]">"
           <div className="flex items-center gap-1.5">
             <CalendarIcon className="w-2.5 h-2.5 text-gray-600" />
             <span>{session.month} {session.day}, {session.year}</span>
@@ -207,7 +207,7 @@ export const TrashedSessionCard = ({ session, onRestore }) => {
 
 export const SessionsContent = ({ sessionsData, openCardMenuId, onCreateSession, onMenuToggle, onDeleteSession }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full flex-1 min-h-0 overflow-y-auto pr-1 custom-scrollbar">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full flex-1 min-h-0 overflow-y-auto custom-scrollbar pt-2 pb-4">
       {/* Create New Session Card */}
       <div className="animate-fadeIn">
         <CreateNewCard onClick={onCreateSession} label="Create New Session" />
@@ -232,7 +232,7 @@ export const SessionsContent = ({ sessionsData, openCardMenuId, onCreateSession,
 
 export const TrashedSessionsContent = ({ trashedSessions, onRestore, onBackToSessions }) => {
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
+    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pt-2 pb-4">
       <div className="mb-6 flex items-center justify-between animate-slideInLeft">
         <h3 className="text-white text-xl font-bold tracking-tight">Trashed Sessions</h3>
         <button

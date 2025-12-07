@@ -138,7 +138,7 @@ export const SessionHeader = ({ title, onChange }) => {
 
 // ===== DATE SELECTOR =====
 
-export const DateSelector = ({ month, day, year, onChange }) => {
+export const DateSelector = ({ month, day, year, onChange, fieldErrors = {} }) => {
   const months = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -148,42 +148,61 @@ export const DateSelector = ({ month, day, year, onChange }) => {
   const years = Array.from({ length: 10 }, (_, i) => 2025 + i);
 
   return (
-    <div className="grid grid-cols-3 gap-2.5">
-      <select
-        name="month"
-        value={month}
-        onChange={onChange}
-        className="px-3 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
-      >
-        <option value="">Month</option>
-        {months.map((m) => (
-          <option key={m} value={m}>{m}</option>
-        ))}
-      </select>
+    <div className="space-y-1">
+      <div className="grid grid-cols-3 gap-2.5">
+        <select
+          name="month"
+          value={month}
+          onChange={onChange}
+          className={`px-3 py-2.5 bg-[#1e293b] border rounded-lg text-gray-300 text-sm focus:outline-none transition-all duration-200 ${
+            fieldErrors.month 
+              ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' 
+              : 'border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
+          }`}
+        >
+          <option value="">Month</option>
+          {months.map((m) => (
+            <option key={m} value={m}>{m}</option>
+          ))}
+        </select>
 
-      <select
-        name="day"
-        value={day}
-        onChange={onChange}
-        className="px-3 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
-      >
-        <option value="">Day</option>
-        {days.map((d) => (
-          <option key={d} value={d}>{d}</option>
-        ))}
-      </select>
+        <select
+          name="day"
+          value={day}
+          onChange={onChange}
+          className={`px-3 py-2.5 bg-[#1e293b] border rounded-lg text-gray-300 text-sm focus:outline-none transition-all duration-200 ${
+            fieldErrors.day 
+              ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' 
+              : 'border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
+          }`}
+        >
+          <option value="">Day</option>
+          {days.map((d) => (
+            <option key={d} value={d}>{d}</option>
+          ))}
+        </select>
 
-      <select
-        name="year"
-        value={year}
-        onChange={onChange}
-        className="px-3 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
-      >
-        <option value="">Year</option>
-        {years.map((y) => (
-          <option key={y} value={y}>{y}</option>
-        ))}
-      </select>
+        <select
+          name="year"
+          value={year}
+          onChange={onChange}
+          className={`px-3 py-2.5 bg-[#1e293b] border rounded-lg text-gray-300 text-sm focus:outline-none transition-all duration-200 ${
+            fieldErrors.year 
+              ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' 
+              : 'border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
+          }`}
+        >
+          <option value="">Year</option>
+          {years.map((y) => (
+            <option key={y} value={y}>{y}</option>
+          ))}
+        </select>
+      </div>
+      {(fieldErrors.month || fieldErrors.day || fieldErrors.year) && (
+        <p className="text-red-400 text-xs mt-1">
+          {fieldErrors.month || fieldErrors.day || fieldErrors.year}
+        </p>
+      )}
     </div>
   );
 };
@@ -191,7 +210,7 @@ export const DateSelector = ({ month, day, year, onChange }) => {
 
 // ===== TIME SELECTOR =====
 
-export const TimeSelector = ({ startTime, endTime, onChange }) => {
+export const TimeSelector = ({ startTime, endTime, onChange, fieldErrors = {} }) => {
   return (
     <div className="grid grid-cols-2 gap-2.5">
       <div>
@@ -201,8 +220,15 @@ export const TimeSelector = ({ startTime, endTime, onChange }) => {
           name="startTime"
           value={startTime}
           onChange={onChange}
-          className="w-full px-3 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
+          className={`w-full px-3 py-2.5 bg-[#1e293b] border rounded-lg text-gray-300 text-sm focus:outline-none transition-all duration-200 ${
+            fieldErrors.startTime 
+              ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' 
+              : 'border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
+          }`}
         />
+        {fieldErrors.startTime && (
+          <p className="text-red-400 text-xs mt-1">{fieldErrors.startTime}</p>
+        )}
       </div>
       <div>
         <label className="block text-gray-400 text-xs mb-1.5">End Time</label>
@@ -211,8 +237,15 @@ export const TimeSelector = ({ startTime, endTime, onChange }) => {
           name="endTime"
           value={endTime}
           onChange={onChange}
-          className="w-full px-3 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
+          className={`w-full px-3 py-2.5 bg-[#1e293b] border rounded-lg text-gray-300 text-sm focus:outline-none transition-all duration-200 ${
+            fieldErrors.endTime 
+              ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' 
+              : 'border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
+          }`}
         />
+        {fieldErrors.endTime && (
+          <p className="text-red-400 text-xs mt-1">{fieldErrors.endTime}</p>
+        )}
       </div>
     </div>
   );
@@ -246,7 +279,7 @@ export const LocationInput = ({ value, onChange }) => {
 
 // ===== SESSION PRIVACY SELECTOR =====
 
-const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChange, onPasswordChange, onParticipantsChange }) => {
+const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChange, onPasswordChange, onParticipantsChange, fieldErrors = {} }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -276,6 +309,9 @@ const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChan
           <span className="text-gray-300 text-sm group-hover:text-white transition-colors">Private</span>
         </label>
       </div>
+      {fieldErrors.sessionType && (
+        <p className="text-red-400 text-xs">{fieldErrors.sessionType}</p>
+      )}
 
       {sessionType === 'PRIVATE' && (
         <div className="animate-fadeIn relative">
@@ -285,7 +321,11 @@ const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChan
             value={password}
             onChange={onPasswordChange}
             placeholder="Session password (min 6 chars)"
-            className="w-full px-3.5 py-2.5 pr-10 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
+            className={`w-full px-3.5 py-2.5 pr-10 bg-[#1e293b] border rounded-lg text-gray-300 text-sm focus:outline-none transition-all duration-200 ${
+              fieldErrors.password 
+                ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' 
+                : 'border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
+            }`}
             minLength={6}
             required
           />
@@ -305,6 +345,9 @@ const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChan
               </svg>
             )}
           </button>
+          {fieldErrors.password && (
+            <p className="text-red-400 text-xs mt-1">{fieldErrors.password}</p>
+          )}
         </div>
       )}
 
@@ -330,7 +373,7 @@ const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChan
 
 // ===== DETAILS PANEL =====
 
-export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onParticipantsChange, onTagsChange, onUploadNotesClick }) => {
+export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onParticipantsChange, onTagsChange, onUploadNotesClick, fieldErrors = {} }) => {
   return (
     <div className="bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/60 to-[#0f0f1e]/60 backdrop-blur-sm border border-indigo-900/30 rounded-xl p-5 shadow-lg hover:border-indigo-700/50 transition-all duration-300 h-full flex flex-col">
       <div className="flex items-center gap-2.5 pb-4 border-b border-indigo-900/20 flex-shrink-0">
@@ -356,11 +399,13 @@ export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onPartic
             day={sessionData.day}
             year={sessionData.year}
             onChange={onChange}
+            fieldErrors={fieldErrors}
           />
           <TimeSelector
             startTime={sessionData.startTime}
             endTime={sessionData.endTime}
             onChange={onChange}
+            fieldErrors={fieldErrors}
           />
         </div>
 
@@ -379,8 +424,15 @@ export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onPartic
             value={sessionData.location}
             onChange={onChange}
             placeholder="e.g., Room 301, Online"
-            className="w-full px-3.5 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 hover:border-gray-600"
+            className={`w-full px-3.5 py-2.5 bg-[#1e293b] border rounded-lg text-gray-300 text-sm focus:outline-none transition-all duration-200 hover:border-gray-600 ${
+              fieldErrors.location 
+                ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' 
+                : 'border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
+            }`}
           />
+          {fieldErrors.location && (
+            <p className="text-red-400 text-xs mt-1">{fieldErrors.location}</p>
+          )}
         </div>
 
         {/* Privacy Settings */}
@@ -398,6 +450,7 @@ export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onPartic
             onChange={onChange}
             onPasswordChange={onPasswordChange}
             onParticipantsChange={onParticipantsChange}
+            fieldErrors={fieldErrors}
           />
         </div>
 

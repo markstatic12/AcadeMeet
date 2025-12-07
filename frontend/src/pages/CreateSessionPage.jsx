@@ -4,21 +4,25 @@ import PageHeader from '../components/common/PageHeader';
 import SessionHeader, { DetailsPanel, DescriptionPanel } from '../components/sessions/SessionForm';
 import { useSessionForm } from '../services/SessionLogic';
 import UploadNoteModal from '../components/notes/UploadNoteModal';
+import Toast from '../components/common/Toast';
+import useToast from '../hooks/useToast';
 import '../styles/createSession/CreateSessionPage.css';
 
 const CreateSessionPage = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const { toast, showToast, hideToast } = useToast();
   
   const {
     sessionData,
     isSubmitting,
+    fieldErrors,
     handleChange,
     handlePasswordChange,
     handleParticipantsChange,
     handleTagsChange,
     handleSubmit,
     handleBack
-  } = useSessionForm();
+  } = useSessionForm(showToast);
 
   return (
     <div className="h-screen bg-gradient-to-br from-[#0a0a14] via-[#0f0f1e] to-[#1a1a2e] relative overflow-hidden">
@@ -85,7 +89,9 @@ const CreateSessionPage = () => {
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <label className="block text-gray-400 text-xs font-medium mb-1.5">Session Title</label>
+                  <label className="block text-gray-400 text-xs font-medium mb-1.5">
+                    Session Title {fieldErrors.title && <span className="text-red-400 ml-1">*</span>}
+                  </label>
                   <input
                     type="text"
                     name="title"
@@ -93,8 +99,13 @@ const CreateSessionPage = () => {
                     onChange={handleChange}
                     placeholder="Enter a compelling session name..."
                     required
-                    className="w-full bg-transparent border-none text-2xl font-bold text-white placeholder-gray-600 focus:outline-none focus:ring-0 p-0"
+                    className={`w-full bg-transparent border-none text-2xl font-bold text-white placeholder-gray-600 focus:outline-none focus:ring-0 p-0 ${
+                      fieldErrors.title ? 'text-red-400' : ''
+                    }`}
                   />
+                  {fieldErrors.title && (
+                    <p className="text-red-400 text-xs mt-1">{fieldErrors.title}</p>
+                  )}
                 </div>
               </div>
 
@@ -103,6 +114,7 @@ const CreateSessionPage = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <DetailsPanel
                     sessionData={sessionData}
+                    fieldErrors={fieldErrors}
                     onChange={handleChange}
                     onPasswordChange={handlePasswordChange}
                     onParticipantsChange={handleParticipantsChange}
@@ -120,6 +132,9 @@ const CreateSessionPage = () => {
           </div>
         </form>
       </div>
+
+      {/* Toast Notification */}
+      <Toast {...toast} onClose={hideToast} />
 
       {/* Upload Note Modal - Rendered at page level for full-screen overlay */}
       <UploadNoteModal
