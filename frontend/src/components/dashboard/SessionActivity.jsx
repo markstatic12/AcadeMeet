@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getDaysInMonth, getMonthName, isCurrentMonth as checkIsCurrentMonth, getCurrentDay } from '../../utils/calendarUtils';
 import SessionTabs from './SessionTabs';
 import { ChevronLeftIcon, ChevronRightIcon } from '../../icons';
 import { useCalendarSessions } from '../../services/useCalendarSessions';
 import DaySessionsModal from './DaySessionsModal';
+import { reminderService } from '../../services/ReminderService';
 
 const CalendarHeader = ({ monthName, year, onPrevious, onNext }) => {
   return (
@@ -131,6 +132,169 @@ const Calendar = ({ currentMonth, onPrevious, onNext }) => {
   );
 };
 
+// Reminders Tab Component
+const RemindersTab = () => {
+  const [reminders, setReminders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    loadReminders();
+    // Poll every 60 seconds for new reminders
+    const interval = setInterval(loadReminders, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadReminders = async () => {
+    try {
+      const data = await reminderService.getActiveReminders();
+      setReminders(data);
+      setError(null);
+    } catch (err) {
+      console.error('Failed to load reminders:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReminderClick = async (reminder) => {
+    try {
+      // Mark as read
+      await reminderService.markAsRead(reminder.id);
+      
+      // Update local state to show as read
+      setReminders(reminders.map(r => 
+        r.id === reminder.id 
+          ? { ...r, read: true, readAt: new Date().toISOString() }
+          : r
+      ));
+
+      // Navigate to session
+      navigate(`/session/${reminder.sessionId}`);
+    } catch (err) {
+      console.error('Failed to mark reminder as read:', err);
+    }
+  };
+
+  const formatScheduledTime = (timestamp) => {
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    } catch {
+      return 'Invalid date';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex-1 relative overflow-hidden animate-fadeSlideUp">
+        <div className="relative z-10 h-full flex flex-col">
+          <h3 className="text-xl font-bold text-white mb-4">Reminders</h3>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-gray-400">Loading reminders...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex-1 relative overflow-hidden animate-fadeSlideUp">
+        <div className="relative z-10 h-full flex flex-col">
+          <h3 className="text-xl font-bold text-white mb-4">Reminders</h3>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-red-400">Failed to load reminders</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex-1 relative overflow-hidden animate-fadeSlideUp">
+      <div className="relative z-10 h-full flex flex-col">
+        <h3 className="text-xl font-bold text-white mb-4">Reminders</h3>
+        
+        {reminders.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
+            <span className="text-6xl mb-4">🔔</span>
+            <p className="text-gray-400 text-lg">No active reminders</p>
+            <p className="text-gray-500 text-sm mt-2">
+              Reminders will appear here when you join sessions
+            </p>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3">
+            {reminders.map((reminder) => (
+              <div
+                key={reminder.id}
+                onClick={() => handleReminderClick(reminder)}
+                className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                  reminder.read
+                    ? 'bg-gray-800/30 border-gray-700/30 opacity-50 hover:opacity-60'
+                    : reminder.isOwner
+                      ? 'bg-indigo-500/10 border-indigo-500/30 hover:bg-indigo-500/20'
+                      : 'bg-purple-500/10 border-purple-500/30 hover:bg-purple-500/20'
+                }`}
+              >
+                <div
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                    reminder.read
+                      ? 'bg-gray-700/30'
+                      : reminder.isOwner
+                        ? 'bg-indigo-500/20'
+                        : 'bg-purple-500/20'
+                  }`}
+                >
+                  <span
+                    className={`text-lg ${
+                      reminder.read
+                        ? 'text-gray-500'
+                        : reminder.isOwner
+                          ? 'text-indigo-300'
+                          : 'text-purple-300'
+                    }`}
+                  >
+                    ⏰
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className={`font-medium text-sm mb-1 ${reminder.read ? 'text-gray-400' : 'text-white'}`}>
+                    {reminder.message}
+                  </h4>
+                  <p className="text-gray-500 text-xs">
+                    {formatScheduledTime(reminder.scheduledTime)}
+                  </p>
+                  {reminder.read && (
+                    <p className="text-gray-600 text-xs mt-1 italic">
+                      Read {new Date(reminder.readAt).toLocaleString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const CalendarSection = ({ 
   activeTab, 
   onTabChange, 
@@ -155,7 +319,8 @@ const CalendarSection = ({
         </div>
       )}
 
-      {/* Joined Sessions Tab */}
+      {/* THIS MUST BE REPLACED WITH ACTUAL JOINED SESSIONS... */}
+      {/* CURRENTLY HARD CODED TO NAVIGATE SESSION ID... */}
       {activeTab === 'my' && (
         <div className="flex-1 relative overflow-hidden animate-fadeSlideUp">
           <div className="relative z-10 h-full flex flex-col">
@@ -231,54 +396,9 @@ const CalendarSection = ({
         </div>
       )}
 
-      {/* Reminders Tab */}
+      {/* REPLACE REMINDERS TAB WITH ACTUAL IMPLEMENTATION */}
       {activeTab === 'reminders' && (
-        <div className="flex-1 relative overflow-hidden animate-fadeSlideUp">
-          <div className="relative z-10 h-full flex flex-col">
-            <h3 className="text-xl font-bold text-white mb-4">Reminders</h3>
-            <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3">
-            <div className="flex items-start gap-3 p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg">
-              <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-purple-300 text-lg">📚</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-white font-medium text-sm mb-1">Complete Assignment 3</h4>
-                <p className="text-gray-400 text-xs">Due: Dec 8, 2025 at 11:59 PM</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-              <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-blue-300 text-lg">📝</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-white font-medium text-sm mb-1">Review Chapter 5</h4>
-                <p className="text-gray-400 text-xs">Before next session</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
-              <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-green-300 text-lg">✅</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-white font-medium text-sm mb-1">Submit Project Proposal</h4>
-                <p className="text-gray-400 text-xs">Due: Dec 15, 2025</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3 p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg">
-              <div className="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-orange-300 text-lg">⚡</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-white font-medium text-sm mb-1">Prepare for Quiz</h4>
-                <p className="text-gray-400 text-xs">Dec 9, 2025 - Chapter 1-3</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        </div>
+        <RemindersTab />
       )}
     </div>
   );

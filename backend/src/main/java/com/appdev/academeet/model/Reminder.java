@@ -18,14 +18,15 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "reminder", indexes = {
-    @Index(name = "idx_reminder_user_read", columnList = "user_id, read_at")
+    @Index(name = "idx_reminder_user_scheduled", columnList = "user_id, scheduled_time"),
+    @Index(name = "idx_reminder_user_read", columnList = "user_id, is_read")
 })
 public class Reminder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "reminder_id")
-    private Long reminderId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -35,24 +36,15 @@ public class Reminder {
     @JoinColumn(name = "session_id", nullable = false)
     private Session session;
 
-    @Column(name = "header", nullable = false, length = 255)
-    private String header;
-
-    @Column(name = "message", columnDefinition = "TEXT")
-    private String message;
-
-    @Column(name = "reminder_time", nullable = false)
-    private LocalDateTime reminderTime;
-
     @Enumerated(EnumType.STRING)
-    @Column(name = "notification_type")
-    private NotificationType notificationType = NotificationType.IN_APP;
+    @Column(name = "type", nullable = false)
+    private ReminderType type;
 
-    @Column(name = "is_sent")
-    private boolean isSent = false;
+    @Column(name = "scheduled_time", nullable = false)
+    private LocalDateTime scheduledTime;
 
-    @Column(name = "sent_at")
-    private LocalDateTime sentAt;
+    @Column(name = "is_read", nullable = false)
+    private boolean isRead = false;
 
     @Column(name = "read_at")
     private LocalDateTime readAt;
@@ -67,66 +59,87 @@ public class Reminder {
             createdAt = LocalDateTime.now();
         }
     }
+
     // Constructors
     public Reminder() {}
 
-    public Reminder(User user, Session session, LocalDateTime reminderTime) {
+    public Reminder(User user, Session session, ReminderType type, LocalDateTime scheduledTime) {
         this.user = user;
         this.session = session;
-        this.reminderTime = reminderTime;
+        this.type = type;
+        this.scheduledTime = scheduledTime;
+        this.isRead = false;
     }
 
     // Getters
-    public Long getReminderId() { return reminderId; }
-    public User getUser() { return user; }
-    public Session getSession() { return session; }
-    public String getHeader() { return header; }
-    public String getMessage() { return message; }
-    public LocalDateTime getReminderTime() { return reminderTime; }
-    public NotificationType getNotificationType() { return notificationType; }
-    public boolean isSent() { return isSent; }
-    public LocalDateTime getSentAt() { return sentAt; }
-    public LocalDateTime getReadAt() { return readAt; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-
-     // Setters
-    public void setReminderId(Long reminderId) { this.reminderId = reminderId; }
-    public void setUser(User user) { this.user = user; }
-    public void setSession(Session session) { this.session = session; }
-    public void setHeader(String header) { this.header = header; }
-    public void setMessage(String message) { this.message = message; }
-    public void setReminderTime(LocalDateTime reminderTime) { this.reminderTime = reminderTime; }
-    public void setNotificationType(NotificationType notificationType) { this.notificationType = notificationType; }
-    public void setSent(boolean sent) { this.isSent = sent; }
-    public void setSentAt(LocalDateTime sentAt) { this.sentAt = sentAt; }
-    public void setReadAt(LocalDateTime readAt) { this.readAt = readAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
-    // Helper methods
-    public boolean isPending() {
-        return !isSent && reminderTime.isAfter(LocalDateTime.now());
+    public Long getId() {
+        return id;
     }
 
-    public boolean isDue() {
-        return !isSent && reminderTime.isBefore(LocalDateTime.now());
+    public User getUser() {
+        return user;
     }
 
-    public void markAsSent() {
-        this.isSent = true;
-        this.sentAt = LocalDateTime.now();
+    public Session getSession() {
+        return session;
     }
 
-    /**
-     * Mark this reminder as read by setting the read timestamp.
-     */
-    public void markAsRead() {
-        this.readAt = LocalDateTime.now();
+    public ReminderType getType() {
+        return type;
     }
 
-    /**
-     * Convenience: whether this reminder has been read.
-     */
+    public LocalDateTime getScheduledTime() {
+        return scheduledTime;
+    }
+
     public boolean isRead() {
-        return this.readAt != null;
+        return isRead;
+    }
+
+    public LocalDateTime getReadAt() {
+        return readAt;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    // Setters
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setSession(Session session) {
+        this.session = session;
+    }
+
+    public void setType(ReminderType type) {
+        this.type = type;
+    }
+
+    public void setScheduledTime(LocalDateTime scheduledTime) {
+        this.scheduledTime = scheduledTime;
+    }
+
+    public void setRead(boolean read) {
+        this.isRead = read;
+    }
+
+    public void setReadAt(LocalDateTime readAt) {
+        this.readAt = readAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    // Helper method
+    public void markAsRead() {
+        this.isRead = true;
+        this.readAt = LocalDateTime.now();
     }
 }

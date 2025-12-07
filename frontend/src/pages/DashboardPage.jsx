@@ -1,24 +1,17 @@
 import React from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { SessionsSection } from '../components/sessions/Sessions';
-import { CalendarSection } from '../components/dashboard/Calendar';
-import RightSidebar from '../components/dashboard/RightSidebar';
+import { CalendarSection } from '../components/dashboard/SessionActivity';
 import { useDashboardPage } from '../services/DashboardLogic';
-import { reminders } from '../utils/dashboardData';
 import '../styles/dashboard/DashboardPage.css';
 
 const DashboardPage = () => {
   const {
     activeSessionTab,
     setActiveSessionTab,
-    activeNotesTab,
-    setActiveNotesTab,
     currentMonth,
     goToPreviousMonth,
     goToNextMonth,
-    notes,
-    notesLoading,
-    notesError
   } = useDashboardPage();
 
   return (
