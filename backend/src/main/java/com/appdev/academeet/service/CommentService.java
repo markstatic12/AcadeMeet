@@ -36,96 +36,147 @@ public class CommentService {
 
     @Transactional
     public void createComment(Long userId, Long sessionId, String content) {
+        // Keep backward-compatible wrapper that delegates to the new create method
+        createComment(userId, sessionId, content, null);
+    }
+    /**
+     * Create a comment or reply with validation. Returns the saved Comment.
+     * If parentCommentId is non-null, it will validate the parent exists and is in the same session.
+     */
+    @Transactional
+    public Comment createComment(Long userId, Long sessionId, String content, Long parentCommentId) {
+        // Business Rule: Validate content is not empty
+        if (content == null || content.trim().isEmpty()) {
+            throw new IllegalArgumentException("Comment content cannot be empty");
+        }
+
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
         Session session = sessionRepository.findById(sessionId)
             .orElseThrow(() -> new RuntimeException("Session not found"));
-        
-        Comment comment = new Comment(session, user, content, null);
-        commentRepository.save(comment);
+
+        Comment parentComment = null;
+        if (parentCommentId != null) {
+            parentComment = commentRepository.findById(parentCommentId)
+                .orElseThrow(() -> new RuntimeException("Parent comment not found"));
+
+            if (!parentComment.getSession().getId().equals(sessionId)) {
+                throw new IllegalArgumentException("Parent comment must be in the same session");
+            }
+
+            // Attach to root comment (single-level nesting semantics)
+            parentComment = parentComment.getParentComment() != null ? parentComment.getParentComment() : parentComment;
+        }
+
+        Comment comment = new Comment(session, user, content, parentComment);
+        Comment saved = commentRepository.save(comment);
+
+        // If this was a reply, update the parent's reply count atomically
+        if (parentComment != null) {
+            commentRepository.updateReplyCount(parentComment.getCommentId(), 1);
+        }
+
+        return saved;
     }
 
     @Transactional
     public void createReply(Long userId, Long sessionId, Long parentCommentId, String content) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-        Session session = sessionRepository.findById(sessionId)
-            .orElseThrow(() -> new RuntimeException("Session not found"));
-        Comment parentComment = commentRepository.findById(parentCommentId)
-            .orElseThrow(() -> new RuntimeException("Parent comment not found"));
-        
-        // Always attach to root comment for single-level nesting
-        Comment rootComment = parentComment.getParentComment() != null 
-            ? parentComment.getParentComment() 
-            : parentComment;
-        
-        Comment reply = new Comment(session, user, content, rootComment);
-        commentRepository.save(reply);
-        
-        // Increment reply count
-        rootComment.incrementReplyCount();
-        commentRepository.save(rootComment);
+        // Delegate to createComment which already validates and updates reply count
+        createComment(userId, sessionId, content, parentCommentId);
     }
 
     @Transactional(readOnly = true)
     public List<CommentDTO> getSessionCommentsGrouped(Long sessionId) {
-        // Get all comments for the session
-        List<Comment> allComments = commentRepository.findAll()
-            .stream()
-            .filter(c -> c.getSession().getId().equals(sessionId))
-            .toList();
-        
-        // Separate parent comments and replies
+        // Fetch all comments for the session efficiently (repository provides this)
+        List<Comment> allComments = commentRepository.findBySessionIdOrderByCreatedAtAsc(sessionId);
+
+        // Build parent map and collect parent ids
         Map<Long, CommentDTO> parentCommentsMap = new HashMap<>();
-        Map<Long, List<ReplyDTO>> repliesMap = new HashMap<>();
-        
-        // Build parent comments map
+        List<Long> parentIds = new ArrayList<>();
+
         for (Comment comment : allComments) {
             if (comment.getParentComment() == null) {
                 CommentDTO dto = new CommentDTO(
                     comment.getCommentId(),
-                    comment.getUser().getId(),
-                    comment.getUser().getName(),
+                    comment.getAuthor().getId(),
+                    comment.getAuthor().getName(),
                     comment.getContent(),
                     comment.getCreatedAt(),
                     comment.getReplyCount()
                 );
                 parentCommentsMap.put(comment.getCommentId(), dto);
-                repliesMap.put(comment.getCommentId(), new ArrayList<>());
+                parentIds.add(comment.getCommentId());
             }
         }
-        
-        // Add replies to their parent comments
-        for (Comment comment : allComments) {
-            if (comment.getParentComment() != null) {
-                Long parentId = comment.getParentComment().getCommentId();
-                
+
+        // Batch fetch replies for the parent ids
+        Map<Long, List<ReplyDTO>> repliesMap = new HashMap<>();
+        if (!parentIds.isEmpty()) {
+            List<Comment> replies = commentRepository.findByParentComment_CommentIdIn(parentIds);
+            for (Comment reply : replies) {
+                Long parentId = reply.getParentComment().getCommentId();
                 ReplyDTO replyDTO = new ReplyDTO(
-                    comment.getCommentId(),
-                    comment.getUser().getId(),
-                    comment.getUser().getName(),
-                    comment.getContent(),
-                    comment.getCreatedAt(),
-                    null,  // Simplified - no @mention tracking
+                    reply.getCommentId(),
+                    reply.getAuthor().getId(),
+                    reply.getAuthor().getName(),
+                    reply.getContent(),
+                    reply.getCreatedAt(),
+                    null,
                     null
                 );
-                
-                if (repliesMap.containsKey(parentId)) {
-                    repliesMap.get(parentId).add(replyDTO);
-                }
+                repliesMap.computeIfAbsent(parentId, k -> new ArrayList<>()).add(replyDTO);
             }
         }
-        
+
         // Combine parent comments with their replies
         List<CommentDTO> result = new ArrayList<>();
         for (CommentDTO parentDTO : parentCommentsMap.values()) {
-            parentDTO.setReplies(repliesMap.get(parentDTO.getCommentId()));
+            parentDTO.setReplies(repliesMap.getOrDefault(parentDTO.getCommentId(), new ArrayList<>()));
             result.add(parentDTO);
         }
-        
+
         // Sort by creation date
         result.sort((a, b) -> a.getCreatedAt().compareTo(b.getCreatedAt()));
-        
+
         return result;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReplyDTO> getReplies(Long commentId) {
+        List<Comment> replies = commentRepository.findByParentComment_CommentId(commentId);
+        List<ReplyDTO> dtoList = new ArrayList<>();
+        for (Comment reply : replies) {
+            ReplyDTO dto = new ReplyDTO(
+                reply.getCommentId(),
+                reply.getAuthor().getId(),
+                reply.getAuthor().getName(),
+                reply.getContent(),
+                reply.getCreatedAt(),
+                null,
+                null
+            );
+            dtoList.add(dto);
+        }
+        return dtoList;
+    }
+
+    @Transactional
+    public void deleteComment(Long commentId, Long userId) {
+        Comment comment = commentRepository.findById(commentId)
+            .orElseThrow(() -> new RuntimeException("Comment not found"));
+
+        if (!comment.getAuthor().getId().equals(userId)) {
+            throw new SecurityException("User not authorized to delete this comment");
+        }
+
+        Comment parent = comment.getParentComment();
+        if (parent != null) {
+            // It's a reply: delete and decrement parent's reply count
+            commentRepository.delete(comment);
+            commentRepository.updateReplyCount(parent.getCommentId(), -1);
+        } else {
+            // Parent comment: delete (cascade will remove replies)
+            commentRepository.delete(comment);
+        }
     }
 }

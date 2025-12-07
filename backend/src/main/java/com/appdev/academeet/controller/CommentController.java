@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.appdev.academeet.dto.CommentDTO;
 import com.appdev.academeet.dto.CommentRequest;
+import com.appdev.academeet.dto.ReplyDTO;
+import com.appdev.academeet.model.Comment;
 import com.appdev.academeet.model.User;
 import com.appdev.academeet.repository.UserRepository;
 import com.appdev.academeet.service.CommentService;
@@ -40,8 +42,18 @@ public class CommentController {
     public ResponseEntity<?> createComment(@PathVariable Long sessionId, @RequestBody CommentRequest request) {
         try {
             User user = getAuthenticatedUser();
-            commentService.createComment(user.getId(), sessionId, request.getContent());
-            return ResponseEntity.ok(Map.of("message", "Comment created successfully"));
+            Comment saved = commentService.createComment(user.getId(), sessionId, request.getContent(), null);
+
+            CommentDTO dto = new CommentDTO(
+                saved.getCommentId(),
+                saved.getAuthor().getId(),
+                saved.getAuthor().getName(),
+                saved.getContent(),
+                saved.getCreatedAt(),
+                saved.getReplyCount()
+            );
+
+            return ResponseEntity.ok(dto);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
@@ -54,8 +66,19 @@ public class CommentController {
             @RequestBody CommentRequest request) {
         try {
             User user = getAuthenticatedUser();
-            commentService.createReply(user.getId(), sessionId, commentId, request.getContent());
-            return ResponseEntity.ok(Map.of("message", "Reply created successfully"));
+            Comment saved = commentService.createComment(user.getId(), sessionId, request.getContent(), commentId);
+
+            ReplyDTO dto = new ReplyDTO(
+                saved.getCommentId(),
+                saved.getAuthor().getId(),
+                saved.getAuthor().getName(),
+                saved.getContent(),
+                saved.getCreatedAt(),
+                null,
+                null
+            );
+
+            return ResponseEntity.ok(dto);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
@@ -66,6 +89,29 @@ public class CommentController {
         try {
             List<CommentDTO> comments = commentService.getSessionCommentsGrouped(sessionId);
             return ResponseEntity.ok(comments);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/sessions/{sessionId}/comments/{commentId}")
+    public ResponseEntity<?> deleteComment(@PathVariable Long sessionId, @PathVariable Long commentId) {
+        try {
+            User user = getAuthenticatedUser();
+            commentService.deleteComment(commentId, user.getId());
+            return ResponseEntity.noContent().build();
+        } catch (SecurityException se) {
+            return ResponseEntity.status(403).body(Map.of("error", se.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/comments/{commentId}/replies")
+    public ResponseEntity<?> getReplies(@PathVariable Long commentId) {
+        try {
+            List<ReplyDTO> replies = commentService.getReplies(commentId);
+            return ResponseEntity.ok(replies);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }

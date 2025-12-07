@@ -1,5 +1,9 @@
 package com.appdev.academeet.dto;
 
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommentRequest {
     private String content;
 
@@ -14,6 +18,6 @@ public class CommentRequest {
     }
     
     public void setContent(String content) { 
-        this.content = content; 
+        this.content = content == null ? null : content.trim(); 
     }
 }
