@@ -8,7 +8,7 @@ const SearchUserCard = ({ user }) => {
   return (
     <Link 
       to={`/profile/${id}`} 
-      className="group relative flex items-center gap-4 p-5 bg-[#161A2B] hover:bg-[#1a1f35] rounded-2xl transition-all duration-300 border border-gray-800/50 hover:border-indigo-500/60 hover:shadow-xl hover:shadow-indigo-500/20 hover:scale-[1.02] overflow-hidden w-full"
+      className="group relative flex items-center gap-3 p-4 bg-[#161A2B] hover:bg-[#1a1f35] rounded-xl transition-all duration-300 border border-gray-800/50 hover:border-indigo-500/60 hover:shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-2 overflow-hidden w-full will-change-transform"
     >
       {/* Animated gradient overlay on hover */}
       <div className="absolute inset-0 bg-indigo-600/0 group-hover:bg-indigo-600/5 transition-all duration-500 pointer-events-none"></div>
@@ -25,29 +25,29 @@ const SearchUserCard = ({ user }) => {
               <img 
                 src={profileImageUrl} 
                 alt={name} 
-                className="w-14 h-14 rounded-full object-cover ring-2 ring-gray-700 group-hover:ring-indigo-500 transition-all duration-300"
+                className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-700 group-hover:ring-indigo-500 transition-all duration-300"
               />
-              <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-[#161A2B] group-hover:scale-110 transition-transform"></div>
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#161A2B] group-hover:scale-110 transition-transform"></div>
             </div>
           ) : (
             <div className="relative">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center ring-2 ring-gray-700 group-hover:ring-indigo-500 transition-all duration-300 group-hover:scale-110">
-                <UserIcon className="w-7 h-7 text-white" />
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center ring-2 ring-gray-700 group-hover:ring-indigo-500 transition-all duration-300 group-hover:scale-110">
+                <UserIcon className="w-6 h-6 text-white" />
               </div>
-              <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-[#161A2B] animate-pulse"></div>
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#161A2B] animate-pulse"></div>
             </div>
           )}
         </div>
         
         {/* User Info */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-white font-bold text-base mb-1 group-hover:text-indigo-300 transition-colors duration-300 truncate">
+          <h3 className="text-white font-bold text-sm mb-0.5 group-hover:text-indigo-300 transition-colors duration-300 truncate">
             {name}
           </h3>
-          <p className="text-gray-400 text-sm mb-0.5 group-hover:text-gray-300 transition-colors duration-300 truncate">
+          <p className="text-gray-400 text-xs mb-0.5 group-hover:text-gray-300 transition-colors duration-300 truncate">
             {program}
           </p>
-          <p className="text-gray-500 text-xs group-hover:text-gray-400 transition-colors duration-300 truncate">
+          <p className="text-gray-500 text-[11px] group-hover:text-gray-400 transition-colors duration-300 truncate">
             {studentId}
           </p>
         </div>

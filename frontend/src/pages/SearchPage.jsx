@@ -357,8 +357,8 @@ const SearchPage = () => {
             
             {/* Users Section */}
             {displayUsers.length > 0 && (
-              <div className="flex-1 flex flex-col mb-6 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}>
-                <div className="flex items-center justify-between mb-3">
+              <div className="flex-1 flex flex-col mb-8 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}>
+                <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
                     <div className="p-2 bg-indigo-600/10 rounded-lg border border-indigo-500/20">
                       <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -373,7 +373,7 @@ const SearchPage = () => {
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => document.getElementById('users-carousel').scrollBy({ left: -350, behavior: 'smooth' })}
-                      className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50 hover:scale-105"
+                      className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -381,7 +381,7 @@ const SearchPage = () => {
                     </button>
                     <button
                       onClick={() => document.getElementById('users-carousel').scrollBy({ left: 350, behavior: 'smooth' })}
-                      className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50 hover:scale-105"
+                      className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -391,24 +391,27 @@ const SearchPage = () => {
                 </div>
                 
                 {/* Users Horizontal Carousel */}
-                <div id="users-carousel" className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4" style={{ scrollSnapType: 'x mandatory' }}>
-                  {displayUsers.map((user, index) => (
-                    <div 
-                      key={user.id} 
-                      className="flex-shrink-0 w-[300px] opacity-0 animate-fadeSlideUp"
-                      style={{ animationDelay: `${600 + (index * 80)}ms`, scrollSnapAlign: 'start', animationFillMode: 'forwards' }}
-                    >
-                      <SearchUserCard user={user} />
-                    </div>
-                  ))}
+                <div className="relative -my-4">
+                  {/* Carousel Container - Vertical Padding Only */}
+                  <div id="users-carousel" className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-4" style={{ scrollSnapType: 'x mandatory' }}>
+                    {displayUsers.map((user, index) => (
+                      <div 
+                        key={user.id} 
+                        className="flex-shrink-0 w-[280px] opacity-0 animate-fadeSlideUp"
+                        style={{ animationDelay: `${600 + (index * 80)}ms`, scrollSnapAlign: 'start', animationFillMode: 'forwards' }}
+                      >
+                        <SearchUserCard user={user} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
             
             {/* Sessions Section */}
             {displaySessions.length > 0 && (
-              <div className="flex-1 flex flex-col opacity-0 animate-fadeSlideUp" style={{ animationDelay: '700ms', animationFillMode: 'forwards' }}>
-                <div className="flex items-center justify-between mb-3">
+              <div className="flex-1 flex flex-col mt-6 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '700ms', animationFillMode: 'forwards' }}>
+                <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
                     <div className="p-2 bg-indigo-600/10 rounded-lg border border-indigo-500/20">
                       <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -423,7 +426,7 @@ const SearchPage = () => {
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => document.getElementById('sessions-carousel').scrollBy({ left: -350, behavior: 'smooth' })}
-                      className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50 hover:scale-105"
+                      className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -431,7 +434,7 @@ const SearchPage = () => {
                     </button>
                     <button
                       onClick={() => document.getElementById('sessions-carousel').scrollBy({ left: 350, behavior: 'smooth' })}
-                      className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50 hover:scale-105"
+                      className="p-2 bg-[#161A2B] hover:bg-[#1a1f35] text-gray-400 hover:text-white rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-indigo-500/50"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -441,16 +444,19 @@ const SearchPage = () => {
                 </div>
                 
                 {/* Sessions Horizontal Carousel */}
-                <div id="sessions-carousel" className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4" style={{ scrollSnapType: 'x mandatory' }}>
-                  {displaySessions.map((session, index) => (
-                    <div 
-                      key={session.id}
-                      className="flex-shrink-0 w-[300px] opacity-0 animate-fadeSlideUp"
-                      style={{ animationDelay: `${800 + (index * 80)}ms`, scrollSnapAlign: 'start', animationFillMode: 'forwards' }}
-                    >
-                      <SessionCard session={session} />
-                    </div>
-                  ))}
+                <div className="relative -my-4">
+                  {/* Carousel Container - Vertical Padding Only */}
+                  <div id="sessions-carousel" className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-4" style={{ scrollSnapType: 'x mandatory' }}>
+                    {displaySessions.map((session, index) => (
+                      <div 
+                        key={session.id}
+                        className="flex-shrink-0 w-[280px] opacity-0 animate-fadeSlideUp"
+                        style={{ animationDelay: `${800 + (index * 80)}ms`, scrollSnapAlign: 'start', animationFillMode: 'forwards' }}
+                      >
+                        <SessionCard session={session} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
