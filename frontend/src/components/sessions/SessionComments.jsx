@@ -189,7 +189,7 @@ export const CommentPanel = ({ sessionId, className = '' }) => {
         ) : (
           comments.map(comment => (
             <CommentCard
-              key={comment.id}
+              key={comment.commentId}
               comment={comment}
             />
           ))

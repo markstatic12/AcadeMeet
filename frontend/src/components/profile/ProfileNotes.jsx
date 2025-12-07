@@ -105,8 +105,12 @@ export const NotesContent = ({ notesData }) => {
       const file = files[0];
       try {
         await noteService.uploadFileNote(file, { title: file.name });
-        // Reload page to show new note
-        window.location.reload();
+        // Refresh notes instead of full page reload
+        if (onRefresh) {
+          onRefresh();
+        } else {
+          window.location.reload();
+        }
       } catch (err) {
         console.error('File upload failed', err);
         alert(`Failed to upload file: ${err.message}`);

@@ -29,6 +29,63 @@ export const TagsDisplay = ({ tags = [] }) => {
   );
 };
 
+// Read-only Notes Display
+export const NotesDisplay = ({ notes = [] }) => {
+  if (!notes || notes.length === 0) return null;
+
+  const getFileIcon = (filepath) => {
+    const ext = filepath?.split('.').pop()?.toLowerCase();
+    if (['pdf'].includes(ext)) return '📄';
+    if (['doc', 'docx'].includes(ext)) return '📝';
+    if (['xls', 'xlsx'].includes(ext)) return '📊';
+    if (['ppt', 'pptx'].includes(ext)) return '📽️';
+    if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return '🖼️';
+    if (['zip', 'rar', '7z'].includes(ext)) return '📦';
+    return '📎';
+  };
+
+  const getFilename = (filepath) => {
+    if (!filepath) return 'Unknown file';
+    const parts = filepath.split('/');
+    return parts[parts.length - 1];
+  };
+
+  return (
+    <div className="space-y-2.5">
+      <div className="flex items-center gap-2">
+        <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg>
+        <label className="text-gray-300 text-sm font-semibold">Session Notes</label>
+        <span className="text-xs text-gray-500">({notes.length})</span>
+      </div>
+      <div className="space-y-2">
+        {notes.map((note, index) => {
+          const filepath = typeof note === 'string' ? note : note.filepath;
+          const filename = getFilename(filepath);
+          return (
+            <a
+              key={index}
+              href={filepath}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-2.5 bg-gradient-to-r from-indigo-600/10 to-purple-600/10 border border-indigo-500/20 hover:border-indigo-500/40 rounded-lg transition-all group"
+            >
+              <span className="text-2xl">{getFileIcon(filepath)}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-indigo-300 group-hover:text-indigo-200 truncate">{filename}</p>
+              </div>
+              <svg className="w-4 h-4 text-gray-400 group-hover:text-indigo-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 // Read-only Session Profile Display
 export const SessionProfileDisplay = ({ session }) => {
   return (
@@ -208,6 +265,13 @@ export const ViewDetailsPanel = ({ session }) => {
           <>
             <div className="border-t border-indigo-900/10 my-3"></div>
             <TagsDisplay tags={session?.tags} />
+          </>
+        )}
+
+        {session?.notes && session.notes.length > 0 && (
+          <>
+            <div className="border-t border-indigo-900/10 my-3"></div>
+            <NotesDisplay notes={session?.notes} />
           </>
         )}
       </div>

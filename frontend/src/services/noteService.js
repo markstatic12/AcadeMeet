@@ -43,18 +43,41 @@ function pickOwnerName(n) {
 
 /**
  * Normalizes a raw note object from the backend into a consistent client-side format.
+ * Handles both SessionNote responses and general note responses.
  * @param {object} n - The raw note object.
  * @returns {object} The normalized note object.
  */
 function normalizeNote(n) {
-  const created = n.createdAt || n.created_at || n.createdDate || null;
+  const created = n.createdAt || n.created_at || n.createdDate || n.linkedAt || null;
+  
   return {
+    // Core SessionNote fields
     noteId: n.noteId || n.id || n.note_id || null,
+    id: n.noteId || n.id || n.note_id || null,  // Alias for compatibility
     title: n.title || 'Untitled Note',
-    content: n.content || n.richText || '',
-    tags: n.tags || n.note_tags || [],
+    filepath: n.filepath || n.filePath || null,    // SessionNote.filepath
+    filePath: n.filepath || n.filePath || null,    // Alias for compatibility
+    
+    // Metadata
+    linkedAt: n.linkedAt || null,                  // SessionNote.linkedAt
     createdAt: created ? new Date(created).toISOString() : null,
     createdBy: pickOwnerName(n),
+    
+    // Session relationship (if present)
+    sessionId: n.sessionId || null,
+    sessionTitle: n.sessionTitle || null,
+    
+    // Content (for non-file notes)
+    content: n.content || n.richText || '',
+    
+    // Tags and categorization
+    tags: n.tags || n.note_tags || [],
+    type: 'FILE',  // All notes are file uploads (SessionNote model)
+    
+    // Frontend-only features
+    isFavourite: false,
+    isArchived: false,
+    
     raw: n,
   };
 }

@@ -16,6 +16,7 @@ import com.appdev.academeet.model.SessionStatus;
 public interface SessionRepository extends JpaRepository<Session, Long> {
     // Read/Status
     List<Session> findByHost_Id(Long userId);
+    List<Session> findByHost(com.appdev.academeet.model.User host);
     List<Session> findAllByOrderByStartTime();
     Page<Session> findBySessionStatus(SessionStatus status, Pageable pageable);
     

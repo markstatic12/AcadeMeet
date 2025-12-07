@@ -40,3 +40,25 @@ export const createReply = async (sessionId, commentId, content) => {
 
   return await handleResponse(response, 'Failed to create reply');
 };
+
+export const deleteComment = async (sessionId, commentId) => {
+  const response = await authFetch(
+    `/sessions/${sessionId}/comments/${commentId}`,
+    {
+      method: 'DELETE'
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || errorData.message || 'Failed to delete comment');
+  }
+  
+  // 204 No Content response has no body
+  return;
+};
+
+export const getReplies = async (commentId) => {
+  const response = await authFetch(`/comments/${commentId}/replies`);
+  return await handleResponse(response, 'Failed to fetch replies');
+};

@@ -121,12 +121,8 @@ export const useProfilePage = () => {
     try {
       setIsEditing(true);
       
-      // Get current user ID from /me endpoint
-      const meResponse = await authFetch('/users/me');
-      const meData = await meResponse.json();
-      const currentUserId = meData.id;
-      
-      const response = await authFetch(`/users/${currentUserId}`, {
+      // Use /users/me endpoint - user ID extracted from JWT token
+      const response = await authFetch('/users/me', {
         method: 'PUT',
         body: JSON.stringify({
           name: editForm.name,

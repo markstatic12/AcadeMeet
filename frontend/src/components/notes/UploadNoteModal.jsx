@@ -13,7 +13,8 @@ const UploadNoteModal = ({
   isOpen, 
   onClose, 
   mode = 'profile', // 'profile' or 'session'
-  sessionId = null // Required when mode='session'
+  sessionId = null, // Required when mode='session'
+  onUploadSuccess = null // Callback after successful upload
 }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
@@ -114,13 +115,17 @@ const UploadNoteModal = ({
         sessionId: targetSessionId || undefined
       };
 
-      await noteService.uploadFileNote(selectedFile, metadata);
+      const uploadedNote = await noteService.uploadFileNote(selectedFile, metadata);
 
       // Reset and close
       handleClose();
       
-      // Reload to show new note
-      window.location.reload();
+      // Call success callback if provided, otherwise reload
+      if (onUploadSuccess) {
+        onUploadSuccess(uploadedNote);
+      } else {
+        window.location.reload();
+      }
     } catch (err) {
       console.error('Upload failed:', err);
       const errorMessage = err.message || 'Failed to upload file';
