@@ -279,7 +279,7 @@ export const LocationInput = ({ value, onChange }) => {
 
 // ===== SESSION PRIVACY SELECTOR =====
 
-const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChange, onPasswordChange, onParticipantsChange }) => {
+const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChange, onPasswordChange, onParticipantsChange, fieldErrors = {} }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -309,6 +309,9 @@ const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChan
           <span className="text-gray-300 text-sm group-hover:text-white transition-colors">Private</span>
         </label>
       </div>
+      {fieldErrors.sessionType && (
+        <p className="text-red-400 text-xs">{fieldErrors.sessionType}</p>
+      )}
 
       {sessionType === 'PRIVATE' && (
         <div className="animate-fadeIn relative">
@@ -318,7 +321,11 @@ const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChan
             value={password}
             onChange={onPasswordChange}
             placeholder="Session password (min 6 chars)"
-            className="w-full px-3.5 py-2.5 pr-10 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
+            className={`w-full px-3.5 py-2.5 pr-10 bg-[#1e293b] border rounded-lg text-gray-300 text-sm focus:outline-none transition-all duration-200 ${
+              fieldErrors.password 
+                ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' 
+                : 'border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
+            }`}
             minLength={6}
             required
           />
@@ -338,6 +345,9 @@ const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChan
               </svg>
             )}
           </button>
+          {fieldErrors.password && (
+            <p className="text-red-400 text-xs mt-1">{fieldErrors.password}</p>
+          )}
         </div>
       )}
 
@@ -389,11 +399,13 @@ export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onPartic
             day={sessionData.day}
             year={sessionData.year}
             onChange={onChange}
+            fieldErrors={fieldErrors}
           />
           <TimeSelector
             startTime={sessionData.startTime}
             endTime={sessionData.endTime}
             onChange={onChange}
+            fieldErrors={fieldErrors}
           />
         </div>
 
@@ -412,8 +424,15 @@ export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onPartic
             value={sessionData.location}
             onChange={onChange}
             placeholder="e.g., Room 301, Online"
-            className="w-full px-3.5 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 hover:border-gray-600"
+            className={`w-full px-3.5 py-2.5 bg-[#1e293b] border rounded-lg text-gray-300 text-sm focus:outline-none transition-all duration-200 hover:border-gray-600 ${
+              fieldErrors.location 
+                ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' 
+                : 'border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
+            }`}
           />
+          {fieldErrors.location && (
+            <p className="text-red-400 text-xs mt-1">{fieldErrors.location}</p>
+          )}
         </div>
 
         {/* Privacy Settings */}
@@ -431,6 +450,7 @@ export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onPartic
             onChange={onChange}
             onPasswordChange={onPasswordChange}
             onParticipantsChange={onParticipantsChange}
+            fieldErrors={fieldErrors}
           />
         </div>
 
