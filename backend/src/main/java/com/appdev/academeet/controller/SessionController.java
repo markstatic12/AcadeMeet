@@ -237,6 +237,12 @@ public class SessionController {
             Session updated = request.toEntity();
             Session updatedSession = sessionService.updateSession(id, updated, authenticatedUser.getId());
             return ResponseEntity.ok(new SessionDTO(updatedSession));
+        } catch (RuntimeException e) {
+            // Check if it's an authorization error
+            if (e.getMessage() != null && e.getMessage().contains("Unauthorized")) {
+                return ResponseEntity.status(403).body(Map.of("error", e.getMessage()));
+            }
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }

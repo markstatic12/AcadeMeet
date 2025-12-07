@@ -27,11 +27,13 @@ export const sessionService = {
   async createSession(sessionData) {
     // Format date and time into LocalDateTime format (yyyy-MM-dd'T'HH:mm:ss)
     const formatDateTime = (year, month, day, time) => {
-      // Convert month name to number if needed
-      const monthNames = ["January", "February", "March", "April", "May", "June",
-                          "July", "August", "September", "October", "November", "December"];
-      const monthNumber = monthNames.indexOf(month) !== -1 
-        ? String(monthNames.indexOf(month) + 1).padStart(2, '0')
+      // Convert month name to number if needed (case-insensitive)
+      const monthNames = ["january", "february", "march", "april", "may", "june",
+                          "july", "august", "september", "october", "november", "december"];
+      const monthLower = month.toLowerCase();
+      const monthIndex = monthNames.indexOf(monthLower);
+      const monthNumber = monthIndex !== -1 
+        ? String(monthIndex + 1).padStart(2, '0')
         : month.padStart(2, '0');
       
       const paddedDay = day.padStart(2, '0');
@@ -128,11 +130,13 @@ export const sessionService = {
   async updateSession(sessionId, sessionData) {
     // Format date and time into LocalDateTime format (yyyy-MM-dd'T'HH:mm:ss)
     const formatDateTime = (year, month, day, time) => {
-      // Convert month name to number if needed
-      const monthNames = ["January", "February", "March", "April", "May", "June",
-                          "July", "August", "September", "October", "November", "December"];
-      const monthNumber = monthNames.indexOf(month) !== -1 
-        ? String(monthNames.indexOf(month) + 1).padStart(2, '0')
+      // Convert month name to number if needed (case-insensitive)
+      const monthNames = ["january", "february", "march", "april", "may", "june",
+                          "july", "august", "september", "october", "november", "december"];
+      const monthLower = month.toLowerCase();
+      const monthIndex = monthNames.indexOf(monthLower);
+      const monthNumber = monthIndex !== -1 
+        ? String(monthIndex + 1).padStart(2, '0')
         : month.padStart(2, '0');
       
       const paddedDay = day.padStart(2, '0');
