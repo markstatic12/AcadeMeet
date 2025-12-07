@@ -286,24 +286,86 @@ export const useProfilePage = () => {
 
 // Notes hook for profile page
 export const useNotes = (activeTab) => {
+  const { isAuthenticated } = useUser();
   const [notesData, setNotesData] = useState([]);
+  const [userId, setUserId] = useState(null);
 
+  // Fetch user ID from /users/me endpoint
   useEffect(() => {
-    // Notes backend not yet implemented - would use JWT /me endpoint
-    // Placeholder implementation
-    const fetchNotes = async () => {
+    const fetchUserId = async () => {
+      if (!isAuthenticated) {
+        console.log('[useNotes] User not authenticated');
+        return;
+      }
+      
       try {
-        // Would use: /notes/me/active with JWT authentication
-        // For now, set empty array until backend endpoint is implemented
-        setNotesData([]);
+        const response = await authFetch('/users/me');
+        if (response.ok) {
+          const data = await response.json();
+          console.log('[useNotes] Got user data:', data);
+          setUserId(data.id);
+        }
       } catch (err) {
-        console.error('Failed to fetch notes from server:', err);
-        setNotesData([]);
+        console.error('[useNotes] Failed to fetch user ID:', err);
       }
     };
+    
+    fetchUserId();
+  }, [isAuthenticated]);
 
+  const fetchNotes = async () => {
+    console.log('[useNotes] fetchNotes called, userId:', userId);
+    if (!userId) {
+      console.log('[useNotes] No userId yet, setting empty notes');
+      setNotesData([]);
+      return;
+    }
+
+    try {
+      // Fetch user's notes from backend
+      console.log(`[useNotes] Fetching from /notes/user/${userId}/active`);
+      const response = await authFetch(`/notes/user/${userId}/active`);
+      console.log('[useNotes] Response status:', response.status);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('[useNotes] Raw data from backend:', data);
+        // Transform backend data to frontend format
+        // Backend returns: noteId, filepath, title, linkedAt, createdAt, sessionId, sessionTitle
+        const transformedNotes = data.map(note => ({
+          id: note.noteId,                    // SessionNote.noteId (UUID string)
+          noteId: note.noteId,                // Keep original for reference
+          title: note.title || 'Untitled Note', // Extracted filename from backend
+          filepath: note.filepath,            // SessionNote.filepath
+          filePath: note.filepath,            // Alias for compatibility
+          linkedAt: note.linkedAt,            // SessionNote.linkedAt (when linked to session)
+          createdAt: note.createdAt || note.linkedAt, // Use linkedAt as creation date
+          sessionId: note.sessionId,          // Related Session.id
+          sessionTitle: note.sessionTitle,    // Related Session.title
+          isFavourite: false,                 // Frontend-only feature (not in backend yet)
+          isArchived: false,                  // Frontend-only feature (not in backend yet)
+          archivedAt: null,                   // Frontend-only feature
+          deletedAt: null,                    // Frontend-only feature
+          type: 'FILE',                       // All notes are file uploads
+          tags: []                            // Could be added to backend later
+        }));
+        console.log('[useNotes] Transformed notes:', transformedNotes);
+        console.log('[useNotes] Setting notesData with', transformedNotes.length, 'notes');
+        setNotesData(transformedNotes);
+      } else {
+        console.error('[useNotes] Failed to fetch notes, status:', response.status);
+        const errorText = await response.text().catch(() => 'Could not read error');
+        console.error('[useNotes] Error response:', errorText);
+        setNotesData([]);
+      }
+    } catch (err) {
+      console.error('[useNotes] Exception while fetching notes:', err);
+      setNotesData([]);
+    }
+  };
+
+  useEffect(() => {
     fetchNotes();
-  }, [activeTab]);
+  }, [activeTab, userId]);
 
   const toggleFavourite = (noteId) => {
     setNotesData(prevNotes =>
@@ -373,7 +435,8 @@ export const useNotes = (activeTab) => {
     archiveNote,
     deleteNote,
     restoreTrashedNote,
-    restoreArchivedNote
+    restoreArchivedNote,
+    refreshNotes: fetchNotes
   };
 };
 

@@ -6,9 +6,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,6 +44,93 @@ public class NoteController {
     public NoteController(UserRepository userRepository, SessionRepository sessionRepository) {
         this.userRepository = userRepository;
         this.sessionRepository = sessionRepository;
+    }
+
+    /**
+     * Get all notes for the authenticated user (from all their hosted sessions).
+     * Returns list of note objects with filepath and metadata.
+     */
+    @GetMapping("/user/{userId}/active")
+    public ResponseEntity<?> getUserNotes(@PathVariable Long userId) {
+        try {
+            User authenticatedUser = getAuthenticatedUser();
+            
+            // Verify the user is requesting their own notes
+            if (!authenticatedUser.getId().equals(userId)) {
+                return ResponseEntity.status(403)
+                        .body(Map.of("error", "You can only access your own notes"));
+            }
+
+            // Get all sessions hosted by the user
+            List<Session> userSessions = sessionRepository.findByHost(authenticatedUser);
+            
+            // Collect all notes from all user's sessions
+            List<Map<String, Object>> allNotes = userSessions.stream()
+                    .flatMap(session -> session.getSessionNotes().stream()
+                            .map(sessionNote -> {
+                                Map<String, Object> noteData = new HashMap<>();
+                                noteData.put("noteId", sessionNote.getNoteId());
+                                noteData.put("filepath", sessionNote.getFilepath());
+                                noteData.put("title", extractFilename(sessionNote.getFilepath()));
+                                noteData.put("linkedAt", sessionNote.getLinkedAt() != null 
+                                        ? sessionNote.getLinkedAt().toString() : null);
+                                noteData.put("createdAt", sessionNote.getLinkedAt() != null 
+                                        ? sessionNote.getLinkedAt().toString() : null);
+                                // Include session info
+                                noteData.put("sessionId", session.getId());
+                                noteData.put("sessionTitle", session.getTitle());
+                                return noteData;
+                            }))
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(allNotes);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Failed to fetch user notes: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Get notes for a specific session.
+     * Returns list of note objects with filepath and metadata.
+     */
+    @GetMapping("/session/{sessionId}")
+    public ResponseEntity<?> getSessionNotes(@PathVariable Long sessionId) {
+        try {
+            Optional<Session> sessionOpt = sessionRepository.findById(sessionId);
+            if (sessionOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Session not found"));
+            }
+
+            Session session = sessionOpt.get();
+            
+            // Build list of note objects from SessionNote entities
+            List<Map<String, Object>> notes = session.getSessionNotes().stream()
+                    .map(sessionNote -> {
+                        Map<String, Object> noteData = new HashMap<>();
+                        noteData.put("noteId", sessionNote.getNoteId());
+                        noteData.put("filepath", sessionNote.getFilepath());
+                        noteData.put("title", extractFilename(sessionNote.getFilepath()));
+                        noteData.put("linkedAt", sessionNote.getLinkedAt() != null 
+                                ? sessionNote.getLinkedAt().toString() : null);
+                        return noteData;
+                    })
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(notes);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Failed to fetch session notes: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Extract filename from filepath.
+     */
+    private String extractFilename(String filepath) {
+        if (filepath == null) return "Unknown";
+        int lastSlash = filepath.lastIndexOf('/');
+        return lastSlash >= 0 ? filepath.substring(lastSlash + 1) : filepath;
     }
 
     /**
