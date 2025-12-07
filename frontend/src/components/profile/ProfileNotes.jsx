@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { CalendarIcon } from '../../icons';
 import FileNoteCard from '../notes/FileNoteCard';
 import UploadNoteModal from '../notes/UploadNoteModal';
@@ -11,7 +12,7 @@ import { useUser } from '../../context/UserContext';
 
 export const NoteCard = ({ note }) => {
   return (
-    <div className={`relative bg-[#161A2B] border ${note.isFavourite ? 'border-yellow-400/60 shadow-lg shadow-yellow-500/20' : 'border-gray-700/50'} rounded-2xl overflow-hidden transition-all hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/20 h-[180px] w-full flex flex-col group hover:scale-[1.02]`}>
+    <div className="relative bg-[#161A2B] border border-gray-700/50 rounded-2xl overflow-hidden transition-all hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/20 h-[180px] w-full flex flex-col group hover:scale-[1.02]">
       {/* Animated gradient overlay on hover */}
       <div className="absolute inset-0 bg-indigo-600/0 group-hover:bg-indigo-600/5 transition-all duration-700 pointer-events-none"></div>
       
@@ -32,11 +33,6 @@ export const NoteCard = ({ note }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          {note.isFavourite && (
-            <div className="px-2 py-0.5 rounded-full bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-400/40 backdrop-blur-sm">
-              <StarSolidIcon className="w-3 h-3 text-yellow-400 animate-pulse" />
-            </div>
-          )}
         </div>
         
         <h3 className="text-white font-bold text-sm mb-2 truncate group-hover:text-indigo-400 transition-all tracking-tight">
@@ -176,12 +172,13 @@ export const NotesContent = ({ notesData }) => {
       </div>
 
       {/* Upload Modal */}
-      {showUploadModal && (
+      {showUploadModal && ReactDOM.createPortal(
         <UploadNoteModal
           isOpen={showUploadModal}
           onClose={() => setShowUploadModal(false)}
           mode="profile"
-        />
+        />,
+        document.body
       )}
     </div>
   );

@@ -18,8 +18,6 @@ export const useProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('sessions');
   const [sessionsView, setSessionsView] = useState('active');
-  const [notesView, setNotesView] = useState('all');
-  const [openNoteMenuId, setOpenNoteMenuId] = useState(null);
   const [openCardMenuId, setOpenCardMenuId] = useState(null);
   const [completedSessions, setCompletedSessions] = useState([]); //NOT YET IMPLEMENTED
 
@@ -256,8 +254,6 @@ export const useProfilePage = () => {
     isEditing,
     activeTab,
     sessionsView,
-    notesView,
-    openNoteMenuId,
     openCardMenuId,
     userData,
     editForm,
@@ -270,8 +266,6 @@ export const useProfilePage = () => {
     setShowTabOptionsMenu,
     setActiveTab,
     setSessionsView,
-    setNotesView,
-    setOpenNoteMenuId,
     setOpenCardMenuId,
     
     // Actions
@@ -288,18 +282,28 @@ export const useProfilePage = () => {
   };
 };
 
-// Notes hook for profile page
-export const useNotes = (activeTab) => {
+// Notes hook for profile page (simplified - upload only)
+export const useNotes = () => {
   const [notesData, setNotesData] = useState([]);
 
   useEffect(() => {
-    // Notes backend not yet implemented - would use JWT /me endpoint
-    // Placeholder implementation
     const fetchNotes = async () => {
       try {
-        // Would use: /notes/me/active with JWT authentication
-        // For now, set empty array until backend endpoint is implemented
-        setNotesData([]);
+        const response = await authFetch('/notes/user/me/active');
+        if (!response.ok) {
+          console.error('Failed to fetch notes:', response.statusText);
+          setNotesData([]);
+          return;
+        }
+        const data = await response.json();
+        const normalized = (Array.isArray(data) ? data : []).map(n => ({
+          id: n.noteId || n.id,
+          title: n.title || 'Untitled Note',
+          content: n.content || '',
+          createdAt: n.createdAt || new Date().toISOString(),
+          raw: n
+        }));
+        setNotesData(normalized);
       } catch (err) {
         console.error('Failed to fetch notes from server:', err);
         setNotesData([]);
@@ -307,78 +311,9 @@ export const useNotes = (activeTab) => {
     };
 
     fetchNotes();
-  }, [activeTab]);
+  }, []);
 
-  const toggleFavourite = (noteId) => {
-    setNotesData(prevNotes =>
-      prevNotes.map(note =>
-        note.id === noteId ? { ...note, isFavourite: !note.isFavourite } : note
-      )
-    );
-  };
-
-  const archiveNote = (noteId) => {
-    setNotesData(prevNotes =>
-      prevNotes.filter(note => note.id !== noteId)
-    );
-  };
-
-  const deleteNote = (noteId) => {
-    setNotesData(prevNotes =>
-      prevNotes.filter(note => note.id !== noteId)
-    );
-  };
-
-  const restoreTrashedNote = () => {
-    // Refresh from server to get the restored notes
-    authFetch(`/notes/user/me/active`)
-      .then(res => res.json())
-      .then(data => {
-        const normalized = (Array.isArray(data) ? data : []).map(n => ({
-          id: n.noteId || n.id,
-          title: n.title || 'Untitled Note',
-          content: n.content || '',
-          createdAt: n.createdAt || new Date().toISOString(),
-          isFavourite: false,
-          archivedAt: null,
-          deletedAt: null,
-        }));
-        setNotesData(normalized);
-      })
-      .catch(err => console.error('Failed to refresh notes:', err));
-  };
-
-  const restoreArchivedNote = () => {
-    // Refresh from server to get the restored notes
-    authFetch(`/notes/user/me/active`)
-      .then(res => res.json())
-      .then(data => {
-        const normalized = (Array.isArray(data) ? data : []).map(n => ({
-          id: n.noteId || n.id,
-          title: n.title || 'Untitled Note',
-          content: n.content || '',
-          createdAt: n.createdAt || new Date().toISOString(),
-          isFavourite: false,
-          archivedAt: null,
-          deletedAt: null,
-        }));
-        setNotesData(normalized);
-      })
-      .catch(err => console.error('Failed to refresh notes:', err));
-  };
-
-  // Provide API-compatible names expected by components
-  const toggleFavouriteNote = (noteId) => toggleFavourite(noteId);
-
-  return {
-    notesData,
-    toggleFavourite: toggleFavourite,
-    toggleFavouriteNote,
-    archiveNote,
-    deleteNote,
-    restoreTrashedNote,
-    restoreArchivedNote
-  };
+  return { notesData };
 };
 
 // Sessions hook for profile page

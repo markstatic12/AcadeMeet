@@ -3,7 +3,7 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import ProfileCard, { EditProfileModal, FollowersModal } from '../components/profile/ProfileHeader';
 import TabButtons, { TabOptionMenu as TabOptionsMenu } from '../components/profile/ProfileNavigation';
 import SessionsContent, { TrashedSessionsContent } from '../components/profile/ProfileSessions';
-import NotesContent, { FavouritesContent, ArchivedContent, TrashedNotesContent } from '../components/profile/ProfileNotes';
+import { NotesContent } from '../components/profile/ProfileNotes';
 import { useUser } from '../context/UserContext';
 import { useProfilePage } from '../services/ProfileLogic';
 import { useSessions } from '../services/ProfileLogic';
@@ -27,8 +27,6 @@ const ProfilePage = () => {
     isEditing,
     activeTab,
     sessionsView,
-    notesView,
-    openNoteMenuId,
     openCardMenuId,
     userData,
     editForm,
@@ -39,8 +37,6 @@ const ProfilePage = () => {
     setShowTabOptionsMenu,
     setActiveTab,
     setSessionsView,
-    setNotesView,
-    setOpenNoteMenuId,
     setOpenCardMenuId,
     openEditModal,
     closeEditModal,
@@ -55,7 +51,7 @@ const ProfilePage = () => {
   } = useProfilePage();
 
   const { sessionsData, trashedSessions, deleteSession, restoreSession } = useSessions();
-  const { notesData, toggleFavouriteNote, archiveNote, deleteNote, restoreTrashedNote, restoreArchivedNote } = useNotes(activeTab);
+  const { notesData } = useNotes();
   const panelHeight = usePanelHeight(leftProfileCardRef, [userData, showEditModal, showProfileOptionsMenu]);
 
   useClickOutside([
@@ -106,36 +102,20 @@ const ProfilePage = () => {
             <div className="flex items-center justify-between mb-6 flex-shrink-0 px-1">
               <TabButtons 
                 activeTab={activeTab} 
-                onTabChange={(tab) => {
-                  setActiveTab(tab);
-                  if (tab === 'notes') setNotesView('all');
-                }} 
+                onTabChange={setActiveTab} 
               />
-              <TabOptionsMenu
-                showMenu={showTabOptionsMenu}
-                activeTab={activeTab}
-                onToggle={toggleTabOptionsMenu}
-                onTrashClick={() => {
-                  setActiveTab('sessions');
-                  setSessionsView('trash');
-                  setShowTabOptionsMenu(false);
-                }}
-                onFavouritesClick={() => {
-                  setActiveTab('notes');
-                  setNotesView('favourites');
-                  setShowTabOptionsMenu(false);
-                }}
-                onArchivedClick={() => {
-                  setActiveTab('notes');
-                  setNotesView('archived');
-                  setShowTabOptionsMenu(false);
-                }}
-                onTrashedClick={() => {
-                  setActiveTab('notes');
-                  setNotesView('trashed');
-                  setShowTabOptionsMenu(false);
-                }}
-              />
+              {activeTab === 'sessions' && (
+                <TabOptionsMenu
+                  showMenu={showTabOptionsMenu}
+                  activeTab={activeTab}
+                  onToggle={toggleTabOptionsMenu}
+                  onTrashClick={() => {
+                    setActiveTab('sessions');
+                    setSessionsView('trash');
+                    setShowTabOptionsMenu(false);
+                  }}
+                />
+              )}
             </div>
 
             {activeTab === 'sessions' && sessionsView === 'active' && (
@@ -156,45 +136,10 @@ const ProfilePage = () => {
               />
             )}
 
-            {activeTab === 'notes' && notesView === 'all' && (
-              <NotesContent
-                notesData={notesData}
-                openNoteMenuId={openNoteMenuId}
-                onMenuToggle={setOpenNoteMenuId}
-                onToggleFavourite={(id) => {
-                  toggleFavouriteNote(id);
-                  setOpenNoteMenuId(null);
-                }}
-                onArchive={(id) => {
-                  archiveNote(id);
-                  setOpenNoteMenuId(null);
-                }}
-                onDelete={(id) => {
-                  deleteNote(id);
-                  setOpenNoteMenuId(null);
-                }}
-              />
+            {activeTab === 'notes' && (
+              <NotesContent notesData={notesData} />
             )}
-            {activeTab === 'notes' && notesView === 'favourites' && (
-              <FavouritesContent
-                notesData={notesData}
-                onBackToNotes={() => setNotesView('all')}
-              />
-            )}
-            {activeTab === 'notes' && notesView === 'archived' && (
-              <ArchivedContent
-                notesData={notesData}
-                onBackToNotes={() => setNotesView('all')}
-                onRestore={restoreArchivedNote}
-              />
-            )}
-            {activeTab === 'notes' && notesView === 'trashed' && (
-              <TrashedNotesContent
-                notesData={notesData}
-                onBackToNotes={() => setNotesView('all')}
-                onRestore={restoreTrashedNote}
-              />
-            )}
+
             </div>
           </div>
         </div>
