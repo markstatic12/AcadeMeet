@@ -16,13 +16,13 @@ public interface ReminderRepository extends JpaRepository<Reminder, Long> {
     
     /**
      * Get active reminders for user (scheduled time has passed, session is active)
-     * Sorted by: unread first, then by scheduled time descending
+     * Sorted by: scheduled time descending (most recent first)
      */
     @Query("SELECT r FROM Reminder r " +
            "WHERE r.user.id = :userId " +
            "AND r.scheduledTime <= :currentTime " +
            "AND r.session.sessionStatus = 'ACTIVE' " +
-           "ORDER BY r.isRead ASC, r.scheduledTime DESC")
+           "ORDER BY r.scheduledTime DESC")
     List<Reminder> findActiveRemindersByUserId(
         @Param("userId") Long userId,
         @Param("currentTime") LocalDateTime currentTime
