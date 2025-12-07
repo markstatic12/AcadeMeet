@@ -52,10 +52,10 @@ const SessionCard = ({ session }) => {
   return (
     <Link 
       to={`/session/${id}`}
-      className="group relative block bg-[#161A2B] rounded-2xl border border-gray-800/50 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/20 hover:scale-[1.02] overflow-hidden w-full"
+      className="group relative block bg-[#161A2B] rounded-xl border border-gray-800/50 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-2 overflow-hidden w-full will-change-transform"
     >
       {/* Thumbnail Image */}
-      <div className="relative w-full h-40 bg-gradient-to-br from-indigo-600/20 via-purple-600/20 to-blue-600/20 overflow-hidden">
+      <div className="relative w-full h-32 bg-gradient-to-br from-indigo-600/20 via-purple-600/20 to-blue-600/20 overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDk5LDEwMiwyNDEsMC4xKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-30"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-[#161A2B] via-transparent to-transparent"></div>
         
@@ -86,7 +86,7 @@ const SessionCard = ({ session }) => {
       </div>
       
       {/* Card Content with Padding */}
-      <div className="relative z-10 p-5 space-y-4 h-full flex flex-col">
+      <div className="relative z-10 p-4 space-y-3 h-full flex flex-col">
         {/* Animated gradient overlay on hover */}
         <div className="absolute inset-0 bg-indigo-600/0 group-hover:bg-indigo-600/5 transition-all duration-700 pointer-events-none"></div>
         
@@ -94,10 +94,10 @@ const SessionCard = ({ session }) => {
         <div className="absolute top-4 right-4 w-20 h-20 bg-indigo-600/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
         {/* Header */}
         <div className="relative z-10">
-          <h3 className="text-base font-bold text-white group-hover:text-indigo-300 transition-colors duration-300 line-clamp-2 leading-snug mb-1">
+          <h3 className="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors duration-300 line-clamp-2 leading-snug mb-1">
             {title}
           </h3>
-          <p className="text-xs text-gray-400 group-hover:text-gray-300 transition-colors line-clamp-1">
+          <p className="text-[11px] text-gray-400 group-hover:text-gray-300 transition-colors line-clamp-1">
             by <span className="text-indigo-400 font-medium">{host?.name || 'Unknown'}</span>
           </p>
         </div>

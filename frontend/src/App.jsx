@@ -3,6 +3,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
+import PublicProfilePage from './pages/PublicProfilePage';
 import SearchPage from './pages/SearchPage';
 import CreateSessionPage from './pages/CreateSessionPage';
 import SettingsPage from './pages/SettingsPage';
@@ -38,6 +39,15 @@ function App() {
         element={
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/user/:userId" 
+        element={
+          <ProtectedRoute>
+            <PublicProfilePage />
           </ProtectedRoute>
         } 
       />
