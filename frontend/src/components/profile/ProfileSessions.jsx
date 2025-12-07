@@ -207,7 +207,7 @@ export const TrashedSessionCard = ({ session, onRestore }) => {
 
 export const SessionsContent = ({ sessionsData, openCardMenuId, onCreateSession, onMenuToggle, onDeleteSession }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full flex-1 min-h-0 overflow-y-auto custom-scrollbar pt-2 pb-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full flex-1 min-h-0 overflow-y-auto custom-scrollbar py-3 px-2 -mx-2">
       {/* Create New Session Card */}
       <div className="animate-fadeIn">
         <CreateNewCard onClick={onCreateSession} label="Create New Session" />
@@ -215,7 +215,7 @@ export const SessionsContent = ({ sessionsData, openCardMenuId, onCreateSession,
 
       {/* Session Cards - All animate together */}
       {sessionsData.map((session, index) => (
-        <div key={`session-${session.id}-${session.deletedAt || ''}`} className="animate-fadeIn">
+        <div key={`session-${session.id}-${session.deletedAt || ''}`} className="animate-fadeIn relative hover:z-10">
           <SessionCard
             session={session}
             openMenuId={openCardMenuId}
@@ -230,9 +230,9 @@ export const SessionsContent = ({ sessionsData, openCardMenuId, onCreateSession,
 
 // ===== TRASHED SESSIONS CONTENT =====
 
-export const TrashedSessionsContent = ({ trashedSessions, onRestore, onBackToSessions }) => {
+export const TrashedSessionsContent = ({ trashedSessions, onRestoreSession }) => {
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pt-2 pb-4">
+    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar py-3 px-2 -mx-2">
       <div className="mb-6 flex items-center justify-between animate-slideInLeft">
         <h3 className="text-white text-xl font-bold tracking-tight">Trashed Sessions</h3>
         <button
