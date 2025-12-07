@@ -7,7 +7,7 @@ const SearchUserCard = ({ user }) => {
   
   return (
     <Link 
-      to={`/profile/${id}`} 
+      to={`/user/${id}`} 
       className="group relative flex items-center gap-3 p-4 bg-[#161A2B] hover:bg-[#1a1f35] rounded-xl transition-all duration-300 border border-gray-800/50 hover:border-indigo-500/60 hover:shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-2 overflow-hidden w-full will-change-transform"
     >
       {/* Animated gradient overlay on hover */}

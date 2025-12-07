@@ -5,29 +5,7 @@ import { SearchIcon } from '../icons';
 import SessionCard from '../components/search/SessionCard';
 import SearchUserCard from '../components/search/SearchUserCard';
 import SearchEmptyState from '../components/search/SearchEmptyState';
-
-// Static mock data
-const mockUsers = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', program: 'CIT University', studentId: 'BSIT, 23-2684-947', bio: 'Passionate about AI and machine learning.', profileImageUrl: null },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', program: 'CIT University', studentId: 'BSIT, 23-2684-947', bio: 'Web development enthusiast.', profileImageUrl: null },
-  { id: 3, name: 'Mike Johnson', email: 'mike@example.com', program: 'CIT University', studentId: 'BSIT, 23-2684-947', bio: 'Senior CS student.', profileImageUrl: null },
-  { id: 4, name: 'Sarah Williams', email: 'sarah@example.com', program: 'CIT University', studentId: 'BSIT, 23-2684-947', bio: 'Data science enthusiast.', profileImageUrl: null },
-  { id: 5, name: 'Alex Brown', email: 'alex@example.com', program: 'CIT University', studentId: 'BSCS, 23-2684-948', bio: 'Full-stack developer.', profileImageUrl: null },
-  { id: 6, name: 'Emily Davis', email: 'emily@example.com', program: 'CIT University', studentId: 'BSIS, 23-2684-949', bio: 'UI/UX enthusiast.', profileImageUrl: null },
-  { id: 7, name: 'Chris Wilson', email: 'chris@example.com', program: 'CIT University', studentId: 'BSIT, 23-2684-950', bio: 'Mobile app developer.', profileImageUrl: null },
-  { id: 8, name: 'Lisa Anderson', email: 'lisa@example.com', program: 'CIT University', studentId: 'BSCS, 23-2684-951', bio: 'Database specialist.', profileImageUrl: null },
-];
-
-const mockSessions = [
-  { id: 1, title: 'Application Development', month: 'Sep', day: '31', year: '2025', startTime: '09:00', endTime: '10:00', location: 'Microsoft Teams', tags: ['Programming', 'Springboot'], sessionType: 'PUBLIC', status: 'ACTIVE', currentParticipants: 15, maxParticipants: 25 },
-  { id: 2, title: 'Web Design Workshop', month: 'Oct', day: '05', year: '2025', startTime: '14:00', endTime: '16:00', location: 'Zoom', tags: ['Design', 'CSS'], sessionType: 'PUBLIC', status: 'ACTIVE', currentParticipants: 8, maxParticipants: 12 },
-  { id: 3, title: 'Database Management', month: 'Oct', day: '10', year: '2025', startTime: '10:00', endTime: '12:00', location: 'Google Meet', tags: ['Database', 'SQL'], sessionType: 'PUBLIC', status: 'ACTIVE', currentParticipants: 10, maxParticipants: 15 },
-  { id: 4, title: 'Machine Learning Basics', month: 'Oct', day: '15', year: '2025', startTime: '13:00', endTime: '15:00', location: 'Microsoft Teams', tags: ['AI', 'Python'], sessionType: 'PUBLIC', status: 'ACTIVE', currentParticipants: 20, maxParticipants: 30 },
-  { id: 5, title: 'React Fundamentals', month: 'Oct', day: '20', year: '2025', startTime: '09:00', endTime: '11:00', location: 'Zoom', tags: ['React', 'JavaScript'], sessionType: 'PUBLIC', status: 'ACTIVE', currentParticipants: 12, maxParticipants: 20 },
-  { id: 6, title: 'Cloud Computing 101', month: 'Oct', day: '25', year: '2025', startTime: '15:00', endTime: '17:00', location: 'Google Meet', tags: ['Cloud', 'AWS'], sessionType: 'PUBLIC', status: 'ACTIVE', currentParticipants: 18, maxParticipants: 25 },
-  { id: 7, title: 'Mobile App Development', month: 'Nov', day: '01', year: '2025', startTime: '10:00', endTime: '12:00', location: 'Microsoft Teams', tags: ['Mobile', 'Flutter'], sessionType: 'PUBLIC', status: 'ACTIVE', currentParticipants: 14, maxParticipants: 20 },
-  { id: 8, title: 'Cybersecurity Workshop', month: 'Nov', day: '05', year: '2025', startTime: '14:00', endTime: '16:00', location: 'Zoom', tags: ['Security', 'Network'], sessionType: 'PRIVATE', status: 'ACTIVE', currentParticipants: 9, maxParticipants: 15 },
-];
+import { mockUsers, mockSessions } from '../data/mockData';
 
 const SearchPage = () => {
   const navigate = useNavigate();
