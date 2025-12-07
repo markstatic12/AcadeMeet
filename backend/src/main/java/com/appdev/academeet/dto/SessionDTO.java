@@ -38,6 +38,7 @@ public class SessionDTO {
     private final Integer currentParticipants;
     private final String createdAt;
     private final List<String> tags;
+    private final List<String> notes; // File paths for session notes
     
     /**
      * Host information structure for frontend compatibility.
@@ -92,6 +93,11 @@ public class SessionDTO {
         this.currentParticipants = session.getCurrentParticipants();
         this.createdAt = session.getCreatedAt() != null ? session.getCreatedAt().toString() : null;
         this.tags = session.getTags();
+        
+        // Extract note file paths from SessionNote entities
+        this.notes = session.getSessionNotes().stream()
+                .map(sessionNote -> sessionNote.getFilepath())
+                .toList();
 
         // Format time fields for JSON - handle nulls gracefully
         this.startTime = session.getStartTime() != null ? session.getStartTime().format(TIME_FORMATTER) : null;
@@ -116,4 +122,5 @@ public class SessionDTO {
     public Integer getCurrentParticipants() { return currentParticipants; }
     public String getCreatedAt() { return createdAt; }
     public List<String> getTags() { return tags; }
+    public List<String> getNotes() { return notes; }
 }

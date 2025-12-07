@@ -55,7 +55,7 @@ const ProfilePage = () => {
   } = useProfilePage();
 
   const { sessionsData, trashedSessions, deleteSession, restoreSession } = useSessions();
-  const { notesData, toggleFavouriteNote, archiveNote, deleteNote, restoreTrashedNote, restoreArchivedNote } = useNotes(activeTab);
+  const { notesData, toggleFavouriteNote, archiveNote, deleteNote, restoreTrashedNote, restoreArchivedNote, refreshNotes } = useNotes(activeTab);
   const panelHeight = usePanelHeight(leftProfileCardRef, [userData, showEditModal, showProfileOptionsMenu]);
 
   useClickOutside([
@@ -173,6 +173,7 @@ const ProfilePage = () => {
                   deleteNote(id);
                   setOpenNoteMenuId(null);
                 }}
+                onRefresh={refreshNotes}
               />
             )}
             {activeTab === 'notes' && notesView === 'favourites' && (

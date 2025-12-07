@@ -277,7 +277,9 @@ export const TrashedNoteCard = ({ note, onRestore }) => {
 
 // ===== NOTES CONTENT =====
 
-export const NotesContent = ({ notesData, openNoteMenuId, onMenuToggle, onToggleFavourite, onArchive, onDelete }) => {
+export const NotesContent = ({ notesData, openNoteMenuId, onMenuToggle, onToggleFavourite, onArchive, onDelete, onRefresh }) => {
+  console.log('[NotesContent] Rendered with notesData:', notesData);
+  console.log('[NotesContent] notesData length:', notesData?.length);
   const [isDragActive, setIsDragActive] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const dragCounter = useRef(0);
@@ -319,8 +321,12 @@ export const NotesContent = ({ notesData, openNoteMenuId, onMenuToggle, onToggle
       const file = files[0];
       try {
         await noteService.uploadFileNote(file, { title: file.name });
-        // Reload page to show new note
-        window.location.reload();
+        // Refresh notes instead of full page reload
+        if (onRefresh) {
+          onRefresh();
+        } else {
+          window.location.reload();
+        }
       } catch (err) {
         console.error('File upload failed', err);
         alert(`Failed to upload file: ${err.message}`);
@@ -351,50 +357,30 @@ export const NotesContent = ({ notesData, openNoteMenuId, onMenuToggle, onToggle
         />
         {notesData
           .filter((n) => !n.archivedAt && !n.deletedAt)
-          .map((note, index) => {
-            // Check if this is a FILE type note by looking at the raw data
-            const isFileNote = note.raw?.type === 'FILE' || note.type === 'FILE';
-            
-            if (isFileNote) {
-              return (
-                <div key={`note-${note.id}-${note.deletedAt || note.archivedAt || ''}`} className="animate-scaleIn" style={{ animationDelay: `${(index + 1) * 0.05}s` }}>
-                  <FileNoteCard
-                    note={{
-                      ...note,
-                      notePreviewImageUrl: note.raw?.notePreviewImageUrl || note.notePreviewImageUrl,
-                      tags: note.raw?.tags || note.tags || [],
-                      type: note.raw?.type || note.type
-                    }}
-                    openMenuId={openNoteMenuId}
-                    onMenuToggle={onMenuToggle}
-                    onToggleFavourite={onToggleFavourite}
-                    onArchive={onArchive}
-                    onDelete={onDelete}
-                    onOpen={() => {
-                      // Open file in new tab or download
-                      const filePath = note.raw?.filePath || note.filePath;
-                      if (filePath) {
-                        window.open(`http://localhost:8080/${filePath}`, '_blank');
-                      }
-                    }}
-                  />
-                </div>
-              );
-            }
-            
-            return (
-              <div key={`note-${note.id}-${note.deletedAt || note.archivedAt || ''}`} className="animate-scaleIn" style={{ animationDelay: `${(index + 1) * 0.05}s` }}>
-                <NoteCard
-                  note={note}
-                  openMenuId={openNoteMenuId}
-                  onMenuToggle={onMenuToggle}
-                  onToggleFavourite={onToggleFavourite}
-                  onArchive={onArchive}
-                  onDelete={onDelete}
-                />
-              </div>
-            );
-          })}
+          .map((note, index) => (
+            <div key={`note-${note.id}-${note.deletedAt || note.archivedAt || ''}`} className="animate-scaleIn" style={{ animationDelay: `${(index + 1) * 0.05}s` }}>
+              <FileNoteCard
+                note={{
+                  ...note,
+                  notePreviewImageUrl: note.notePreviewImageUrl,
+                  tags: note.tags || [],
+                  type: 'FILE'
+                }}
+                openMenuId={openNoteMenuId}
+                onMenuToggle={onMenuToggle}
+                onToggleFavourite={onToggleFavourite}
+                onArchive={onArchive}
+                onDelete={onDelete}
+                onOpen={() => {
+                  // Open file in new tab or download
+                  const filePath = note.filePath || note.filepath;
+                  if (filePath) {
+                    window.open(`http://localhost:8080${filePath}`, '_blank');
+                  }
+                }}
+              />
+            </div>
+          ))}
       </div>
 
       {/* Upload Modal */}
@@ -403,6 +389,12 @@ export const NotesContent = ({ notesData, openNoteMenuId, onMenuToggle, onToggle
           isOpen={showUploadModal}
           onClose={() => setShowUploadModal(false)}
           mode="profile"
+          onUploadSuccess={() => {
+            setShowUploadModal(false);
+            if (onRefresh) {
+              onRefresh();
+            }
+          }}
         />
       )}
     </div>
