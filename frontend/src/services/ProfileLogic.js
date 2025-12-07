@@ -231,10 +231,16 @@ export const useProfilePage = () => {
 
   const removeFollower = async (followerId) => {
     try{
-      // Remove a follower means they unfollow us
-      // We need to call the unfollow endpoint from their perspective
-      // This might require a different endpoint, for now just refresh the list
-      await refreshFollowLists();
+      const response = await authFetch(`/users/me/followers/${followerId}`,{
+        method:'DELETE'
+      });
+      
+      if (response.ok || response.status === 204) {
+        // Refresh user data to get accurate counts
+        await refreshUserData();
+        // Update local lists - remove from followers
+        setFollowersList(prev=> prev.filter(u=>u.id!==followerId));
+      }
     }catch(e){ console.error('Remove follower failed', e); }
   };
 
