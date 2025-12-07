@@ -37,14 +37,17 @@ public class SessionService {
     private final SessionParticipantRepository sessionParticipantRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final ReminderService reminderService;
 
     public SessionService(SessionRepository sessionRepository,
                           SessionParticipantRepository sessionParticipantRepository,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          ReminderService reminderService) {
         this.sessionRepository = sessionRepository;
         this.sessionParticipantRepository = sessionParticipantRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
+        this.reminderService = reminderService;
     }
 
     public Session createSession(Session session) {
@@ -74,6 +77,9 @@ public class SessionService {
 
         SessionParticipant participant = new SessionParticipant(saved, host);
         sessionParticipantRepository.save(participant);
+
+        // Auto-create reminders for session owner
+        reminderService.createRemindersForSession(host, saved);
 
         return saved;
     }
@@ -183,6 +189,9 @@ public class SessionService {
         // Increment participant count
         session.setCurrentParticipants(currentParticipants + 1);
         sessionRepository.save(session);
+
+        // Auto-create reminders for participant
+        reminderService.createRemindersForSession(user, session);
     }
 
     @Transactional
@@ -204,6 +213,9 @@ public class SessionService {
             session.setCurrentParticipants(currentParticipants - 1);
             sessionRepository.save(session);
         }
+
+        // Delete reminders for this user-session pair
+        reminderService.deleteRemindersForUserSession(user.getId(), sessionId);
     }
 
     /**
