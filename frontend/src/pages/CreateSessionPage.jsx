@@ -21,7 +21,8 @@ const CreateSessionPage = () => {
     handleParticipantsChange,
     handleTagsChange,
     handleSubmit,
-    handleBack
+    handleBack,
+    addUploadedNoteFilepath
   } = useSessionForm(showToast);
 
   return (
@@ -120,6 +121,12 @@ const CreateSessionPage = () => {
                     onParticipantsChange={handleParticipantsChange}
                     onTagsChange={handleTagsChange}
                     onUploadNotesClick={() => setIsUploadModalOpen(true)}
+                    uploadedNotes={sessionData.uploadedNoteFilepaths}
+                    onRemoveNote={(index) => {
+                      const newFilepaths = [...sessionData.uploadedNoteFilepaths];
+                      newFilepaths.splice(index, 1);
+                      handleChange({ target: { name: 'uploadedNoteFilepaths', value: newFilepaths } });
+                    }}
                   />
 
                   <DescriptionPanel
@@ -141,7 +148,11 @@ const CreateSessionPage = () => {
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
         mode="session"
-        sessionId={sessionData.id}
+        sessionId={null}
+        onUploadSuccess={(filepath) => {
+          addUploadedNoteFilepath(filepath);
+          showToast('success', 'Note uploaded successfully!');
+        }}
       />
     </div>
   );

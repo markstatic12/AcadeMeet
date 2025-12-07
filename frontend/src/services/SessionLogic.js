@@ -20,7 +20,8 @@ export const useSessionForm = (showToast) => {
     maxParticipants: "",
     description: "",
     tags: [],
-    noteIds: []
+    noteIds: [],
+    uploadedNoteFilepaths: [] // Store filepaths of uploaded notes before session creation
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,6 +52,13 @@ export const useSessionForm = (showToast) => {
 
   const handleNotesChange = (noteIds) => {
     setSessionData({ ...sessionData, noteIds });
+  };
+
+  const addUploadedNoteFilepath = (filepath) => {
+    setSessionData(prev => ({ 
+      ...prev, 
+      uploadedNoteFilepaths: [...prev.uploadedNoteFilepaths, filepath] 
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -91,7 +99,20 @@ export const useSessionForm = (showToast) => {
     }
 
     try {
-      await sessionService.createSession(sessionData);
+      const createdSession = await sessionService.createSession(sessionData);
+      
+      // Link uploaded notes to the session if any
+      if (sessionData.uploadedNoteFilepaths && sessionData.uploadedNoteFilepaths.length > 0) {
+        const { noteService } = await import('./noteService');
+        for (const filepath of sessionData.uploadedNoteFilepaths) {
+          try {
+            await noteService.linkNoteToSession(filepath, createdSession.id);
+          } catch (linkError) {
+            console.error('Failed to link note:', filepath, linkError);
+            // Continue linking other notes even if one fails
+          }
+        }
+      }
       
       if (showToast) {
         showToast('success', 'Session created successfully!');
@@ -124,7 +145,8 @@ export const useSessionForm = (showToast) => {
     handleTagsChange,
     handleSubmit,
     handleBack,
-    handleNotesChange
+    handleNotesChange,
+    addUploadedNoteFilepath
   };
 };
 

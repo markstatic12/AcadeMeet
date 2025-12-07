@@ -120,9 +120,15 @@ const UploadNoteModal = ({
       // Reset and close
       handleClose();
       
-      // Call success callback if provided, otherwise reload
+      // Call success callback if provided
       if (onUploadSuccess) {
-        onUploadSuccess(uploadedNote);
+        // If session wasn't created yet (no sessionId), pass filepath for later linking
+        if (!targetSessionId && uploadedNote.filepath) {
+          onUploadSuccess(uploadedNote.filepath);
+        } else {
+          // If linked to session, pass full note object
+          onUploadSuccess(uploadedNote);
+        }
       } else {
         window.location.reload();
       }
