@@ -119,7 +119,7 @@ export const NotesContent = ({ notesData }) => {
   };
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1 relative"
+    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar py-3 px-2 -mx-2 relative"
       onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -147,7 +147,7 @@ export const NotesContent = ({ notesData }) => {
             
             if (isFileNote) {
               return (
-                <div key={`note-${note.id}-${note.deletedAt || note.archivedAt || ''}`} className="animate-scaleIn" style={{ animationDelay: `${(index + 1) * 0.05}s` }}>
+                <div key={`note-${note.id}-${note.deletedAt || note.archivedAt || ''}`} className="animate-scaleIn relative hover:z-10" style={{ animationDelay: `${(index + 1) * 0.05}s` }}>
                   <FileNoteCard
                     note={{
                       ...note,
@@ -168,7 +168,7 @@ export const NotesContent = ({ notesData }) => {
             }
             
             return (
-              <div key={`note-${note.id}-${note.deletedAt || note.archivedAt || ''}`} className="animate-scaleIn" style={{ animationDelay: `${(index + 1) * 0.05}s` }}>
+              <div key={`note-${note.id}-${note.deletedAt || note.archivedAt || ''}`} className="animate-scaleIn relative hover:z-10" style={{ animationDelay: `${(index + 1) * 0.05}s` }}>
                 <NoteCard note={note} />
               </div>
             );
