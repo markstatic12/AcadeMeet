@@ -89,7 +89,7 @@ const ProfilePage = () => {
         </h1>
       </div>
       <div className="flex gap-6 h-[calc(100vh-180px)]">
-        <div className="w-[280px]">
+        <div className="w-[280px] opacity-0 animate-fadeSlideUp" style={{ animationDelay: '0ms', animationFillMode: 'forwards' }}>
           <ProfileCard
             ref={leftProfileCardRef}
             userData={userData}
@@ -97,13 +97,13 @@ const ProfilePage = () => {
           />
         </div>
 
-        <div className="flex-1 relative z-0">
+        <div className="flex-1 relative z-0 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
           <div
             ref={rightPanelRef}
-            className="h-full relative overflow-hidden flex flex-col"
+            className="h-full relative flex flex-col"
           >
             <div className="relative flex flex-col h-full">
-            <div className="flex items-center justify-between mb-6 flex-shrink-0">
+            <div className="flex items-center justify-between mb-6 flex-shrink-0 px-1">
               <TabButtons 
                 activeTab={activeTab} 
                 onTabChange={(tab) => {

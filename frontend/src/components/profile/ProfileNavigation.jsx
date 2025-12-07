@@ -8,15 +8,15 @@ import { ThreeDotsVerticalIcon, HistoryIcon, TrashIcon, BookmarkCheckIcon, Archi
 
 export const TabButtons = ({ activeTab, onTabChange }) => {
   return (
-    <div className="flex gap-3">
+    <div className="flex gap-4">
       <button
         onClick={(e) => {
           e.stopPropagation();
           onTabChange('sessions');
         }}
-        className={`relative overflow-hidden px-8 py-3 rounded-xl font-bold text-base transition-all group/tab ${
+        className={`relative overflow-hidden px-7 py-2.5 rounded-xl font-bold text-base transition-all group/tab ${
           activeTab === 'sessions'
-            ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-xl shadow-indigo-500/50 scale-105 border-2 border-indigo-500/50'
+            ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-[0_0_30px_rgba(99,102,241,0.5)] border-2 border-indigo-400/30'
             : 'text-gray-400 hover:text-white bg-gradient-to-r from-gray-800/50 to-gray-900/50 hover:from-gray-800 hover:to-gray-900 border-2 border-gray-700 hover:border-gray-600'
         }`}
       >
@@ -38,9 +38,9 @@ export const TabButtons = ({ activeTab, onTabChange }) => {
           e.stopPropagation();
           onTabChange('notes');
         }}
-        className={`relative overflow-hidden px-8 py-3 rounded-xl font-bold text-base transition-all group/tab ${
+        className={`relative overflow-hidden px-7 py-2.5 rounded-xl font-bold text-base transition-all group/tab ${
           activeTab === 'notes'
-            ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-xl shadow-indigo-500/50 scale-105 border-2 border-indigo-500/50'
+            ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-[0_0_30px_rgba(99,102,241,0.5)] border-2 border-indigo-400/30'
             : 'text-gray-400 hover:text-white bg-gradient-to-r from-gray-800/50 to-gray-900/50 hover:from-gray-800 hover:to-gray-900 border-2 border-gray-700 hover:border-gray-600'
         }`}
       >
