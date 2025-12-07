@@ -98,12 +98,7 @@ export const useSettingsPage = () => {
     try {
       setSaving(true);
       
-      // First, get current user ID from /me endpoint
-      const meResponse = await authFetch('/users/me');
-      const userData = await meResponse.json();
-      const userId = userData.id;
-      
-      // Prepare data to send
+      // Prepare data to send (user ID extracted from JWT by backend)
       const updateData = {
         name: form.name,
         program: form.program,
@@ -119,7 +114,8 @@ export const useSettingsPage = () => {
         coverImage: updateData.coverImage ? `[Base64 image: ${updateData.coverImage.substring(0, 50)}...]` : null,
       });
       
-      const res = await authFetch(`/users/${userId}`, {
+      // Use /users/me endpoint - user ID extracted from JWT token
+      const res = await authFetch('/users/me', {
         method: 'PUT',
         body: JSON.stringify(updateData),
       });

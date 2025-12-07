@@ -92,12 +92,14 @@ public class UserController {
         }
     }
     
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateUserProfile(
-            @PathVariable Long id,
-            @RequestBody UpdateProfileRequest request) {
+    /**
+     * Update current authenticated user's profile (user ID from JWT)
+     */
+    @PutMapping("/me")
+    public ResponseEntity<?> updateMyProfile(@RequestBody UpdateProfileRequest request) {
         try {
-            User user = userService.getUserById(id);
+            User currentUser = getAuthenticatedUser();
+            User user = currentUser;
             
             if (request.getName() != null && !request.getName().trim().isEmpty()) {
                 user.setName(request.getName().trim());
