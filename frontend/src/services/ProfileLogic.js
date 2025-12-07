@@ -316,6 +316,7 @@ export const useNotes = () => {
 export const useSessions = () => {
   const [sessionsData, setSessionsData] = useState([]);
   const [trashedSessions, setTrashedSessions] = useState([]);
+  const [historySessions, setHistorySessions] = useState([]);
 
   // Fetch ACTIVE sessions from backend
   const fetchActiveSessions = async () => {
@@ -358,21 +359,21 @@ export const useSessions = () => {
     }
   };
 
-  //NOT YET IMPLEMENTED
+  // Fetch COMPLETED (history) sessions from backend
   const fetchCompletedSessions = async () => {
     try {
-      const res = await authFetch('/sessions/user/me', {
+      const res = await authFetch('/sessions/user/me/history', {
         method: "GET",
       });
 
       if (!res.ok) throw new Error("Failed to fetch completed sessions");
       const data = await res.json();
       
-      const completed = (Array.isArray(data) ? data : []).filter(s => s.status === 'COMPLETED');
-      setCompletedSessions(completed);
+      const completed = (Array.isArray(data) ? data : []);
+      setHistorySessions(completed);
     } catch (err) {
       console.error("Failed to fetch completed sessions:", err);
-      setCompletedSessions([]);
+      setHistorySessions([]);
     }
   };
 
@@ -401,6 +402,8 @@ export const useSessions = () => {
   return {
     sessionsData,
     trashedSessions,
-    restoreSession
+    historySessions,
+    restoreSession,
+    refreshHistory: fetchCompletedSessions
   };
 };

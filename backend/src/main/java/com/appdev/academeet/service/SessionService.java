@@ -87,6 +87,18 @@ public class SessionService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Gets completed sessions (history) for a specific user.
+     */
+    @Transactional(readOnly = true)
+    public List<SessionDTO> getCompletedSessionsByUserId(Long userId) {
+        return sessionRepository.findByHost_Id(userId)
+                .stream()
+                .filter(session -> session.getSessionStatus() == SessionStatus.COMPLETED)
+                .map(SessionDTO::new)
+                .collect(Collectors.toList());
+    }
+
     // --- MODIFIED METHOD ---
     @Transactional(readOnly = true) // <-- ADD TRANSACTIONAL
     public List<SessionDTO> getAllSessions() {

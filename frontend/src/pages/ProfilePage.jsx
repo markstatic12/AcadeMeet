@@ -2,7 +2,7 @@
 import DashboardLayout from '../components/layout/DashboardLayout';
 import ProfileCard, { EditProfileModal, FollowersModal } from '../components/profile/ProfileHeader';
 import TabButtons, { TabOptionMenu as TabOptionsMenu } from '../components/profile/ProfileNavigation';
-import SessionsContent, { TrashedSessionsContent } from '../components/profile/ProfileSessions';
+import SessionsContent, { TrashedSessionsContent, HistorySessionsContent } from '../components/profile/ProfileSessions';
 import { NotesContent } from '../components/profile/ProfileNotes';
 import { useUser } from '../context/UserContext';
 import { useProfilePage } from '../services/ProfileLogic';
@@ -50,7 +50,7 @@ const ProfilePage = () => {
     unfollowUser,
   } = useProfilePage();
 
-  const { sessionsData, trashedSessions, deleteSession, restoreSession } = useSessions();
+  const { sessionsData, trashedSessions, historySessions, deleteSession, restoreSession, refreshHistory } = useSessions();
   const { notesData } = useNotes();
   const panelHeight = usePanelHeight(leftProfileCardRef, [userData, showEditModal, showProfileOptionsMenu]);
 
@@ -109,6 +109,12 @@ const ProfilePage = () => {
                   showMenu={showTabOptionsMenu}
                   activeTab={activeTab}
                   onToggle={toggleTabOptionsMenu}
+                  onHistoryClick={() => {
+                    setActiveTab('sessions');
+                    setSessionsView('history');
+                    setShowTabOptionsMenu(false);
+                    refreshHistory();
+                  }}
                   onTrashClick={() => {
                     setActiveTab('sessions');
                     setSessionsView('trash');
@@ -132,6 +138,13 @@ const ProfilePage = () => {
               <TrashedSessionsContent
                 trashedSessions={trashedSessions}
                 onRestore={restoreSession}
+                onBackToSessions={() => setSessionsView('active')}
+              />
+            )}
+
+            {activeTab === 'sessions' && sessionsView === 'history' && (
+              <HistorySessionsContent
+                historySessions={historySessions}
                 onBackToSessions={() => setSessionsView('active')}
               />
             )}

@@ -273,5 +273,16 @@ export const sessionService = {
     });
 
     return handleResponse(response, 'Failed to fetch user hosted sessions');
+  },
+
+  /**
+   * Gets completed sessions (history) for the current user
+   */
+  async getUserCompletedSessions() {
+    const response = await authFetch(`${API_BASE}/user/me/history`, {
+      method: 'GET'
+    });
+
+    return handleResponse(response, 'Failed to fetch completed sessions');
   }
 };
