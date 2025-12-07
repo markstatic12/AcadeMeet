@@ -21,8 +21,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.appdev.academeet.dto.CreateSessionRequest;
 import com.appdev.academeet.dto.JoinSessionRequest;
 import com.appdev.academeet.dto.SessionDTO;
+import com.appdev.academeet.dto.UpdateSessionRequest;
 import com.appdev.academeet.dto.UpdateStatusRequest;
 import com.appdev.academeet.model.Session;
 import com.appdev.academeet.model.SessionStatus;
@@ -80,12 +82,12 @@ public class SessionController {
      * Creates a new session with the authenticated user as host.
      */
     @PostMapping
-    public ResponseEntity<?> createSession(@RequestBody Session session) {
+    public ResponseEntity<?> createSession(@RequestBody CreateSessionRequest request) {
         try {
             User host = getAuthenticatedUser();
-            session.setHost(host);
-            Session savedSession = sessionService.createSession(session);
-            return ResponseEntity.ok(new SessionDTO(savedSession));
+            Session toCreate = request.toEntity();
+            Session savedSession = sessionService.createSession(toCreate, host.getId());
+            return ResponseEntity.status(HttpStatus.CREATED).body(new SessionDTO(savedSession));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
@@ -229,10 +231,11 @@ public class SessionController {
      * Update session details.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateSession(@PathVariable Long id, @RequestBody Session session) {
+    public ResponseEntity<?> updateSession(@PathVariable Long id, @RequestBody UpdateSessionRequest request) {
         try {
             User authenticatedUser = getAuthenticatedUser();
-            Session updatedSession = sessionService.updateSession(id, session, authenticatedUser.getId());
+            Session updated = request.toEntity();
+            Session updatedSession = sessionService.updateSession(id, updated, authenticatedUser.getId());
             return ResponseEntity.ok(new SessionDTO(updatedSession));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

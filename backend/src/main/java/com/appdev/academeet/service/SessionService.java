@@ -279,22 +279,57 @@ public class SessionService {
             throw new RuntimeException("Unauthorized: Only the session owner can edit this session");
         }
 
-        // Update session fields
-        existingSession.setTitle(updatedSession.getTitle());
-        existingSession.setDescription(updatedSession.getDescription());
-        existingSession.setLocation(updatedSession.getLocation());
-        existingSession.setSessionPrivacy(updatedSession.getSessionPrivacy());
-        existingSession.setMaxParticipants(updatedSession.getMaxParticipants());
-        
-        // Update date and time fields
-        existingSession.setStartTime(updatedSession.getStartTime());
-        existingSession.setEndTime(updatedSession.getEndTime());
-        
+        // Determine the intended privacy after update (respect null -> keep existing)
+        SessionType intendedPrivacy = updatedSession.getSessionPrivacy() != null
+                ? updatedSession.getSessionPrivacy()
+                : existingSession.getSessionPrivacy();
+
+        // If switching to PRIVATE, ensure there is either an existing password or a new password provided
+        if (intendedPrivacy == SessionType.PRIVATE) {
+            boolean hasExistingPassword = existingSession.getSessionPassword() != null
+                    && !existingSession.getSessionPassword().isEmpty();
+            boolean hasNewPassword = updatedSession.getSessionPassword() != null
+                    && !updatedSession.getSessionPassword().isEmpty();
+            if (!hasExistingPassword && !hasNewPassword) {
+                throw new IllegalArgumentException("Private sessions must have a password");
+            }
+        }
+
+        // If switching to PUBLIC, clear any stored password to avoid surprise retained hashes
+        if (intendedPrivacy == SessionType.PUBLIC) {
+            existingSession.setSessionPassword(null);
+        }
+
+        // Update session fields only when non-null on the incoming object to support partial updates
+        if (updatedSession.getTitle() != null) {
+            existingSession.setTitle(updatedSession.getTitle());
+        }
+        if (updatedSession.getDescription() != null) {
+            existingSession.setDescription(updatedSession.getDescription());
+        }
+        if (updatedSession.getLocation() != null) {
+            existingSession.setLocation(updatedSession.getLocation());
+        }
+        if (updatedSession.getSessionPrivacy() != null) {
+            existingSession.setSessionPrivacy(updatedSession.getSessionPrivacy());
+        }
+        if (updatedSession.getMaxParticipants() != null) {
+            existingSession.setMaxParticipants(updatedSession.getMaxParticipants());
+        }
+
+        // Update date and time fields if provided
+        if (updatedSession.getStartTime() != null) {
+            existingSession.setStartTime(updatedSession.getStartTime());
+        }
+        if (updatedSession.getEndTime() != null) {
+            existingSession.setEndTime(updatedSession.getEndTime());
+        }
+
         // Update tags if provided
         if (updatedSession.getTags() != null) {
             existingSession.setTags(updatedSession.getTags());
         }
-        
+
         // Only update password if provided (for PRIVATE sessions)
         if (updatedSession.getSessionPassword() != null && !updatedSession.getSessionPassword().isEmpty()) {
             existingSession.setSessionPassword(passwordEncoder.encode(updatedSession.getSessionPassword()));
