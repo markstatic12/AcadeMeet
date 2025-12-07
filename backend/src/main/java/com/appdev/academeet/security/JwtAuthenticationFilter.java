@@ -46,10 +46,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 if (jwtUtil.validateToken(token)) {
                     email = jwtUtil.getEmailFromToken(token);
+                    System.out.println("JWT Filter - Token valid, email: " + email);
+                } else {
+                    System.out.println("JWT Filter - Token validation failed");
                 }
             } catch (Exception ex) {
+                System.out.println("JWT Filter - Exception during token validation: " + ex.getMessage());
                 // ignore and proceed without authentication
             }
+        } else {
+            System.out.println("JWT Filter - No Bearer token found in Authorization header");
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {

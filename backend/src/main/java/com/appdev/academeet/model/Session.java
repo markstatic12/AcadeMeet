@@ -147,9 +147,29 @@ public class Session {
     }
 
     public void setTags(List<String> tagNames) {
-        this.sessionTags.clear();
-        if (tagNames != null) {
-            for (String tagName : tagNames) {
+        // Update tags idempotently: remove tags not present in the incoming list,
+        // and add only new tags. This avoids deleting and re-inserting identical
+        // tag rows in a single flush which can cause unique constraint violations
+        // on (session_id, tag_name).
+        if (tagNames == null) {
+            this.sessionTags.clear();
+            return;
+        }
+
+        // Use a set for quick lookup of desired tag names
+        java.util.Set<String> desired = new java.util.HashSet<>(tagNames);
+
+        // Remove existing tags that are not desired
+        this.sessionTags.removeIf(existing -> !desired.contains(existing.getTagName()));
+
+        // Build a set of existing names to avoid duplicates when adding
+        java.util.Set<String> existingNames = this.sessionTags.stream()
+                .map(SessionTag::getTagName)
+                .collect(java.util.stream.Collectors.toSet());
+
+        // Add only tags that don't already exist
+        for (String tagName : tagNames) {
+            if (!existingNames.contains(tagName)) {
                 SessionTag tag = new SessionTag(this, tagName);
                 this.sessionTags.add(tag);
             }
