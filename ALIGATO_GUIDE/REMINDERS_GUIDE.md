@@ -107,13 +107,15 @@ public interface ReminderRepository extends JpaRepository<Reminder, Long> {
 
     /**
      * Get active reminders for user (scheduled time has passed, session is active)
-     * Sorted by: unread first, then by scheduled time descending
+     * Sorted by scheduled time descending (most recent first)
+     * Note: Filtering for single reminder per session and sorting by read status
+     * is done in service layer due to MySQL LIMIT in subquery limitations
      */
     @Query("SELECT r FROM Reminder r " +
            "WHERE r.user.id = :userId " +
            "AND r.scheduledTime <= :currentTime " +
            "AND r.session.sessionStatus = 'ACTIVE' " +
-           "ORDER BY r.isRead ASC, r.scheduledTime DESC")
+           "ORDER BY r.scheduledTime DESC")
     List<Reminder> findActiveRemindersByUserId(
         @Param("userId") Long userId,
         @Param("currentTime") LocalDateTime currentTime
@@ -167,6 +169,7 @@ public interface ReminderRepository extends JpaRepository<Reminder, Long> {
 public class ReminderService {
 
     private final ReminderRepository reminderRepository;
+    // Required imports: java.util.HashMap, java.util.Map
 
     /**
      * Creates reminders for a user-session pair
@@ -208,13 +211,32 @@ public class ReminderService {
 
     /**
      * Get active reminders for user with generated messages
+     * Implements single-reminder-per-session logic:
+     * - Only shows the most recent reminder (by scheduledTime) for each session
+     * - Prevents duplicate 24H and 1H reminders from showing simultaneously
      */
     @Transactional(readOnly = true)
     public List<ReminderDTO> getActiveReminders(Long userId) {
         LocalDateTime now = LocalDateTime.now();
-        List<Reminder> reminders = reminderRepository.findActiveRemindersByUserId(userId, now);
+        List<Reminder> allReminders = reminderRepository.findActiveRemindersByUserId(userId, now);
 
-        return reminders.stream()
+        // Keep only ONE reminder per session (most recent due to DESC sort)
+        Map<Long, Reminder> latestReminderPerSession = new HashMap<>();
+        for (Reminder reminder : allReminders) {
+            Long sessionId = reminder.getSession().getId();
+            // Since results are ordered by scheduledTime DESC, first occurrence = most recent
+            if (!latestReminderPerSession.containsKey(sessionId)) {
+                latestReminderPerSession.put(sessionId, reminder);
+            }
+        }
+
+        return latestReminderPerSession.values().stream()
+            .sorted((a, b) -> {
+                // Sort: unread first, then by scheduledTime DESC
+                int readCompare = Boolean.compare(a.isRead(), b.isRead());
+                if (readCompare != 0) return readCompare;
+                return b.getScheduledTime().compareTo(a.getScheduledTime());
+            })
             .map(reminder -> {
                 Session session = reminder.getSession();
                 boolean isOwner = session.getHost().getId().equals(userId);
@@ -227,7 +249,7 @@ public class ReminderService {
                     message,
                     reminder.getType(),
                     reminder.getScheduledTime(),
-                    reminder.getIsRead(),
+                    reminder.isRead(),
                     reminder.getReadAt(),
                     isOwner
                 );
@@ -262,6 +284,8 @@ public class ReminderService {
 
     /**
      * Generate role-aware reminder message
+     * Uses time-aware templates to avoid misleading "tomorrow" or "in 1 hour" text
+     * Shows actual session time for accuracy
      */
     private String generateMessage(ReminderType type, Session session, boolean isOwner) {
         String title = session.getTitle();
@@ -271,13 +295,13 @@ public class ReminderService {
         switch (type) {
             case DAY_BEFORE:
                 return isOwner
-                    ? String.format("⏰ Your session \"%s\" is scheduled for tomorrow at %s.", title, time)
-                    : String.format("⏰ Upcoming session: \"%s\" tomorrow at %s.", title, time);
+                    ? String.format("⏰ Your session '%s' is scheduled for tomorrow at %s.", title, time)
+                    : String.format("⏰ Upcoming session: '%s' tomorrow at %s.", title, time);
 
             case ONE_HOUR_BEFORE:
                 return isOwner
-                    ? String.format("⏰ Your session \"%s\" starts in 1 hour.", title)
-                    : String.format("⏰ \"%s\" will start in 1 hour.", title);
+                    ? String.format("⏰ Your session '%s' is coming up today at %s.", title, time)
+                    : String.format("⏰ '%s' is coming up today at %s.", title, time);
 
             default:
                 return "⏰ You have an upcoming session.";
@@ -307,8 +331,10 @@ public class ReminderService {
 
 - **Owner DAY_BEFORE**: "⏰ Your session 'Title' is scheduled for tomorrow at 3:00 PM."
 - **Participant DAY_BEFORE**: "⏰ Upcoming session: 'Title' tomorrow at 3:00 PM."
-- **Owner ONE_HOUR**: "⏰ Your session 'Title' starts in 1 hour."
-- **Participant ONE_HOUR**: "⏰ 'Title' will start in 1 hour."
+- **Owner ONE_HOUR**: "⏰ Your session 'Title' is coming up today at 3:00 PM."
+- **Participant ONE_HOUR**: "⏰ 'Title' is coming up today at 3:00 PM."
+
+**Important:** Messages show actual session time instead of relative terms like "in 1 hour" to avoid misleading text when reminders are created close to session start time.
 
 ---
 
@@ -344,7 +370,11 @@ public class ReminderDTO {
     }
 
     // Getters and Setters
-    // ... (standard getters/setters)
+    // Note: Boolean getter uses isRead() instead of getRead() (Java convention)
+    public Boolean isRead() {
+        return read;
+    }
+    // ... (other standard getters/setters)
 }
 ```
 
@@ -788,28 +818,57 @@ Create ONE_HOUR_BEFORE reminder (if session > 1h away)
 Reminders saved to database
 ```
 
-### 2. Smart Sorting Algorithm
+### 2. Single Reminder Per Session + Smart Sorting
 
-**SQL Query:**
+**Implementation Strategy:**
+
+Due to MySQL limitations with LIMIT in subqueries, we implement a two-stage approach:
+
+**Stage 1: Repository Query**
 
 ```sql
-ORDER BY is_read ASC, scheduled_time DESC
+ORDER BY scheduled_time DESC
+```
+
+**Stage 2: Service Layer Deduplication**
+
+```java
+Map<Long, Reminder> latestReminderPerSession = new HashMap<>();
+for (Reminder reminder : allReminders) {
+    Long sessionId = reminder.getSession().getId();
+    // First occurrence = most recent (due to DESC sort)
+    if (!latestReminderPerSession.containsKey(sessionId)) {
+        latestReminderPerSession.put(sessionId, reminder);
+    }
+}
+```
+
+**Stage 3: Final Sorting**
+
+```java
+.sorted((a, b) -> {
+    int readCompare = Boolean.compare(a.isRead(), b.isRead());
+    if (readCompare != 0) return readCompare;
+    return b.getScheduledTime().compareTo(a.getScheduledTime());
+})
 ```
 
 **Result:**
 
-1. Unread reminders first (isRead = false → 0)
-2. Read reminders last (isRead = true → 1)
-3. Within each group: Newest scheduled time first
+1. **Only ONE reminder per session** (most recent by scheduledTime)
+2. Unread reminders first (isRead = false → 0)
+3. Read reminders last (isRead = true → 1)
+4. Within each group: Newest scheduled time first
 
 **Example:**
 
 ```
-✅ Unread - Session A (tomorrow 3 PM)
-✅ Unread - Session B (tomorrow 10 AM)
-☑️ Read - Session C (yesterday)
-☑️ Read - Session D (3 days ago)
+✅ Unread - Session A: ONE_HOUR_BEFORE (today 2 PM)
+✅ Unread - Session B: DAY_BEFORE (tomorrow 10 AM)
+☑️ Read - Session C: ONE_HOUR_BEFORE (yesterday)
 ```
+
+Note: If both 24H and 1H reminders are active for the same session, only the 1H reminder shows (most recent).
 
 ### 3. Role-Aware Messages
 
@@ -817,8 +876,8 @@ ORDER BY is_read ASC, scheduled_time DESC
 | --------------- | ----------- | --------------------------------------------------------------- |
 | DAY_BEFORE      | Owner       | "⏰ Your session 'Title' is scheduled for tomorrow at 3:00 PM." |
 | DAY_BEFORE      | Participant | "⏰ Upcoming session: 'Title' tomorrow at 3:00 PM."             |
-| ONE_HOUR_BEFORE | Owner       | "⏰ Your session 'Title' starts in 1 hour."                     |
-| ONE_HOUR_BEFORE | Participant | "⏰ 'Title' will start in 1 hour."                              |
+| ONE_HOUR_BEFORE | Owner       | "⏰ Your session 'Title' is coming up today at 3:00 PM."        |
+| ONE_HOUR_BEFORE | Participant | "⏰ 'Title' is coming up today at 3:00 PM."                     |
 
 ### 4. Visual Design System
 
@@ -1059,6 +1118,29 @@ setReminders(
 - `@Transactional` on `cancelJoinSession`
 - `deleteRemindersForUserSession` called after participant deletion
 - User ID and session ID are correct
+
+### Seeing both 24H and 1H reminders for same session?
+
+**Solution:**
+
+- This is fixed by HashMap deduplication in `getActiveReminders()`
+- Only the most recent reminder per session will show
+- Verify `Map<Long, Reminder>` import is present
+
+### MySQL error: "LIMIT & IN/ALL/ANY/SOME subquery"?
+
+**Fix:**
+
+- Don't use LIMIT inside JPQL subqueries (MySQL 8.0 limitation)
+- Move filtering to service layer using HashMap
+- Keep repository query simple: `ORDER BY r.scheduledTime DESC`
+
+### Compilation error: "getRead() undefined for ReminderDTO"?
+
+**Fix:**
+
+- Boolean getters should use `isRead()` not `getRead()` (Java convention)
+- Update all comparators to use `a.isRead()` and `b.isRead()`
 
 ---
 
