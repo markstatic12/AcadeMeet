@@ -1,12 +1,24 @@
 package com.appdev.academeet.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+
 @Entity
-@Table(name = "comments")
+@Table(name = "session_comment")
 public class Comment {
 
     @Id
@@ -19,8 +31,8 @@ public class Comment {
     private Session session;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "author_id", nullable = false)
+    private User author;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
@@ -41,15 +53,17 @@ public class Comment {
     // Lifecycle Methods
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 
     // Constructors
     public Comment() {}
 
-    public Comment(Session session, User user, String content, Comment parentComment) {
+    public Comment(Session session, User author, String content, Comment parentComment) {
         this.session = session;
-        this.user = user;
+        this.author = author;
         this.content = content;
         this.parentComment = parentComment;
     }
@@ -57,7 +71,7 @@ public class Comment {
     // Getters
     public Long getCommentId() { return commentId; }
     public Session getSession() { return session; }
-    public User getUser() { return user; }
+    public User getAuthor() { return author; }
     public String getContent() { return content; }
     public Comment getParentComment() { return parentComment; }
     public List<Comment> getReplies() { return replies; }
@@ -67,7 +81,7 @@ public class Comment {
     // Setters
     public void setCommentId(Long commentId) { this.commentId = commentId; }
     public void setSession(Session session) { this.session = session; }
-    public void setUser(User user) { this.user = user; }
+    public void setAuthor(User author) { this.author = author; }
     public void setContent(String content) { this.content = content; }
     public void setParentComment(Comment parentComment) { this.parentComment = parentComment; }
     public void setReplies(List<Comment> replies) { this.replies = replies; }
@@ -84,4 +98,5 @@ public class Comment {
             this.replyCount--;
         }
     }
+    
 }

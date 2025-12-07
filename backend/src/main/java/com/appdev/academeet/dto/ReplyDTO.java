@@ -2,12 +2,19 @@ package com.appdev.academeet.dto;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReplyDTO {
     private Long commentId;
     private Long userId;
     private String userName;
     private String content;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
+    private Long replyingToUserId;
+    private String replyingToUserName;
 
     public ReplyDTO() {}
 
@@ -18,7 +25,8 @@ public class ReplyDTO {
         this.userName = userName;
         this.content = content;
         this.createdAt = createdAt;
-        // Note: replyingToUserId and replyingToUserName are ignored for simplicity
+        this.replyingToUserId = replyingToUserId;
+        this.replyingToUserName = replyingToUserName;
     }
 
     // Getters and Setters
@@ -36,4 +44,10 @@ public class ReplyDTO {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public Long getReplyingToUserId() { return replyingToUserId; }
+    public void setReplyingToUserId(Long replyingToUserId) { this.replyingToUserId = replyingToUserId; }
+
+    public String getReplyingToUserName() { return replyingToUserName; }
+    public void setReplyingToUserName(String replyingToUserName) { this.replyingToUserName = replyingToUserName; }
 }
