@@ -228,6 +228,116 @@ export const SessionsContent = ({ sessionsData, openCardMenuId, onCreateSession,
   );
 };
 
+// ===== HISTORY SESSIONS CONTENT =====
+
+export const HistorySessionsContent = ({ historySessions, onBackToSessions }) => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pt-2 pb-4">
+      <div className="mb-6 flex items-center justify-between animate-slideInLeft">
+        <div>
+          <h3 className="text-white text-xl font-bold tracking-tight">Session History</h3>
+          <p className="text-gray-400 text-sm mt-1">Completed sessions from your past</p>
+        </div>
+        <button
+          onClick={onBackToSessions}
+          className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-xl text-sm font-semibold transition-all hover:scale-105 shadow-lg"
+        >
+          ← Back to Sessions
+        </button>
+      </div>
+      {historySessions.length === 0 ? (
+        <div className="bg-[#0a0a0a] border border-gray-700 rounded-2xl p-12 text-center text-gray-400 animate-fadeIn">
+          <div className="text-5xl mb-4 opacity-50">📚</div>
+          <p className="text-base">No completed sessions yet.</p>
+          <p className="text-sm text-gray-500 mt-2">Your completed sessions will appear here.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          {historySessions.map((session, index) => (
+            <div 
+              key={`history-${session.id}`} 
+              className="animate-fadeIn"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <div 
+                onClick={() => navigate(`/session/${session.id}`)}
+                className="bg-[#161A2B] border border-gray-700/50 hover:border-indigo-500/60 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/30 cursor-pointer group h-[180px] w-full hover:scale-[1.02] relative"
+              >
+                {/* Session Thumbnail with "Completed" badge */}
+                <div className="relative h-[90px] bg-gradient-to-br from-green-700 to-green-800 overflow-hidden group-hover:brightness-110 transition-all">
+                  <div className="absolute inset-0 bg-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  
+                  {/* Completed Badge */}
+                  <div className="absolute top-2 left-2 z-10">
+                    <div className="backdrop-blur-sm bg-black/30 rounded-lg px-2.5 py-1 border border-green-400/30 flex items-center gap-1.5">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span className="text-green-400 text-xs font-bold">COMPLETED</span>
+                    </div>
+                  </div>
+
+                  {/* Privacy Indicator */}
+                  {session.sessionType === 'PRIVATE' && (
+                    <div className="absolute top-2 left-28 flex items-center px-2 py-1 bg-black/30 backdrop-blur-sm rounded-lg border border-yellow-500/30">
+                      <LockIcon className="w-3 h-3 text-yellow-400" />
+                      <span className="text-xs text-yellow-400 ml-1 font-semibold">Private</span>
+                    </div>
+                  )}
+
+                  {/* Decorative pattern */}
+                  <div className="absolute inset-0 opacity-20">
+                    <div className="absolute top-4 left-4 w-16 h-16 bg-white/10 rounded-full"></div>
+                    <div className="absolute bottom-4 right-4 w-20 h-20 bg-white/10 rounded-full"></div>
+                  </div>
+                </div>
+
+                {/* Session Info */}
+                <div className="p-3 bg-[#0a0a0a]/80 backdrop-blur-sm">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <h3 className="text-white font-bold text-sm group-hover:text-indigo-400 transition-colors flex-1 line-clamp-1">
+                      {session.title}
+                    </h3>
+                    {session.tags && session.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 justify-end flex-shrink-0 max-w-[40%]">
+                        {session.tags.slice(0, 2).map((tag, idx) => (
+                          <span
+                            key={idx}
+                            className="bg-indigo-600/20 border border-indigo-500/50 text-indigo-300 px-1.5 py-0.5 rounded-full text-[9px] whitespace-nowrap"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                        {session.tags.length > 2 && (
+                          <span className="text-gray-400 text-[9px]">+{session.tags.length - 2}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5 text-gray-400 text-[10px]">
+                      <CalendarIcon className="w-3 h-3 text-green-400" />
+                      <span>{session.month} {session.day}, {session.year}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-gray-400 text-[10px]">
+                      <ClockIcon className="w-3 h-3 text-green-400" />
+                      <span>{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-gray-400 text-[10px]">
+                      <LocationIcon className="w-3 h-3 text-green-400" />
+                      <span className="truncate">{session.location}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ===== TRASHED SESSIONS CONTENT =====
 
 export const TrashedSessionsContent = ({ trashedSessions, onRestoreSession }) => {

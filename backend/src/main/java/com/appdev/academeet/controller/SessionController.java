@@ -108,6 +108,20 @@ public class SessionController {
     }
 
     /**
+     * Gets completed sessions (history) for the authenticated user.
+     */
+    @GetMapping("/user/me/history")
+    public ResponseEntity<?> getMyCompletedSessions() {
+        try {
+            User user = getAuthenticatedUser();
+            List<SessionDTO> sessions = sessionService.getCompletedSessionsByUserId(user.getId());
+            return ResponseEntity.ok(sessions);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
      * Gets all sessions in the system.
      */
     @GetMapping("/all-sessions")

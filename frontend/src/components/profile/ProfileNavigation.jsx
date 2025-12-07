@@ -69,7 +69,8 @@ export const TabOptionMenu = ({
   showMenu, 
   activeTab, 
   onToggle, 
-  onTrashClick
+  onTrashClick,
+  onHistoryClick
 }) => {
   return (
     <div className="relative tab-options-menu">
@@ -85,7 +86,9 @@ export const TabOptionMenu = ({
           <div className="p-1">
             <button
               onClick={() => {
-                // Handle history (placeholder)
+                if (onHistoryClick) {
+                  onHistoryClick();
+                }
                 onToggle();
               }}
               className="w-full px-4 py-3.5 text-left text-sm text-white hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-gray-700/50 transition-all flex items-center gap-3 group rounded-xl"
