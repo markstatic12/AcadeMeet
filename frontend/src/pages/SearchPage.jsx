@@ -5,29 +5,7 @@ import { SearchIcon } from '../icons';
 import SessionCard from '../components/search/SessionCard';
 import SearchUserCard from '../components/search/SearchUserCard';
 import SearchEmptyState from '../components/search/SearchEmptyState';
-
-// Static mock data
-const mockUsers = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', program: 'CIT University', studentId: 'BSIT, 23-2684-947', bio: 'Passionate about AI and machine learning.', profileImageUrl: null },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', program: 'CIT University', studentId: 'BSIT, 23-2684-947', bio: 'Web development enthusiast.', profileImageUrl: null },
-  { id: 3, name: 'Mike Johnson', email: 'mike@example.com', program: 'CIT University', studentId: 'BSIT, 23-2684-947', bio: 'Senior CS student.', profileImageUrl: null },
-  { id: 4, name: 'Sarah Williams', email: 'sarah@example.com', program: 'CIT University', studentId: 'BSIT, 23-2684-947', bio: 'Data science enthusiast.', profileImageUrl: null },
-  { id: 5, name: 'Alex Brown', email: 'alex@example.com', program: 'CIT University', studentId: 'BSCS, 23-2684-948', bio: 'Full-stack developer.', profileImageUrl: null },
-  { id: 6, name: 'Emily Davis', email: 'emily@example.com', program: 'CIT University', studentId: 'BSIS, 23-2684-949', bio: 'UI/UX enthusiast.', profileImageUrl: null },
-  { id: 7, name: 'Chris Wilson', email: 'chris@example.com', program: 'CIT University', studentId: 'BSIT, 23-2684-950', bio: 'Mobile app developer.', profileImageUrl: null },
-  { id: 8, name: 'Lisa Anderson', email: 'lisa@example.com', program: 'CIT University', studentId: 'BSCS, 23-2684-951', bio: 'Database specialist.', profileImageUrl: null },
-];
-
-const mockSessions = [
-  { id: 1, title: 'Application Development', month: 'Sep', day: '31', year: '2025', startTime: '09:00', endTime: '10:00', location: 'Microsoft Teams', tags: ['Programming', 'Springboot'], sessionType: 'PUBLIC', status: 'ACTIVE', currentParticipants: 15, maxParticipants: 25 },
-  { id: 2, title: 'Web Design Workshop', month: 'Oct', day: '05', year: '2025', startTime: '14:00', endTime: '16:00', location: 'Zoom', tags: ['Design', 'CSS'], sessionType: 'PUBLIC', status: 'ACTIVE', currentParticipants: 8, maxParticipants: 12 },
-  { id: 3, title: 'Database Management', month: 'Oct', day: '10', year: '2025', startTime: '10:00', endTime: '12:00', location: 'Google Meet', tags: ['Database', 'SQL'], sessionType: 'PUBLIC', status: 'ACTIVE', currentParticipants: 10, maxParticipants: 15 },
-  { id: 4, title: 'Machine Learning Basics', month: 'Oct', day: '15', year: '2025', startTime: '13:00', endTime: '15:00', location: 'Microsoft Teams', tags: ['AI', 'Python'], sessionType: 'PUBLIC', status: 'ACTIVE', currentParticipants: 20, maxParticipants: 30 },
-  { id: 5, title: 'React Fundamentals', month: 'Oct', day: '20', year: '2025', startTime: '09:00', endTime: '11:00', location: 'Zoom', tags: ['React', 'JavaScript'], sessionType: 'PUBLIC', status: 'ACTIVE', currentParticipants: 12, maxParticipants: 20 },
-  { id: 6, title: 'Cloud Computing 101', month: 'Oct', day: '25', year: '2025', startTime: '15:00', endTime: '17:00', location: 'Google Meet', tags: ['Cloud', 'AWS'], sessionType: 'PUBLIC', status: 'ACTIVE', currentParticipants: 18, maxParticipants: 25 },
-  { id: 7, title: 'Mobile App Development', month: 'Nov', day: '01', year: '2025', startTime: '10:00', endTime: '12:00', location: 'Microsoft Teams', tags: ['Mobile', 'Flutter'], sessionType: 'PUBLIC', status: 'ACTIVE', currentParticipants: 14, maxParticipants: 20 },
-  { id: 8, title: 'Cybersecurity Workshop', month: 'Nov', day: '05', year: '2025', startTime: '14:00', endTime: '16:00', location: 'Zoom', tags: ['Security', 'Network'], sessionType: 'PRIVATE', status: 'ACTIVE', currentParticipants: 9, maxParticipants: 15 },
-];
+import SearchService from '../services/SearchService';
 
 const SearchPage = () => {
   const navigate = useNavigate();
@@ -36,7 +14,13 @@ const SearchPage = () => {
   
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'users', 'session'
-  const [sortBy, setSortBy] = useState('Relevance');
+  const [sortBy, setSortBy] = useState('relevance');
+  
+  // Data from API
+  const [users, setUsers] = useState([]);
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   
   // Session filters
   const [dateFilter, setDateFilter] = useState('');
@@ -47,18 +31,11 @@ const SearchPage = () => {
   const [programFilter, setProgramFilter] = useState('All Programs');
   const [yearLevelFilter, setYearLevelFilter] = useState('All Year Levels');
   
-  // Pagination state
-  const [userPage, setUserPage] = useState(0);
-  const [sessionPage, setSessionPage] = useState(0);
-  const [viewMode, setViewMode] = useState('paginated'); // 'paginated' or 'all'
-  const [viewAllType, setViewAllType] = useState(null); // 'users' or 'sessions'
-  
   // Carousel scroll tracking
   const [isUsersCarouselAtEnd, setIsUsersCarouselAtEnd] = useState(false);
   const [isSessionsCarouselAtEnd, setIsSessionsCarouselAtEnd] = useState(false);
   
-  const ITEMS_PER_PAGE = 4;
-  
+  // Update search query from URL params
   useEffect(() => {
     const query = searchParams.get('q');
     if (query) {
@@ -66,65 +43,107 @@ const SearchPage = () => {
     }
   }, [searchParams]);
   
-  // Filter and search logic
-  const filteredUsers = useMemo(() => {
-    if (!searchQuery) return mockUsers;
-    const searchLower = searchQuery.toLowerCase();
-    return mockUsers.filter(user => 
-      user.name.toLowerCase().includes(searchLower) ||
-      user.email.toLowerCase().includes(searchLower) ||
-      user.program.toLowerCase().includes(searchLower) ||
-      user.studentId.toLowerCase().includes(searchLower)
-    );
-  }, [searchQuery]);
+  // Perform search when filters or query change
+  useEffect(() => {
+    const performSearch = async () => {
+      // Don't search if query is empty and no filters applied
+      if (!searchQuery && activeTab === 'all') {
+        setUsers([]);
+        setSessions([]);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        if (activeTab === 'all') {
+          // Search both users and sessions
+          const result = await SearchService.searchAll(searchQuery, sortBy);
+          setUsers(result.users || []);
+          setSessions(result.sessions || []);
+        } else if (activeTab === 'users') {
+          // Search only users with filters
+          const result = await SearchService.searchUsers(searchQuery, {
+            program: programFilter,
+            yearLevel: yearLevelFilter === 'All Year Levels' ? null : parseInt(yearLevelFilter),
+            sortBy: sortBy
+          });
+          setUsers(result || []);
+          setSessions([]);
+        } else if (activeTab === 'session') {
+          // Search only sessions with filters
+          const result = await SearchService.searchSessions(searchQuery, {
+            date: dateFilter,
+            timeOfDay: timeFilter,
+            privacy: privacyFilter,
+            sortBy: sortBy
+          });
+          setSessions(result || []);
+          setUsers([]);
+        }
+      } catch (err) {
+        console.error('Search error:', err);
+        setError('Failed to perform search. Please try again.');
+        setUsers([]);
+        setSessions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    performSearch();
+  }, [searchQuery, activeTab, sortBy, dateFilter, timeFilter, privacyFilter, programFilter, yearLevelFilter]);
   
-  const filteredSessions = useMemo(() => {
-    if (!searchQuery) return mockSessions;
-    const searchLower = searchQuery.toLowerCase();
-    return mockSessions.filter(session =>
-      session.title.toLowerCase().includes(searchLower) ||
-      session.location.toLowerCase().includes(searchLower) ||
-      session.tags.some(tag => tag.toLowerCase().includes(searchLower))
-    );
-  }, [searchQuery]);
-  
-  // Calculate pagination
-  const totalUserPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
-  const totalSessionPages = Math.ceil(filteredSessions.length / ITEMS_PER_PAGE);
-  
-  const paginatedUsers = useMemo(() => {
+  // Display logic for users and sessions
+  const displayUsers = useMemo(() => {
     // 'All' tab: limit to 6 items for preview
     if (activeTab === 'all') {
-      return filteredUsers.slice(0, 6);
+      return users.slice(0, 6);
     }
     // 'Users' tab: show all items (vertical scroll)
     if (activeTab === 'users') {
-      return filteredUsers;
+      return users;
     }
     return [];
-  }, [filteredUsers, activeTab]);
+  }, [users, activeTab]);
   
-  const paginatedSessions = useMemo(() => {
+  const displaySessions = useMemo(() => {
     // 'All' tab: limit to 6 items for preview
     if (activeTab === 'all') {
-      return filteredSessions.slice(0, 6);
+      return sessions.slice(0, 6);
     }
     // 'Session' tab: show all items (vertical scroll)
     if (activeTab === 'session') {
-      return filteredSessions;
+      return sessions;
     }
     return [];
-  }, [filteredSessions, activeTab]);
-  
-  const displayUsers = paginatedUsers;
-  const displaySessions = paginatedSessions;
+  }, [sessions, activeTab]);
   
   const handleViewAllUsers = () => {
     setActiveTab('users');
+    setSortBy('relevance'); // Reset sort when changing tabs
   };
   
   const handleViewAllSessions = () => {
     setActiveTab('session');
+    setSortBy('relevance'); // Reset sort when changing tabs
+  };
+  
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setSortBy('relevance'); // Reset sort when changing tabs
+    // Clear session filters when leaving session tab
+    if (tab !== 'session') {
+      setDateFilter('');
+      setTimeFilter('Any Time');
+      setPrivacyFilter('All Sessions');
+    }
+    // Clear user filters when leaving users tab
+    if (tab !== 'users') {
+      setProgramFilter('All Programs');
+      setYearLevelFilter('All Year Levels');
+    }
   };
   
   // Check if carousel is at the end
@@ -176,7 +195,7 @@ const SearchPage = () => {
             <div className="mb-5 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
               <div className="flex gap-2">
                 <button
-                  onClick={() => setActiveTab('all')}
+                  onClick={() => handleTabChange('all')}
                   className={`flex-1 px-3 py-2 text-sm font-bold rounded-lg transition-all duration-300 ${
                     activeTab === 'all'
                       ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
@@ -186,7 +205,7 @@ const SearchPage = () => {
                   All
                 </button>
                 <button
-                  onClick={() => setActiveTab('users')}
+                  onClick={() => handleTabChange('users')}
                   className={`flex-1 px-3 py-2 text-sm font-bold rounded-lg transition-all duration-300 ${
                     activeTab === 'users'
                       ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
@@ -196,7 +215,7 @@ const SearchPage = () => {
                   Users
                 </button>
                 <button
-                  onClick={() => setActiveTab('session')}
+                  onClick={() => handleTabChange('session')}
                   className={`flex-1 px-3 py-2 text-sm font-bold rounded-lg transition-all duration-300 ${
                     activeTab === 'session'
                       ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
@@ -227,14 +246,15 @@ const SearchPage = () => {
                   backgroundSize: '1.25em 1.25em',
                 }}
               >
-                <option value="Relevance" className="bg-gray-800">Relevance</option>
-                <option value="Date" className="bg-gray-800">Date</option>
-                <option value="Name" className="bg-gray-800">Name</option>
+                <option value="relevance" className="bg-gray-800">Relevance</option>
+                {activeTab === 'session' && <option value="newest" className="bg-gray-800">Newest</option>}
+                {activeTab === 'session' && <option value="oldest" className="bg-gray-800">Oldest</option>}
+                {activeTab === 'users' && <option value="name" className="bg-gray-800">Name</option>}
               </select>
             </div>
 
-            {/* SESSION FILTERS - Show when Session or All tab is active */}
-            {(activeTab === 'session' || activeTab === 'all') && (
+            {/* SESSION FILTERS - Show only when Session tab is active */}
+            {activeTab === 'session' && (
               <div className="mt-5 bg-[#161A2B] rounded-lg p-3.5 border border-gray-800/50 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}>
                 <div className="flex items-center gap-2 mb-3">
                   <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -270,9 +290,10 @@ const SearchPage = () => {
                     }}
                   >
                     <option value="Any Time" className="bg-gray-800">Any Time</option>
-                    <option value="morning" className="bg-gray-800">Morning (6AM - 12PM)</option>
-                    <option value="afternoon" className="bg-gray-800">Afternoon (12PM - 6PM)</option>
-                    <option value="evening" className="bg-gray-800">Evening (6PM - 12AM)</option>
+                    <option value="morning" className="bg-gray-800">Morning (6AM - 11:59AM)</option>
+                    <option value="afternoon" className="bg-gray-800">Afternoon (12PM - 5:59PM)</option>
+                    <option value="evening" className="bg-gray-800">Evening (6PM - 11:59PM)</option>
+                    <option value="night" className="bg-gray-800">Night (12AM - 5:59AM)</option>
                   </select>
                 </div>
 
@@ -376,7 +397,7 @@ const SearchPage = () => {
                     </div>
                     <h3 className="text-xl text-white font-bold">People</h3>
                     <span className="px-2.5 py-0.5 bg-indigo-500/10 text-indigo-400 text-xs font-bold rounded-full border border-indigo-500/30">
-                      {filteredUsers.length}
+                      {users.length}
                     </span>
                   </div>
                   {activeTab === 'all' && (
@@ -390,7 +411,7 @@ const SearchPage = () => {
                         </svg>
                       </button>
                       {/* Right arrow transforms to View All button when at end and more than 6 results */}
-                      {filteredUsers.length > 6 && isUsersCarouselAtEnd ? (
+                      {users.length > 6 && isUsersCarouselAtEnd ? (
                         <button
                           onClick={handleViewAllUsers}
                           className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 font-bold text-sm"
@@ -464,7 +485,7 @@ const SearchPage = () => {
                     </div>
                     <h3 className="text-xl text-white font-bold">Study Sessions</h3>
                     <span className="px-2.5 py-0.5 bg-indigo-500/10 text-indigo-400 text-xs font-bold rounded-full border border-indigo-500/30">
-                      {filteredSessions.length}
+                      {sessions.length}
                     </span>
                   </div>
                   {activeTab === 'all' && (
@@ -478,7 +499,7 @@ const SearchPage = () => {
                         </svg>
                       </button>
                       {/* Right arrow transforms to View All button when at end and more than 6 results */}
-                      {filteredSessions.length > 6 && isSessionsCarouselAtEnd ? (
+                      {sessions.length > 6 && isSessionsCarouselAtEnd ? (
                         <button
                           onClick={handleViewAllSessions}
                           className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 font-bold text-sm"
@@ -540,8 +561,30 @@ const SearchPage = () => {
               </div>
             )}
             
-            {/* Empty State */}
-            {displayUsers.length === 0 && displaySessions.length === 0 && (
+            {/* Loading State */}
+            {loading && (
+              <div className="flex items-center justify-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+              </div>
+            )}
+
+            {/* Error State */}
+            {error && (
+              <div className="flex items-center justify-center py-20">
+                <div className="text-center">
+                  <p className="text-red-400 text-lg mb-2">{error}</p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all"
+                  >
+                    Retry
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* Empty State - Show when no search query or no results */}
+            {!loading && !error && displayUsers.length === 0 && displaySessions.length === 0 && (
               <SearchEmptyState searchQuery={searchQuery} type={activeTab} />
             )}
           </div>

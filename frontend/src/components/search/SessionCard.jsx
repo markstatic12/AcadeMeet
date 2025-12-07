@@ -6,44 +6,38 @@ const SessionCard = ({ session }) => {
   const { 
     id, 
     title, 
-    host, 
+    hostName,
+    month,
+    day,
+    year,
     startTime, 
     endTime, 
     location, 
     description, 
     tags, 
     sessionType, 
-    participants, 
+    currentParticipants, 
     maxParticipants 
   } = session;
   
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
-  };
-  
-  const formatTime = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
-    });
+  const formatDate = () => {
+    if (month && day && year) {
+      return `${month} ${day}, ${year}`;
+    }
+    return 'TBD';
   };
   
   const getAvailabilityColor = () => {
-    const percentageFull = (participants / maxParticipants) * 100;
+    if (!maxParticipants) return 'text-green-400';
+    const percentageFull = (currentParticipants / maxParticipants) * 100;
     if (percentageFull >= 90) return 'text-red-400';
     if (percentageFull >= 70) return 'text-yellow-400';
     return 'text-green-400';
   };
   
   const getAvailabilityBg = () => {
-    const percentageFull = (participants / maxParticipants) * 100;
+    if (!maxParticipants) return 'bg-green-500/10 border-green-500/30';
+    const percentageFull = (currentParticipants / maxParticipants) * 100;
     if (percentageFull >= 90) return 'bg-red-500/10 border-red-500/30';
     if (percentageFull >= 70) return 'bg-yellow-500/10 border-yellow-500/30';
     return 'bg-green-500/10 border-green-500/30';
@@ -79,7 +73,7 @@ const SessionCard = ({ session }) => {
           <div className={`px-3 py-1.5 backdrop-blur-sm rounded-lg border flex items-center gap-1.5 ${getAvailabilityBg()}`}>
             <UsersIcon className={`w-3.5 h-3.5 ${getAvailabilityColor()}`} />
             <span className={`text-xs font-bold ${getAvailabilityColor()}`}>
-              {participants}/{maxParticipants}
+              {currentParticipants || 0}/{maxParticipants || '∞'}
             </span>
           </div>
         </div>
@@ -98,7 +92,7 @@ const SessionCard = ({ session }) => {
             {title}
           </h3>
           <p className="text-[11px] text-gray-400 group-hover:text-gray-300 transition-colors line-clamp-1">
-            by <span className="text-indigo-400 font-medium">{host?.name || 'Unknown'}</span>
+            by <span className="text-indigo-400 font-medium">{hostName || 'Unknown'}</span>
           </p>
         </div>
         
@@ -118,10 +112,10 @@ const SessionCard = ({ session }) => {
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-white font-medium group-hover:text-indigo-300 transition-colors truncate">
-                {formatDate(startTime)}
+                {formatDate()}
               </div>
               <div className="text-gray-500 group-hover:text-gray-400 transition-colors truncate">
-                {formatTime(startTime)} - {formatTime(endTime)}
+                {startTime || 'TBD'} - {endTime || 'TBD'}
               </div>
             </div>
           </div>
