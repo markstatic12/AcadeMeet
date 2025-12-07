@@ -285,7 +285,7 @@ export const useNotes = () => {
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-        const response = await authFetch('/notes/user/me/active');
+        const response = await authFetch('/notes/me/active');
         if (!response.ok) {
           console.error('Failed to fetch notes:', response.statusText);
           setNotesData([]);
