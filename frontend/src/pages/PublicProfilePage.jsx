@@ -4,7 +4,7 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import { PublicProfileCard } from '../components/profile/PublicProfileCard';
 import { PublicProfileContent } from '../components/profile/PublicProfileContent';
 import { useUser } from '../context/UserContext';
-import { mockUsers } from '../data/mockData';
+import { authFetch } from '../services/apiHelper';
 import '../styles/profile/ProfilePage.css';
 
 const PublicProfilePage = () => {
@@ -22,57 +22,108 @@ const PublicProfilePage = () => {
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
-      // TODO: Replace with actual API call
-      // const response = await userService.getUserProfile(userId);
       
-      // Find user from mock data based on userId from URL params
-      const foundUser = mockUsers.find(user => user.id === parseInt(userId));
+      // Fetch user profile from API
+      const response = await authFetch(`/users/${userId}`);
       
-      if (foundUser) {
-        // Use the complete user data from mockUsers
+      if (response.ok) {
+        const data = await response.json();
         setUserData({
-          ...foundUser,
-          profilePic: foundUser.profileImageUrl,
-          coverImage: foundUser.coverImageUrl
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          school: 'CIT University', // Default school
+          program: data.program,
+          yearLevel: data.yearLevel,
+          bio: data.bio || 'No bio yet',
+          profilePic: data.profilePic || data.profileImageUrl,
+          coverImage: data.coverImage || data.coverImageUrl,
+          isOnline: false, // TODO: Implement online status
+          followersCount: data.followers || 0,
+          followingCount: data.following || 0,
+          isMentor: false, // TODO: Implement mentor status
+          rating: 0, // TODO: Implement rating
+          totalReviews: 0, // TODO: Implement reviews
+          completedSessions: 0 // TODO: Implement completed sessions count
         });
+        
         // Check if current user is following this user
-        setIsFollowing(false); // TODO: Get from API
+        await checkFollowStatus();
       } else {
-        // Fallback to default mock user if not found
-        setUserData({
-          id: userId,
-          name: 'User Not Found',
-          school: 'CIT University',
-          program: 'Unknown',
-          yearLevel: 1,
-          bio: 'This user profile is not available.',
-          profilePic: null,
-          coverImage: null,
-          isOnline: false,
-          followersCount: 0,
-          followingCount: 0,
-          isMentor: false,
-          rating: 0,
-          totalReviews: 0,
-          completedSessions: 0
-        });
+        throw new Error('Failed to fetch user profile');
       }
     } catch (error) {
       console.error('Failed to load user profile:', error);
+      setUserData({
+        id: userId,
+        name: 'User Not Found',
+        school: 'CIT University',
+        program: 'Unknown',
+        yearLevel: 1,
+        bio: 'This user profile is not available.',
+        profilePic: null,
+        coverImage: null,
+        isOnline: false,
+        followersCount: 0,
+        followingCount: 0,
+        isMentor: false,
+        rating: 0,
+        totalReviews: 0,
+        completedSessions: 0
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  const checkFollowStatus = async () => {
+    try {
+      const response = await authFetch(`/users/${userId}/is-following`);
+      if (response.ok) {
+        const data = await response.json();
+        setIsFollowing(data.isFollowing || false);
+      }
+    } catch (error) {
+      console.error('Failed to check follow status:', error);
+      setIsFollowing(false);
+    }
+  };
+
   const handleFollow = async () => {
     try {
-      // TODO: API call to follow/unfollow
-      setIsFollowing(!isFollowing);
-      // Update followers count
-      setUserData(prev => ({
-        ...prev,
-        followersCount: isFollowing ? prev.followersCount - 1 : prev.followersCount + 1
-      }));
+      if (isFollowing) {
+        // Unfollow
+        const response = await authFetch(`/users/${userId}/follow`, {
+          method: 'DELETE',
+        });
+        
+        if (response.ok || response.status === 204) {
+          setIsFollowing(false);
+          setUserData(prev => ({
+            ...prev,
+            followersCount: Math.max(0, prev.followersCount - 1)
+          }));
+          
+          // Dispatch custom event to notify ProfilePage to refresh
+          window.dispatchEvent(new CustomEvent('user-follow-changed'));
+        }
+      } else {
+        // Follow
+        const response = await authFetch(`/users/${userId}/follow`, {
+          method: 'POST',
+        });
+        
+        if (response.ok || response.status === 204) {
+          setIsFollowing(true);
+          setUserData(prev => ({
+            ...prev,
+            followersCount: prev.followersCount + 1
+          }));
+          
+          // Dispatch custom event to notify ProfilePage to refresh
+          window.dispatchEvent(new CustomEvent('user-follow-changed'));
+        }
+      }
     } catch (error) {
       console.error('Failed to follow/unfollow:', error);
     }

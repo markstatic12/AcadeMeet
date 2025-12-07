@@ -383,7 +383,7 @@ export const ProfileCard = React.forwardRef(({ userData, onManageFollowers }, re
             <div className="relative">
               <p className="text-gray-400 text-[10px] mb-1.5 font-semibold uppercase tracking-wider">Followers</p>
               <p className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-indigo-300 bg-clip-text text-transparent group-hover/stat:scale-110 transition-transform">
-                0
+                {userData.followers || 0}
               </p>
               {/* Decorative underline */}
               <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-indigo-600 to-indigo-500 group-hover/stat:w-full transition-all duration-300"></div>
@@ -394,7 +394,7 @@ export const ProfileCard = React.forwardRef(({ userData, onManageFollowers }, re
             <div className="relative">
               <p className="text-gray-400 text-[10px] mb-1.5 font-semibold uppercase tracking-wider">Following</p>
               <p className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-indigo-300 bg-clip-text text-transparent group-hover/stat:scale-110 transition-transform">
-                0
+                {userData.following || 0}
               </p>
               {/* Decorative underline */}
               <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-indigo-600 to-indigo-500 group-hover/stat:w-full transition-all duration-300"></div>

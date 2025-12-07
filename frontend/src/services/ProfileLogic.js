@@ -46,43 +46,55 @@ export const useProfilePage = () => {
   });
 
   // Fetch user data from backend using JWT
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await authFetch('/users/me');
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Profile loaded user data:', data);
-          setUserData({
-            id: data.id,
-            name: data.name || 'User',
-            email: data.email || '',
-            school: data.school || 'CIT University',
-            program: data.program || '',
-            yearLevel: data.yearLevel || null,
-            studentId: data.studentId || '',
-            bio: data.bio || 'No bio yet',
-            profilePic: data.profilePic || null,
-            profileImageUrl: data.profileImageUrl || data.profilePic || null,
-            coverImage: data.coverImage || data.coverImageUrl || null,
-            followers: 0,
-            following: 0,
-            isOnline: true
-          });
+  const refreshUserData = async () => {
+    try {
+      const response = await authFetch('/users/me');
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Profile loaded user data:', data);
+        setUserData({
+          id: data.id,
+          name: data.name || 'User',
+          email: data.email || '',
+          school: data.school || 'CIT University',
+          program: data.program || '',
+          yearLevel: data.yearLevel || null,
+          studentId: data.studentId || '',
+          bio: data.bio || 'No bio yet',
+          profilePic: data.profilePic || null,
+          profileImageUrl: data.profileImageUrl || data.profilePic || null,
+          coverImage: data.coverImage || data.coverImageUrl || null,
+          followers: data.followers || 0,
+          following: data.following || 0,
+          isOnline: true
+        });
 
-          setEditForm({
-            name: data.name || '',
-            school: data.school || '',
-            studentId: data.studentId || '',
-            bio: data.bio || ''
-          });
-        }
-      } catch (error) {
-        console.error('Failed to fetch user data:', error);
+        setEditForm({
+          name: data.name || '',
+          school: data.school || '',
+          studentId: data.studentId || '',
+          bio: data.bio || ''
+        });
       }
-    };
+    } catch (error) {
+      console.error('Failed to fetch user data:', error);
+    }
+  };
 
-    fetchUserData();
+  useEffect(() => {
+    refreshUserData();
+    
+    // Listen for follow changes from other pages
+    const handleFollowChange = () => {
+      console.log('Follow change detected, refreshing user data...');
+      refreshUserData();
+    };
+    
+    window.addEventListener('user-follow-changed', handleFollowChange);
+    
+    return () => {
+      window.removeEventListener('user-follow-changed', handleFollowChange);
+    };
   }, []);
 
   // Open edit modal
@@ -193,9 +205,16 @@ export const useProfilePage = () => {
       const meData = await meResponse.json();
       const userId = meData.id;
       
+      // Update userData with fresh counts from /users/me
+      setUserData(prev => ({
+        ...prev,
+        followers: meData.followers || 0,
+        following: meData.following || 0
+      }));
+      
       const [foRes, fiRes] = await Promise.all([
-        authFetch(`/followers/${userId}/followers`),
-        authFetch(`/followers/${userId}/following`)
+        authFetch(`/users/${userId}/followers`),
+        authFetch(`/users/${userId}/following`)
       ]);
       const [followers, following] = await Promise.all([
         foRes.ok ? foRes.json() : Promise.resolve([]),
@@ -212,29 +231,25 @@ export const useProfilePage = () => {
 
   const removeFollower = async (followerId) => {
     try{
-      const meResponse = await authFetch('/users/me');
-      const meData = await meResponse.json();
-      const userId = meData.id;
-      
-      await authFetch('/followers/unfollow',{
-        method:'DELETE',
-        body: JSON.stringify({ followerId, followingId: userId })
-      });
-      setFollowersList(prev=> prev.filter(u=>u.id!==followerId));
+      // Remove a follower means they unfollow us
+      // We need to call the unfollow endpoint from their perspective
+      // This might require a different endpoint, for now just refresh the list
+      await refreshFollowLists();
     }catch(e){ console.error('Remove follower failed', e); }
   };
 
   const unfollowUser = async (followingId) => {
     try{
-      const meResponse = await authFetch('/users/me');
-      const meData = await meResponse.json();
-      const userId = meData.id;
-      
-      await authFetch('/followers/unfollow',{
-        method:'DELETE',
-        body: JSON.stringify({ followerId: userId, followingId })
+      const response = await authFetch(`/users/${followingId}/follow`,{
+        method:'DELETE'
       });
-      setFollowingList(prev=> prev.filter(u=>u.id!==followingId));
+      
+      if (response.ok || response.status === 204) {
+        // Refresh user data to get accurate counts
+        await refreshUserData();
+        // Update local lists
+        setFollowingList(prev=> prev.filter(u=>u.id!==followingId));
+      }
     }catch(e){ console.error('Unfollow failed', e); }
   };
 

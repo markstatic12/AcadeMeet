@@ -57,8 +57,8 @@ public class UserController {
             response.put("profilePic", user.getProfileImageUrl());
             response.put("coverImage", user.getCoverImageUrl());
             response.put("createdAt", user.getCreatedAt());
-            response.put("followers", 0);
-            response.put("following", 0);
+            response.put("followers", userService.getFollowerCount(user.getId()));
+            response.put("following", userService.getFollowingCount(user.getId()));
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -235,6 +235,22 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch following: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * Check if current user is following the specified user.
+     * GET /api/users/{userId}/is-following
+     */
+    @GetMapping("/{userId}/is-following")
+    public ResponseEntity<?> isFollowing(@PathVariable Long userId) {
+        try {
+            User currentUser = getAuthenticatedUser();
+            boolean isFollowing = userService.isFollowing(currentUser.getId(), userId);
+            return ResponseEntity.ok(Map.of("isFollowing", isFollowing));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to check follow status: " + e.getMessage()));
         }
     }
 }
