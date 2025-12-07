@@ -178,7 +178,7 @@ const SessionsSection = () => {
       {!loading && sessions.length > 0 && (
         <>
           {sessions.map((session) => (
-            <div key={session.id} className="flex-shrink-0 h-full w-64">
+            <div key={session.id} className="flex-shrink-0 h-full w-64 relative hover:z-10">
               <SessionCard session={session} />
             </div>
           ))}
