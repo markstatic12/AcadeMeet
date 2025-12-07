@@ -288,43 +288,19 @@ export const useProfilePage = () => {
 export const useNotes = (activeTab) => {
   const { isAuthenticated } = useUser();
   const [notesData, setNotesData] = useState([]);
-  const [userId, setUserId] = useState(null);
-
-  // Fetch user ID from /users/me endpoint
-  useEffect(() => {
-    const fetchUserId = async () => {
-      if (!isAuthenticated) {
-        console.log('[useNotes] User not authenticated');
-        return;
-      }
-      
-      try {
-        const response = await authFetch('/users/me');
-        if (response.ok) {
-          const data = await response.json();
-          console.log('[useNotes] Got user data:', data);
-          setUserId(data.id);
-        }
-      } catch (err) {
-        console.error('[useNotes] Failed to fetch user ID:', err);
-      }
-    };
-    
-    fetchUserId();
-  }, [isAuthenticated]);
 
   const fetchNotes = async () => {
-    console.log('[useNotes] fetchNotes called, userId:', userId);
-    if (!userId) {
-      console.log('[useNotes] No userId yet, setting empty notes');
+    console.log('[useNotes] fetchNotes called');
+    if (!isAuthenticated) {
+      console.log('[useNotes] User not authenticated, setting empty notes');
       setNotesData([]);
       return;
     }
 
     try {
-      // Fetch user's notes from backend
-      console.log(`[useNotes] Fetching from /notes/user/${userId}/active`);
-      const response = await authFetch(`/notes/user/${userId}/active`);
+      // Fetch user's notes from backend using /me endpoint (no user ID in URL)
+      console.log('[useNotes] Fetching from /notes/me/active');
+      const response = await authFetch('/notes/me/active');
       console.log('[useNotes] Response status:', response.status);
       if (response.ok) {
         const data = await response.json();
@@ -365,7 +341,7 @@ export const useNotes = (activeTab) => {
 
   useEffect(() => {
     fetchNotes();
-  }, [activeTab, userId]);
+  }, [activeTab, isAuthenticated]);
 
   const toggleFavourite = (noteId) => {
     setNotesData(prevNotes =>
