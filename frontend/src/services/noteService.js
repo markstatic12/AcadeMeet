@@ -349,5 +349,28 @@ export const noteService = {
 
     const data = await handleResponse(response, 'Failed to upload file');
     return normalizeNote(data);
+  },
+
+  /**
+   * Link an uploaded file to a session.
+   * Used when notes are uploaded before session creation.
+   * @param {string} filepath - The filepath returned from upload
+   * @param {number} sessionId - The session ID to link to
+   * @returns {Promise<object>} The linked note data
+   */
+  async linkNoteToSession(filepath, sessionId) {
+    const params = new URLSearchParams();
+    params.append('filepath', filepath);
+    params.append('sessionId', sessionId);
+
+    const response = await authFetch(`${API_BASE_URL}/link?${params.toString()}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }
+    });
+
+    const data = await handleResponse(response, 'Failed to link note to session');
+    return data;
   }
 };

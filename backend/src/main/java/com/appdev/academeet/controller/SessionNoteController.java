@@ -136,12 +136,6 @@ public class SessionNoteController {
                 return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
             }
 
-            // sessionId is required for upload
-            if (sessionId == null) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Session ID is required for note upload"));
-            }
-
             // Create uploads directory if it doesn't exist
             Path uploadPath = Paths.get("uploads/notes");
             if (!Files.exists(uploadPath)) {
@@ -163,42 +157,93 @@ public class SessionNoteController {
             // Generate relative path for storage
             String relativePath = "/uploads/notes/" + uniqueFilename;
 
-            try {
-                // Use service layer to add note (includes authorization and business rule checks)
-                SessionNote sessionNote = sessionNoteService.addNote(
-                        sessionId, 
-                        relativePath, 
-                        authenticatedUser.getId()
-                );
+            // If sessionId is provided, link the note to the session
+            if (sessionId != null) {
+                try {
+                    // Use service layer to add note (includes authorization and business rule checks)
+                    SessionNote sessionNote = sessionNoteService.addNote(
+                            sessionId, 
+                            relativePath, 
+                            authenticatedUser.getId()
+                    );
 
-                // Build response
+                    // Build response with session link
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("noteId", sessionNote.getNoteId());
+                    response.put("title", title != null ? title : originalFilename);
+                    response.put("filepath", sessionNote.getFilepath());
+                    response.put("linkedAt", sessionNote.getLinkedAt() != null 
+                            ? sessionNote.getLinkedAt().toString() : null);
+                    response.put("sessionId", sessionId);
+                    response.put("message", "File uploaded and linked to session successfully");
+
+                    return ResponseEntity.ok(response);
+                    
+                } catch (IllegalStateException | SecurityException e) {
+                    // Clean up uploaded file if business rules fail
+                    Files.deleteIfExists(filePath);
+                    return ResponseEntity.status(403)
+                            .body(Map.of("error", e.getMessage()));
+                } catch (RuntimeException e) {
+                    // Clean up uploaded file if session not found
+                    Files.deleteIfExists(filePath);
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("error", e.getMessage()));
+                }
+            } else {
+                // No sessionId provided - return file info for later linking
+                // This is used when uploading notes during session creation
                 Map<String, Object> response = new HashMap<>();
-                response.put("noteId", sessionNote.getNoteId());
+                response.put("noteId", UUID.randomUUID().toString());
                 response.put("title", title != null ? title : originalFilename);
-                response.put("filepath", sessionNote.getFilepath());
-                response.put("linkedAt", sessionNote.getLinkedAt() != null 
-                        ? sessionNote.getLinkedAt().toString() : null);
-                response.put("sessionId", sessionId);
-                response.put("message", "File uploaded successfully");
-
-                return ResponseEntity.ok(response);
+                response.put("filepath", relativePath);
+                response.put("message", "File uploaded successfully (not linked to session yet)");
                 
-            } catch (IllegalStateException | SecurityException e) {
-                // Clean up uploaded file if business rules fail
-                Files.deleteIfExists(filePath);
-                return ResponseEntity.status(403)
-                        .body(Map.of("error", e.getMessage()));
-            } catch (RuntimeException e) {
-                // Clean up uploaded file if session not found
-                Files.deleteIfExists(filePath);
-                return ResponseEntity.badRequest()
-                        .body(Map.of("error", e.getMessage()));
+                return ResponseEntity.ok(response);
             }
 
         } catch (IOException e) {
             return ResponseEntity.status(500)
                     .body(Map.of("error", "Failed to upload file: " + e.getMessage()));
         } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Link an uploaded file to a session.
+     * Used when notes are uploaded before session creation.
+     */
+    @PostMapping("/link")
+    public ResponseEntity<?> linkNoteToSession(
+            @RequestParam("filepath") String filepath,
+            @RequestParam("sessionId") Long sessionId) {
+        try {
+            User authenticatedUser = getAuthenticatedUser();
+            
+            // Use service layer to add note (includes authorization and business rule checks)
+            SessionNote sessionNote = sessionNoteService.addNote(
+                    sessionId, 
+                    filepath, 
+                    authenticatedUser.getId()
+            );
+
+            // Build response
+            Map<String, Object> response = new HashMap<>();
+            response.put("noteId", sessionNote.getNoteId());
+            response.put("filepath", sessionNote.getFilepath());
+            response.put("linkedAt", sessionNote.getLinkedAt() != null 
+                    ? sessionNote.getLinkedAt().toString() : null);
+            response.put("sessionId", sessionId);
+            response.put("message", "Note linked to session successfully");
+
+            return ResponseEntity.ok(response);
+            
+        } catch (IllegalStateException | SecurityException e) {
+            return ResponseEntity.status(403)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (RuntimeException e) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", e.getMessage()));
         }

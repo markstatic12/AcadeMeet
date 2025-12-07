@@ -373,7 +373,7 @@ const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChan
 
 // ===== DETAILS PANEL =====
 
-export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onParticipantsChange, onTagsChange, onUploadNotesClick, fieldErrors = {} }) => {
+export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onParticipantsChange, onTagsChange, onUploadNotesClick, fieldErrors = {}, uploadedNotes = [], onRemoveNote }) => {
   return (
     <div className="bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/60 to-[#0f0f1e]/60 backdrop-blur-sm border border-indigo-900/30 rounded-xl p-5 shadow-lg hover:border-indigo-700/50 transition-all duration-300 h-full flex flex-col">
       <div className="flex items-center gap-2.5 pb-4 border-b border-indigo-900/20 flex-shrink-0">
@@ -515,6 +515,33 @@ export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onPartic
           <p className="text-xs text-gray-400 leading-relaxed">
             Upload notes or materials for this session. Participants will be able to access them.
           </p>
+          
+          {/* Display uploaded notes */}
+          {uploadedNotes && uploadedNotes.length > 0 && (
+            <div className="space-y-2 mb-3">
+              {uploadedNotes.map((filepath, index) => {
+                const filename = filepath.split('/').pop() || filepath;
+                return (
+                  <div key={index} className="flex items-center gap-2 px-3 py-2 bg-indigo-600/10 border border-indigo-500/30 rounded-lg text-sm">
+                    <svg className="w-4 h-4 text-indigo-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span className="text-gray-300 flex-1 truncate">{filename}</span>
+                    <button
+                      type="button"
+                      onClick={() => onRemoveNote && onRemoveNote(index)}
+                      className="text-gray-400 hover:text-red-400 transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          
           <button
             type="button"
             onClick={onUploadNotesClick}
