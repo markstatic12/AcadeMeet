@@ -139,17 +139,21 @@ const SessionViewPage = () => {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [isParticipant, setIsParticipant] = useState(false);
 
-  // Fetch current user ID on mount
+  // Fetch current user ID on mount using centralized authFetch helper
   useEffect(() => {
-    fetch('http://localhost:8080/api/users/me', {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json'
+    let mounted = true;
+    (async () => {
+      try {
+        const { authFetch } = await import('../services/apiHelper');
+        const res = await authFetch('/users/me');
+        if (!res.ok) throw new Error(`Failed to load current user (status ${res.status})`);
+        const data = await res.json();
+        if (mounted) setCurrentUserId(data.id);
+      } catch (err) {
+        console.error('Failed to load current user', err);
       }
-    })
-      .then(res => res.json())
-      .then(data => setCurrentUserId(data.id))
-      .catch(err => console.error('Failed to load current user', err));
+    })();
+    return () => { mounted = false; };
   }, []);
 
   const isSessionOwner = session && currentUserId && session.createdBy?.id === currentUserId;

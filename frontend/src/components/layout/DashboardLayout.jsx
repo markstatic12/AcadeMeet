@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useUser } from '../../context/UserContext';
 import { HomeIcon, SessionsIcon, ProfileIcon, SearchIcon, GearIcon } from '../../icons';
 import logo from '../../assets/academeet-white.svg';
+import { authFetch } from '../../services/apiHelper';
 
 const DashboardLayout = ({ children }) => {
   const navigate = useNavigate();
@@ -10,15 +11,18 @@ const DashboardLayout = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/users/me', {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json'
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await authFetch('/users/me');
+        if (!res.ok) throw new Error(`Failed to load user (status ${res.status})`);
+        const data = await res.json();
+        if (mounted) setCurrentUser(data);
+      } catch (err) {
+        console.error('Failed to load user', err);
       }
-    })
-      .then(res => res.json())
-      .then(data => setCurrentUser(data))
-      .catch(err => console.error('Failed to load user', err));
+    })();
+    return () => { mounted = false; };
   }, []);
 
   // Logout handlers removed with sidebar logout button
