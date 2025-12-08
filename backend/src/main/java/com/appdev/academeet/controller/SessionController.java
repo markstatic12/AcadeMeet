@@ -10,12 +10,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -321,5 +323,35 @@ public class SessionController {
                                               @RequestParam("file") MultipartFile file, 
                                               @RequestParam("type") String type) {
         return handleSessionOperation(() -> sessionService.uploadSessionImage(id, file, type));
+    }
+
+    /**
+     * Gets the list of participants for a specific session.
+     */
+    @GetMapping("/{sessionId}/participants")
+    public ResponseEntity<?> getSessionParticipants(@PathVariable Long sessionId) {
+        try {
+            List<Map<String, Object>> participants = sessionService.getSessionParticipants(sessionId);
+            return ResponseEntity.ok(participants);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Removes a participant from a session (host only).
+     */
+    @DeleteMapping("/{sessionId}/participants/{userId}")
+    public ResponseEntity<?> removeParticipant(@PathVariable Long sessionId, 
+                                              @PathVariable Long userId,
+                                              @RequestHeader("Authorization") String token) {
+        try {
+            Map<String, String> result = sessionService.removeParticipant(sessionId, userId, token);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 }

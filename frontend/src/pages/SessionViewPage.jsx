@@ -4,6 +4,7 @@ import PageHeader from '../components/common/PageHeader';
 import { SessionViewHeader, ViewDetailsPanel, ViewOverviewPanel, CommentsPanel } from '../components/sessions/SessionViewComponents';
 import SessionStatusBadge from '../components/ui/SessionStatusBadge';
 import { sessionService } from '../services/SessionService';
+import ParticipantsModal from '../components/sessions/ParticipantsModal';
 
 const PasswordModal = ({ isOpen, onClose, onSubmit, sessionTitle, needsAuthentication = false }) => {
   const [password, setPassword] = useState('');
@@ -138,6 +139,8 @@ const SessionViewPage = () => {
   const [validatedPassword, setValidatedPassword] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [isParticipant, setIsParticipant] = useState(false);
+  const [showParticipantsModal, setShowParticipantsModal] = useState(false);
+  const [participants, setParticipants] = useState([]);
 
   // Fetch current user ID on mount using centralized authFetch helper
   useEffect(() => {
@@ -369,6 +372,32 @@ const SessionViewPage = () => {
     }
   };
 
+  const handleShowParticipants = async () => {
+    try {
+      const participantsList = await sessionService.getSessionParticipants(sessionId);
+      setParticipants(participantsList);
+      setShowParticipantsModal(true);
+    } catch (err) {
+      console.error('Failed to fetch participants:', err);
+      setError('Failed to load participants');
+    }
+  };
+
+  const handleRemoveParticipant = async (userId) => {
+    try {
+      await sessionService.removeParticipant(sessionId, userId);
+      // Refresh participants list
+      const updatedParticipants = await sessionService.getSessionParticipants(sessionId);
+      setParticipants(updatedParticipants);
+      // Refresh session to update count
+      const updatedSession = await sessionService.getSessionById(sessionId);
+      setSession(updatedSession);
+    } catch (err) {
+      console.error('Failed to remove participant:', err);
+      setError('Failed to remove participant');
+    }
+  };
+
   const handleBack = () => {
     navigate('/sessions');
   };
@@ -561,7 +590,10 @@ const SessionViewPage = () => {
           <div className="grid grid-cols-12 gap-4 h-full">
             {/* Left: Session Details */}
             <div className="col-span-3 h-full min-h-0 opacity-0 translate-y-4 pr-4" style={{ animation: 'slideUpFade 0.5s ease-out 0.1s forwards', borderRight: '1.5px solid rgba(31, 41, 55, 0.3)' }}>
-              <ViewDetailsPanel session={session} />
+              <ViewDetailsPanel 
+                session={session} 
+                onParticipantsClick={handleShowParticipants}
+              />
             </div>
             
             {/* Center: Session Overview */}
@@ -576,6 +608,15 @@ const SessionViewPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Participants Modal */}
+      <ParticipantsModal
+        isOpen={showParticipantsModal}
+        participants={participants}
+        isHost={isSessionOwner}
+        onClose={() => setShowParticipantsModal(false)}
+        onRemoveParticipant={handleRemoveParticipant}
+      />
     </div>
   );
 };

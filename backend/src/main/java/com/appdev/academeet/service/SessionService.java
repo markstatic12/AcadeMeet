@@ -7,7 +7,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -30,6 +32,7 @@ import com.appdev.academeet.model.User;
 import com.appdev.academeet.repository.SessionParticipantRepository;
 import com.appdev.academeet.repository.SessionRepository;
 import com.appdev.academeet.repository.UserRepository;
+import com.appdev.academeet.security.JwtUtil;
 
 @Service
 public class SessionService {
@@ -38,13 +41,16 @@ public class SessionService {
     private final SessionParticipantRepository sessionParticipantRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     public SessionService(SessionRepository sessionRepository,
                           SessionParticipantRepository sessionParticipantRepository,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          JwtUtil jwtUtil) {
         this.sessionRepository = sessionRepository;
         this.sessionParticipantRepository = sessionParticipantRepository;
         this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
@@ -70,9 +76,10 @@ public class SessionService {
             session.setSessionPassword(passwordEncoder.encode(session.getSessionPassword()));
         }
 
-        session.setCurrentParticipants(0);
+        session.setCurrentParticipants(1); // Host is automatically a participant
         Session saved = sessionRepository.save(session);
 
+        // Add host as a participant
         SessionParticipant participant = new SessionParticipant(saved, host);
         sessionParticipantRepository.save(participant);
 
@@ -466,6 +473,75 @@ public class SessionService {
         return trending.stream()
                 .map(SessionDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Get all participants for a session.
+     */
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getSessionParticipants(Long sessionId) {
+        // Verify session exists
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Session not found"));
+        
+        // Get all participants
+        List<SessionParticipant> participants = sessionParticipantRepository.findBySessionId(sessionId);
+        
+        // Map to user info
+        return participants.stream()
+                .map(sp -> {
+                    User user = sp.getUser();
+                    Map<String, Object> userMap = new HashMap<>();
+                    userMap.put("id", user.getId());
+                    userMap.put("name", user.getName());
+                    userMap.put("email", user.getEmail());
+                    userMap.put("program", user.getProgram());
+                    userMap.put("profilePic", user.getProfileImageUrl());
+                    userMap.put("joinedAt", sp.getJoinedAt());
+                    userMap.put("isHost", user.getId().equals(session.getHost().getId()));
+                    return userMap;
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Remove a participant from a session (host only).
+     */
+    @Transactional
+    public Map<String, String> removeParticipant(Long sessionId, Long userId, String token) {
+        // Extract user from token
+        String jwt = token.replace("Bearer ", "");
+        String email = jwtUtil.getEmailFromToken(jwt);
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        // Get session
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Session not found"));
+        
+        // Verify current user is the host
+        if (!session.getHost().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Only the host can remove participants");
+        }
+        
+        // Verify user to remove is not the host
+        if (userId.equals(currentUser.getId())) {
+            throw new RuntimeException("Host cannot be removed from the session");
+        }
+        
+        // Check if user is a participant
+        SessionParticipantId participantId = new SessionParticipantId(sessionId, userId);
+        SessionParticipant participant = sessionParticipantRepository.findById(participantId)
+                .orElseThrow(() -> new RuntimeException("User is not a participant of this session"));
+        
+        // Remove participant
+        sessionParticipantRepository.delete(participant);
+        
+        // Decrement participant count
+        session.setCurrentParticipants(session.getCurrentParticipants() - 1);
+        sessionRepository.save(session);
+        
+        return Map.of("message", "Participant removed successfully");
     }
 
 }
