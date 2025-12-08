@@ -17,10 +17,10 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
   return (
     <div 
       onClick={handleClick}
-      className="bg-[#161A2B] border border-gray-700/50 hover:border-indigo-500/60 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/20 cursor-pointer group w-full hover:scale-[1.01] relative"
+      className="bg-[#161A2B] border border-gray-700/50 hover:border-indigo-500/60 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/20 cursor-pointer group w-full relative"
     >
       {/* Compact Header with Status */}
-      <div className="relative p-4 bg-gradient-to-br from-indigo-600/10 to-purple-600/10 border-b border-indigo-500/20">
+      <div className="relative p-3 bg-gradient-to-br from-indigo-600/10 to-purple-600/10 border-b border-indigo-500/20">
         {/* Status and Privacy Indicators */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
@@ -53,11 +53,11 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
       </div>
 
       {/* Session Info */}
-      <div className="p-4 bg-[#161A2B] transition-all relative">
-        <div className="space-y-2.5">
-          <div className="flex items-center gap-2.5 text-gray-300 text-sm group-hover:text-white transition-colors">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center group-hover:bg-indigo-600/30 transition-colors shrink-0">
-              <CalendarIcon className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
+      <div className="p-3 bg-[#161A2B] transition-all relative">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-white transition-colors">
+            <div className="w-7 h-7 rounded-lg bg-indigo-600/20 flex items-center justify-center group-hover:bg-indigo-600/30 transition-colors shrink-0">
+              <CalendarIcon className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
             </div>
             <span className="font-medium">{session.month} {session.day}, {session.year}</span>
           </div>
@@ -66,20 +66,20 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
               {/* Blurred/Locked details for private sessions */}
               <div className="relative">
                 <div className="space-y-2 blur-[2px] select-none pointer-events-none opacity-40">
-                  <div className="flex items-center gap-2.5 text-gray-500 text-sm">
-                    <div className="w-8 h-8 rounded-lg bg-gray-600/10 flex items-center justify-center">
-                      <ClockIcon className="w-4 h-4 text-gray-500" />
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center">
+                      <ClockIcon className="w-3.5 h-3.5 text-gray-500" />
                     </div>
                     <span>••:•• •• - ••:•• ••</span>
                   </div>
-                  <div className="flex items-center gap-2.5 text-gray-500 text-sm">
-                    <div className="w-8 h-8 rounded-lg bg-gray-600/10 flex items-center justify-center">
-                      <LocationIcon className="w-4 h-4 text-gray-500" />
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center">
+                      <LocationIcon className="w-3.5 h-3.5 text-gray-500" />
                     </div>
                     <span>••••••••••</span>
                   </div>
-                  <div className="flex items-center gap-2.5 text-gray-500 text-sm">
-                    <div className="w-8 h-8 rounded-lg bg-gray-600/10 flex items-center justify-center">
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center">
                       <span className="text-sm">👥</span>
                     </div>
                     <span>•/•• participants</span>
@@ -96,21 +96,21 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
             </>
           ) : (
             <>
-              <div className="flex items-center gap-2.5 text-gray-300 text-sm group-hover:text-white transition-colors">
-                <div className="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center group-hover:bg-indigo-600/30 transition-colors shrink-0">
-                  <ClockIcon className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
+              <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-white transition-colors">
+                <div className="w-7 h-7 rounded-lg bg-indigo-600/20 flex items-center justify-center group-hover:bg-indigo-600/30 transition-colors shrink-0">
+                  <ClockIcon className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
                 </div>
                 <span className="font-medium">{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
               </div>
-              <div className="flex items-center gap-2.5 text-gray-300 text-sm group-hover:text-white transition-colors">
-                <div className="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center group-hover:bg-indigo-600/30 transition-colors shrink-0">
-                  <LocationIcon className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
+              <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-white transition-colors">
+                <div className="w-7 h-7 rounded-lg bg-indigo-600/20 flex items-center justify-center group-hover:bg-indigo-600/30 transition-colors shrink-0">
+                  <LocationIcon className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
                 </div>
                 <span className="font-medium truncate">{session.location}</span>
               </div>
               {session.maxParticipants && (
-                <div className="flex items-center gap-2.5 text-gray-300 text-sm group-hover:text-white transition-colors">
-                  <div className="w-8 h-8 rounded-lg bg-green-600/20 flex items-center justify-center group-hover:bg-green-600/30 transition-colors shrink-0">
+                <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-lg bg-green-600/20 flex items-center justify-center group-hover:bg-green-600/30 transition-colors shrink-0">
                     <span className="text-base">👥</span>
                   </div>
                   <span className="font-medium">{session.currentParticipants || 0}/{session.maxParticipants} participants</span>

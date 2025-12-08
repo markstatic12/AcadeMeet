@@ -74,7 +74,8 @@ const ProfilePage = () => {
 
   return (
     <DashboardLayout>
-      <div className="mb-6">
+      <div className="h-full flex flex-col overflow-hidden p-8">
+      <div className="mb-6 flex-shrink-0">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             {fromSearch && (
@@ -112,8 +113,8 @@ const ProfilePage = () => {
             />
         </div>
       </div>
-      <div className="flex gap-6">
-        <div className="w-[280px] opacity-0 animate-fadeSlideUp" style={{ animationDelay: '0ms', animationFillMode: 'forwards' }}>
+      <div className="flex gap-6 flex-1 overflow-hidden">
+        <div className="w-[280px] flex-shrink-0 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '0ms', animationFillMode: 'forwards' }}>
           <ProfileCard
             ref={leftProfileCardRef}
             userData={userData}
@@ -121,9 +122,9 @@ const ProfilePage = () => {
           />
         </div>
 
-        <div className="flex-1 relative z-0 opacity-0 animate-fadeSlideUp" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
+        <div className="flex-1 relative z-0 opacity-0 animate-fadeSlideUp flex flex-col overflow-hidden" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
           {/* Header Section */}
-          <div className="relative mb-6">
+          <div className="relative mb-6 flex-shrink-0">
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-950/40 via-purple-950/30 to-indigo-950/40 backdrop-blur-xl border border-indigo-500/20 px-8 py-5 shadow-xl">
               {/* Animated gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/15 to-indigo-500/10 animate-gradient-x"></div>
@@ -146,9 +147,9 @@ const ProfilePage = () => {
             </div>
           </div>
 
-          {/* Session Content - No Base Card */}
-          {sessionsView === 'active' && (
-            <>
+          {/* Scrollable Session Content Area */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+            {sessionsView === 'active' && (
               <SessionsContent
                 sessionsData={sessionsData}
                 openCardMenuId={openCardMenuId}
@@ -156,49 +157,52 @@ const ProfilePage = () => {
                 onMenuToggle={setOpenCardMenuId}
                 onDeleteSession={deleteSession}
               />
+            )}
+
+            {sessionsView === 'trash' && (
+              <TrashedSessionsContent
+                trashedSessions={trashedSessions}
+                onRestore={restoreSession}
+                onBackToSessions={() => setSessionsView('active')}
+              />
+            )}
+
+            {sessionsView === 'history' && (
+              <HistorySessionsContent
+                historySessions={historySessions}
+                onBackToSessions={() => setSessionsView('active')}
+              />
+            )}
+          </div>
+          
+          {/* Floating Action Button - Only show in active view */}
+          {sessionsView === 'active' && (
+            <button
+              onClick={handleCreateSession}
+              className="fixed bottom-8 right-8 group z-50"
+              aria-label="Create new session"
+            >
+              {/* Pulsing background effect */}
+              <div className="absolute inset-0 bg-indigo-600 rounded-full blur-lg opacity-30 group-hover:opacity-50 animate-pulse"></div>
               
-              {/* Floating Action Button */}
-              <button
-                onClick={handleCreateSession}
-                className="fixed bottom-8 right-8 group z-50"
-                aria-label="Create new session"
-              >
-                {/* Pulsing background effect */}
-                <div className="absolute inset-0 bg-indigo-600 rounded-full blur-xl opacity-50 group-hover:opacity-70 animate-pulse"></div>
-                
-                {/* Main FAB circle */}
-                <div className="relative w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center shadow-2xl shadow-indigo-500/50 hover:shadow-indigo-500/70 transition-all duration-300 hover:scale-110 border-2 border-indigo-400/30 hover:border-indigo-400/50">
-                  <svg className="w-8 h-8 text-white transition-transform group-hover:rotate-90 duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-                  </svg>
+              {/* Main FAB circle */}
+              <div className="relative w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center shadow-2xl shadow-indigo-500/50 hover:shadow-indigo-500/70 transition-all duration-300 hover:scale-110 border-2 border-indigo-400/30 hover:border-indigo-400/50">
+                <svg className="w-8 h-8 text-white transition-transform group-hover:rotate-90 duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              
+              {/* Tooltip label */}
+              <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
+                <div className="bg-gray-900/95 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-xl border border-indigo-500/30 whitespace-nowrap backdrop-blur-sm">
+                  Create Session
+                  <div className="absolute top-full right-6 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900/95"></div>
                 </div>
-                
-                {/* Tooltip label */}
-                <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
-                  <div className="bg-gray-900/95 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-xl border border-indigo-500/30 whitespace-nowrap backdrop-blur-sm">
-                    Create Session
-                    <div className="absolute top-full right-6 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900/95"></div>
-                  </div>
-                </div>
-              </button>
-            </>
-          )}
-
-          {sessionsView === 'trash' && (
-            <TrashedSessionsContent
-              trashedSessions={trashedSessions}
-              onRestore={restoreSession}
-              onBackToSessions={() => setSessionsView('active')}
-            />
-          )}
-
-          {sessionsView === 'history' && (
-            <HistorySessionsContent
-              historySessions={historySessions}
-              onBackToSessions={() => setSessionsView('active')}
-            />
+              </div>
+            </button>
           )}
         </div>
+      </div>
       </div>
 
       <EditProfileModal

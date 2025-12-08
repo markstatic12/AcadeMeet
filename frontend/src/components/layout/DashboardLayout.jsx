@@ -505,7 +505,7 @@ const DashboardLayout = ({ children }) => {
           {/* Subtle animated gradient orbs for depth */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/5 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl animate-pulse pointer-events-none" style={{animationDelay: '1s'}}></div>
-          <div className={`relative z-10 ${location.pathname === '/dashboard' || location.pathname === '/search' ? 'h-full' : 'h-full p-8 overflow-y-auto custom-scrollbar'}`}>
+          <div className={`relative z-10 ${location.pathname === '/dashboard' || location.pathname === '/search' || location.pathname === '/profile' ? 'h-full' : 'h-full p-8 overflow-y-auto custom-scrollbar'}`}>
             {children}
           </div>
         </div>

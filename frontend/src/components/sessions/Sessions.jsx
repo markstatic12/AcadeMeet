@@ -18,124 +18,99 @@ const SessionCard = ({ session }) => {
   return (
     <div 
       onClick={handleClick}
-      className="bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f1e] border border-indigo-900/40 hover:border-indigo-500/60 rounded-xl overflow-hidden transition-all hover:shadow-2xl hover:shadow-indigo-950/30 cursor-pointer group h-[260px] w-full"
+      className="bg-[#161A2B] border border-gray-700/50 hover:border-indigo-500/60 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/20 cursor-pointer group w-full relative"
     >
-      {/* Session Thumbnail */}
-      <div className="relative h-[120px] bg-gradient-to-br from-[#1e40af] via-[#2563eb] to-[#3b82f6] overflow-hidden">
+      {/* Compact Header with Status */}
+      <div className="relative p-3 bg-gradient-to-br from-indigo-600/10 to-purple-600/10 border-b border-indigo-500/20">
         {/* Status and Privacy Indicators */}
-        <div className="absolute top-2 left-2 flex items-center gap-2 z-10">
-          <SessionStatusBadge status={session.status} />
-          {session.sessionType === 'PRIVATE' && (
-            <div className="flex items-center px-2 py-1 bg-black/30 rounded-full">
-              <LockIcon className="w-3 h-3 text-yellow-400" />
-              <span className="text-xs text-yellow-400 ml-1">Private</span>
-            </div>
-          )}
-        </div>
-        {/* Colorful shapes pattern - LEFT SIDE */}
-        <div className="absolute left-0 top-0 w-1/2 h-full pointer-events-none">
-          {/* Row 1 */}
-          <div className="absolute top-2 left-2 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center text-white text-[8px] font-bold shadow-md">B</div>
-          <div className="absolute top-2 left-10 w-5 h-5 bg-orange-500 rounded shadow-md"></div>
-          <div className="absolute top-3 left-16 w-4 h-4 bg-cyan-400 rounded shadow-md"></div>
-          
-          {/* Row 2 */}
-          <div className="absolute top-8 left-2 w-5 h-5 bg-blue-500 rounded shadow-md"></div>
-          <div className="absolute top-7 left-9 w-6 h-6 bg-yellow-400 rounded transform rotate-12 shadow-md"></div>
-          <div className="absolute top-8 left-16 w-5 h-5 bg-purple-500 rounded shadow-md"></div>
-          
-          {/* Row 3 */}
-          <div className="absolute top-14 left-2 w-5 h-5 bg-pink-500 rounded-full shadow-md"></div>
-          <div className="absolute top-13 left-9 w-5 h-5 bg-red-500 rounded shadow-md"></div>
-          <div className="absolute top-14 left-15 w-4 h-4 bg-yellow-300 rounded-full shadow-md"></div>
-        </div>
-        
-        {/* Pink diamond accent - CENTER TOP */}
-        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 pointer-events-none">
-          <div className="w-7 h-7 bg-pink-500 rounded transform rotate-45 shadow-lg"></div>
-        </div>
-        
-        {/* Phone illustration - RIGHT BOTTOM */}
-        <div className="absolute bottom-0 right-0 w-1/2 h-full flex items-end justify-end p-2 pointer-events-none">
-          <div className="relative">
-            <div className="w-20 h-16 bg-[#1e40af] rounded-lg border-2 border-[#1e3a8a] shadow-xl"></div>
-            <div className="absolute top-1 left-1 right-1 bottom-1 bg-[#2563eb] rounded"></div>
-            <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 border-r-2 border-b-2 border-white/30 rounded-br-lg"></div>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <SessionStatusBadge status={session.status} />
+            {session.sessionType === 'PRIVATE' && (
+              <div className="flex items-center px-2 py-0.5 bg-yellow-500/10 backdrop-blur-sm rounded border border-yellow-500/30">
+                <LockIcon className="w-3 h-3 text-yellow-400" />
+                <span className="text-xs text-yellow-400 ml-1 font-semibold">Private</span>
+              </div>
+            )}
           </div>
         </div>
+        
+        {/* Title */}
+        <h3 className="text-white font-bold text-base group-hover:text-indigo-300 transition-colors truncate">
+          {session.title}
+        </h3>
       </div>
 
       {/* Session Info */}
-      <div className="p-4 bg-[#0a0a0a]/50 relative">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="text-white font-bold text-sm group-hover:text-indigo-400 transition-colors flex-1">
-            {session.title}
-          </h3>
-          {/* Tags Display */}
-          {session.tags && session.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 justify-end flex-shrink-0 max-w-[40%]">
-              {session.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="bg-indigo-600/20 border border-indigo-500/50 text-indigo-300 px-2 py-0.5 rounded-full text-[10px] whitespace-nowrap"
-                >
-                  {tag}
-                </span>
-              ))}
+      <div className="p-3 bg-[#161A2B] transition-all relative">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-white transition-colors">
+            <div className="w-7 h-7 rounded-lg bg-indigo-600/20 flex items-center justify-center group-hover:bg-indigo-600/30 transition-colors shrink-0">
+              <CalendarIcon className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
             </div>
-          )}
-        </div>
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-            <CalendarIcon className="w-3 h-3 text-indigo-400" />
-            <span>{session.month} {session.day}, {session.year}</span>
+            <span className="font-medium">{session.month} {session.day}, {session.year}</span>
           </div>
           {session.sessionType === 'PRIVATE' ? (
             <>
               {/* Blurred/Locked details for private sessions */}
               <div className="relative">
-                <div className="space-y-1.5 blur-sm select-none pointer-events-none">
-                  <div className="flex items-center gap-1.5 text-gray-500 text-[11px]">
-                    <ClockIcon className="w-3 h-3 text-gray-500" />
+                <div className="space-y-2 blur-[2px] select-none pointer-events-none opacity-40">
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center">
+                      <ClockIcon className="w-3.5 h-3.5 text-gray-500" />
+                    </div>
                     <span>••:•• •• - ••:•• ••</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-gray-500 text-[11px]">
-                    <LocationIcon className="w-3 h-3 text-gray-500" />
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center">
+                      <LocationIcon className="w-3.5 h-3.5 text-gray-500" />
+                    </div>
                     <span>••••••••••</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-gray-500 text-[11px]">
-                    <span>👥</span>
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center">
+                      <span className="text-sm">👥</span>
+                    </div>
                     <span>•/•• participants</span>
                   </div>
                 </div>
                 {/* Lock overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-yellow-500/30 flex items-center gap-2">
-                    <LockIcon className="w-4 h-4 text-yellow-400" />
-                    <span className="text-[10px] text-yellow-400 font-semibold">Private Details</span>
+                  <div className="bg-gray-900/90 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-yellow-500/30 flex items-center gap-1.5">
+                    <LockIcon className="w-3.5 h-3.5 text-yellow-400" />
+                    <span className="text-xs text-yellow-400 font-semibold">Private Details</span>
                   </div>
                 </div>
               </div>
             </>
           ) : (
             <>
-              <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-                <ClockIcon className="w-3 h-3 text-indigo-400" />
-                <span>{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
+              <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-white transition-colors">
+                <div className="w-7 h-7 rounded-lg bg-indigo-600/20 flex items-center justify-center group-hover:bg-indigo-600/30 transition-colors shrink-0">
+                  <ClockIcon className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
+                </div>
+                <span className="font-medium">{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
               </div>
-              <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-                <LocationIcon className="w-3 h-3 text-indigo-400" />
-                <span>{session.location}</span>
+              <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-white transition-colors">
+                <div className="w-7 h-7 rounded-lg bg-indigo-600/20 flex items-center justify-center group-hover:bg-indigo-600/30 transition-colors shrink-0">
+                  <LocationIcon className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
+                </div>
+                <span className="font-medium truncate">{session.location}</span>
               </div>
               {session.maxParticipants && (
-                <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-                  <span>👥</span>
-                  <span>{session.currentParticipants || 0}/{session.maxParticipants} participants</span>
+                <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-lg bg-green-600/20 flex items-center justify-center group-hover:bg-green-600/30 transition-colors shrink-0">
+                    <span className="text-base">👥</span>
+                  </div>
+                  <span className="font-medium">{session.currentParticipants || 0}/{session.maxParticipants} participants</span>
                 </div>
               )}
             </>
           )}
         </div>
+        
+        {/* Bottom accent */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       </div>
     </div>
   );
