@@ -122,6 +122,19 @@ public class SessionController {
     }
 
     /**
+     * Gets all sessions hosted by a specific user (for viewing other users' profiles).
+     */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getSessionsByUserId(@PathVariable Long userId) {
+        try {
+            List<SessionDTO> sessions = sessionService.getSessionsByUserId(userId);
+            return ResponseEntity.ok(sessions);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
      * Gets all sessions in the system.
      */
     @GetMapping("/all-sessions")

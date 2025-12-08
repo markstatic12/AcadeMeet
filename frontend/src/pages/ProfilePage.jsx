@@ -1,4 +1,5 @@
 ﻿import React, { useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import ProfileCard, { EditProfileModal, FollowersModal } from '../components/profile/ProfileHeader';
 import TabButtons, { TabOptionMenu as TabOptionsMenu } from '../components/profile/ProfileNavigation';
@@ -10,9 +11,13 @@ import { useSessions } from '../services/ProfileLogic';
 import { useNotes } from '../services/ProfileLogic';
 import { usePanelHeight } from '../services/CommonUtils';
 import { useClickOutside } from '../services/CommonUtils';
+import { BackIcon } from '../icons/icons';
 import '../styles/profile/ProfilePage.css';
 
 const ProfilePage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const fromSearch = location.state?.fromSearch;
   const leftProfileCardRef = useRef(null);
   const rightPanelRef = useRef(null);
 
@@ -75,14 +80,25 @@ const ProfilePage = () => {
   return (
     <DashboardLayout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center">
-            <svg className="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-            </svg>
-          </div>
-          My Profile
-        </h1>
+        <div className="flex items-center gap-4">
+          {fromSearch && (
+            <button
+              onClick={() => navigate(-1)}
+              className="w-9 h-9 rounded-xl bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 flex items-center justify-center transition-all duration-200 group"
+              aria-label="Go back"
+            >
+              <BackIcon className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
+            </button>
+          )}
+          <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center">
+              <svg className="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+              </svg>
+            </div>
+            My Profile
+          </h1>
+        </div>
       </div>
       <div className="flex gap-6 h-[calc(100vh-180px)]">
         <div className="w-[280px] opacity-0 animate-fadeSlideUp" style={{ animationDelay: '0ms', animationFillMode: 'forwards' }}>

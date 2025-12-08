@@ -16,6 +16,29 @@ const PublicProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [activeTab, setActiveTab] = useState('about'); // 'about', 'schedule'
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  // Fetch current user's ID and check if viewing self
+  useEffect(() => {
+    const checkIfOwnProfile = async () => {
+      try {
+        const response = await authFetch('/users/me');
+        if (response.ok) {
+          const data = await response.json();
+          setCurrentUserId(data.id);
+          
+          // Redirect to own profile if viewing self
+          if (userId && parseInt(userId) === data.id) {
+            navigate('/profile', { replace: true, state: { fromSearch: true } });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch current user:', error);
+      }
+    };
+
+    checkIfOwnProfile();
+  }, [userId, navigate]);
 
   useEffect(() => {
     fetchUserProfile();

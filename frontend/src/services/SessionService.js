@@ -284,5 +284,16 @@ export const sessionService = {
     });
 
     return handleResponse(response, 'Failed to fetch completed sessions');
+  },
+
+  /**
+   * Gets all sessions hosted by a specific user (for viewing other users' profiles)
+   */
+  async getSessionsByUserId(userId) {
+    const response = await authFetch(`${API_BASE}/user/${userId}`, {
+      method: 'GET'
+    });
+
+    return handleResponse(response, 'Failed to fetch user sessions');
   }
 };
