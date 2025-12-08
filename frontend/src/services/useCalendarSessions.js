@@ -21,7 +21,7 @@ export const useCalendarSessions = (currentMonth) => {
       const monthName = currentMonth.toLocaleString('default', { month: 'long' });
       
       const monthSessions = allSessions.filter(session => 
-        session.year === year && session.month === monthName
+        session.year === year && session.month?.toUpperCase() === monthName.toUpperCase()
       );
 
       // Group sessions by day

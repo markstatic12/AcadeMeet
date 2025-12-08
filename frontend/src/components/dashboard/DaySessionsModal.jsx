@@ -16,9 +16,12 @@ const DaySessionsModal = ({ isOpen, onClose, selectedDate }) => {
     
     try {
       const { year, month, day } = selectedDate;
+      console.log('Fetching sessions for:', { year, month, day });
       const sessionsData = await sessionService.getSessionsByDate(year, month, day);
+      console.log('Received sessions:', sessionsData);
       setSessions(sessionsData);
     } catch (err) {
+      console.error('Error fetching sessions for date:', err);
       setError(err.message);
     } finally {
       setLoading(false);

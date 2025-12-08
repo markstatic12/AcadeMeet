@@ -42,4 +42,11 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
            "GROUP BY s.id " +
            "ORDER BY COUNT(st) DESC")
     List<Session> findTrendingSessions(Pageable pageable);
+
+    // Find sessions by date components
+    @Query("SELECT s FROM Session s WHERE " +
+           "YEAR(s.startTime) = :year AND " +
+           "MONTH(s.startTime) = :month AND " +
+           "DAY(s.startTime) = :day")
+    List<Session> findByYearMonthDay(int year, int month, int day);
 }
