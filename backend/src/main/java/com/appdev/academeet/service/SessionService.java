@@ -97,7 +97,12 @@ public class SessionService {
     public List<SessionDTO> getSessionsByUserId(Long userId) {
         return sessionRepository.findByHost_Id(userId)
                 .stream()
-                .map(SessionDTO::new) // <-- CONVERT TO DTO
+                .map(SessionDTO::new) // <-- CONVERT TO DTO first to get calculated status
+                .filter(dto -> {
+                    SessionStatus status = dto.getStatus();
+                    // Only return ACTIVE and SCHEDULED sessions (exclude COMPLETED, TRASH, DELETED, CANCELLED)
+                    return status == SessionStatus.ACTIVE || status == SessionStatus.SCHEDULED;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -108,7 +113,20 @@ public class SessionService {
     public List<SessionDTO> getCompletedSessionsByUserId(Long userId) {
         return sessionRepository.findByHost_Id(userId)
                 .stream()
-                .filter(session -> session.getSessionStatus() == SessionStatus.COMPLETED)
+                .map(SessionDTO::new) // Convert to DTO first to get calculated status
+                .filter(dto -> dto.getStatus() == SessionStatus.COMPLETED)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Gets trashed sessions for a specific user.
+     * TRASH is a manually set status, so we check database status before DTO conversion.
+     */
+    @Transactional(readOnly = true)
+    public List<SessionDTO> getTrashedSessionsByUserId(Long userId) {
+        return sessionRepository.findByHost_Id(userId)
+                .stream()
+                .filter(session -> session.getSessionStatus() == SessionStatus.TRASH)
                 .map(SessionDTO::new)
                 .collect(Collectors.toList());
     }
@@ -133,15 +151,15 @@ public class SessionService {
     public List<SessionDTO> getAllSessions() {
         return sessionRepository.findAllByOrderByStartTime()
             .stream()
-            .filter(session -> {
-                SessionStatus status = session.getSessionStatus();
-                // Exclude DELETED, CANCELLED, TRASH, and COMPLETED sessions
+            .map(SessionDTO::new) // Convert to DTO first (calculates status)
+            .filter(dto -> {
+                SessionStatus status = dto.getStatus();
+                // Exclude DELETED, CANCELLED, TRASH, and COMPLETED sessions (including auto-calculated COMPLETED)
                 return status != SessionStatus.DELETED && 
                        status != SessionStatus.CANCELLED && 
                        status != SessionStatus.TRASH &&
                        status != SessionStatus.COMPLETED;
             })
-            .map(SessionDTO::new)
             .collect(Collectors.toList());
     }
 

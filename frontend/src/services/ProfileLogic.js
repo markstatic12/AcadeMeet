@@ -351,9 +351,8 @@ export const useSessions = () => {
       const data = await res.json();
       console.log("Fetched sessions:", data);
       
-      // Filter ACTIVE and SCHEDULED sessions
+      // Backend already filters to ACTIVE and SCHEDULED sessions
       const activeSessions = (Array.isArray(data) ? data : [])
-        .filter(s => s.status === 'ACTIVE' || s.status === 'SCHEDULED')
         .sort((a, b) => {
           // Define status priority: ACTIVE first, then SCHEDULED
           const statusPriority = { 'ACTIVE': 1, 'SCHEDULED': 2 };
@@ -377,7 +376,7 @@ export const useSessions = () => {
   // Fetch TRASH sessions from backend
   const fetchTrashedSessions = async () => {
     try {
-      const res = await authFetch('/sessions/user/me', {
+      const res = await authFetch('/sessions/user/me/trash', {
         method: "GET",
       });
 
@@ -385,8 +384,8 @@ export const useSessions = () => {
 
       const data = await res.json();
       
-      // Filter only TRASH sessions
-      const trashed = (Array.isArray(data) ? data : []).filter(s => s.status === 'TRASH');
+      // Data is already filtered to TRASH on backend
+      const trashed = (Array.isArray(data) ? data : []);
       setTrashedSessions(trashed);
     } catch (err) {
       console.error("Failed to fetch trashed sessions:", err);
@@ -421,6 +420,19 @@ export const useSessions = () => {
 
 
 
+  const deleteSession = async (sessionId) => {
+    try {
+      await sessionService.updateSessionStatus(sessionId, 'TRASH');
+      
+      // Refresh both active and trashed sessions from backend
+      await fetchActiveSessions();
+      await fetchTrashedSessions();
+    } catch (error) {
+      console.error('Error trashing session:', error);
+      alert(`Failed to trash session: ${error.message}`);
+    }
+  };
+
   const restoreSession = async (sessionId) => {
     try {
       await sessionService.updateSessionStatus(sessionId, 'ACTIVE');
@@ -438,6 +450,7 @@ export const useSessions = () => {
     sessionsData,
     trashedSessions,
     historySessions,
+    deleteSession,
     restoreSession,
     refreshHistory: fetchCompletedSessions
   };

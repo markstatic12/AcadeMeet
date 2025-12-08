@@ -145,6 +145,20 @@ public class SessionController {
     }
 
     /**
+     * Gets trashed sessions for the authenticated user.
+     */
+    @GetMapping("/user/me/trash")
+    public ResponseEntity<?> getMyTrashedSessions() {
+        try {
+            User user = getAuthenticatedUser();
+            List<SessionDTO> sessions = sessionService.getTrashedSessionsByUserId(user.getId());
+            return ResponseEntity.ok(sessions);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
      * Gets all sessions that the authenticated user has joined (as participant).
      */
     @GetMapping("/user/me/joined")
