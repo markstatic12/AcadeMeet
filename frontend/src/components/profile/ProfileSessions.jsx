@@ -256,7 +256,7 @@ export const TrashedSessionCard = ({ session, onRestore }) => {
 
 export const SessionsContent = ({ sessionsData, openCardMenuId, onCreateSession, onMenuToggle, onDeleteSession }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full flex-1 min-h-0 overflow-y-auto custom-scrollbar px-6 pb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
       {/* Create New Session Card */}
       <div className="animate-fadeIn">
         <CreateNewCard onClick={onCreateSession} label="Create New Session" />
@@ -283,7 +283,7 @@ export const HistorySessionsContent = ({ historySessions, onBackToSessions }) =>
   const navigate = useNavigate();
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar px-6 pb-6">
+    <div className="w-full">
       <div className="mb-6 flex items-center justify-between animate-slideInLeft">
         <div>
           <h3 className="text-white text-xl font-bold tracking-tight">Session History</h3>
@@ -404,7 +404,7 @@ export const HistorySessionsContent = ({ historySessions, onBackToSessions }) =>
 
 export const TrashedSessionsContent = ({ trashedSessions, onRestore, onBackToSessions }) => {
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar px-6 pb-6">
+    <div className="w-full">
       <div className="mb-6 flex items-center justify-between animate-slideInLeft">
         <h3 className="text-white text-xl font-bold tracking-tight">Trashed Sessions</h3>
         <button
