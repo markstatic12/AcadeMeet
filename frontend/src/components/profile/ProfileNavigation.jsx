@@ -4,70 +4,10 @@ import { ThreeDotsVerticalIcon, HistoryIcon, TrashIcon, PlusIcon } from '../../i
 
 
 
-// ===== TAB BUTTONS =====
-
-export const TabButtons = ({ activeTab, onTabChange }) => {
-  return (
-    <div className="flex gap-4">
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onTabChange('sessions');
-        }}
-        className={`relative overflow-hidden px-7 py-2.5 rounded-xl font-bold text-base transition-all group/tab ${
-          activeTab === 'sessions'
-            ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-[0_0_30px_rgba(99,102,241,0.5)] border-2 border-indigo-400/30'
-            : 'text-gray-400 hover:text-white bg-gradient-to-r from-gray-800/50 to-gray-900/50 hover:from-gray-800 hover:to-gray-900 border-2 border-gray-700 hover:border-gray-600'
-        }`}
-      >
-        {activeTab === 'sessions' && (
-          <>
-            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></span>
-            <div className="absolute inset-0 bg-indigo-600/20 animate-pulse"></div>
-          </>
-        )}
-        <span className="relative z-10 flex items-center gap-1.5">
-          <svg className={`w-4 h-4 transition-transform ${activeTab === 'sessions' ? 'rotate-12' : 'group-hover/tab:rotate-12'}`} fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-          </svg>
-          Sessions
-        </span>
-      </button>
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onTabChange('notes');
-        }}
-        className={`relative overflow-hidden px-7 py-2.5 rounded-xl font-bold text-base transition-all group/tab ${
-          activeTab === 'notes'
-            ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-[0_0_30px_rgba(99,102,241,0.5)] border-2 border-indigo-400/30'
-            : 'text-gray-400 hover:text-white bg-gradient-to-r from-gray-800/50 to-gray-900/50 hover:from-gray-800 hover:to-gray-900 border-2 border-gray-700 hover:border-gray-600'
-        }`}
-      >
-        {activeTab === 'notes' && (
-          <>
-            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></span>
-            <div className="absolute inset-0 bg-indigo-600/20 animate-pulse"></div>
-          </>
-        )}
-        <span className="relative z-10 flex items-center gap-1.5">
-          <svg className={`w-4 h-4 transition-transform ${activeTab === 'notes' ? 'rotate-12' : 'group-hover/tab:rotate-12'}`} fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V6.414A2 2 0 0016.414 5L14 2.586A2 2 0 0012.586 2H9z" />
-            <path d="M3 8a2 2 0 012-2v10h8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
-          </svg>
-          Notes
-        </span>
-      </button>
-    </div>
-  );
-};
-
-
 // ===== TAB OPTIONS MENU =====
 
 export const TabOptionMenu = ({ 
   showMenu, 
-  activeTab, 
   onToggle, 
   onTrashClick,
   onHistoryClick
@@ -145,4 +85,4 @@ export const CreateNewCard = ({ onClick, label }) => {
 };
 
 
-export default TabButtons;
+export default CreateNewCard;

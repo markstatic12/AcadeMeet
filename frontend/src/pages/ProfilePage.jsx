@@ -2,13 +2,11 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import ProfileCard, { EditProfileModal, FollowersModal } from '../components/profile/ProfileHeader';
-import TabButtons, { TabOptionMenu as TabOptionsMenu } from '../components/profile/ProfileNavigation';
+import { TabOptionMenu as TabOptionsMenu } from '../components/profile/ProfileNavigation';
 import SessionsContent, { TrashedSessionsContent, HistorySessionsContent } from '../components/profile/ProfileSessions';
-import { NotesContent } from '../components/profile/ProfileNotes';
 import { useUser } from '../context/UserContext';
 import { useProfilePage } from '../services/ProfileLogic';
 import { useSessions } from '../services/ProfileLogic';
-import { useNotes } from '../services/ProfileLogic';
 import { usePanelHeight } from '../services/CommonUtils';
 import { useClickOutside } from '../services/CommonUtils';
 import { BackIcon } from '../icons/icons';
@@ -56,7 +54,6 @@ const ProfilePage = () => {
   } = useProfilePage();
 
   const { sessionsData, trashedSessions, historySessions, deleteSession, restoreSession, refreshHistory } = useSessions();
-  const { notesData } = useNotes();
   const panelHeight = usePanelHeight(leftProfileCardRef, [userData, showEditModal, showProfileOptionsMenu]);
 
   useClickOutside([
@@ -116,12 +113,8 @@ const ProfilePage = () => {
           >
             <div className="relative flex flex-col h-full">
             <div className="flex items-center justify-between mb-6 flex-shrink-0 px-1">
-              <TabButtons 
-                activeTab={activeTab} 
-                onTabChange={setActiveTab} 
-              />
-              {activeTab === 'sessions' && (
-                <TabOptionsMenu
+              <h2 className="text-2xl font-bold text-white">Study Sessions</h2>
+              <TabOptionsMenu
                   showMenu={showTabOptionsMenu}
                   activeTab={activeTab}
                   onToggle={toggleTabOptionsMenu}
@@ -132,15 +125,13 @@ const ProfilePage = () => {
                     refreshHistory();
                   }}
                   onTrashClick={() => {
-                    setActiveTab('sessions');
                     setSessionsView('trash');
                     setShowTabOptionsMenu(false);
                   }}
                 />
-              )}
             </div>
 
-            {activeTab === 'sessions' && sessionsView === 'active' && (
+            {sessionsView === 'active' && (
               <SessionsContent
                 sessionsData={sessionsData}
                 openCardMenuId={openCardMenuId}
@@ -150,7 +141,7 @@ const ProfilePage = () => {
               />
             )}
 
-            {activeTab === 'sessions' && sessionsView === 'trash' && (
+            {sessionsView === 'trash' && (
               <TrashedSessionsContent
                 trashedSessions={trashedSessions}
                 onRestore={restoreSession}
@@ -158,15 +149,11 @@ const ProfilePage = () => {
               />
             )}
 
-            {activeTab === 'sessions' && sessionsView === 'history' && (
+            {sessionsView === 'history' && (
               <HistorySessionsContent
                 historySessions={historySessions}
                 onBackToSessions={() => setSessionsView('active')}
               />
-            )}
-
-            {activeTab === 'notes' && (
-              <NotesContent notesData={notesData} />
             )}
 
             </div>

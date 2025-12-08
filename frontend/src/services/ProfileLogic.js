@@ -16,7 +16,6 @@ export const useProfilePage = () => {
   const [showProfileOptionsMenu, setShowProfileOptionsMenu] = useState(false);
   const [showTabOptionsMenu, setShowTabOptionsMenu] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState('sessions');
   const [sessionsView, setSessionsView] = useState('active');
   const [openCardMenuId, setOpenCardMenuId] = useState(null);
   const [completedSessions, setCompletedSessions] = useState([]); //NOT YET IMPLEMENTED
@@ -269,7 +268,6 @@ export const useProfilePage = () => {
     showProfileOptionsMenu,
     showTabOptionsMenu,
     isEditing,
-    activeTab,
     sessionsView,
     openCardMenuId,
     userData,
@@ -281,7 +279,6 @@ export const useProfilePage = () => {
     setFollowTab,
     setShowProfileOptionsMenu,
     setShowTabOptionsMenu,
-    setActiveTab,
     setSessionsView,
     setOpenCardMenuId,
     
@@ -297,40 +294,6 @@ export const useProfilePage = () => {
     removeFollower,
     unfollowUser,
   };
-};
-
-// Notes hook for profile page (simplified - upload only)
-export const useNotes = () => {
-  const [notesData, setNotesData] = useState([]);
-
-  useEffect(() => {
-    const fetchNotes = async () => {
-      try {
-        const response = await authFetch('/notes/me/active');
-        if (!response.ok) {
-          console.error('Failed to fetch notes:', response.statusText);
-          setNotesData([]);
-          return;
-        }
-        const data = await response.json();
-        const normalized = (Array.isArray(data) ? data : []).map(n => ({
-          id: n.noteId || n.id,
-          title: n.title || 'Untitled Note',
-          content: n.content || '',
-          createdAt: n.createdAt || new Date().toISOString(),
-          raw: n
-        }));
-        setNotesData(normalized);
-      } catch (err) {
-        console.error('Failed to fetch notes from server:', err);
-        setNotesData([]);
-      }
-    };
-
-    fetchNotes();
-  }, []);
-
-  return { notesData };
 };
 
 // Sessions hook for profile page
