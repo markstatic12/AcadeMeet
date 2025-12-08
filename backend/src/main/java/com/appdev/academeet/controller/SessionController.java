@@ -9,8 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +37,8 @@ import com.appdev.academeet.model.User;
 import com.appdev.academeet.repository.UserRepository;
 import com.appdev.academeet.service.SessionService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/sessions")
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
@@ -45,6 +50,20 @@ public class SessionController {
     public SessionController(SessionService sessionService, UserRepository userRepository) {
         this.sessionService = sessionService;
         this.userRepository = userRepository;
+    }
+
+    /**
+     * Global exception handler for validation errors
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new java.util.HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return ResponseEntity.badRequest().body(Map.of("errors", errors));
     }
 
     /**
@@ -84,12 +103,14 @@ public class SessionController {
      * Creates a new session with the authenticated user as host.
      */
     @PostMapping
-    public ResponseEntity<?> createSession(@RequestBody CreateSessionRequest request) {
+    public ResponseEntity<?> createSession(@Valid @RequestBody CreateSessionRequest request) {
         try {
             User host = getAuthenticatedUser();
             Session toCreate = request.toEntity();
             Session savedSession = sessionService.createSession(toCreate, host.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(new SessionDTO(savedSession));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
@@ -170,7 +191,7 @@ public class SessionController {
      * Validates session password without joining (for private session access).
      */
     @PostMapping("/{id}/validate-password")
-    public ResponseEntity<?> validateSessionPassword(@PathVariable Long id, @RequestBody JoinSessionRequest request) {
+    public ResponseEntity<?> validateSessionPassword(@PathVariable Long id, @Valid @RequestBody JoinSessionRequest request) {
         return handleSessionOperation(() -> {
             if (!sessionService.validateSessionPassword(id, request.getPassword())) {
                 throw new RuntimeException("Invalid password or session not found");
@@ -184,7 +205,7 @@ public class SessionController {
      * Uses the new business logic in SessionService.joinSession()
      */
     @PostMapping("/{sessionId}/join")
-    public ResponseEntity<?> joinSession(@PathVariable Long sessionId, @RequestBody(required = false) JoinSessionRequest request) {
+    public ResponseEntity<?> joinSession(@PathVariable Long sessionId, @Valid @RequestBody(required = false) JoinSessionRequest request) {
         try {
             User user = getAuthenticatedUser();
             String password = (request != null) ? request.getPassword() : null;
@@ -246,7 +267,7 @@ public class SessionController {
      * Updates session status (ACTIVE, SCHEDULED, COMPLETED, etc.).
      */
     @PatchMapping("/{id}/status")
-    public ResponseEntity<?> updateSessionStatus(@PathVariable Long id, @RequestBody UpdateStatusRequest request) {
+    public ResponseEntity<?> updateSessionStatus(@PathVariable Long id, @Valid @RequestBody UpdateStatusRequest request) {
         return handleSessionOperation(() -> {
             sessionService.updateSessionStatus(id, request.getStatus());
             return "Session status updated successfully";
@@ -274,12 +295,14 @@ public class SessionController {
      * Update session details.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateSession(@PathVariable Long id, @RequestBody UpdateSessionRequest request) {
+    public ResponseEntity<?> updateSession(@PathVariable Long id, @Valid @RequestBody UpdateSessionRequest request) {
         try {
             User authenticatedUser = getAuthenticatedUser();
             Session updated = request.toEntity();
             Session updatedSession = sessionService.updateSession(id, updated, authenticatedUser.getId());
             return ResponseEntity.ok(new SessionDTO(updatedSession));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (RuntimeException e) {
             // Check if it's an authorization error
             if (e.getMessage() != null && e.getMessage().contains("Unauthorized")) {

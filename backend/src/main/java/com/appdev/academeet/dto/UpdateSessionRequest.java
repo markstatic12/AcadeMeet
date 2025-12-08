@@ -8,10 +8,17 @@ import com.appdev.academeet.model.Session;
 import com.appdev.academeet.model.SessionType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UpdateSessionRequest {
     // All fields nullable to support partial updates (PATCH semantics)
+    @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
     private String title;
+    
+    @Size(max = 5000, message = "Description must not exceed 5000 characters")
     private String description;
     
     // Frontend sends separate date/time fields
@@ -21,10 +28,19 @@ public class UpdateSessionRequest {
     private String startTime;  // e.g., "14:30"
     private String endTime;    // e.g., "16:00"
     
+    @Size(min = 3, message = "Location must be at least 3 characters")
     private String location;
+    
+    @Min(value = 1, message = "Must have at least 1 participant")
+    @Max(value = 1000, message = "Cannot exceed 1000 participants")
     private Integer maxParticipants;
+    
     private SessionType sessionType;
+    
+    @Size(max = 5, message = "Maximum 5 tags allowed")
     private List<String> tags;
+    
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
     public UpdateSessionRequest() {}
@@ -123,6 +139,23 @@ public class UpdateSessionRequest {
         // Convert separate date/time fields to LocalDateTime (only if provided)
         LocalDateTime parsedStartTime = parseDateTime(this.startTime);
         LocalDateTime parsedEndTime = parseDateTime(this.endTime);
+        
+        // Validate start time is in future (if provided)
+        if (parsedStartTime != null && parsedStartTime.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Session start time must be in the future");
+        }
+        
+        // Validate time range (if both provided)
+        if (parsedStartTime != null && parsedEndTime != null) {
+            if (parsedEndTime.isBefore(parsedStartTime) || parsedEndTime.equals(parsedStartTime)) {
+                throw new IllegalArgumentException("End time must be after start time");
+            }
+            long durationMinutes = java.time.Duration.between(parsedStartTime, parsedEndTime).toMinutes();
+            if (durationMinutes < 15) {
+                throw new IllegalArgumentException("Session must be at least 15 minutes long");
+            }
+        }
+        
         s.setStartTime(parsedStartTime);
         s.setEndTime(parsedEndTime);
         

@@ -1,6 +1,9 @@
 package com.appdev.academeet.dto;
 
+import jakarta.validation.constraints.Size;
+
 public class JoinSessionRequest {
+    @Size(min = 6, message = "Password must be at least 6 characters long")
     private String password;
 
     public JoinSessionRequest() {}
