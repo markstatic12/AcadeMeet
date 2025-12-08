@@ -351,8 +351,22 @@ export const useSessions = () => {
       const data = await res.json();
       console.log("Fetched sessions:", data);
       
-      // Filter only ACTIVE sessions
-      const activeSessions = (Array.isArray(data) ? data : []).filter(s => s.status === 'ACTIVE');
+      // Filter ACTIVE and SCHEDULED sessions
+      const activeSessions = (Array.isArray(data) ? data : [])
+        .filter(s => s.status === 'ACTIVE' || s.status === 'SCHEDULED')
+        .sort((a, b) => {
+          // Define status priority: ACTIVE first, then SCHEDULED
+          const statusPriority = { 'ACTIVE': 1, 'SCHEDULED': 2 };
+          const priorityDiff = (statusPriority[a.status] || 999) - (statusPriority[b.status] || 999);
+          
+          if (priorityDiff !== 0) return priorityDiff;
+          
+          // Within same status, sort by start time
+          const dateA = new Date(`${a.year}-${a.month}-${a.day} ${a.startTime}`);
+          const dateB = new Date(`${b.year}-${b.month}-${b.day} ${b.startTime}`);
+          return dateA - dateB;
+        });
+      
       setSessionsData(activeSessions);
     } catch (err) {
       console.error("Failed to fetch active sessions:", err);
