@@ -11,9 +11,10 @@ const SearchPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
+  const initialTab = searchParams.get('tab') || 'all';
   
   const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [activeTab, setActiveTab] = useState('all'); // 'all', 'users', 'session'
+  const [activeTab, setActiveTab] = useState(initialTab); // 'all', 'users', 'session'
   const [sortBy, setSortBy] = useState('relevance');
   
   // Data from API
@@ -40,6 +41,14 @@ const SearchPage = () => {
     const query = searchParams.get('q');
     if (query) {
       setSearchQuery(query);
+    }
+  }, [searchParams]);
+
+  // Update active tab from URL params (e.g., ?tab=session)
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab) {
+      setActiveTab(tab);
     }
   }, [searchParams]);
   
