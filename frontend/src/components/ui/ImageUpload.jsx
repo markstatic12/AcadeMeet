@@ -178,7 +178,7 @@ const ImageUpload = ({
                   />
                 </label>
                 <p className="text-gray-500 text-xs mt-2">
-                  Max size: 5MB. Formats: JPEG, PNG, GIF
+                  Max size: 5120 KB per image. Formats: JPEG, PNG, GIF
                 </p>
               </>
             )}

@@ -80,7 +80,8 @@ export const imageService = {
     }
 
     if (file.size > maxSize) {
-      throw new Error('File size must be less than 5MB');
+      const fileSizeKB = (file.size / 1024).toFixed(2);
+      throw new Error(`File size (${fileSizeKB} KB) must be less than 5120 KB`);
     }
 
     if (!allowedTypes.includes(file.type)) {

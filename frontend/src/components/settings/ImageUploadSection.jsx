@@ -63,7 +63,7 @@ export const ProfileImageUpload = ({ preview, inputRef, onChange }) => {
         Recommended: Square image, at least 400x400px
       </p>
       <p className="text-[9px] text-center text-gray-400/60 mt-0.5">
-        Max 5MB • Auto-optimized for quality
+        Max 5120 KB per image • Auto-optimized for quality
       </p>
     </div>
   );
@@ -122,7 +122,7 @@ export const CoverImageUpload = ({ preview, inputRef, onChange }) => {
         Recommended: 1200x400px for best results
       </p>
       <p className="text-[9px] text-center text-gray-400/60 mt-0.5">
-        Max 5MB • Auto-optimized for quality
+        Max 5120 KB per image • Auto-optimized for quality
       </p>
     </div>
   );
