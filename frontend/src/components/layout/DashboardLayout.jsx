@@ -28,6 +28,7 @@ const DashboardLayout = ({ children }) => {
   // Logout handlers removed with sidebar logout button
 
   const navigation = [
+    { name: 'Search', href: '/search', icon: SearchIcon },
     { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
     { name: 'Sessions', href: '/sessions', icon: SessionsIcon },
     { name: 'Profile', href: '/profile', icon: ProfileIcon },
@@ -154,35 +155,30 @@ const DashboardLayout = ({ children }) => {
 
       {/* Main Content Area - Fixed Height with Internal Scrolling */}
       <div className="flex-1 h-full flex flex-col overflow-hidden">
-        {/* Top Bar - Fixed at top - Hidden on search page */}
-        {!location.pathname.startsWith('/search') && (
-          <div className="bg-gradient-to-r from-[#0a0a14] via-[#0f0f1e] to-[#0a0a14] border-b border-indigo-900/20 px-8 py-4 backdrop-blur-xl flex-shrink-0">
-            <div className="flex items-center justify-between">
-              {/* Left: Search Bar */}
-              <div className="flex items-center gap-6 flex-1">
-                <div className="relative w-full max-w-2xl">
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    onFocus={() => navigate('/search')}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        navigate(`/search?q=${encodeURIComponent(e.target.value)}`);
-                      }
-                    }}
-                    className="w-full px-4 py-2 pl-10 bg-gray-800/50 border border-gray-700/50 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
-                  />
-                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                </div>
-              </div>
-
-              {/* Right: Empty or future notifications */}
-              <div className="flex items-center gap-2">
-                {/* Settings moved to sidebar */}
-              </div>
+        {/* Top Bar with User Avatar */}
+        <div className="h-16 bg-[#0a0a14] border-b border-gray-800 flex items-center justify-end px-6 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            {/* User Name */}
+            {currentUser && (
+              <span className="text-sm font-medium text-white">
+                {currentUser.name}
+              </span>
+            )}
+            {/* User Avatar */}
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center ring-2 ring-indigo-500/30 overflow-hidden flex-shrink-0">
+              {currentUser?.profilePic ? (
+                <img 
+                  src={currentUser.profilePic} 
+                  alt={currentUser.name} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <ProfileIcon className="w-5 h-5 text-white" />
+              )}
             </div>
+            
           </div>
-        )}
+        </div>
 
         {/* Content Area - No scrolling at root level */}
         <div className="flex-1 h-full bg-gradient-to-br from-[#0f0f1e] via-[#1a1a2e] to-[#0f0f1e] relative overflow-hidden">
