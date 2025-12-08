@@ -8,22 +8,52 @@ import com.appdev.academeet.model.Session;
 import com.appdev.academeet.model.SessionType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CreateSessionRequest {
+    @NotBlank(message = "Title is required")
+    @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
     private String title;
+    
+    @Size(max = 5000, message = "Description must not exceed 5000 characters")
     private String description;
     
     // Frontend sends separate date/time fields
+    @NotBlank(message = "Month is required")
     private String month;  // e.g., "January", "February"
+    
+    @NotBlank(message = "Day is required")
     private String day;    // e.g., "15"
+    
+    @NotBlank(message = "Year is required")
     private String year;   // e.g., "2025"
+    
+    @NotBlank(message = "Start time is required")
     private String startTime;  // e.g., "14:30"
+    
+    @NotBlank(message = "End time is required")
     private String endTime;    // e.g., "16:00"
     
+    @NotBlank(message = "Location is required")
+    @Size(min = 3, message = "Location must be at least 3 characters")
     private String location;
+    
+    @Min(value = 1, message = "Must have at least 1 participant")
+    @Max(value = 1000, message = "Cannot exceed 1000 participants")
     private Integer maxParticipants;
+    
+    @NotNull(message = "Session type is required")
     private SessionType sessionType;
+    
+    @Size(max = 5, message = "Maximum 5 tags allowed")
     private List<String> tags;
+    
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
     public CreateSessionRequest() {}
@@ -130,8 +160,27 @@ public class CreateSessionRequest {
         s.setDescription(this.description);
         
         // Convert separate date/time fields to LocalDateTime
-        s.setStartTime(parseDateTime(this.startTime));
-        s.setEndTime(parseDateTime(this.endTime));
+        LocalDateTime start = parseDateTime(this.startTime);
+        LocalDateTime end = parseDateTime(this.endTime);
+        
+        // Validate date is in the future
+        if (start.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Session start time must be in the future");
+        }
+        
+        // Validate end time is after start time
+        if (end.isBefore(start) || end.equals(start)) {
+            throw new IllegalArgumentException("End time must be after start time");
+        }
+        
+        // Validate minimum session duration (15 minutes)
+        long durationMinutes = java.time.Duration.between(start, end).toMinutes();
+        if (durationMinutes < 15) {
+            throw new IllegalArgumentException("Session must be at least 15 minutes long");
+        }
+        
+        s.setStartTime(start);
+        s.setEndTime(end);
         
         s.setLocation(this.location);
         s.setMaxParticipants(this.maxParticipants);
