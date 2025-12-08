@@ -66,7 +66,7 @@ const SessionCard = ({ session }) => {
       </div>
 
       {/* Session Info */}
-      <div className="p-4 bg-[#0a0a0a]/50">
+      <div className="p-4 bg-[#0a0a0a]/50 relative">
         <div className="flex items-start justify-between gap-2 mb-2">
           <h3 className="text-white font-bold text-sm group-hover:text-indigo-400 transition-colors flex-1">
             {session.title}
@@ -90,19 +90,50 @@ const SessionCard = ({ session }) => {
             <CalendarIcon className="w-3 h-3 text-indigo-400" />
             <span>{session.month} {session.day}, {session.year}</span>
           </div>
-          <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-            <ClockIcon className="w-3 h-3 text-indigo-400" />
-            <span>{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-            <LocationIcon className="w-3 h-3 text-indigo-400" />
-            <span>{session.location}</span>
-          </div>
-          {session.maxParticipants && (
-            <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-              <span>👥</span>
-              <span>{session.currentParticipants || 0}/{session.maxParticipants} participants</span>
-            </div>
+          {session.sessionType === 'PRIVATE' ? (
+            <>
+              {/* Blurred/Locked details for private sessions */}
+              <div className="relative">
+                <div className="space-y-1.5 blur-sm select-none pointer-events-none">
+                  <div className="flex items-center gap-1.5 text-gray-500 text-[11px]">
+                    <ClockIcon className="w-3 h-3 text-gray-500" />
+                    <span>••:•• •• - ••:•• ••</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-gray-500 text-[11px]">
+                    <LocationIcon className="w-3 h-3 text-gray-500" />
+                    <span>••••••••••</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-gray-500 text-[11px]">
+                    <span>👥</span>
+                    <span>•/•• participants</span>
+                  </div>
+                </div>
+                {/* Lock overlay */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-yellow-500/30 flex items-center gap-2">
+                    <LockIcon className="w-4 h-4 text-yellow-400" />
+                    <span className="text-[10px] text-yellow-400 font-semibold">Private Details</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
+                <ClockIcon className="w-3 h-3 text-indigo-400" />
+                <span>{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
+                <LocationIcon className="w-3 h-3 text-indigo-400" />
+                <span>{session.location}</span>
+              </div>
+              {session.maxParticipants && (
+                <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
+                  <span>👥</span>
+                  <span>{session.currentParticipants || 0}/{session.maxParticipants} participants</span>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
