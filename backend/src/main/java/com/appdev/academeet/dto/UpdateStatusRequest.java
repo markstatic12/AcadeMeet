@@ -1,6 +1,7 @@
 package com.appdev.academeet.dto;
 
 import com.appdev.academeet.model.SessionStatus;
+
 import jakarta.validation.constraints.NotNull;
 
 public class UpdateStatusRequest {
