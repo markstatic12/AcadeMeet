@@ -362,9 +362,16 @@ const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChan
           onChange={onParticipantsChange}
           placeholder="e.g., 20"
           min="1"
-          max="100"
-          className="w-full px-3.5 py-2.5 bg-[#1e293b] border border-gray-700 rounded-lg text-gray-300 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
+          max="1000"
+          className={`w-full px-3.5 py-2.5 bg-[#1e293b] border rounded-lg text-gray-300 text-sm focus:outline-none transition-all duration-200 ${
+            fieldErrors.maxParticipants
+              ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+              : 'border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
+          }`}
         />
+        {fieldErrors.maxParticipants && (
+          <p className="text-red-400 text-xs mt-1">{fieldErrors.maxParticipants}</p>
+        )}
       </div>
     </div>
   );
@@ -562,7 +569,11 @@ export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onPartic
 // ===== DESCRIPTION PANEL =====
 
 // export the DescriptionPanel as a named export
-export const DescriptionPanel = ({ value, onChange }) => {
+export const DescriptionPanel = ({ value, onChange, fieldErrors = {} }) => {
+  const maxLength = 5000;
+  const isOverLimit = value.length > maxLength;
+  const isNearLimit = value.length > maxLength * 0.9;
+
   return (
     <div className="bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/60 to-[#0f0f1e]/60 backdrop-blur-sm border border-indigo-900/30 rounded-xl p-5 shadow-lg hover:border-indigo-700/50 transition-all duration-300 h-full flex flex-col">
       <div className="flex items-center gap-2.5 pb-4 border-b border-indigo-900/20 flex-shrink-0">
@@ -583,12 +594,23 @@ export const DescriptionPanel = ({ value, onChange }) => {
           value={value}
           onChange={onChange}
           placeholder="Write a compelling overview of your session. Include the main topics, learning objectives, and what makes this session valuable...\n\nExample: In this session, we'll explore advanced React patterns including custom hooks, context optimization, and performance techniques. Perfect for developers looking to level up their skills."
-          className="w-full h-full px-4 py-3.5 bg-gray-900/50 border border-gray-700/50 rounded-lg text-gray-300 text-base leading-relaxed resize-none focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 placeholder-gray-600"
+          className={`w-full h-full px-4 py-3.5 bg-gray-900/50 border rounded-lg text-gray-300 text-base leading-relaxed resize-none focus:outline-none transition-all duration-200 placeholder-gray-600 ${
+            fieldErrors.description || isOverLimit
+              ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+              : 'border-gray-700/50 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
+          }`}
         />
-        <div className="absolute bottom-3 right-3 text-xs text-gray-500 bg-gray-900/80 px-2 py-1 rounded backdrop-blur-sm pointer-events-none">
-          {value.length} characters
+        <div className={`absolute bottom-3 right-3 text-xs px-2 py-1 rounded backdrop-blur-sm pointer-events-none ${
+          isOverLimit ? 'text-red-400 bg-red-900/80' : 
+          isNearLimit ? 'text-yellow-400 bg-yellow-900/80' : 
+          'text-gray-500 bg-gray-900/80'
+        }`}>
+          {value.length} / {maxLength}
         </div>
       </div>
+      {fieldErrors.description && (
+        <p className="text-red-400 text-xs mt-2">{fieldErrors.description}</p>
+      )}
     </div>
   );
 };
