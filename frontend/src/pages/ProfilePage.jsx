@@ -148,13 +148,40 @@ const ProfilePage = () => {
 
           {/* Session Content - No Base Card */}
           {sessionsView === 'active' && (
-            <SessionsContent
-              sessionsData={sessionsData}
-              openCardMenuId={openCardMenuId}
-              onCreateSession={handleCreateSession}
-              onMenuToggle={setOpenCardMenuId}
-              onDeleteSession={deleteSession}
-            />
+            <>
+              <SessionsContent
+                sessionsData={sessionsData}
+                openCardMenuId={openCardMenuId}
+                onCreateSession={handleCreateSession}
+                onMenuToggle={setOpenCardMenuId}
+                onDeleteSession={deleteSession}
+              />
+              
+              {/* Floating Action Button */}
+              <button
+                onClick={handleCreateSession}
+                className="fixed bottom-8 right-8 group z-50"
+                aria-label="Create new session"
+              >
+                {/* Pulsing background effect */}
+                <div className="absolute inset-0 bg-indigo-600 rounded-full blur-xl opacity-50 group-hover:opacity-70 animate-pulse"></div>
+                
+                {/* Main FAB circle */}
+                <div className="relative w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center shadow-2xl shadow-indigo-500/50 hover:shadow-indigo-500/70 transition-all duration-300 hover:scale-110 border-2 border-indigo-400/30 hover:border-indigo-400/50">
+                  <svg className="w-8 h-8 text-white transition-transform group-hover:rotate-90 duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+                
+                {/* Tooltip label */}
+                <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
+                  <div className="bg-gray-900/95 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-xl border border-indigo-500/30 whitespace-nowrap backdrop-blur-sm">
+                    Create Session
+                    <div className="absolute top-full right-6 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900/95"></div>
+                  </div>
+                </div>
+              </button>
+            </>
           )}
 
           {sessionsView === 'trash' && (
