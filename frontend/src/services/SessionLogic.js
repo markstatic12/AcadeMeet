@@ -200,7 +200,7 @@ export const useSessionForm = (showToast) => {
   };
 
   const handleBack = () => {
-    navigate('/dashboard');
+    navigate('/profile');
   };
 
   return {

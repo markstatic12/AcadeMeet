@@ -15,127 +15,131 @@ const SessionCard = ({ session }) => {
     navigate(`/session/${session.id}`);
   };
 
+  // Determine if session ends in AM or PM
+  const endTime = session.endTime || '';
+  const isPM = endTime.toLowerCase().includes('pm') || parseInt(endTime.split(':')[0]) >= 12;
+
   return (
     <div 
       onClick={handleClick}
-      className="bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f1e] border border-indigo-900/40 hover:border-indigo-500/60 rounded-xl overflow-hidden transition-all hover:shadow-2xl hover:shadow-indigo-950/30 cursor-pointer group h-[260px] w-full"
+      className="bg-[#161A2B] border border-gray-700/50 hover:border-indigo-500/60 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/20 cursor-pointer group w-full relative"
     >
-      {/* Session Thumbnail */}
-      <div className="relative h-[120px] bg-gradient-to-br from-[#1e40af] via-[#2563eb] to-[#3b82f6] overflow-hidden">
+      {/* Elegant Header with Sophisticated Gradient */}
+      <div className="relative p-3 bg-gradient-to-br from-gray-800/50 via-gray-850/40 to-gray-900/50 border-b border-gray-700/40 overflow-hidden">
+        {/* Subtle gradient orbs */}
+        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-violet-600/8 to-gray-600/8 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+        <div className="absolute -bottom-4 -left-4 w-28 h-28 bg-gradient-to-tr from-gray-700/8 to-violet-700/8 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+        
+        {/* Minimal decorative accents */}
+        <div className="absolute top-3 right-6 w-1.5 h-1.5 bg-violet-400/15 rounded-full"></div>
+        <div className="absolute bottom-3 left-6 w-1 h-1 bg-gray-400/15 rounded-full"></div>
+        
+        {/* Subtle shimmer effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1500"></div>
+        
         {/* Status and Privacy Indicators */}
-        <div className="absolute top-2 left-2 flex items-center gap-2 z-10">
-          <SessionStatusBadge status={session.status} />
-          {session.sessionType === 'PRIVATE' && (
-            <div className="flex items-center px-2 py-1 bg-black/30 rounded-full">
-              <LockIcon className="w-3 h-3 text-yellow-400" />
-              <span className="text-xs text-yellow-400 ml-1">Private</span>
-            </div>
-          )}
-        </div>
-        {/* Colorful shapes pattern - LEFT SIDE */}
-        <div className="absolute left-0 top-0 w-1/2 h-full pointer-events-none">
-          {/* Row 1 */}
-          <div className="absolute top-2 left-2 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center text-white text-[8px] font-bold shadow-md">B</div>
-          <div className="absolute top-2 left-10 w-5 h-5 bg-orange-500 rounded shadow-md"></div>
-          <div className="absolute top-3 left-16 w-4 h-4 bg-cyan-400 rounded shadow-md"></div>
-          
-          {/* Row 2 */}
-          <div className="absolute top-8 left-2 w-5 h-5 bg-blue-500 rounded shadow-md"></div>
-          <div className="absolute top-7 left-9 w-6 h-6 bg-yellow-400 rounded transform rotate-12 shadow-md"></div>
-          <div className="absolute top-8 left-16 w-5 h-5 bg-purple-500 rounded shadow-md"></div>
-          
-          {/* Row 3 */}
-          <div className="absolute top-14 left-2 w-5 h-5 bg-pink-500 rounded-full shadow-md"></div>
-          <div className="absolute top-13 left-9 w-5 h-5 bg-red-500 rounded shadow-md"></div>
-          <div className="absolute top-14 left-15 w-4 h-4 bg-yellow-300 rounded-full shadow-md"></div>
-        </div>
-        
-        {/* Pink diamond accent - CENTER TOP */}
-        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 pointer-events-none">
-          <div className="w-7 h-7 bg-pink-500 rounded transform rotate-45 shadow-lg"></div>
-        </div>
-        
-        {/* Phone illustration - RIGHT BOTTOM */}
-        <div className="absolute bottom-0 right-0 w-1/2 h-full flex items-end justify-end p-2 pointer-events-none">
-          <div className="relative">
-            <div className="w-20 h-16 bg-[#1e40af] rounded-lg border-2 border-[#1e3a8a] shadow-xl"></div>
-            <div className="absolute top-1 left-1 right-1 bottom-1 bg-[#2563eb] rounded"></div>
-            <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 border-r-2 border-b-2 border-white/30 rounded-br-lg"></div>
+        <div className="flex items-center justify-between mb-2 relative z-10">
+          <div className="flex items-center gap-2">
+            <SessionStatusBadge status={session.status} />
+            {session.sessionType === 'PRIVATE' && (
+              <div className="flex items-center px-2 py-0.5 bg-amber-900/20 backdrop-blur-sm rounded border border-amber-700/30 shadow-sm">
+                <LockIcon className="w-3 h-3 text-amber-500/90" />
+                <span className="text-xs text-amber-400/90 ml-1 font-medium">Private</span>
+              </div>
+            )}
           </div>
         </div>
+        
+        {/* Title with subtle hover effect */}
+        <h3 className="text-white font-semibold text-base group-hover:text-gray-100 transition-colors truncate relative z-10">
+          {session.title}
+        </h3>
       </div>
 
       {/* Session Info */}
-      <div className="p-4 bg-[#0a0a0a]/50 relative">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="text-white font-bold text-sm group-hover:text-indigo-400 transition-colors flex-1">
-            {session.title}
-          </h3>
-          {/* Tags Display */}
-          {session.tags && session.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 justify-end flex-shrink-0 max-w-[40%]">
-              {session.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="bg-indigo-600/20 border border-indigo-500/50 text-indigo-300 px-2 py-0.5 rounded-full text-[10px] whitespace-nowrap"
-                >
-                  {tag}
-                </span>
-              ))}
+      <div className="p-3 bg-gradient-to-br from-[#161A2B] to-[#1a1f35]/95 transition-all relative">
+        <div className="space-y-2">
+          {/* Date with sophisticated rose/coral */}
+          <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-rose-200 transition-colors">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-rose-600/18 to-rose-700/12 flex items-center justify-center group-hover:from-rose-600/22 group-hover:to-rose-700/16 transition-colors shrink-0 border border-rose-600/15">
+              <CalendarIcon className="w-3.5 h-3.5 text-rose-400/90 group-hover:scale-105 transition-transform" />
             </div>
-          )}
-        </div>
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-            <CalendarIcon className="w-3 h-3 text-indigo-400" />
-            <span>{session.month} {session.day}, {session.year}</span>
+            <span className="font-medium">{session.month} {session.day}, {session.year}</span>
           </div>
           {session.sessionType === 'PRIVATE' ? (
             <>
               {/* Blurred/Locked details for private sessions */}
               <div className="relative">
-                <div className="space-y-1.5 blur-sm select-none pointer-events-none">
-                  <div className="flex items-center gap-1.5 text-gray-500 text-[11px]">
-                    <ClockIcon className="w-3 h-3 text-gray-500" />
+                <div className="space-y-2 blur-[2px] select-none pointer-events-none opacity-40">
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center">
+                      <ClockIcon className="w-3.5 h-3.5 text-gray-500" />
+                    </div>
                     <span>••:•• •• - ••:•• ••</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-gray-500 text-[11px]">
-                    <LocationIcon className="w-3 h-3 text-gray-500" />
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center">
+                      <LocationIcon className="w-3.5 h-3.5 text-gray-500" />
+                    </div>
                     <span>••••••••••</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-gray-500 text-[11px]">
-                    <span>👥</span>
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center">
+                      <span className="text-sm">👥</span>
+                    </div>
                     <span>•/•• participants</span>
                   </div>
                 </div>
                 {/* Lock overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-yellow-500/30 flex items-center gap-2">
-                    <LockIcon className="w-4 h-4 text-yellow-400" />
-                    <span className="text-[10px] text-yellow-400 font-semibold">Private Details</span>
+                  <div className="bg-gradient-to-br from-gray-900/95 to-gray-800/90 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-amber-700/30 flex items-center gap-1.5 shadow-lg">
+                    <LockIcon className="w-3.5 h-3.5 text-amber-500/90" />
+                    <span className="text-xs text-amber-400/90 font-medium">Private Details</span>
                   </div>
                 </div>
               </div>
             </>
           ) : (
             <>
-              <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-                <ClockIcon className="w-3 h-3 text-indigo-400" />
-                <span>{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
+              {/* Time with elegant violet and subtle sun/moon indicator */}
+              <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-violet-200 transition-colors">
+                <div className="relative w-7 h-7 rounded-lg bg-gradient-to-br from-violet-600/18 to-violet-700/12 flex items-center justify-center group-hover:from-violet-600/22 group-hover:to-violet-700/16 transition-colors shrink-0 border border-violet-600/15">
+                  <ClockIcon className="w-3.5 h-3.5 text-violet-400/90 group-hover:scale-105 transition-transform" />
+                  {/* Subtle Sun/Moon indicator */}
+                  {isPM ? (
+                    <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-indigo-500/80 to-indigo-600/70 flex items-center justify-center border border-indigo-400/30">
+                      <div className="text-[6px] opacity-80">🌙</div>
+                    </div>
+                  ) : (
+                    <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-amber-400/80 to-amber-500/70 flex items-center justify-center border border-amber-300/30">
+                      <div className="text-[6px] opacity-80">☀️</div>
+                    </div>
+                  )}
+                </div>
+                <span className="font-medium">{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
               </div>
-              <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-                <LocationIcon className="w-3 h-3 text-indigo-400" />
-                <span>{session.location}</span>
+              {/* Location with sophisticated emerald */}
+              <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-emerald-200 transition-colors">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-600/18 to-emerald-700/12 flex items-center justify-center group-hover:from-emerald-600/22 group-hover:to-emerald-700/16 transition-colors shrink-0 border border-emerald-600/15">
+                  <LocationIcon className="w-3.5 h-3.5 text-emerald-400/90 group-hover:scale-105 transition-transform" />
+                </div>
+                <span className="font-medium truncate">{session.location}</span>
               </div>
+              {/* Participants with refined sky blue */}
               {session.maxParticipants && (
-                <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-                  <span>👥</span>
-                  <span>{session.currentParticipants || 0}/{session.maxParticipants} participants</span>
+                <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-sky-200 transition-colors">
+                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-600/18 to-sky-700/12 flex items-center justify-center group-hover:from-sky-600/22 group-hover:to-sky-700/16 transition-colors shrink-0 border border-sky-600/15">
+                    <span className="text-base">👥</span>
+                  </div>
+                  <span className="font-medium">{session.currentParticipants || 0}/{session.maxParticipants} participants</span>
                 </div>
               )}
             </>
           )}
         </div>
+        
+        {/* Refined bottom accent */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-violet-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       </div>
     </div>
   );

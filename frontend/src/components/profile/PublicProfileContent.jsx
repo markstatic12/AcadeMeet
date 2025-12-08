@@ -6,22 +6,28 @@ import { sessionService } from '../../services/SessionService';
 
 export const PublicProfileContent = ({ userData, activeTab, onTabChange }) => {
   return (
-    <div className="h-full flex flex-col bg-[#161A2B] border border-indigo-900/40 rounded-2xl overflow-hidden shadow-2xl transition-all hover:border-indigo-500/40">
+    <div className="h-full flex flex-col bg-[#161A2B] border border-indigo-900/40 rounded-2xl overflow-hidden shadow-2xl shadow-indigo-950/30 transition-all hover:shadow-indigo-500/40 hover:border-indigo-500/60">
       {/* Tab Bar Header */}
-      <div className="flex-shrink-0 border-b border-gray-800/50 bg-gradient-to-r from-gray-900/50 to-gray-800/50">
-        <div className="flex items-center px-6 py-4">
-          <div className="flex gap-2">
-            <TabButton
-              active={activeTab === 'about'}
-              onClick={() => onTabChange('about')}
-              icon={
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              }
-              label="Owned Session"
-            />
+      <div className="flex-shrink-0 border-b border-indigo-900/30 px-6 pt-5 pb-5">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-950/40 via-purple-950/30 to-indigo-950/40 backdrop-blur-xl border border-indigo-500/20 px-8 py-3.5 shadow-xl">
+          {/* Animated gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/15 to-indigo-500/10 animate-gradient-x"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer"></div>
+          
+          {/* Glowing edges */}
+          <div className="absolute inset-0 rounded-2xl">
+            <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-indigo-400/30 to-transparent"></div>
+            <div className="absolute bottom-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-purple-400/30 to-transparent"></div>
           </div>
+          
+          <h2 className="relative text-xl font-bold bg-gradient-to-r from-indigo-300 via-purple-300 to-indigo-300 bg-clip-text text-transparent tracking-tight flex items-center justify-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600/30 to-purple-600/30 border-2 border-indigo-400/30 flex items-center justify-center shadow-lg shadow-indigo-500/20 backdrop-blur-sm">
+              <svg className="w-4.5 h-4.5 text-indigo-300" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+              </svg>
+            </div>
+            Study Sessions
+          </h2>
         </div>
       </div>
 

@@ -14,106 +14,66 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
     navigate(`/session/${session.id}`);
   };
 
+  // Determine if session ends in AM or PM
+  const endTime = session.endTime || '';
+  const isPM = endTime.toLowerCase().includes('pm') || parseInt(endTime.split(':')[0]) >= 12;
+
   return (
     <div 
       onClick={handleClick}
-      className="bg-[#161A2B] border border-gray-700/50 hover:border-indigo-500/60 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/30 cursor-pointer group h-[180px] w-full hover:scale-[1.02] relative"
+      className="bg-[#161A2B] border border-gray-700/50 hover:border-indigo-500/60 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/20 cursor-pointer group w-full relative"
     >
-      {/* Session Thumbnail */}
-      <div className="relative h-[90px] bg-gradient-to-br from-indigo-600 to-indigo-700 overflow-hidden group-hover:brightness-110 transition-all">
-        {/* Animated gradient overlay */}
-        <div className="absolute inset-0 bg-indigo-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      {/* Elegant Header with Sophisticated Gradient */}
+      <div className="relative p-3 bg-gradient-to-br from-gray-800/50 via-gray-850/40 to-gray-900/50 border-b border-gray-700/40 overflow-hidden">
+        {/* Subtle gradient orbs */}
+        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-violet-600/8 to-gray-600/8 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+        <div className="absolute -bottom-4 -left-4 w-28 h-28 bg-gradient-to-tr from-gray-700/8 to-violet-700/8 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+        
+        {/* Minimal decorative accents */}
+        <div className="absolute top-3 right-6 w-1.5 h-1.5 bg-violet-400/15 rounded-full"></div>
+        <div className="absolute bottom-3 left-6 w-1 h-1 bg-gray-400/15 rounded-full"></div>
+        
+        {/* Subtle shimmer effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1500"></div>
         
         {/* Status and Privacy Indicators */}
-        <div className="absolute top-2 left-2 flex items-center gap-2 z-10">
-          <div className="backdrop-blur-sm bg-black/20 rounded-lg px-2 py-1 border border-white/10">
+        <div className="flex items-center justify-between mb-2 relative z-10">
+          <div className="flex items-center gap-2">
             <SessionStatusBadge status={session.status} />
+            {session.sessionType === 'PRIVATE' && (
+              <div className="flex items-center px-2 py-0.5 bg-amber-900/20 backdrop-blur-sm rounded border border-amber-700/30 shadow-sm">
+                <LockIcon className="w-3 h-3 text-amber-500/90" />
+                <span className="text-xs text-amber-400/90 ml-1 font-medium">Private</span>
+              </div>
+            )}
           </div>
-          {session.sessionType === 'PRIVATE' && (
-            <div className="flex items-center px-2 py-1 bg-black/30 backdrop-blur-sm rounded-lg border border-yellow-500/30">
-              <LockIcon className="w-3 h-3 text-yellow-400" />
-              <span className="text-xs text-yellow-400 ml-1 font-semibold">Private</span>
-            </div>
-          )}
-        </div>
-        
-        {/* Card menu */}
-        <div className="absolute top-2 right-2 card-options-menu z-20">
+          
+          {/* Three dots button */}
           <button
             onClick={(e) => { 
               e.stopPropagation(); 
               onMenuToggle(session.id); 
             }}
-            className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white/90 hover:text-white transition-all hover:scale-110 backdrop-blur-md border border-white/10"
+            className="p-1.5 bg-gray-800/50 hover:bg-gray-700/70 rounded-lg text-gray-400 hover:text-gray-200 transition-all hover:scale-105 backdrop-blur-md border border-gray-700/30 hover:border-gray-600/40 relative z-10"
             title="Options"
           >
-            <ThreeDotsVerticalIcon className="w-4 h-4" />
+            <ThreeDotsVerticalIcon className="w-3.5 h-3.5" />
           </button>
-          {openMenuId === session.id && (
-            <div className="absolute right-0 mt-2 w-40 bg-[#111] border border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden animate-slideDown backdrop-blur-xl">
-              <button
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  onDelete(session.id); 
-                }}
-                className="w-full px-4 py-2.5 text-left text-sm text-red-400 hover:bg-red-600/20 flex items-center gap-2 transition-all group/delete font-medium"
-              >
-                <TrashIcon className="w-4 h-4 group-hover/delete:scale-110 transition-transform" />
-                <span>Trash</span>
-              </button>   
-            </div>
-          )}
         </div>
         
-        {/* Colorful shapes pattern - LEFT SIDE */}
-        <div className="absolute left-0 top-0 w-1/2 h-full pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
-          {/* Row 1 */}
-          <div className="absolute top-2 left-2 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center text-white text-[8px] font-bold shadow-lg group-hover:scale-110 transition-transform">B</div>
-          <div className="absolute top-2 left-10 w-5 h-5 bg-orange-500 rounded shadow-lg group-hover:rotate-12 transition-transform"></div>
-          <div className="absolute top-3 left-16 w-4 h-4 bg-cyan-400 rounded shadow-lg group-hover:-rotate-12 transition-transform"></div>
-          
-          {/* Row 2 */}
-          <div className="absolute top-8 left-2 w-5 h-5 bg-blue-500 rounded shadow-lg group-hover:scale-110 transition-transform"></div>
-          <div className="absolute top-7 left-9 w-6 h-6 bg-yellow-400 rounded transform rotate-12 shadow-lg group-hover:rotate-45 transition-transform"></div>
-          <div className="absolute top-8 left-16 w-5 h-5 bg-purple-500 rounded shadow-lg group-hover:scale-110 transition-transform"></div>
-          
-          {/* Row 3 */}
-          <div className="absolute top-14 left-2 w-5 h-5 bg-pink-500 rounded-full shadow-lg group-hover:scale-110 transition-transform"></div>
-          <div className="absolute top-13 left-9 w-5 h-5 bg-red-500 rounded shadow-lg group-hover:-rotate-12 transition-transform"></div>
-          <div className="absolute top-14 left-15 w-4 h-4 bg-yellow-300 rounded-full shadow-lg group-hover:scale-110 transition-transform"></div>
-        </div>
-        
-        {/* Pink diamond accent - CENTER TOP */}
-        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 pointer-events-none">
-          <div className="w-7 h-7 bg-pink-500 rounded transform rotate-45 shadow-xl group-hover:rotate-90 group-hover:scale-110 transition-all duration-500"></div>
-        </div>
-        
-        {/* Phone illustration - RIGHT BOTTOM */}
-        <div className="absolute bottom-0 right-0 w-1/2 h-full flex items-end justify-end p-2 pointer-events-none">
-          <div className="relative group-hover:scale-110 transition-transform">
-            <div className="w-20 h-16 bg-[#1e40af] rounded-lg border-2 border-[#1e3a8a] shadow-2xl"></div>
-            <div className="absolute top-1 left-1 right-1 bottom-1 bg-[#2563eb] rounded"></div>
-            <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 border-r-2 border-b-2 border-white/30 rounded-br-lg"></div>
-          </div>
-        </div>
-        
-        {/* Shimmer effect on hover */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+        {/* Title with subtle hover effect */}
+        <h3 className="text-white font-semibold text-base group-hover:text-gray-100 transition-colors truncate relative z-10">
+          {session.title}
+        </h3>
       </div>
 
       {/* Session Info */}
-      <div className="p-3 bg-[#161A2B] transition-all relative">
-        {/* Top gradient accent line */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent"></div>
-        
-        <h3 className="text-white font-bold text-xs mb-2 group-hover:text-indigo-300 transition-colors truncate flex items-center gap-1.5">
-          <span className="w-0.5 h-3 bg-gradient-to-b from-indigo-600 to-indigo-700 rounded-full group-hover:h-4 transition-all"></span>
-          {session.title}
-        </h3>
-        <div className="space-y-1">
-          <div className="flex items-center gap-1.5 text-gray-400 text-[10px] group-hover:text-gray-300 transition-colors">
-            <div className="w-6 h-6 rounded-lg bg-indigo-600/10 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors">
-              <CalendarIcon className="w-3 h-3 text-indigo-400 group-hover:scale-110 transition-transform" />
+      <div className="p-3 bg-gradient-to-br from-[#161A2B] to-[#1a1f35]/95 transition-all relative">
+        <div className="space-y-2">
+          {/* Date with sophisticated rose/coral */}
+          <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-rose-200 transition-colors">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-rose-600/18 to-rose-700/12 flex items-center justify-center group-hover:from-rose-600/22 group-hover:to-rose-700/16 transition-colors shrink-0 border border-rose-600/15">
+              <CalendarIcon className="w-3.5 h-3.5 text-rose-400/90 group-hover:scale-105 transition-transform" />
             </div>
             <span className="font-medium">{session.month} {session.day}, {session.year}</span>
           </div>
@@ -121,53 +81,66 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
             <>
               {/* Blurred/Locked details for private sessions */}
               <div className="relative">
-                <div className="space-y-1 blur-[2px] select-none pointer-events-none opacity-40">
-                  <div className="flex items-center gap-1.5 text-gray-500 text-[10px]">
-                    <div className="w-6 h-6 rounded-lg bg-gray-600/10 flex items-center justify-center">
-                      <ClockIcon className="w-3 h-3 text-gray-500" />
+                <div className="space-y-2 blur-[2px] select-none pointer-events-none opacity-40">
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center">
+                      <ClockIcon className="w-3.5 h-3.5 text-gray-500" />
                     </div>
                     <span>••:•• •• - ••:•• ••</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-gray-500 text-[10px]">
-                    <div className="w-6 h-6 rounded-lg bg-gray-600/10 flex items-center justify-center">
-                      <LocationIcon className="w-3 h-3 text-gray-500" />
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center">
+                      <LocationIcon className="w-3.5 h-3.5 text-gray-500" />
                     </div>
                     <span>••••••••••</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-gray-500 text-[10px]">
-                    <div className="w-6 h-6 rounded-lg bg-gray-600/10 flex items-center justify-center">
-                      <span className="text-xs">👥</span>
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center">
+                      <span className="text-sm">👥</span>
                     </div>
                     <span>•/•• participants</span>
                   </div>
                 </div>
                 {/* Lock overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-gray-900/90 backdrop-blur-sm rounded-lg px-2 py-1 border border-yellow-500/30 flex items-center gap-1.5">
-                    <LockIcon className="w-3 h-3 text-yellow-400" />
-                    <span className="text-[9px] text-yellow-400 font-semibold">Private</span>
+                  <div className="bg-gradient-to-br from-gray-900/95 to-gray-800/90 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-amber-700/30 flex items-center gap-1.5 shadow-lg">
+                    <LockIcon className="w-3.5 h-3.5 text-amber-500/90" />
+                    <span className="text-xs text-amber-400/90 font-medium">Private Details</span>
                   </div>
                 </div>
               </div>
             </>
           ) : (
             <>
-              <div className="flex items-center gap-1.5 text-gray-400 text-[10px] group-hover:text-gray-300 transition-colors">
-                <div className="w-6 h-6 rounded-lg bg-indigo-600/10 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors">
-                  <ClockIcon className="w-3 h-3 text-indigo-400 group-hover:scale-110 transition-transform" />
+              {/* Time with elegant violet and subtle sun/moon indicator */}
+              <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-violet-200 transition-colors">
+                <div className="relative w-7 h-7 rounded-lg bg-gradient-to-br from-violet-600/18 to-violet-700/12 flex items-center justify-center group-hover:from-violet-600/22 group-hover:to-violet-700/16 transition-colors shrink-0 border border-violet-600/15">
+                  <ClockIcon className="w-3.5 h-3.5 text-violet-400/90 group-hover:scale-105 transition-transform" />
+                  {/* Subtle Sun/Moon indicator */}
+                  {isPM ? (
+                    <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-indigo-500/80 to-indigo-600/70 flex items-center justify-center border border-indigo-400/30">
+                      <div className="text-[6px] opacity-80">🌙</div>
+                    </div>
+                  ) : (
+                    <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-amber-400/80 to-amber-500/70 flex items-center justify-center border border-amber-300/30">
+                      <div className="text-[6px] opacity-80">☀️</div>
+                    </div>
+                  )}
                 </div>
                 <span className="font-medium">{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
               </div>
-              <div className="flex items-center gap-1.5 text-gray-400 text-[10px] group-hover:text-gray-300 transition-colors">
-                <div className="w-6 h-6 rounded-lg bg-indigo-600/10 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors">
-                  <LocationIcon className="w-3 h-3 text-indigo-400 group-hover:scale-110 transition-transform" />
+              {/* Location with sophisticated emerald */}
+              <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-emerald-200 transition-colors">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-600/18 to-emerald-700/12 flex items-center justify-center group-hover:from-emerald-600/22 group-hover:to-emerald-700/16 transition-colors shrink-0 border border-emerald-600/15">
+                  <LocationIcon className="w-3.5 h-3.5 text-emerald-400/90 group-hover:scale-105 transition-transform" />
                 </div>
                 <span className="font-medium truncate">{session.location}</span>
               </div>
+              {/* Participants with refined sky blue */}
               {session.maxParticipants && (
-                <div className="flex items-center gap-1.5 text-gray-400 text-[10px] group-hover:text-gray-300 transition-colors">
-                  <div className="w-6 h-6 rounded-lg bg-green-600/10 flex items-center justify-center group-hover:bg-green-600/20 transition-colors">
-                    <span className="text-xs">👥</span>
+                <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-sky-200 transition-colors">
+                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-600/18 to-sky-700/12 flex items-center justify-center group-hover:from-sky-600/22 group-hover:to-sky-700/16 transition-colors shrink-0 border border-sky-600/15">
+                    <span className="text-base">👥</span>
                   </div>
                   <span className="font-medium">{session.currentParticipants || 0}/{session.maxParticipants} participants</span>
                 </div>
@@ -176,9 +149,25 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
           )}
         </div>
         
-        {/* Bottom accent */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-600 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        {/* Refined bottom accent */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-violet-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       </div>
+      
+      {/* Dropdown menu - positioned relative to card wrapper, outside overflow */}
+      {openMenuId === session.id && (
+        <div className="absolute top-16 right-4 w-40 bg-[#1a1f35]/95 border border-red-500/30 rounded-lg shadow-2xl shadow-black/50 z-[100] overflow-hidden animate-slideDown backdrop-blur-xl card-options-menu">
+          <button
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              onDelete(session.id); 
+            }}
+            className="w-full px-4 py-3 text-left text-sm text-red-400 hover:bg-red-600/20 flex items-center gap-2.5 transition-all group/delete font-semibold"
+          >
+            <TrashIcon className="w-4 h-4 group-hover/delete:scale-110 transition-transform" />
+            <span>Trash</span>
+          </button>   
+        </div>
+      )}
     </div>
   );
 };
@@ -218,20 +207,32 @@ export const TrashedSessionCard = ({ session, onRestore }) => {
         </div>
       </div>
       
-      <div className="p-3 bg-[#161A2B]">
-        <h3 className="text-white/60 font-bold text-xs mb-1.5 line-through">{session.title}</h3>
-        <div className="space-y-0.5 text-gray-600 text-[10px]">"
-          <div className="flex items-center gap-1.5">
-            <CalendarIcon className="w-2.5 h-2.5 text-gray-600" />
-            <span>{session.month} {session.day}, {session.year}</span>
+      <div className="p-4 bg-[#161A2B] relative">
+        {/* Top gradient accent line */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/20 to-transparent"></div>
+        
+        <h3 className="text-white/60 font-bold text-sm mb-3 line-through flex items-center gap-2">
+          <span className="w-1 h-4 bg-gradient-to-b from-red-600/50 to-red-700/50 rounded-full"></span>
+          {session.title}
+        </h3>
+        <div className="space-y-2 text-gray-500 text-xs">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center shrink-0">
+              <CalendarIcon className="w-3.5 h-3.5 text-gray-500" />
+            </div>
+            <span className="font-medium">{session.month} {session.day}, {session.year}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <ClockIcon className="w-2.5 h-2.5 text-gray-600" />
-            <span>{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center shrink-0">
+              <ClockIcon className="w-3.5 h-3.5 text-gray-500" />
+            </div>
+            <span className="font-medium">{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <LocationIcon className="w-2.5 h-2.5 text-gray-600" />
-            <span>{session.location}</span>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center shrink-0">
+              <LocationIcon className="w-3.5 h-3.5 text-gray-500" />
+            </div>
+            <span className="font-medium truncate">{session.location}</span>
           </div>
         </div>
       </div>
@@ -243,14 +244,41 @@ export const TrashedSessionCard = ({ session, onRestore }) => {
 // ===== SESSIONS CONTENT =====
 
 export const SessionsContent = ({ sessionsData, openCardMenuId, onCreateSession, onMenuToggle, onDeleteSession }) => {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full flex-1 min-h-0 overflow-y-auto custom-scrollbar py-3 px-2 -mx-2">
-      {/* Create New Session Card */}
-      <div className="animate-fadeIn">
-        <CreateNewCard onClick={onCreateSession} label="Create New Session" />
+  // Empty state when no sessions
+  if (sessionsData.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px] animate-fadeIn">
+        <div className="text-center">
+          {/* Animated circle with pulsing effect */}
+          <div className="relative inline-block mb-6">
+            <div className="absolute inset-0 bg-indigo-600/20 rounded-full animate-ping"></div>
+            <div className="relative w-24 h-24 bg-gradient-to-br from-indigo-600/30 to-purple-600/30 rounded-full flex items-center justify-center border-2 border-indigo-500/40 shadow-2xl shadow-indigo-500/30">
+              <svg className="w-12 h-12 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </div>
+          </div>
+          
+          <h3 className="text-xl font-bold text-white mb-2">No Sessions Yet</h3>
+          <p className="text-gray-400 text-sm mb-1">Click the <span className="text-indigo-400 font-semibold">+</span> button to create</p>
+          <p className="text-gray-400 text-sm">your first study session</p>
+          
+          {/* Arrow pointing to FAB */}
+          <div className="mt-8 flex justify-center">
+            <div className="text-indigo-500/60 animate-bounce">
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
+        </div>
       </div>
+    );
+  }
 
-      {/* Session Cards - All animate together */}
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
+      {/* Session Cards */}
       {sessionsData.map((session, index) => (
         <div key={`session-${session.id}-${session.deletedAt || ''}`} className="animate-fadeIn relative hover:z-10">
           <SessionCard
@@ -271,7 +299,7 @@ export const HistorySessionsContent = ({ historySessions, onBackToSessions }) =>
   const navigate = useNavigate();
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pt-2 pb-4">
+    <div className="w-full">
       <div className="mb-6 flex items-center justify-between animate-slideInLeft">
         <div>
           <h3 className="text-white text-xl font-bold tracking-tight">Session History</h3>
@@ -330,9 +358,13 @@ export const HistorySessionsContent = ({ historySessions, onBackToSessions }) =>
                 </div>
 
                 {/* Session Info */}
-                <div className="p-3 bg-[#0a0a0a]/80 backdrop-blur-sm">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <h3 className="text-white font-bold text-sm group-hover:text-indigo-400 transition-colors flex-1 line-clamp-1">
+                <div className="p-4 bg-[#0a0a0a]/80 backdrop-blur-sm relative">
+                  {/* Top gradient accent line */}
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-green-500/30 to-transparent"></div>
+                  
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <h3 className="text-white font-bold text-sm group-hover:text-green-400 transition-colors flex-1 line-clamp-1 flex items-center gap-2">
+                      <span className="w-1 h-4 bg-gradient-to-b from-green-600 to-green-700 rounded-full group-hover:h-5 transition-all"></span>
                       {session.title}
                     </h3>
                     {session.tags && session.tags.length > 0 && (
@@ -351,20 +383,29 @@ export const HistorySessionsContent = ({ historySessions, onBackToSessions }) =>
                       </div>
                     )}
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1.5 text-gray-400 text-[10px]">
-                      <CalendarIcon className="w-3 h-3 text-green-400" />
-                      <span>{session.month} {session.day}, {session.year}</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-gray-400 text-xs group-hover:text-gray-300 transition-colors">
+                      <div className="w-7 h-7 rounded-lg bg-green-600/10 flex items-center justify-center group-hover:bg-green-600/20 transition-colors shrink-0">
+                        <CalendarIcon className="w-3.5 h-3.5 text-green-400 group-hover:scale-110 transition-transform" />
+                      </div>
+                      <span className="font-medium">{session.month} {session.day}, {session.year}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-gray-400 text-[10px]">
-                      <ClockIcon className="w-3 h-3 text-green-400" />
-                      <span>{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
+                    <div className="flex items-center gap-2 text-gray-400 text-xs group-hover:text-gray-300 transition-colors">
+                      <div className="w-7 h-7 rounded-lg bg-green-600/10 flex items-center justify-center group-hover:bg-green-600/20 transition-colors shrink-0">
+                        <ClockIcon className="w-3.5 h-3.5 text-green-400 group-hover:scale-110 transition-transform" />
+                      </div>
+                      <span className="font-medium">{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-gray-400 text-[10px]">
-                      <LocationIcon className="w-3 h-3 text-green-400" />
-                      <span className="truncate">{session.location}</span>
+                    <div className="flex items-center gap-2 text-gray-400 text-xs group-hover:text-gray-300 transition-colors">
+                      <div className="w-7 h-7 rounded-lg bg-green-600/10 flex items-center justify-center group-hover:bg-green-600/20 transition-colors shrink-0">
+                        <LocationIcon className="w-3.5 h-3.5 text-green-400 group-hover:scale-110 transition-transform" />
+                      </div>
+                      <span className="font-medium truncate">{session.location}</span>
                     </div>
                   </div>
+                  
+                  {/* Bottom accent */}
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-600 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
               </div>
             </div>
@@ -379,7 +420,7 @@ export const HistorySessionsContent = ({ historySessions, onBackToSessions }) =>
 
 export const TrashedSessionsContent = ({ trashedSessions, onRestore, onBackToSessions }) => {
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar py-3 px-2 -mx-2">
+    <div className="w-full">
       <div className="mb-6 flex items-center justify-between animate-slideInLeft">
         <h3 className="text-white text-xl font-bold tracking-tight">Trashed Sessions</h3>
         <button
