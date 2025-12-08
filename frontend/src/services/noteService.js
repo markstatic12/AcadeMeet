@@ -372,5 +372,37 @@ export const noteService = {
 
     const data = await handleResponse(response, 'Failed to link note to session');
     return data;
+  },
+
+  /**
+   * Get all notes linked to a specific session.
+   * @param {number} sessionId - The session ID
+   * @returns {Promise<Array<object>>} Array of normalized notes
+   */
+  async getLinkedNotes(sessionId) {
+    const response = await authFetch(`${API_BASE_URL}/session/${sessionId}`, {
+      method: 'GET',
+      headers: buildHeaders(),
+    });
+    
+    const data = await handleResponse(response, 'Failed to load session notes');
+    const arr = Array.isArray(data) ? data : [];
+    
+    // Normalize notes
+    return arr.map(normalizeNote);
+  },
+
+  /**
+   * Delete a note by its ID.
+   * @param {string} noteId - The note ID to delete
+   * @returns {Promise<void>}
+   */
+  async deleteNote(noteId) {
+    const response = await authFetch(`${API_BASE_URL}/${noteId}`, {
+      method: 'DELETE',
+      headers: buildHeaders(),
+    });
+    
+    await handleResponse(response, 'Failed to delete note');
   }
 };

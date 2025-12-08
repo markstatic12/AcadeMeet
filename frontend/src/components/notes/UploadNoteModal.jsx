@@ -122,12 +122,10 @@ const UploadNoteModal = ({
       
       // Call success callback if provided
       if (onUploadSuccess) {
-        // If session wasn't created yet (no sessionId), pass filepath for later linking
-        if (!targetSessionId && uploadedNote.filepath) {
+        // Always pass just the filepath string for consistency
+        // This allows the parent component to track notes uniformly
+        if (uploadedNote.filepath) {
           onUploadSuccess(uploadedNote.filepath);
-        } else {
-          // If linked to session, pass full note object
-          onUploadSuccess(uploadedNote);
         }
       } else {
         window.location.reload();

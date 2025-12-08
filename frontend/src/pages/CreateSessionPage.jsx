@@ -121,7 +121,7 @@ const CreateSessionPage = () => {
                     onParticipantsChange={handleParticipantsChange}
                     onTagsChange={handleTagsChange}
                     onUploadNotesClick={() => setIsUploadModalOpen(true)}
-                    uploadedNotes={sessionData.uploadedNoteFilepaths}
+                    uploadedNotes={sessionData.uploadedNoteFilepaths || []}
                     onRemoveNote={(index) => {
                       const newFilepaths = [...sessionData.uploadedNoteFilepaths];
                       newFilepaths.splice(index, 1);
