@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { sessionService } from '../../services/SessionService';
 
 // ===== PUBLIC PROFILE CONTENT (RIGHT PANEL) =====
 
@@ -58,45 +59,40 @@ const TabButton = ({ active, onClick, icon, label }) => {
 // ===== ABOUT TAB (NOW SHOWS OWNED SESSIONS) =====
 
 const AboutTab = ({ userData }) => {
-  // Mock sessions data
-  const sessions = [
-    {
-      id: 1,
-      title: 'Introduction to Machine Learning with Python',
-      description: 'Learn the fundamentals of ML algorithms and practical implementation using Python and scikit-learn',
-      startTime: new Date('2025-12-15T14:00:00'),
-      endTime: new Date('2025-12-15T16:00:00'),
-      location: 'Online via Zoom',
-      sessionType: 'PUBLIC',
-      participants: 12,
-      maxParticipants: 15,
-      tags: ['Python', 'Machine Learning', 'Data Science']
-    },
-    {
-      id: 2,
-      title: 'Advanced React Patterns',
-      description: 'Deep dive into advanced React patterns including custom hooks, context, and performance optimization',
-      startTime: new Date('2025-12-18T10:00:00'),
-      endTime: new Date('2025-12-18T12:00:00'),
-      location: 'Room 301, CIT-U',
-      sessionType: 'PUBLIC',
-      participants: 8,
-      maxParticipants: 20,
-      tags: ['React', 'JavaScript', 'Web Development']
-    },
-    {
-      id: 3,
-      title: 'Data Structures Deep Dive',
-      description: 'Comprehensive study of fundamental data structures and their applications',
-      startTime: new Date('2025-12-20T15:00:00'),
-      endTime: new Date('2025-12-20T17:00:00'),
-      location: 'Online via Teams',
-      sessionType: 'PRIVATE',
-      participants: 5,
-      maxParticipants: 10,
-      tags: ['Algorithms', 'Data Structures', 'CS Fundamentals']
-    }
-  ];
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSessions = async () => {
+      if (!userData?.id) return;
+      
+      try {
+        setLoading(true);
+        const userSessions = await sessionService.getSessionsByUserId(userData.id);
+        setSessions(userSessions || []);
+      } catch (error) {
+        console.error('Failed to fetch user sessions:', error);
+        setSessions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSessions();
+  }, [userData?.id]);
+
+  if (loading) {
+    return (
+      <div className="p-6 pt-8">
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-400">Loading sessions...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 pt-8">
