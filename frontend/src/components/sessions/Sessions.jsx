@@ -154,9 +154,40 @@ const SessionsGrid = ({ sessions }) => {
 
 // Sessions Header Component
 const SessionsHeader = () => {
+  const [query, setQuery] = useState('');
+  const navigate = useNavigate();
+
+  const handleSearch = () => {
+    const q = (query || '').trim();
+    if (!q) return;
+    navigate(`/search?q=${encodeURIComponent(q)}&tab=session`);
+  };
+
   return (
-    <div className="mb-6">
+    <div className="mb-6 flex items-center justify-between gap-4">
       <h1 className="text-3xl font-bold text-white">Sessions</h1>
+
+      <div className="flex items-center gap-2">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search sessions..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
+            className="w-64 px-3 py-2 bg-[#0f1724] border border-gray-800/50 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          />
+          <button
+            onClick={handleSearch}
+            className="absolute right-1 top-1/2 -translate-y-1/2 px-2 py-1 text-gray-300 hover:text-white"
+            aria-label="Search sessions"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M10.5 18A7.5 7.5 0 1010.5 3a7.5 7.5 0 000 15z" />
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
