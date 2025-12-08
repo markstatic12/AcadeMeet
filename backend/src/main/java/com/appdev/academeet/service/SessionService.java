@@ -41,17 +41,23 @@ public class SessionService {
     private final SessionParticipantRepository sessionParticipantRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final ReminderService reminderService;
+    private final NotificationService notificationService;
     private final JwtUtil jwtUtil;
 
     public SessionService(SessionRepository sessionRepository,
                           SessionParticipantRepository sessionParticipantRepository,
                           UserRepository userRepository,
+                          ReminderService reminderService,
+                          NotificationService notificationService,
                           JwtUtil jwtUtil) {
         this.sessionRepository = sessionRepository;
         this.sessionParticipantRepository = sessionParticipantRepository;
         this.userRepository = userRepository;
-        this.jwtUtil = jwtUtil;
         this.passwordEncoder = new BCryptPasswordEncoder();
+        this.reminderService = reminderService;
+        this.notificationService = notificationService;
+        this.jwtUtil = jwtUtil;
     }
 
     public Session createSession(Session session) {
@@ -191,6 +197,13 @@ public class SessionService {
         // Increment participant count
         session.setCurrentParticipants(currentParticipants + 1);
         sessionRepository.save(session);
+
+        // Auto-create reminders for participant
+        reminderService.createRemindersForSession(user, session);
+        
+        // Send notifications
+        notificationService.notifyJoinConfirmation(user, session);
+        notificationService.notifyParticipantJoined(user, session);
     }
 
     @Transactional
@@ -283,6 +296,12 @@ public class SessionService {
 
         session.setSessionStatus(SessionStatus.COMPLETED);
         sessionRepository.save(session);
+        
+        // Notify all participants that session was canceled
+        List<User> participants = sessionParticipantRepository.findBySessionId(sessionId).stream()
+                .map(SessionParticipant::getUser)
+                .collect(Collectors.toList());
+        notificationService.notifySessionCanceled(session, participants);
     }
 
     @Transactional
@@ -356,8 +375,15 @@ public class SessionService {
         }
 
         existingSession.setUpdatedAt(LocalDateTime.now());
-
-        return sessionRepository.save(existingSession);
+        Session savedSession = sessionRepository.save(existingSession);
+        
+        // Notify all participants about session update
+        List<User> participants = sessionParticipantRepository.findBySessionId(sessionId).stream()
+                .map(SessionParticipant::getUser)
+                .collect(Collectors.toList());
+        notificationService.notifySessionUpdated(savedSession, participants);
+        
+        return savedSession;
     }
 
     public List<SessionDTO> getSessionsByStatus(SessionStatus status) {

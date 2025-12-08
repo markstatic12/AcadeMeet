@@ -1,14 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useUser } from '../../context/UserContext';
-import { HomeIcon, SessionsIcon, ProfileIcon, SearchIcon, GearIcon } from '../../icons';
+import { HomeIcon, SessionsIcon, ProfileIcon, SearchIcon, GearIcon, BellIcon } from '../../icons';
 import logo from '../../assets/academeet-white.svg';
 import { authFetch } from '../../services/apiHelper';
+import { notificationService } from '../../services/notificationService';
 
 const DashboardLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [currentUser, setCurrentUser] = useState(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [filter, setFilter] = useState('all'); // 'all' or 'unread'
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [expandedView, setExpandedView] = useState(false);
+  const [activeMenu, setActiveMenu] = useState(null);
+  const notificationRef = useRef(null);
 
   useEffect(() => {
     let mounted = true;
@@ -24,6 +33,132 @@ const DashboardLayout = ({ children }) => {
     })();
     return () => { mounted = false; };
   }, []);
+
+  // Load unread count on mount and periodically
+  useEffect(() => {
+    loadUnreadCount();
+    const interval = setInterval(loadUnreadCount, 60000); // Every 60 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  // Load notifications when modal opens
+  useEffect(() => {
+    if (showNotifications) {
+      loadNotifications();
+    }
+  }, [showNotifications, filter]);
+
+  // Close modal when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+
+    if (showNotifications) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showNotifications]);
+
+  const loadUnreadCount = async () => {
+    try {
+      const data = await notificationService.getUnreadCount();
+      setUnreadCount(data.count);
+    } catch (err) {
+      console.error('Failed to load unread count:', err);
+    }
+  };
+
+  const loadNotifications = async () => {
+    setLoading(true);
+    try {
+      const data = filter === 'unread' 
+        ? await notificationService.getUnreadNotifications()
+        : await notificationService.getAllNotifications();
+      setNotifications(data);
+    } catch (err) {
+      console.error('Failed to load notifications:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNotificationClick = async (notification) => {
+    try {
+      // Mark as read
+      if (!notification.read) {
+        await notificationService.markAsRead(notification.id);
+        // Update local state
+        setNotifications(notifications.map(n => 
+          n.id === notification.id ? { ...n, read: true } : n
+        ));
+        // Update unread count
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+
+      // Close modal
+      setShowNotifications(false);
+
+      // Navigate to session if exists
+      if (notification.sessionId) {
+        navigate(`/session/${notification.sessionId}`);
+      }
+    } catch (err) {
+      console.error('Failed to mark notification as read:', err);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await notificationService.markAllAsRead();
+      setNotifications(notifications.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
+    } catch (err) {
+      console.error('Failed to mark all as read:', err);
+    }
+  };
+
+  const handleToggleRead = async (notification, e) => {
+    e.stopPropagation();
+    setActiveMenu(null);
+    
+    try {
+      if (!notification.read) {
+        await notificationService.markAsRead(notification.id);
+        setNotifications(notifications.map(n => 
+          n.id === notification.id ? { ...n, read: true } : n
+        ));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      } else {
+        // Mark as unread - would need backend endpoint
+        setNotifications(notifications.map(n => 
+          n.id === notification.id ? { ...n, read: false } : n
+        ));
+        setUnreadCount(prev => prev + 1);
+      }
+    } catch (err) {
+      console.error('Failed to toggle read status:', err);
+    }
+  };
+
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays}d ago`;
+    
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
 
   // Logout handlers removed with sidebar logout button
 
@@ -191,6 +326,158 @@ const DashboardLayout = ({ children }) => {
         {/* Top Bar with User Avatar */}
         <div className="h-16 bg-[#0a0a14] border-b border-gray-800 flex items-center justify-end px-6 flex-shrink-0">
           <div className="flex items-center gap-3">
+            
+            {/* Notification Bell Icon */}
+            <div className="relative" ref={notificationRef}>
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2 hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <BellIcon className="w-5 h-5 text-white" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Modal */}
+              {showNotifications && (
+                <div className={`absolute right-0 mt-2 w-96 bg-gray-900 border border-gray-800 rounded-lg shadow-2xl z-50 overflow-hidden flex flex-col transition-all duration-300 ${
+                  expandedView ? 'h-[calc(100vh-100px)]' : 'max-h-[600px]'
+                }`}>
+                  {/* Header */}
+                  <div className="p-4 border-b border-gray-800">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-bold text-white">Notifications</h3>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={handleMarkAllAsRead}
+                          className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+                        >
+                          Mark all as read
+                        </button>
+                      )}
+                    </div>
+                    
+                    {/* Filter Tabs */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setFilter('all')}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                          filter === 'all'
+                            ? 'bg-indigo-600 text-white'
+                            : 'bg-gray-800 text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        All
+                      </button>
+                      <button
+                        onClick={() => setFilter('unread')}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                          filter === 'unread'
+                            ? 'bg-indigo-600 text-white'
+                            : 'bg-gray-800 text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        Unread
+                        {unreadCount > 0 && (
+                          <span className="ml-1.5 px-1.5 py-0.5 bg-red-500 text-white text-xs rounded-full">
+                            {unreadCount}
+                          </span>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Notifications List */}
+                  <div className="flex-1 overflow-y-auto custom-scrollbar">
+                    {loading ? (
+                      <div className="p-8 text-center text-gray-400">
+                        Loading...
+                      </div>
+                    ) : notifications.length === 0 ? (
+                      <div className="p-8 text-center">
+                        <span className="text-4xl mb-2 block">🔔</span>
+                        <p className="text-gray-400">No {filter === 'unread' ? 'unread' : ''} notifications</p>
+                      </div>
+                    ) : (
+                      <div className="p-2">
+                        {notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            className={`relative p-3 rounded-lg transition-all mb-2 ${
+                              notification.read
+                                ? 'bg-gray-800/30 opacity-80'
+                                : 'bg-indigo-500/10 hover:bg-indigo-500/20'
+                            }`}
+                          >
+                            <div className="flex items-start gap-2">
+                              {/* Unread indicator */}
+                              {!notification.read && (
+                                <div className="w-2 h-2 bg-indigo-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                              )}
+                              
+                              <div 
+                                className="flex-1 min-w-0 cursor-pointer"
+                                onClick={() => handleNotificationClick(notification)}
+                              >
+                                <p className={`text-sm ${notification.read ? 'text-gray-400' : 'text-white'}`}>
+                                  {notification.message}
+                                </p>
+                                <p className="text-xs text-gray-500 mt-1">
+                                  {formatTime(notification.createdAt)}
+                                </p>
+                              </div>
+
+                              {/* Three-dot menu */}
+                              <div className="relative">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActiveMenu(activeMenu === notification.id ? null : notification.id);
+                                  }}
+                                  className="p-1 hover:bg-gray-700 rounded transition-colors"
+                                >
+                                  <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 16 16">
+                                    <circle cx="8" cy="3" r="1.5"/>
+                                    <circle cx="8" cy="8" r="1.5"/>
+                                    <circle cx="8" cy="13" r="1.5"/>
+                                  </svg>
+                                </button>
+
+                                {/* Dropdown menu */}
+                                {activeMenu === notification.id && (
+                                  <div className="absolute right-0 mt-1 w-40 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50">
+                                    <button
+                                      onClick={(e) => handleToggleRead(notification, e)}
+                                      className="w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-gray-700 rounded-lg transition-colors"
+                                    >
+                                      {notification.read ? 'Mark as unread' : 'Mark as read'}
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="p-3 border-t border-gray-800">
+                    <button
+                      onClick={() => setExpandedView(!expandedView)}
+                      className="w-full text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+                    >
+                      {expandedView ? 'Show less' : 'View all notifications'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* User Name */}
             {currentUser && (
               <span className="text-sm font-medium text-white">

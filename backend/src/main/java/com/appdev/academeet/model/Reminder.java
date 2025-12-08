@@ -42,6 +42,9 @@ public class Reminder {
 
     @Column(name = "scheduled_time", nullable = false)
     private LocalDateTime scheduledTime;
+    
+    @Column(name = "header", nullable = false)
+    private String header;
 
     @Column(name = "is_read", nullable = false)
     private boolean isRead = false;
@@ -69,6 +72,21 @@ public class Reminder {
         this.type = type;
         this.scheduledTime = scheduledTime;
         this.isRead = false;
+        this.header = generateHeader(type, session);
+    }
+    
+    // Helper method to generate header based on type
+    private String generateHeader(ReminderType type, Session session) {
+        if (session == null) return "Session Reminder";
+        
+        switch (type) {
+            case DAY_BEFORE:
+                return "Session Tomorrow: " + session.getTitle();
+            case ONE_HOUR_BEFORE:
+                return "Session Starting Soon: " + session.getTitle();
+            default:
+                return "Session Reminder: " + session.getTitle();
+        }
     }
 
     // Getters
@@ -103,6 +121,10 @@ public class Reminder {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+    
+    public String getHeader() {
+        return header;
+    }
 
     // Setters
     public void setId(Long id) {
@@ -135,6 +157,10 @@ public class Reminder {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+    
+    public void setHeader(String header) {
+        this.header = header;
     }
 
     // Helper method

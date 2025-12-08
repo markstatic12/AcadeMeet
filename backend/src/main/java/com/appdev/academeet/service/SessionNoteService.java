@@ -21,6 +21,12 @@ public class SessionNoteService {
 
     @Autowired
     private SessionRepository sessionRepository;
+    
+    @Autowired
+    private com.appdev.academeet.repository.SessionParticipantRepository sessionParticipantRepository;
+    
+    @Autowired
+    private NotificationService notificationService;
 
     // @Autowired
     // private SessionParticipantService sessionParticipantService;
@@ -67,7 +73,15 @@ public class SessionNoteService {
         note.setSession(session);
         note.setFilepath(filepath);
 
-        return sessionNoteRepository.save(note);
+        SessionNote savedNote = sessionNoteRepository.save(note);
+        
+        // Notify all participants about new notes
+        List<com.appdev.academeet.model.User> participants = sessionParticipantRepository.findBySessionId(sessionId).stream()
+                .map(com.appdev.academeet.model.SessionParticipant::getUser)
+                .collect(java.util.stream.Collectors.toList());
+        notificationService.notifyNotesUploaded(session, participants);
+        
+        return savedNote;
     }
 
     /**
