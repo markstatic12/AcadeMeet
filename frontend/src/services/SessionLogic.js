@@ -268,19 +268,9 @@ export const useEditSessionForm = (sessionId, showToast) => {
           .map(note => note.filepath)
           .filter(fp => fp && typeof fp === 'string');
 
-        // Convert month from backend format (DECEMBER) to proper case (December)
-        const formatMonth = (month) => {
-          if (!month) return "";
-          // If month is uppercase (DECEMBER), convert to proper case
-          if (month === month.toUpperCase()) {
-            return month.charAt(0) + month.slice(1).toLowerCase();
-          }
-          return month;
-        };
-
         setSessionData({
           title: data.title || "",
-          month: formatMonth(data.month),
+          month: data.month || "",
           day: data.day || "",
           year: data.year || "",
           startTime: data.startTime || "",

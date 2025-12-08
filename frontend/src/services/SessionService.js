@@ -25,26 +25,14 @@ export const sessionService = {
    * Creates a new session with proper data formatting
    */
   async createSession(sessionData) {
-    // Format date and time into LocalDateTime format (yyyy-MM-dd'T'HH:mm:ss)
-    const formatDateTime = (year, month, day, time) => {
-      // Convert month name to number if needed (case-insensitive)
-      const monthNames = ["january", "february", "march", "april", "may", "june",
-                          "july", "august", "september", "october", "november", "december"];
-      const monthLower = month.toLowerCase();
-      const monthIndex = monthNames.indexOf(monthLower);
-      const monthNumber = monthIndex !== -1 
-        ? String(monthIndex + 1).padStart(2, '0')
-        : month.padStart(2, '0');
-      
-      const paddedDay = day.padStart(2, '0');
-      return `${year}-${monthNumber}-${paddedDay}T${time}:00`;
-    };
-
     const submissionData = {
       title: sessionData.title,
       description: sessionData.description,
-      startTime: formatDateTime(sessionData.year, sessionData.month, sessionData.day, sessionData.startTime),
-      endTime: formatDateTime(sessionData.year, sessionData.month, sessionData.day, sessionData.endTime),
+      month: sessionData.month,  // Send as string (e.g., "January")
+      day: sessionData.day,      // Send as string (e.g., "15")
+      year: sessionData.year,    // Send as string (e.g., "2025")
+      startTime: sessionData.startTime,  // Send as string (e.g., "14:30")
+      endTime: sessionData.endTime,      // Send as string (e.g., "16:00")
       location: sessionData.location,
       maxParticipants: sessionData.maxParticipants ? parseInt(sessionData.maxParticipants) : null,
       sessionType: sessionData.sessionType, // Should be 'PUBLIC' or 'PRIVATE'
@@ -53,7 +41,6 @@ export const sessionService = {
     };
 
     console.log('Creating session with data:', submissionData);
-    console.log('Token exists:', !!localStorage.getItem('token'));
 
     const response = await authFetch(API_BASE, {
       method: 'POST',
@@ -128,26 +115,14 @@ export const sessionService = {
    * Updates session details
    */
   async updateSession(sessionId, sessionData) {
-    // Format date and time into LocalDateTime format (yyyy-MM-dd'T'HH:mm:ss)
-    const formatDateTime = (year, month, day, time) => {
-      // Convert month name to number if needed (case-insensitive)
-      const monthNames = ["january", "february", "march", "april", "may", "june",
-                          "july", "august", "september", "october", "november", "december"];
-      const monthLower = month.toLowerCase();
-      const monthIndex = monthNames.indexOf(monthLower);
-      const monthNumber = monthIndex !== -1 
-        ? String(monthIndex + 1).padStart(2, '0')
-        : month.padStart(2, '0');
-      
-      const paddedDay = day.padStart(2, '0');
-      return `${year}-${monthNumber}-${paddedDay}T${time}:00`;
-    };
-
     const submissionData = {
       title: sessionData.title,
       description: sessionData.description,
-      startTime: formatDateTime(sessionData.year, sessionData.month, sessionData.day, sessionData.startTime),
-      endTime: formatDateTime(sessionData.year, sessionData.month, sessionData.day, sessionData.endTime),
+      month: sessionData.month,  // Send as string (e.g., "January")
+      day: sessionData.day,      // Send as string (e.g., "15")
+      year: sessionData.year,    // Send as string (e.g., "2025")
+      startTime: sessionData.startTime,  // Send as string (e.g., "14:30")
+      endTime: sessionData.endTime,      // Send as string (e.g., "16:00")
       location: sessionData.location,
       maxParticipants: sessionData.maxParticipants ? parseInt(sessionData.maxParticipants) : null,
       sessionType: sessionData.sessionType,

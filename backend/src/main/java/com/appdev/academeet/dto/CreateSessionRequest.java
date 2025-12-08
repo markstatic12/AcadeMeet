@@ -1,21 +1,25 @@
 package com.appdev.academeet.dto;
 
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 
 import com.appdev.academeet.model.Session;
 import com.appdev.academeet.model.SessionType;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CreateSessionRequest {
     private String title;
     private String description;
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime startTime;
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime endTime;
+    
+    // Frontend sends separate date/time fields
+    private String month;  // e.g., "January", "February"
+    private String day;    // e.g., "15"
+    private String year;   // e.g., "2025"
+    private String startTime;  // e.g., "14:30"
+    private String endTime;    // e.g., "16:00"
+    
     private String location;
     private Integer maxParticipants;
     private SessionType sessionType;
@@ -24,10 +28,14 @@ public class CreateSessionRequest {
 
     public CreateSessionRequest() {}
 
-    public CreateSessionRequest(String title, String description, LocalDateTime startTime, LocalDateTime endTime,
-            String location, Integer maxParticipants, SessionType sessionType, List<String> tags) {
+    public CreateSessionRequest(String title, String description, String month, String day, String year,
+            String startTime, String endTime, String location, Integer maxParticipants, 
+            SessionType sessionType, List<String> tags) {
         this.title = title;
         this.description = description;
+        this.month = month;
+        this.day = day;
+        this.year = year;
         this.startTime = startTime;
         this.endTime = endTime;
         this.location = location;
@@ -36,17 +44,27 @@ public class CreateSessionRequest {
         this.tags = tags;
     }
 
+    // Getters and Setters
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title == null ? null : title.trim(); }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description == null ? null : description.trim(); }
 
-    public LocalDateTime getStartTime() { return startTime; }
-    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
+    public String getMonth() { return month; }
+    public void setMonth(String month) { this.month = month; }
 
-    public LocalDateTime getEndTime() { return endTime; }
-    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
+    public String getDay() { return day; }
+    public void setDay(String day) { this.day = day; }
+
+    public String getYear() { return year; }
+    public void setYear(String year) { this.year = year; }
+
+    public String getStartTime() { return startTime; }
+    public void setStartTime(String startTime) { this.startTime = startTime; }
+
+    public String getEndTime() { return endTime; }
+    public void setEndTime(String endTime) { this.endTime = endTime; }
 
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location == null ? null : location.trim(); }
@@ -63,12 +81,58 @@ public class CreateSessionRequest {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password == null ? null : password.trim(); }
 
+    /**
+     * Converts month name to Month enum.
+     * Supports both full names (January) and uppercase (JANUARY).
+     */
+    private Month parseMonth(String monthStr) {
+        if (monthStr == null) {
+            throw new IllegalArgumentException("Month cannot be null");
+        }
+        
+        try {
+            // Try parsing as numeric month first (1-12)
+            int monthNum = Integer.parseInt(monthStr);
+            return Month.of(monthNum);
+        } catch (NumberFormatException e) {
+            // Parse as month name (case-insensitive)
+            return Month.valueOf(monthStr.toUpperCase());
+        }
+    }
+
+    /**
+     * Converts separate date/time fields to LocalDateTime.
+     */
+    private LocalDateTime parseDateTime(String timeStr) {
+        if (month == null || day == null || year == null || timeStr == null) {
+            throw new IllegalArgumentException("Date and time fields cannot be null");
+        }
+
+        try {
+            Month monthEnum = parseMonth(month);
+            int dayInt = Integer.parseInt(day);
+            int yearInt = Integer.parseInt(year);
+            
+            // Parse time (HH:mm format)
+            String[] timeParts = timeStr.split(":");
+            int hour = Integer.parseInt(timeParts[0]);
+            int minute = Integer.parseInt(timeParts[1]);
+            
+            return LocalDateTime.of(yearInt, monthEnum, dayInt, hour, minute);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid date/time format: " + e.getMessage(), e);
+        }
+    }
+
     public Session toEntity() {
         Session s = new Session();
         s.setTitle(this.title);
         s.setDescription(this.description);
-        s.setStartTime(this.startTime);
-        s.setEndTime(this.endTime);
+        
+        // Convert separate date/time fields to LocalDateTime
+        s.setStartTime(parseDateTime(this.startTime));
+        s.setEndTime(parseDateTime(this.endTime));
+        
         s.setLocation(this.location);
         s.setMaxParticipants(this.maxParticipants);
         if (this.sessionType != null) {
