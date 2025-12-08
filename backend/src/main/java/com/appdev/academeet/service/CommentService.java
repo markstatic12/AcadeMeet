@@ -24,14 +24,17 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final SessionRepository sessionRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Autowired
     public CommentService(CommentRepository commentRepository, 
                          SessionRepository sessionRepository,
-                         UserRepository userRepository) {
+                         UserRepository userRepository,
+                         NotificationService notificationService) {
         this.commentRepository = commentRepository;
         this.sessionRepository = sessionRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -74,6 +77,11 @@ public class CommentService {
         // If this was a reply, update the parent's reply count atomically
         if (parentComment != null) {
             commentRepository.updateReplyCount(parentComment.getCommentId(), 1);
+            // Notify original commenter about reply
+            notificationService.notifyCommentReply(parentComment.getAuthor(), user, session);
+        } else {
+            // This is a new comment on session - notify session owner
+            notificationService.notifyCommentOnSession(user, session);
         }
 
         return saved;
