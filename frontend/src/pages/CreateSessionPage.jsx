@@ -132,6 +132,7 @@ const CreateSessionPage = () => {
                   <DescriptionPanel
                     value={sessionData.description}
                     onChange={handleChange}
+                    fieldErrors={fieldErrors}
                   />
                 </div>
               </div>

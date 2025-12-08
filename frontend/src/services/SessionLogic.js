@@ -84,15 +84,83 @@ export const useSessionForm = (showToast) => {
       }
     });
 
+    // Validate title length
+    if (sessionData.title && sessionData.title.length < 3) {
+      errors.title = 'Title must be at least 3 characters';
+    }
+    if (sessionData.title && sessionData.title.length > 100) {
+      errors.title = 'Title must not exceed 100 characters';
+    }
+
+    // Validate date is not in the past
+    if (sessionData.month && sessionData.day && sessionData.year && sessionData.startTime) {
+      const monthIndex = ['January', 'February', 'March', 'April', 'May', 'June', 
+                          'July', 'August', 'September', 'October', 'November', 'December']
+                          .indexOf(sessionData.month);
+      
+      if (monthIndex !== -1) {
+        const sessionDateTime = new Date(
+          parseInt(sessionData.year),
+          monthIndex,
+          parseInt(sessionData.day),
+          parseInt(sessionData.startTime.split(':')[0]),
+          parseInt(sessionData.startTime.split(':')[1])
+        );
+        
+        const now = new Date();
+        if (sessionDateTime < now) {
+          errors.startTime = 'Session date and time must be in the future';
+        }
+      }
+    }
+
+    // Validate time range
+    if (sessionData.startTime && sessionData.endTime) {
+      const [startHour, startMin] = sessionData.startTime.split(':').map(Number);
+      const [endHour, endMin] = sessionData.endTime.split(':').map(Number);
+      const startMinutes = startHour * 60 + startMin;
+      const endMinutes = endHour * 60 + endMin;
+
+      if (endMinutes <= startMinutes) {
+        errors.endTime = 'End time must be after start time';
+      }
+
+      // Check minimum session duration (at least 15 minutes)
+      if (endMinutes - startMinutes < 15) {
+        errors.endTime = 'Session must be at least 15 minutes long';
+      }
+    }
+
+    // Validate location
+    if (sessionData.location && sessionData.location.length < 3) {
+      errors.location = 'Location must be at least 3 characters';
+    }
+
+    // Validate max participants
+    if (sessionData.maxParticipants) {
+      const maxP = parseInt(sessionData.maxParticipants);
+      if (isNaN(maxP) || maxP < 1) {
+        errors.maxParticipants = 'Must be at least 1 participant';
+      }
+      if (maxP > 1000) {
+        errors.maxParticipants = 'Cannot exceed 1000 participants';
+      }
+    }
+
     // Validate private session password
     if (sessionData.sessionType === 'PRIVATE' && (!sessionData.password || sessionData.password.length < 6)) {
       errors.password = 'Password must be at least 6 characters';
     }
 
+    // Validate description length
+    if (sessionData.description && sessionData.description.length > 5000) {
+      errors.description = 'Description must not exceed 5000 characters';
+    }
+
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
       if (showToast) {
-        showToast('error', 'Please fill in all required fields');
+        showToast('error', 'Please ensure you provide valid inputs');
       }
       setIsSubmitting(false);
       return;
@@ -200,9 +268,19 @@ export const useEditSessionForm = (sessionId, showToast) => {
           .map(note => note.filepath)
           .filter(fp => fp && typeof fp === 'string');
 
+        // Convert month from backend format (DECEMBER) to proper case (December)
+        const formatMonth = (month) => {
+          if (!month) return "";
+          // If month is uppercase (DECEMBER), convert to proper case
+          if (month === month.toUpperCase()) {
+            return month.charAt(0) + month.slice(1).toLowerCase();
+          }
+          return month;
+        };
+
         setSessionData({
           title: data.title || "",
-          month: data.month || "",
+          month: formatMonth(data.month),
           day: data.day || "",
           year: data.year || "",
           startTime: data.startTime || "",
@@ -285,15 +363,83 @@ export const useEditSessionForm = (sessionId, showToast) => {
       }
     });
 
+    // Validate title length
+    if (sessionData.title && sessionData.title.length < 3) {
+      errors.title = 'Title must be at least 3 characters';
+    }
+    if (sessionData.title && sessionData.title.length > 100) {
+      errors.title = 'Title must not exceed 100 characters';
+    }
+
+    // Validate date is not in the past
+    if (sessionData.month && sessionData.day && sessionData.year && sessionData.startTime) {
+      const monthIndex = ['January', 'February', 'March', 'April', 'May', 'June', 
+                          'July', 'August', 'September', 'October', 'November', 'December']
+                          .indexOf(sessionData.month);
+      
+      if (monthIndex !== -1) {
+        const sessionDateTime = new Date(
+          parseInt(sessionData.year),
+          monthIndex,
+          parseInt(sessionData.day),
+          parseInt(sessionData.startTime.split(':')[0]),
+          parseInt(sessionData.startTime.split(':')[1])
+        );
+        
+        const now = new Date();
+        if (sessionDateTime < now) {
+          errors.startTime = 'Session date and time must be in the future';
+        }
+      }
+    }
+
+    // Validate time range
+    if (sessionData.startTime && sessionData.endTime) {
+      const [startHour, startMin] = sessionData.startTime.split(':').map(Number);
+      const [endHour, endMin] = sessionData.endTime.split(':').map(Number);
+      const startMinutes = startHour * 60 + startMin;
+      const endMinutes = endHour * 60 + endMin;
+
+      if (endMinutes <= startMinutes) {
+        errors.endTime = 'End time must be after start time';
+      }
+
+      // Check minimum session duration (at least 15 minutes)
+      if (endMinutes - startMinutes < 15) {
+        errors.endTime = 'Session must be at least 15 minutes long';
+      }
+    }
+
+    // Validate location
+    if (sessionData.location && sessionData.location.length < 3) {
+      errors.location = 'Location must be at least 3 characters';
+    }
+
+    // Validate max participants
+    if (sessionData.maxParticipants) {
+      const maxP = parseInt(sessionData.maxParticipants);
+      if (isNaN(maxP) || maxP < 1) {
+        errors.maxParticipants = 'Must be at least 1 participant';
+      }
+      if (maxP > 1000) {
+        errors.maxParticipants = 'Cannot exceed 1000 participants';
+      }
+    }
+
     // Validate private session password if changed
     if (sessionData.sessionType === 'PRIVATE' && sessionData.password && sessionData.password.length < 6) {
       errors.password = 'Password must be at least 6 characters';
     }
 
+    // Validate description length
+    if (sessionData.description && sessionData.description.length > 5000) {
+      errors.description = 'Description must not exceed 5000 characters';
+    }
+
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
       if (showToast) {
-        showToast('error', 'Please fill in all required fields');
+        showToast('error', 'Please fix the validation errors');
       }
       setIsSubmitting(false);
       return;
