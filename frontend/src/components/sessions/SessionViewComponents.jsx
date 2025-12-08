@@ -181,7 +181,7 @@ export const SessionTypeDisplay = ({ sessionType }) => {
 };
 
 // Read-only Participants Display
-export const ParticipantsDisplay = ({ currentParticipants, maxParticipants, participants, participantCount }) => {
+export const ParticipantsDisplay = ({ currentParticipants, maxParticipants, participants, participantCount, onClick }) => {
   if (!maxParticipants) return null;
   
   // Determine the actual participant count from various possible sources
@@ -194,12 +194,36 @@ export const ParticipantsDisplay = ({ currentParticipants, maxParticipants, part
     count = currentParticipants; // From currentParticipants field
   }
   
-  return (
+  const displayContent = (
     <div className="flex items-center gap-3 text-gray-300">
       <UsersIcon className="w-4 h-4 text-indigo-400 flex-shrink-0" />
       <span className="text-sm">{count} / {maxParticipants} participants</span>
     </div>
   );
+
+  // If onClick is provided, make it clickable
+  if (onClick) {
+    return (
+      <button
+        onClick={onClick}
+        className="w-full text-left hover:bg-indigo-900/20 rounded-lg p-2 -ml-2 transition-all cursor-pointer group"
+      >
+        <div className="flex items-center justify-between">
+          {displayContent}
+          <svg 
+            className="w-4 h-4 text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </button>
+    );
+  }
+
+  return displayContent;
 };
 
 // Read-only Host Display
@@ -213,7 +237,7 @@ export const HostDisplay = ({ host }) => {
 };
 
 // Read-only Session Details Panel
-export const ViewDetailsPanel = ({ session }) => {
+export const ViewDetailsPanel = ({ session, onParticipantsClick }) => {
   return (
     <div className="h-full flex flex-col min-h-0">
       <div className="flex items-center gap-2.5 px-5 py-4 bg-[#161A2B] border border-indigo-900/40 rounded-xl mb-4 flex-shrink-0">
@@ -233,6 +257,7 @@ export const ViewDetailsPanel = ({ session }) => {
               maxParticipants={session?.maxParticipants}
               participants={session?.participants}
               participantCount={session?.participantCount}
+              onClick={onParticipantsClick}
             />
             <div className="border-t border-indigo-900/10 my-3"></div>
           </>
