@@ -294,6 +294,9 @@ const SessionViewPage = () => {
         setNeedsAuthentication(false);
         setShowPasswordModal(false);
         
+        // Check participation status after loading session
+        await checkParticipationStatus();
+        
         // Show success message for viewing (not joining)
         alert(`Successfully accessed "${sessionData.title}". Click "Join Session" to participate.`);
         

@@ -117,25 +117,62 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
             </div>
             <span className="font-medium">{session.month} {session.day}, {session.year}</span>
           </div>
-          <div className="flex items-center gap-1.5 text-gray-400 text-[10px] group-hover:text-gray-300 transition-colors">
-            <div className="w-6 h-6 rounded-lg bg-indigo-600/10 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors">
-              <ClockIcon className="w-3 h-3 text-indigo-400 group-hover:scale-110 transition-transform" />
-            </div>
-            <span className="font-medium">{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-gray-400 text-[10px] group-hover:text-gray-300 transition-colors">
-            <div className="w-6 h-6 rounded-lg bg-indigo-600/10 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors">
-              <LocationIcon className="w-3 h-3 text-indigo-400 group-hover:scale-110 transition-transform" />
-            </div>
-            <span className="font-medium truncate">{session.location}</span>
-          </div>
-          {session.maxParticipants && (
-            <div className="flex items-center gap-1.5 text-gray-400 text-[10px] group-hover:text-gray-300 transition-colors">
-              <div className="w-6 h-6 rounded-lg bg-green-600/10 flex items-center justify-center group-hover:bg-green-600/20 transition-colors">
-                <span className="text-xs">👥</span>
+          {session.sessionType === 'PRIVATE' ? (
+            <>
+              {/* Blurred/Locked details for private sessions */}
+              <div className="relative">
+                <div className="space-y-1 blur-[2px] select-none pointer-events-none opacity-40">
+                  <div className="flex items-center gap-1.5 text-gray-500 text-[10px]">
+                    <div className="w-6 h-6 rounded-lg bg-gray-600/10 flex items-center justify-center">
+                      <ClockIcon className="w-3 h-3 text-gray-500" />
+                    </div>
+                    <span>••:•• •• - ••:•• ••</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-gray-500 text-[10px]">
+                    <div className="w-6 h-6 rounded-lg bg-gray-600/10 flex items-center justify-center">
+                      <LocationIcon className="w-3 h-3 text-gray-500" />
+                    </div>
+                    <span>••••••••••</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-gray-500 text-[10px]">
+                    <div className="w-6 h-6 rounded-lg bg-gray-600/10 flex items-center justify-center">
+                      <span className="text-xs">👥</span>
+                    </div>
+                    <span>•/•• participants</span>
+                  </div>
+                </div>
+                {/* Lock overlay */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="bg-gray-900/90 backdrop-blur-sm rounded-lg px-2 py-1 border border-yellow-500/30 flex items-center gap-1.5">
+                    <LockIcon className="w-3 h-3 text-yellow-400" />
+                    <span className="text-[9px] text-yellow-400 font-semibold">Private</span>
+                  </div>
+                </div>
               </div>
-              <span className="font-medium">{session.currentParticipants || 0}/{session.maxParticipants} participants</span>
-            </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-1.5 text-gray-400 text-[10px] group-hover:text-gray-300 transition-colors">
+                <div className="w-6 h-6 rounded-lg bg-indigo-600/10 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors">
+                  <ClockIcon className="w-3 h-3 text-indigo-400 group-hover:scale-110 transition-transform" />
+                </div>
+                <span className="font-medium">{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-gray-400 text-[10px] group-hover:text-gray-300 transition-colors">
+                <div className="w-6 h-6 rounded-lg bg-indigo-600/10 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors">
+                  <LocationIcon className="w-3 h-3 text-indigo-400 group-hover:scale-110 transition-transform" />
+                </div>
+                <span className="font-medium truncate">{session.location}</span>
+              </div>
+              {session.maxParticipants && (
+                <div className="flex items-center gap-1.5 text-gray-400 text-[10px] group-hover:text-gray-300 transition-colors">
+                  <div className="w-6 h-6 rounded-lg bg-green-600/10 flex items-center justify-center group-hover:bg-green-600/20 transition-colors">
+                    <span className="text-xs">👥</span>
+                  </div>
+                  <span className="font-medium">{session.currentParticipants || 0}/{session.maxParticipants} participants</span>
+                </div>
+              )}
+            </>
           )}
         </div>
         
