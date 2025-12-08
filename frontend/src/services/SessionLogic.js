@@ -289,7 +289,25 @@ export const useSessionsPage = () => {
     try {
       setLoading(true);
       const data = await sessionService.getAllSessions();
-      setSessions(data);
+      
+      // Sort sessions: ACTIVE → SCHEDULED → COMPLETED
+      const statusPriority = {
+        'ACTIVE': 1,
+        'SCHEDULED': 2,
+        'COMPLETED': 3
+      };
+      
+      const sortedData = [...data].sort((a, b) => {
+        const priorityDiff = (statusPriority[a.status] || 999) - (statusPriority[b.status] || 999);
+        if (priorityDiff !== 0) return priorityDiff;
+        
+        // Within same status, sort by start date/time
+        const dateA = new Date(`${a.year}-${a.month}-${a.day} ${a.startTime}`);
+        const dateB = new Date(`${b.year}-${b.month}-${b.day} ${b.startTime}`);
+        return dateA - dateB;
+      });
+      
+      setSessions(sortedData);
       setError(null);
     } catch (err) {
       setError('Failed to fetch sessions. Please try again later.');

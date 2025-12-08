@@ -113,12 +113,34 @@ public class SessionService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Gets all sessions that a user has joined (is a participant in).
+     * Returns only SCHEDULED and ACTIVE sessions.
+     */
+    @Transactional(readOnly = true)
+    public List<SessionDTO> getJoinedSessionsByUserId(Long userId) {
+        return sessionParticipantRepository.findByUserId(userId)
+                .stream()
+                .map(SessionParticipant::getSession)
+                .map(SessionDTO::new) // Auto-calculates status
+                .filter(dto -> dto.getStatus() == SessionStatus.SCHEDULED || 
+                              dto.getStatus() == SessionStatus.ACTIVE)
+                .collect(Collectors.toList());
+    }
+
     // --- MODIFIED METHOD ---
     @Transactional(readOnly = true) // <-- ADD TRANSACTIONAL
     public List<SessionDTO> getAllSessions() {
         return sessionRepository.findAllByOrderByStartTime()
             .stream()
-            .filter(session -> session.getSessionStatus() == SessionStatus.ACTIVE)
+            .filter(session -> {
+                SessionStatus status = session.getSessionStatus();
+                // Exclude DELETED, CANCELLED, TRASH, and COMPLETED sessions
+                return status != SessionStatus.DELETED && 
+                       status != SessionStatus.CANCELLED && 
+                       status != SessionStatus.TRASH &&
+                       status != SessionStatus.COMPLETED;
+            })
             .map(SessionDTO::new)
             .collect(Collectors.toList());
     }

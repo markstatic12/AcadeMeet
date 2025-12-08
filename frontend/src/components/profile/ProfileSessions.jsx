@@ -27,7 +27,7 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
         {/* Status and Privacy Indicators */}
         <div className="absolute top-2 left-2 flex items-center gap-2 z-10">
           <div className="backdrop-blur-sm bg-black/20 rounded-lg px-2 py-1 border border-white/10">
-            <SessionStatusBadge status={session.status || 'ACTIVE'} />
+            <SessionStatusBadge status={session.status} />
           </div>
           {session.sessionType === 'PRIVATE' && (
             <div className="flex items-center px-2 py-1 bg-black/30 backdrop-blur-sm rounded-lg border border-yellow-500/30">

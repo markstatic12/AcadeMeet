@@ -6,6 +6,10 @@ import { ChevronLeftIcon, ChevronRightIcon } from '../../icons';
 import { useCalendarSessions } from '../../services/useCalendarSessions';
 import DaySessionsModal from './DaySessionsModal';
 import { reminderService } from '../../services/ReminderService';
+import { sessionService } from '../../services/SessionService';
+import SessionStatusBadge from '../ui/SessionStatusBadge';
+import { to12Hour } from '../../utils/timeUtils';
+import { CalendarIcon, ClockIcon, LocationIcon } from '../../icons';
 
 const CalendarHeader = ({ monthName, year, onPrevious, onNext }) => {
   return (
@@ -303,6 +307,52 @@ const CalendarSection = ({
   onNextMonth 
 }) => {
   const navigate = useNavigate();
+  const [joinedSessions, setJoinedSessions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Fetch joined sessions when 'my' tab is active
+  useEffect(() => {
+    const fetchJoinedSessions = async () => {
+      if (activeTab !== 'my') return;
+      
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const sessions = await sessionService.getJoinedSessions();
+        setJoinedSessions(sessions);
+      } catch (err) {
+        console.error('Error fetching joined sessions:', err);
+        setError('Failed to load joined sessions');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJoinedSessions();
+  }, [activeTab]);
+
+  const getSessionInitials = (title) => {
+    return title
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+  };
+
+  const getGradientForSession = (index) => {
+    const gradients = [
+      'from-indigo-500 to-purple-600',
+      'from-blue-500 to-cyan-600',
+      'from-green-500 to-emerald-600',
+      'from-orange-500 to-red-600',
+      'from-pink-500 to-rose-600',
+      'from-yellow-500 to-orange-600',
+    ];
+    return gradients[index % gradients.length];
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -319,80 +369,64 @@ const CalendarSection = ({
         </div>
       )}
 
-      {/* THIS MUST BE REPLACED WITH ACTUAL JOINED SESSIONS... */}
-      {/* CURRENTLY HARD CODED TO NAVIGATE SESSION ID... */}
+      {/* Joined Sessions Tab - Now with Real Data */}
+      {/* Joined Sessions Tab - Now with Real Data */}
       {activeTab === 'my' && (
         <div className="flex-1 relative overflow-hidden animate-fadeSlideUp">
           <div className="relative z-10 h-full flex flex-col">
             <h3 className="text-xl font-bold text-white mb-4">Joined Sessions</h3>
             <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3">
-            <div 
-              className="bg-gray-900/50 border border-gray-700/30 rounded-lg p-4 hover:border-indigo-500/50 transition-all cursor-pointer"
-              onClick={() => navigate('/session/1')}
-            >
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-sm font-bold">JS</span>
+              {loading ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-gray-400">Loading joined sessions...</div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-white font-semibold text-sm mb-1">JavaScript Bootcamp</h4>
-                  <div className="flex items-center gap-2 text-gray-400 text-xs">
-                    <span>📅</span>
-                    <span>Dec 10, 2025</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-400 text-xs mt-1">
-                    <span>🕐</span>
-                    <span>10:00 AM - 12:00 PM</span>
-                  </div>
+              ) : error ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-red-400">{error}</div>
                 </div>
-              </div>
-            </div>
-
-            <div 
-              className="bg-gray-900/50 border border-gray-700/30 rounded-lg p-4 hover:border-indigo-500/50 transition-all cursor-pointer"
-              onClick={() => navigate('/session/2')}
-            >
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-sm font-bold">DS</span>
+              ) : joinedSessions.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-gray-400">No joined sessions yet</div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-white font-semibold text-sm mb-1">Data Structures Study</h4>
-                  <div className="flex items-center gap-2 text-gray-400 text-xs">
-                    <span>📅</span>
-                    <span>Dec 12, 2025</span>
+              ) : (
+                joinedSessions.map((session, index) => (
+                  <div 
+                    key={session.id}
+                    className="bg-gray-900/50 border border-gray-700/30 rounded-lg p-4 hover:border-indigo-500/50 transition-all cursor-pointer"
+                    onClick={() => navigate(`/session/${session.id}`)}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-10 h-10 bg-gradient-to-br ${getGradientForSession(index)} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                        <span className="text-white text-sm font-bold">
+                          {getSessionInitials(session.title)}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h4 className="text-white font-semibold text-sm">{session.title}</h4>
+                          <SessionStatusBadge status={session.status} size="sm" />
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-400 text-xs">
+                          <CalendarIcon className="w-3 h-3 text-indigo-400" />
+                          <span>{session.month} {session.day}, {session.year}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-400 text-xs mt-1">
+                          <ClockIcon className="w-3 h-3 text-indigo-400" />
+                          <span>{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
+                        </div>
+                        {session.location && (
+                          <div className="flex items-center gap-2 text-gray-400 text-xs mt-1">
+                            <LocationIcon className="w-3 h-3 text-indigo-400" />
+                            <span>{session.location}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-400 text-xs mt-1">
-                    <span>🕐</span>
-                    <span>2:00 PM - 4:00 PM</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div 
-              className="bg-gray-900/50 border border-gray-700/30 rounded-lg p-4 hover:border-indigo-500/50 transition-all cursor-pointer"
-              onClick={() => navigate('/session/3')}
-            >
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-sm font-bold">PY</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-white font-semibold text-sm mb-1">Python for Beginners</h4>
-                  <div className="flex items-center gap-2 text-gray-400 text-xs">
-                    <span>📅</span>
-                    <span>Dec 15, 2025</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-400 text-xs mt-1">
-                    <span>🕐</span>
-                    <span>3:00 PM - 5:00 PM</span>
-                  </div>
-                </div>
-              </div>
+                ))
+              )}
             </div>
           </div>
-        </div>
         </div>
       )}
 

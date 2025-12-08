@@ -287,6 +287,18 @@ export const sessionService = {
   },
 
   /**
+   * Gets all sessions that the current user has joined (as participant)
+   * Returns only SCHEDULED and ACTIVE sessions
+   */
+  async getJoinedSessions() {
+    const response = await authFetch(`${API_BASE}/user/me/joined`, {
+      method: 'GET'
+    });
+
+    return handleResponse(response, 'Failed to fetch joined sessions');
+  },
+
+  /**
    * Gets all sessions hosted by a specific user (for viewing other users' profiles)
    */
   async getSessionsByUserId(userId) {

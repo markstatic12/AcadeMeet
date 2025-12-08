@@ -124,6 +124,20 @@ public class SessionController {
     }
 
     /**
+     * Gets all sessions that the authenticated user has joined (as participant).
+     */
+    @GetMapping("/user/me/joined")
+    public ResponseEntity<?> getMyJoinedSessions() {
+        try {
+            User user = getAuthenticatedUser();
+            List<SessionDTO> sessions = sessionService.getJoinedSessionsByUserId(user.getId());
+            return ResponseEntity.ok(sessions);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
      * Gets all sessions hosted by a specific user (for viewing other users' profiles).
      */
     @GetMapping("/user/{userId}")

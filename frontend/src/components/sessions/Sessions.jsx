@@ -24,7 +24,7 @@ const SessionCard = ({ session }) => {
       <div className="relative h-[120px] bg-gradient-to-br from-[#1e40af] via-[#2563eb] to-[#3b82f6] overflow-hidden">
         {/* Status and Privacy Indicators */}
         <div className="absolute top-2 left-2 flex items-center gap-2 z-10">
-          <SessionStatusBadge status={session.status || 'ACTIVE'} />
+          <SessionStatusBadge status={session.status} />
           {session.sessionType === 'PRIVATE' && (
             <div className="flex items-center px-2 py-1 bg-black/30 rounded-full">
               <LockIcon className="w-3 h-3 text-yellow-400" />
@@ -158,7 +158,13 @@ const SessionsSection = () => {
     try {
       setLoading(true);
       const data = await sessionService.getTrendingSessions();
-      setSessions(Array.isArray(data) ? data : []);
+      
+      // Filter out COMPLETED sessions from dashboard
+      const activeSessions = (Array.isArray(data) ? data : []).filter(
+        s => s.status !== 'COMPLETED'
+      );
+      
+      setSessions(activeSessions);
       setError(null);
     } catch (err) {
       setError('Failed to fetch trending sessions. Please try again later.');

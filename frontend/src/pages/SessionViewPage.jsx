@@ -502,7 +502,7 @@ const SessionViewPage = () => {
 
             {/* Action Buttons Bar */}
             <div className="flex items-center gap-3">
-              {isSessionOwner && session.status === 'ACTIVE' && (
+              {isSessionOwner && (session.status === 'ACTIVE' || session.status === 'SCHEDULED') && (
                 <button
                   type="button"
                   onClick={handleTrashSession}
@@ -515,7 +515,7 @@ const SessionViewPage = () => {
                 </button>
               )}
               
-              {session.status === 'ACTIVE' && (
+              {(session.status === 'ACTIVE' || session.status === 'SCHEDULED') && (
                 <button
                   type="button"
                   onClick={isSessionOwner ? handleEditSession : handleJoinSession}

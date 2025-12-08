@@ -6,7 +6,7 @@ import SessionStatusBadge from '../ui/SessionStatusBadge';
 
 const SessionDetailsCard = ({ session, onJoinClick, showJoinButton = true }) => {
   const isPrivate = session.sessionType === 'PRIVATE';
-  const isActive = session.status === 'ACTIVE';
+  const isActive = session.status === 'ACTIVE' || session.status === 'SCHEDULED';
 
   return (
     <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
@@ -15,7 +15,7 @@ const SessionDetailsCard = ({ session, onJoinClick, showJoinButton = true }) => 
         <div className="flex-1">
           <h2 className="text-xl font-bold text-white mb-2">{session.title}</h2>
           <div className="flex items-center gap-3">
-            <SessionStatusBadge status={session.status || 'ACTIVE'} />
+            <SessionStatusBadge status={session.status} />
             {isPrivate && (
               <div className="flex items-center px-3 py-1 bg-yellow-500/10 border border-yellow-500/20 rounded-full">
                 <LockIcon className="w-4 h-4 text-yellow-400 mr-2" />
