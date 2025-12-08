@@ -295,5 +295,27 @@ export const sessionService = {
     });
 
     return handleResponse(response, 'Failed to fetch user sessions');
+  },
+
+  /**
+   * Gets the list of participants for a specific session
+   */
+  async getSessionParticipants(sessionId) {
+    const response = await authFetch(`${API_BASE}/${sessionId}/participants`, {
+      method: 'GET'
+    });
+
+    return handleResponse(response, 'Failed to fetch session participants');
+  },
+
+  /**
+   * Removes a participant from a session (host only)
+   */
+  async removeParticipant(sessionId, userId) {
+    const response = await authFetch(`${API_BASE}/${sessionId}/participants/${userId}`, {
+      method: 'DELETE'
+    });
+
+    return handleResponse(response, 'Failed to remove participant');
   }
 };
