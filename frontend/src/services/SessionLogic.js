@@ -151,7 +151,7 @@ export const useSessionForm = (showToast) => {
 };
 
 // Edit Session Form Logic Hook
-export const useEditSessionForm = (sessionId) => {
+export const useEditSessionForm = (sessionId, showToast) => {
   const navigate = useNavigate();
 
   const [sessionData, setSessionData] = useState({
@@ -167,11 +167,14 @@ export const useEditSessionForm = (sessionId) => {
     password: "",
     maxParticipants: "",
     description: "",
-    tags: []
+    tags: [],
+    uploadedNoteFilepaths: [] // Store filepaths of uploaded notes (strings)
   });
 
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [originalNotes, setOriginalNotes] = useState([]); // Track original note objects (with id and filepath)
 
   // Fetch existing session data
   useEffect(() => {
@@ -179,6 +182,24 @@ export const useEditSessionForm = (sessionId) => {
       try {
         setLoading(true);
         const data = await sessionService.getSessionById(sessionId);
+        
+        // Fetch linked notes if any
+        let linkedNotes = [];
+        try {
+          const { noteService } = await import('./noteService');
+          linkedNotes = await noteService.getLinkedNotes(sessionId);
+        } catch (noteError) {
+          console.warn('Could not fetch linked notes:', noteError);
+        }
+
+        // Store original notes to track changes
+        setOriginalNotes(linkedNotes);
+
+        // Extract only filepaths as strings
+        const noteFilepaths = linkedNotes
+          .map(note => note.filepath)
+          .filter(fp => fp && typeof fp === 'string');
+
         setSessionData({
           title: data.title || "",
           month: data.month || "",
@@ -192,11 +213,14 @@ export const useEditSessionForm = (sessionId) => {
           password: "", // Don't populate password for security
           maxParticipants: data.maxParticipants || "",
           description: data.description || "",
-          tags: data.tags || []
+          tags: data.tags || [],
+          uploadedNoteFilepaths: noteFilepaths
         });
       } catch (error) {
         console.error("Error fetching session:", error);
-        alert("Failed to load session data");
+        if (showToast) {
+          showToast('error', 'Failed to load session data');
+        }
         navigate(`/session/${sessionId}`);
       } finally {
         setLoading(false);
@@ -206,14 +230,21 @@ export const useEditSessionForm = (sessionId) => {
     if (sessionId) {
       fetchSession();
     }
-  }, [sessionId, navigate]);
+  }, [sessionId, navigate, showToast]);
 
   const handleChange = (e) => {
     setSessionData({ ...sessionData, [e.target.name]: e.target.value });
+    // Clear error when user types
+    if (fieldErrors[e.target.name]) {
+      setFieldErrors({ ...fieldErrors, [e.target.name]: null });
+    }
   };
 
   const handlePasswordChange = (e) => {
     setSessionData({ ...sessionData, password: e.target.value });
+    if (fieldErrors.password) {
+      setFieldErrors({ ...fieldErrors, password: null });
+    }
   };
 
   const handleParticipantsChange = (e) => {
@@ -224,8 +255,11 @@ export const useEditSessionForm = (sessionId) => {
     setSessionData({ ...sessionData, tags });
   };
 
-  const handleNotesChange = (noteIds) => {
-    setSessionData({ ...sessionData, noteIds });
+  const addUploadedNoteFilepath = (filepath) => {
+    setSessionData(prev => ({ 
+      ...prev, 
+      uploadedNoteFilepaths: [...(prev.uploadedNoteFilepaths || []), filepath] 
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -233,30 +267,86 @@ export const useEditSessionForm = (sessionId) => {
     setIsSubmitting(true);
 
     // Validate required fields
-    const requiredFields = ['title', 'month', 'day', 'year', 'startTime', 'endTime', 'location', 'sessionType'];
-    const missingFields = requiredFields.filter(field => !sessionData[field] || sessionData[field].trim() === '');
-    
-    if (missingFields.length > 0) {
-      alert(`Please fill in the following required fields: ${missingFields.join(', ')}`);
-      setIsSubmitting(false);
-      return;
-    }
+    const errors = {};
+    const requiredFields = [
+      { name: 'title', label: 'Session Title' },
+      { name: 'month', label: 'Month' },
+      { name: 'day', label: 'Day' },
+      { name: 'year', label: 'Year' },
+      { name: 'startTime', label: 'Start Time' },
+      { name: 'endTime', label: 'End Time' },
+      { name: 'location', label: 'Location' },
+      { name: 'sessionType', label: 'Session Type' }
+    ];
+
+    requiredFields.forEach(field => {
+      if (!sessionData[field.name] || sessionData[field.name].toString().trim() === '') {
+        errors[field.name] = `${field.label} is required`;
+      }
+    });
 
     // Validate private session password if changed
     if (sessionData.sessionType === 'PRIVATE' && sessionData.password && sessionData.password.length < 6) {
-      alert("Private session password must be at least 6 characters");
+      errors.password = 'Password must be at least 6 characters';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      if (showToast) {
+        showToast('error', 'Please fill in all required fields');
+      }
       setIsSubmitting(false);
       return;
     }
 
     try {
       await sessionService.updateSession(sessionId, sessionData);
-      alert('Session updated successfully!');
-      navigate(`/session/${sessionId}`);
+      
+      const { noteService } = await import('./noteService');
+      
+      // uploadedNoteFilepaths now contains only strings (guaranteed by UploadNoteModal)
+      // Determine which notes are new (not in original notes)
+      const originalFilepaths = originalNotes.map(note => note.filepath).filter(Boolean);
+      const currentFilepaths = sessionData.uploadedNoteFilepaths || [];
+      const newFilepaths = currentFilepaths.filter(fp => !originalFilepaths.includes(fp));
+      
+      // Determine which notes were deleted (in original but not in current)
+      const deletedNotes = originalNotes.filter(note => !currentFilepaths.includes(note.filepath));
+      
+      // Delete removed notes
+      for (const note of deletedNotes) {
+        try {
+          await noteService.deleteNote(note.id);
+          console.log('Deleted note:', note.id);
+        } catch (deleteError) {
+          console.error('Failed to delete note:', note.id, deleteError);
+          // Continue deleting other notes even if one fails
+        }
+      }
+      
+      // Link only newly uploaded notes to the session
+      for (const filepath of newFilepaths) {
+        try {
+          await noteService.linkNoteToSession(filepath, sessionId);
+          console.log('Linked new note:', filepath);
+        } catch (linkError) {
+          console.error('Failed to link note:', filepath, linkError);
+          // Continue linking other notes even if one fails
+        }
+      }
+      
+      if (showToast) {
+        showToast('success', 'Session updated successfully!');
+      }
+      // Navigate after a brief delay to show the toast
+      setTimeout(() => {
+        navigate(`/session/${sessionId}`);
+      }, 1500);
     } catch (error) {
       console.error("Error updating session:", error);
-      console.error("Session data being sent:", sessionData);
-      alert("Error updating session: " + (error.message || error));
+      if (showToast) {
+        showToast('error', `Error updating session: ${error.message}`);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -270,12 +360,14 @@ export const useEditSessionForm = (sessionId) => {
     sessionData,
     loading,
     isSubmitting,
+    fieldErrors,
     handleChange,
     handlePasswordChange,
     handleParticipantsChange,
     handleTagsChange,
     handleSubmit,
-    handleBack
+    handleBack,
+    addUploadedNoteFilepath
   };
 };
 
