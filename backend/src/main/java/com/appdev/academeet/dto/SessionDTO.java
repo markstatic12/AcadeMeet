@@ -1,6 +1,7 @@
 package com.appdev.academeet.dto;
 
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -114,7 +115,10 @@ public class SessionDTO {
         
         // Date and location
         if (session.getStartTime() != null) {
-            this.month = session.getStartTime().getMonth().toString();
+            // Convert month to proper case (January instead of JANUARY)
+            Month monthEnum = session.getStartTime().getMonth();
+            String monthName = monthEnum.toString(); // Returns "JANUARY"
+            this.month = monthName.charAt(0) + monthName.substring(1).toLowerCase(); // Converts to "January"
             this.day = String.valueOf(session.getStartTime().getDayOfMonth());
             this.year = String.valueOf(session.getStartTime().getYear());
         } else {
