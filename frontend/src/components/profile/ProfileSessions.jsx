@@ -38,25 +38,25 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
         </div>
         
         {/* Card menu */}
-        <div className="absolute top-2 right-2 card-options-menu z-20">
+        <div className="absolute top-3 right-3 card-options-menu z-20">
           <button
             onClick={(e) => { 
               e.stopPropagation(); 
               onMenuToggle(session.id); 
             }}
-            className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white/90 hover:text-white transition-all hover:scale-110 backdrop-blur-md border border-white/10"
+            className="p-2 bg-black/40 hover:bg-black/60 rounded-lg text-white/80 hover:text-white transition-all hover:scale-105 backdrop-blur-md border border-white/20 hover:border-white/30"
             title="Options"
           >
-            <ThreeDotsVerticalIcon className="w-4 h-4" />
+            <ThreeDotsVerticalIcon className="w-3.5 h-3.5" />
           </button>
           {openMenuId === session.id && (
-            <div className="absolute right-0 mt-2 w-40 bg-[#111] border border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden animate-slideDown backdrop-blur-xl">
+            <div className="absolute right-0 mt-2 w-40 bg-[#1a1f35]/95 border border-red-500/30 rounded-lg shadow-2xl shadow-black/50 z-50 overflow-hidden animate-slideDown backdrop-blur-xl">
               <button
                 onClick={(e) => { 
                   e.stopPropagation(); 
                   onDelete(session.id); 
                 }}
-                className="w-full px-4 py-2.5 text-left text-sm text-red-400 hover:bg-red-600/20 flex items-center gap-2 transition-all group/delete font-medium"
+                className="w-full px-4 py-3 text-left text-sm text-red-400 hover:bg-red-600/20 flex items-center gap-2.5 transition-all group/delete font-semibold"
               >
                 <TrashIcon className="w-4 h-4 group-hover/delete:scale-110 transition-transform" />
                 <span>Trash</span>
@@ -102,18 +102,18 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
       </div>
 
       {/* Session Info */}
-      <div className="p-3 bg-[#161A2B] transition-all relative">
+      <div className="p-4 bg-[#161A2B] transition-all relative">
         {/* Top gradient accent line */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent"></div>
         
-        <h3 className="text-white font-bold text-xs mb-2 group-hover:text-indigo-300 transition-colors truncate flex items-center gap-1.5">
-          <span className="w-0.5 h-3 bg-gradient-to-b from-indigo-600 to-indigo-700 rounded-full group-hover:h-4 transition-all"></span>
+        <h3 className="text-white font-bold text-sm mb-3 group-hover:text-indigo-300 transition-colors truncate flex items-center gap-2">
+          <span className="w-1 h-4 bg-gradient-to-b from-indigo-600 to-indigo-700 rounded-full group-hover:h-5 transition-all"></span>
           {session.title}
         </h3>
-        <div className="space-y-1">
-          <div className="flex items-center gap-1.5 text-gray-400 text-[10px] group-hover:text-gray-300 transition-colors">
-            <div className="w-6 h-6 rounded-lg bg-indigo-600/10 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors">
-              <CalendarIcon className="w-3 h-3 text-indigo-400 group-hover:scale-110 transition-transform" />
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-gray-400 text-xs group-hover:text-gray-300 transition-colors">
+            <div className="w-7 h-7 rounded-lg bg-indigo-600/10 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors shrink-0">
+              <CalendarIcon className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
             </div>
             <span className="font-medium">{session.month} {session.day}, {session.year}</span>
           </div>
@@ -152,22 +152,22 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
             </>
           ) : (
             <>
-              <div className="flex items-center gap-1.5 text-gray-400 text-[10px] group-hover:text-gray-300 transition-colors">
-                <div className="w-6 h-6 rounded-lg bg-indigo-600/10 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors">
-                  <ClockIcon className="w-3 h-3 text-indigo-400 group-hover:scale-110 transition-transform" />
+              <div className="flex items-center gap-2 text-gray-400 text-xs group-hover:text-gray-300 transition-colors">
+                <div className="w-7 h-7 rounded-lg bg-indigo-600/10 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors shrink-0">
+                  <ClockIcon className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
                 </div>
                 <span className="font-medium">{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
               </div>
-              <div className="flex items-center gap-1.5 text-gray-400 text-[10px] group-hover:text-gray-300 transition-colors">
-                <div className="w-6 h-6 rounded-lg bg-indigo-600/10 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors">
-                  <LocationIcon className="w-3 h-3 text-indigo-400 group-hover:scale-110 transition-transform" />
+              <div className="flex items-center gap-2 text-gray-400 text-xs group-hover:text-gray-300 transition-colors">
+                <div className="w-7 h-7 rounded-lg bg-indigo-600/10 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors shrink-0">
+                  <LocationIcon className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
                 </div>
                 <span className="font-medium truncate">{session.location}</span>
               </div>
               {session.maxParticipants && (
-                <div className="flex items-center gap-1.5 text-gray-400 text-[10px] group-hover:text-gray-300 transition-colors">
-                  <div className="w-6 h-6 rounded-lg bg-green-600/10 flex items-center justify-center group-hover:bg-green-600/20 transition-colors">
-                    <span className="text-xs">👥</span>
+                <div className="flex items-center gap-2 text-gray-400 text-xs group-hover:text-gray-300 transition-colors">
+                  <div className="w-7 h-7 rounded-lg bg-green-600/10 flex items-center justify-center group-hover:bg-green-600/20 transition-colors shrink-0">
+                    <span className="text-sm">👥</span>
                   </div>
                   <span className="font-medium">{session.currentParticipants || 0}/{session.maxParticipants} participants</span>
                 </div>
@@ -218,20 +218,32 @@ export const TrashedSessionCard = ({ session, onRestore }) => {
         </div>
       </div>
       
-      <div className="p-3 bg-[#161A2B]">
-        <h3 className="text-white/60 font-bold text-xs mb-1.5 line-through">{session.title}</h3>
-        <div className="space-y-0.5 text-gray-600 text-[10px]">"
-          <div className="flex items-center gap-1.5">
-            <CalendarIcon className="w-2.5 h-2.5 text-gray-600" />
-            <span>{session.month} {session.day}, {session.year}</span>
+      <div className="p-4 bg-[#161A2B] relative">
+        {/* Top gradient accent line */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/20 to-transparent"></div>
+        
+        <h3 className="text-white/60 font-bold text-sm mb-3 line-through flex items-center gap-2">
+          <span className="w-1 h-4 bg-gradient-to-b from-red-600/50 to-red-700/50 rounded-full"></span>
+          {session.title}
+        </h3>
+        <div className="space-y-2 text-gray-500 text-xs">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center shrink-0">
+              <CalendarIcon className="w-3.5 h-3.5 text-gray-500" />
+            </div>
+            <span className="font-medium">{session.month} {session.day}, {session.year}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <ClockIcon className="w-2.5 h-2.5 text-gray-600" />
-            <span>{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center shrink-0">
+              <ClockIcon className="w-3.5 h-3.5 text-gray-500" />
+            </div>
+            <span className="font-medium">{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <LocationIcon className="w-2.5 h-2.5 text-gray-600" />
-            <span>{session.location}</span>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gray-600/10 flex items-center justify-center shrink-0">
+              <LocationIcon className="w-3.5 h-3.5 text-gray-500" />
+            </div>
+            <span className="font-medium truncate">{session.location}</span>
           </div>
         </div>
       </div>
@@ -244,7 +256,7 @@ export const TrashedSessionCard = ({ session, onRestore }) => {
 
 export const SessionsContent = ({ sessionsData, openCardMenuId, onCreateSession, onMenuToggle, onDeleteSession }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full flex-1 min-h-0 overflow-y-auto custom-scrollbar py-3 px-2 -mx-2">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 w-full flex-1 min-h-0 overflow-y-auto custom-scrollbar px-6 pb-6">
       {/* Create New Session Card */}
       <div className="animate-fadeIn">
         <CreateNewCard onClick={onCreateSession} label="Create New Session" />
@@ -271,7 +283,7 @@ export const HistorySessionsContent = ({ historySessions, onBackToSessions }) =>
   const navigate = useNavigate();
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pt-2 pb-4">
+    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar px-6 pb-6">
       <div className="mb-6 flex items-center justify-between animate-slideInLeft">
         <div>
           <h3 className="text-white text-xl font-bold tracking-tight">Session History</h3>
@@ -330,9 +342,13 @@ export const HistorySessionsContent = ({ historySessions, onBackToSessions }) =>
                 </div>
 
                 {/* Session Info */}
-                <div className="p-3 bg-[#0a0a0a]/80 backdrop-blur-sm">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <h3 className="text-white font-bold text-sm group-hover:text-indigo-400 transition-colors flex-1 line-clamp-1">
+                <div className="p-4 bg-[#0a0a0a]/80 backdrop-blur-sm relative">
+                  {/* Top gradient accent line */}
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-green-500/30 to-transparent"></div>
+                  
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <h3 className="text-white font-bold text-sm group-hover:text-green-400 transition-colors flex-1 line-clamp-1 flex items-center gap-2">
+                      <span className="w-1 h-4 bg-gradient-to-b from-green-600 to-green-700 rounded-full group-hover:h-5 transition-all"></span>
                       {session.title}
                     </h3>
                     {session.tags && session.tags.length > 0 && (
@@ -351,20 +367,29 @@ export const HistorySessionsContent = ({ historySessions, onBackToSessions }) =>
                       </div>
                     )}
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1.5 text-gray-400 text-[10px]">
-                      <CalendarIcon className="w-3 h-3 text-green-400" />
-                      <span>{session.month} {session.day}, {session.year}</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-gray-400 text-xs group-hover:text-gray-300 transition-colors">
+                      <div className="w-7 h-7 rounded-lg bg-green-600/10 flex items-center justify-center group-hover:bg-green-600/20 transition-colors shrink-0">
+                        <CalendarIcon className="w-3.5 h-3.5 text-green-400 group-hover:scale-110 transition-transform" />
+                      </div>
+                      <span className="font-medium">{session.month} {session.day}, {session.year}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-gray-400 text-[10px]">
-                      <ClockIcon className="w-3 h-3 text-green-400" />
-                      <span>{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
+                    <div className="flex items-center gap-2 text-gray-400 text-xs group-hover:text-gray-300 transition-colors">
+                      <div className="w-7 h-7 rounded-lg bg-green-600/10 flex items-center justify-center group-hover:bg-green-600/20 transition-colors shrink-0">
+                        <ClockIcon className="w-3.5 h-3.5 text-green-400 group-hover:scale-110 transition-transform" />
+                      </div>
+                      <span className="font-medium">{to12Hour(session.startTime)} - {to12Hour(session.endTime)}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-gray-400 text-[10px]">
-                      <LocationIcon className="w-3 h-3 text-green-400" />
-                      <span className="truncate">{session.location}</span>
+                    <div className="flex items-center gap-2 text-gray-400 text-xs group-hover:text-gray-300 transition-colors">
+                      <div className="w-7 h-7 rounded-lg bg-green-600/10 flex items-center justify-center group-hover:bg-green-600/20 transition-colors shrink-0">
+                        <LocationIcon className="w-3.5 h-3.5 text-green-400 group-hover:scale-110 transition-transform" />
+                      </div>
+                      <span className="font-medium truncate">{session.location}</span>
                     </div>
                   </div>
+                  
+                  {/* Bottom accent */}
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-600 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
               </div>
             </div>
@@ -379,7 +404,7 @@ export const HistorySessionsContent = ({ historySessions, onBackToSessions }) =>
 
 export const TrashedSessionsContent = ({ trashedSessions, onRestore, onBackToSessions }) => {
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar py-3 px-2 -mx-2">
+    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar px-6 pb-6">
       <div className="mb-6 flex items-center justify-between animate-slideInLeft">
         <h3 className="text-white text-xl font-bold tracking-tight">Trashed Sessions</h3>
         <button
