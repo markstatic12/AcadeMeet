@@ -1,5 +1,6 @@
 package com.appdev.academeet.dto;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -39,6 +40,43 @@ public class SessionDTO {
     private final String createdAt;
     private final List<String> tags;
     private final List<String> notes; // File paths for session notes
+    
+    /**
+     * Calculates the current status of a session based on its start and end times.
+     * 
+     * @param session The session entity
+     * @return The calculated session status
+     */
+    private static SessionStatus calculateSessionStatus(Session session) {
+        // If session is manually set to DELETED, CANCELLED, or TRASH, keep that status
+        SessionStatus currentStatus = session.getSessionStatus();
+        if (currentStatus == SessionStatus.DELETED || 
+            currentStatus == SessionStatus.CANCELLED || 
+            currentStatus == SessionStatus.TRASH) {
+            return currentStatus;
+        }
+        
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startTime = session.getStartTime();
+        LocalDateTime endTime = session.getEndTime();
+        
+        if (startTime == null || endTime == null) {
+            return SessionStatus.SCHEDULED; // Default for sessions without time
+        }
+        
+        // Before start time -> SCHEDULED
+        if (now.isBefore(startTime)) {
+            return SessionStatus.SCHEDULED;
+        }
+        
+        // Between start and end time -> ACTIVE
+        if (now.isAfter(startTime) && now.isBefore(endTime)) {
+            return SessionStatus.ACTIVE;
+        }
+        
+        // After end time -> COMPLETED
+        return SessionStatus.COMPLETED;
+    }
     
     /**
      * Host information structure for frontend compatibility.
@@ -88,7 +126,7 @@ public class SessionDTO {
         
         // Session settings
         this.sessionType = session.getSessionPrivacy();
-        this.status = session.getSessionStatus();
+        this.status = calculateSessionStatus(session); // Dynamically calculate status
         this.maxParticipants = session.getMaxParticipants();
         this.currentParticipants = session.getCurrentParticipants();
         this.createdAt = session.getCreatedAt() != null ? session.getCreatedAt().toString() : null;
