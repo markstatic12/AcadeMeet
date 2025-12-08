@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { PublicProfileCard } from '../components/profile/PublicProfileCard';
 import { PublicProfileContent } from '../components/profile/PublicProfileContent';
 import { useUser } from '../context/UserContext';
 import { authFetch } from '../services/apiHelper';
+import { BackIcon } from '../icons/icons';
 import '../styles/profile/ProfilePage.css';
 
 const PublicProfilePage = () => {
   const { userId } = useParams();
+  const navigate = useNavigate();
   const { user: currentUser } = useUser();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -159,14 +161,23 @@ const PublicProfilePage = () => {
   return (
     <DashboardLayout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center">
-            <svg className="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-            </svg>
-          </div>
-          User Profile
-        </h1>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-9 h-9 rounded-xl bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 flex items-center justify-center transition-all duration-200 group"
+            aria-label="Go back"
+          >
+            <BackIcon className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
+          </button>
+          <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center">
+              <svg className="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+              </svg>
+            </div>
+            User Profile
+          </h1>
+        </div>
       </div>
 
       <div className="flex gap-6 h-[calc(100vh-180px)]">
