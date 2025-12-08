@@ -193,44 +193,77 @@ const DashboardLayout = ({ children }) => {
         </Link>
 
         {/* Main Navigation - Takes available space */}
-        <nav className="flex flex-col gap-6 relative z-10 flex-shrink-0">
+        <nav className="flex flex-col gap-4 relative z-10 flex-shrink-0">
           {navigation.map((item, index) => {
             const active = isActive(item.href);
+            const isSearch = item.name === 'Search';
+            
             return (
-              <Link
-                key={item.name}
-                to={item.href}
-                className="relative group"
-              >
-                {/* Active indicator - left line */}
-                {active && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-11 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-r-full -ml-3 shadow-lg shadow-indigo-500/50"></div>
-                )}
-                
-                {/* Nav Item */}
-                <div className={`
-                  flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300
-                  ${active 
-                    ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30' 
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
-                  }
-                  group-hover:scale-[1.02] group-active:scale-[0.98]
-                  ring-1 ring-inset ${active ? 'ring-white/20' : 'ring-white/5 hover:ring-white/10'}
-                `}>
-                  <item.icon className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${active ? '' : 'group-hover:scale-110'}`} />
-                  <span className={`text-sm font-medium ${active ? 'font-semibold' : ''}`}>
-                    {item.name}
-                  </span>
+              <React.Fragment key={item.name}>
+                <Link
+                  to={item.href}
+                  className="relative group"
+                >
+                  {/* Search-specific subtle accent border */}
+                  {isSearch && !active && (
+                    <div className="absolute inset-0 rounded-xl border border-indigo-500/20 group-hover:border-indigo-400/40 transition-colors duration-300"></div>
+                  )}
                   
-                  {/* Ripple effect on click */}
-                  <div className="absolute inset-0 rounded-xl bg-white opacity-0 group-active:opacity-20 transition-opacity duration-150"></div>
-                </div>
+                  {/* Active indicator - left line */}
+                  {active && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-11 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-r-full -ml-3 shadow-lg shadow-indigo-500/50"></div>
+                  )}
+                  
+                  {/* Nav Item */}
+                  <div className={`
+                    flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300
+                    ${active 
+                      ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30' 
+                      : isSearch
+                        ? 'text-gray-300 hover:text-white hover:bg-gradient-to-br hover:from-indigo-600/10 hover:to-purple-600/10 bg-gradient-to-br from-indigo-900/5 to-purple-900/5'
+                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    }
+                    group-hover:scale-[1.02] group-active:scale-[0.98]
+                    ring-1 ring-inset ${active ? 'ring-white/20' : 'ring-white/5 hover:ring-white/10'}
+                  `}>
+                    {/* Icon with subtle animation for search */}
+                    <item.icon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${
+                      active ? '' : isSearch ? 'group-hover:scale-110 group-hover:rotate-12' : 'group-hover:scale-110'
+                    }`} />
+                    
+                    <span className={`text-sm font-medium ${active ? 'font-semibold' : ''}`}>
+                      {item.name}
+                    </span>
+                    
+                    {/* Search-specific subtle indicator */}
+                    {isSearch && !active && (
+                      <div className="ml-auto">
+                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-400/60 group-hover:bg-indigo-400 transition-colors duration-300 animate-pulse"></div>
+                      </div>
+                    )}
+                    
+                    {/* Ripple effect on click */}
+                    <div className="absolute inset-0 rounded-xl bg-white opacity-0 group-active:opacity-20 transition-opacity duration-150"></div>
+                  </div>
 
-                {/* Hover glow effect */}
-                {!active && (
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-400 opacity-0 group-hover:opacity-10 blur-lg transition-opacity duration-300 pointer-events-none"></div>
+                  {/* Enhanced hover glow for search */}
+                  {!active && isSearch && (
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-400 opacity-0 group-hover:opacity-15 blur-lg transition-opacity duration-300 pointer-events-none"></div>
+                  )}
+                  
+                  {/* Standard hover glow effect for others */}
+                  {!active && !isSearch && (
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-400 opacity-0 group-hover:opacity-10 blur-lg transition-opacity duration-300 pointer-events-none"></div>
+                  )}
+                </Link>
+                
+                {/* Subtle divider after Search */}
+                {isSearch && (
+                  <div className="relative h-px my-2">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-700/50 to-transparent"></div>
+                  </div>
                 )}
-              </Link>
+              </React.Fragment>
             );
           })}
         </nav>

@@ -2,6 +2,7 @@ import React from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { SessionsSection } from '../components/sessions/Sessions';
 import { CalendarSection } from '../components/dashboard/SessionActivity';
+import HeroCarousel from '../components/dashboard/HeroCarousel';
 import { useDashboardPage } from '../services/DashboardLogic';
 import '../styles/dashboard/DashboardPage.css';
 
@@ -25,30 +26,9 @@ const DashboardPage = () => {
               {/* Glassmorphism overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
               
+              {/* Hero Carousel Content */}
               <div className="relative z-10">
-                <div className="flex items-start justify-between mb-6">
-                  <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="px-3 py-1 bg-green-500/20 border border-green-400/50 text-green-300 text-xs font-bold rounded-full">ACTIVE</span>
-                      <span className="text-white/60 text-sm">Live Session</span>
-                    </div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Current Study Session</h1>
-                    <p className="text-indigo-100/80">Focus time • Deep work mode</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-4xl font-bold text-white font-mono">02:34:15</div>
-                    <p className="text-indigo-200/70 text-sm mt-1">Elapsed time</p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-3">
-                  <button className="px-6 py-2.5 bg-white/20 hover:bg-white/30 text-white rounded-xl font-medium transition-all backdrop-blur-sm border border-white/20">
-                    Pause
-                  </button>
-                  <button className="px-6 py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-200 rounded-xl font-medium transition-all backdrop-blur-sm border border-red-400/30">
-                    End Session
-                  </button>
-                </div>
+                <HeroCarousel />
               </div>
             </div>
           </div>

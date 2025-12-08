@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -80,9 +81,6 @@ public class SessionService {
 
         SessionParticipant participant = new SessionParticipant(saved, host);
         sessionParticipantRepository.save(participant);
-
-        // Auto-create reminders for session owner
-        reminderService.createRemindersForSession(host, saved);
 
         return saved;
     }
@@ -220,9 +218,6 @@ public class SessionService {
             session.setCurrentParticipants(currentParticipants - 1);
             sessionRepository.save(session);
         }
-
-        // Delete reminders for this user-session pair
-        reminderService.deleteRemindersForUserSession(user.getId(), sessionId);
     }
 
     /**
@@ -394,14 +389,34 @@ public class SessionService {
 
     @Transactional(readOnly = true)
     public List<SessionDTO> getSessionsByDate(String year, String month, String day) {
-        return sessionRepository.findAll()
-                .stream()
-                .filter(session -> session.getStartTime() != null &&
-                                 year.equals(String.valueOf(session.getStartTime().getYear())) && 
-                                 month.equals(String.valueOf(session.getStartTime().getMonthValue())) && 
-                                 day.equals(String.valueOf(session.getStartTime().getDayOfMonth())))
-                .map(SessionDTO::new)
-                .collect(Collectors.toList());
+        try {
+            // Convert month name to number (1-12)
+            int yearInt = Integer.parseInt(year);
+            int dayInt = Integer.parseInt(day);
+            
+            // Convert month name to number
+            int monthInt;
+            try {
+                // Try parsing as number first
+                monthInt = Integer.parseInt(month);
+            } catch (NumberFormatException e) {
+                // Parse month name (e.g., "December" -> 12)
+                monthInt = java.time.Month.valueOf(month.toUpperCase()).getValue();
+            }
+            
+            System.out.println("Searching for sessions: " + yearInt + "-" + monthInt + "-" + dayInt);
+            
+            List<Session> sessions = sessionRepository.findByYearMonthDay(yearInt, monthInt, dayInt);
+            System.out.println("Found " + sessions.size() + " sessions");
+            
+            return sessions.stream()
+                    .map(SessionDTO::new)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            System.err.println("Error in getSessionsByDate: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     /**

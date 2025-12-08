@@ -304,7 +304,13 @@ public class SessionController {
     public List<SessionDTO> getSessionsByDate(@RequestParam String year, 
                                             @RequestParam String month, 
                                             @RequestParam String day) {
-        return sessionService.getSessionsByDate(year, month, day);
+        System.out.println("========================================");
+        System.out.println("CONTROLLER: getSessionsByDate called");
+        System.out.println("Parameters: year=" + year + ", month=" + month + ", day=" + day);
+        List<SessionDTO> result = sessionService.getSessionsByDate(year, month, day);
+        System.out.println("CONTROLLER: Returning " + result.size() + " sessions");
+        System.out.println("========================================");
+        return result;
     }
 
     /**
