@@ -98,6 +98,19 @@ export const useSettingsPage = () => {
     try {
       setSaving(true);
       
+      // Validate image sizes before sending
+      if (profilePreview && profilePreview.length > 250 * 1024) {
+        showToast('❌ Profile image is too large after compression. Please use a smaller image.', 'error');
+        setSaving(false);
+        return;
+      }
+      
+      if (coverPreview && coverPreview.length > 250 * 1024) {
+        showToast('❌ Cover image is too large after compression. Please use a smaller image.', 'error');
+        setSaving(false);
+        return;
+      }
+      
       // Prepare data to send (user ID extracted from JWT by backend)
       const updateData = {
         name: form.name,
@@ -110,8 +123,8 @@ export const useSettingsPage = () => {
       
       console.log('Sending update data:', {
         ...updateData,
-        profilePic: updateData.profilePic ? `[Base64 image: ${updateData.profilePic.substring(0, 50)}...]` : null,
-        coverImage: updateData.coverImage ? `[Base64 image: ${updateData.coverImage.substring(0, 50)}...]` : null,
+        profilePic: updateData.profilePic ? `[Base64 image: ${(updateData.profilePic.length / 1024).toFixed(2)} KB]` : null,
+        coverImage: updateData.coverImage ? `[Base64 image: ${(updateData.coverImage.length / 1024).toFixed(2)} KB]` : null,
       });
       
       // Use /users/me endpoint - user ID extracted from JWT token
@@ -122,7 +135,31 @@ export const useSettingsPage = () => {
       
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        const errorMessage = errorData.error || errorData.message || `Server responded with ${res.status}`;
+        let errorMessage = errorData.error || errorData.message || `Server error (${res.status})`;
+        
+        // Parse specific error types
+        if (errorMessage.includes('Data too long')) {
+          if (errorMessage.includes('profile_image_url')) {
+            errorMessage = '❌ Profile image is too large for database!\n\nThe compressed image still exceeds storage limits.\nPlease use a much smaller or simpler image.';
+          } else if (errorMessage.includes('cover_image_url')) {
+            errorMessage = '❌ Cover image is too large for database!\n\nThe compressed image still exceeds storage limits.\nPlease use a much smaller or simpler image.';
+          } else {
+            errorMessage = '❌ Image data is too large!\n\nOne or both images exceed database storage limits.\nPlease use smaller images.';
+          }
+        } else if (errorMessage.includes('Duplicate entry')) {
+          errorMessage = '❌ Duplicate entry detected!\n\nThis email or username may already be in use.';
+        } else if (errorMessage.includes('violates')) {
+          errorMessage = '❌ Data validation failed!\n\nPlease check all fields meet requirements.';
+        } else if (res.status === 401) {
+          errorMessage = '❌ Authentication failed!\n\nYour session may have expired. Please login again.';
+        } else if (res.status === 403) {
+          errorMessage = '❌ Access denied!\n\nYou do not have permission to update this profile.';
+        } else if (res.status === 404) {
+          errorMessage = '❌ Profile not found!\n\nYour account may have been deleted.';
+        } else if (res.status >= 500) {
+          errorMessage = `❌ Server error!\n\nThe server encountered an error (${res.status}).\nPlease try again later.`;
+        }
+        
         console.error('Update failed:', errorMessage, 'Status:', res.status);
         throw new Error(errorMessage);
       }
@@ -145,13 +182,8 @@ export const useSettingsPage = () => {
       const newCoverImage = data.coverImage || null;
       
       console.log('Setting new images:', {
-        profilePic: newProfilePic ? `[Image: ${newProfilePic.substring(0, 50)}...]` : null,
-        coverImage: newCoverImage ? `[Image: ${newCoverImage.substring(0, 50)}...]` : null,
-      });
-      
-      console.log('Current previews before update:', {
-        profilePreview: profilePreview ? profilePreview.substring(0, 50) : null,
-        coverPreview: coverPreview ? coverPreview.substring(0, 50) : null,
+        profilePic: newProfilePic ? `[Image: ${(newProfilePic.length / 1024).toFixed(2)} KB]` : null,
+        coverImage: newCoverImage ? `[Image: ${(newCoverImage.length / 1024).toFixed(2)} KB]` : null,
       });
       
       setForm(newFormValues);
@@ -163,10 +195,10 @@ export const useSettingsPage = () => {
       
       console.log('Images updated successfully');
       
-      showToast(data?.message || 'Profile updated successfully', 'success');
+      showToast('✅ Profile updated successfully!', 'success');
     } catch (e) {
       console.error('Update error:', e);
-      showToast('Failed to update profile', 'error');
+      showToast(e.message || '❌ Failed to update profile. Please try again.', 'error');
     } finally {
       setSaving(false);
     }
@@ -177,10 +209,11 @@ export const useSettingsPage = () => {
     if (file) {
       console.log('Profile image selected:', file.name, file.size);
       
-      // Check file size (limit to 5MB = 5120 KB per image)
+      // Check file size (limit to 5MB = 5120 KB)
       if (file.size > 5 * 1024 * 1024) {
         const fileSizeKB = (file.size / 1024).toFixed(2);
-        alert(`Profile image size (${fileSizeKB} KB) must be less than 5120 KB. Each image has a separate 5120 KB limit.`);
+        alert(`❌ Profile image is too large!\n\nYour image: ${fileSizeKB} KB\nMaximum allowed: 5,120 KB (5 MB)\n\nPlease choose a smaller image or compress it before uploading.`);
+        if (profileInputRef.current) profileInputRef.current.value = '';
         return;
       }
       
@@ -190,7 +223,7 @@ export const useSettingsPage = () => {
           const img = new Image();
           img.onload = () => {
             try {
-              // Compress image to max 800x800 for profile with better compression
+              // Compress image to max 800x800 for profile
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
               
@@ -214,33 +247,50 @@ export const useSettingsPage = () => {
               canvas.height = height;
               ctx.drawImage(img, 0, 0, width, height);
               
-              // Use 0.6 quality for good balance between size and quality
-              const compressedData = canvas.toDataURL('image/jpeg', 0.6);
-              console.log('Profile image compressed, original:', file.size, 'compressed:', compressedData.length);
+              // Start with aggressive compression
+              let quality = 0.5;
+              let compressedData = canvas.toDataURL('image/jpeg', quality);
               
-              // Additional check: if compressed data is still too large (>300KB for Base64), compress more
-              if (compressedData.length > 300 * 1024) {
-                console.log('Profile image still too large, applying extra compression');
-                const extraCompressed = canvas.toDataURL('image/jpeg', 0.4);
-                console.log('Extra compressed size:', extraCompressed.length);
-                setProfilePreview(extraCompressed);
-              } else {
-                setProfilePreview(compressedData);
+              // Base64 adds ~33% overhead, so target max 200KB for ~270KB final size
+              // This ensures it stays well under typical VARCHAR limits
+              const maxBase64Size = 200 * 1024;
+              
+              // Reduce quality until we meet size requirements
+              while (compressedData.length > maxBase64Size && quality > 0.1) {
+                quality -= 0.05;
+                compressedData = canvas.toDataURL('image/jpeg', quality);
+                console.log(`Profile compression attempt at quality ${quality.toFixed(2)}: ${(compressedData.length / 1024).toFixed(2)} KB`);
               }
+              
+              if (compressedData.length > maxBase64Size) {
+                alert(`❌ Unable to compress profile image enough!\n\nFinal size: ${(compressedData.length / 1024).toFixed(2)} KB\nRequired: under 200 KB\n\nPlease use a smaller or simpler image.`);
+                if (profileInputRef.current) profileInputRef.current.value = '';
+                return;
+              }
+              
+              console.log(`Profile image compressed successfully: ${file.size} bytes → ${(compressedData.length / 1024).toFixed(2)} KB at quality ${quality.toFixed(2)}`);
+              setProfilePreview(compressedData);
             } catch (error) {
-              console.error('Error compressing profile image, using original:', error);
-              setProfilePreview(ev.target.result);
+              console.error('Error compressing profile image:', error);
+              alert(`❌ Failed to process profile image!\n\nError: ${error.message}\n\nPlease try a different image format (JPG/PNG recommended).`);
+              if (profileInputRef.current) profileInputRef.current.value = '';
             }
           };
           img.onerror = () => {
-            console.error('Error loading profile image, using original');
-            setProfilePreview(ev.target.result);
+            console.error('Error loading profile image');
+            alert('❌ Failed to load profile image!\n\nThe image file may be corrupted or in an unsupported format.\n\nPlease try a different image.');
+            if (profileInputRef.current) profileInputRef.current.value = '';
           };
           img.src = ev.target.result;
         } catch (error) {
           console.error('Error processing profile image:', error);
-          setProfilePreview(ev.target.result);
+          alert(`❌ Failed to read profile image!\n\nError: ${error.message}\n\nPlease try again or use a different image.`);
+          if (profileInputRef.current) profileInputRef.current.value = '';
         }
+      };
+      reader.onerror = () => {
+        alert('❌ Failed to read the profile image file!\n\nPlease check the file and try again.');
+        if (profileInputRef.current) profileInputRef.current.value = '';
       };
       reader.readAsDataURL(file);
     }
@@ -251,10 +301,11 @@ export const useSettingsPage = () => {
     if (file) {
       console.log('Cover image selected:', file.name, file.size);
       
-      // Check file size (limit to 5MB = 5120 KB per image)
+      // Check file size (limit to 5MB = 5120 KB)
       if (file.size > 5 * 1024 * 1024) {
         const fileSizeKB = (file.size / 1024).toFixed(2);
-        alert(`Cover image size (${fileSizeKB} KB) must be less than 5120 KB. Each image has a separate 5120 KB limit.`);
+        alert(`❌ Cover image is too large!\n\nYour image: ${fileSizeKB} KB\nMaximum allowed: 5,120 KB (5 MB)\n\nPlease choose a smaller image or compress it before uploading.`);
+        if (coverInputRef.current) coverInputRef.current.value = '';
         return;
       }
       
@@ -264,16 +315,16 @@ export const useSettingsPage = () => {
           const img = new Image();
           img.onload = () => {
             try {
-              // Compress image to max 1200px width for cover with more aggressive compression
+              // Compress image to max 1200px width for cover
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
               
               let width = img.width;
               let height = img.height;
               const maxWidth = 1200;
-              const maxHeight = 400; // Limit height for cover images
+              const maxHeight = 400;
               
-              // Scale down maintaining aspect ratio, but also limit height
+              // Scale down maintaining aspect ratio
               if (width > maxWidth || height > maxHeight) {
                 const widthRatio = maxWidth / width;
                 const heightRatio = maxHeight / height;
@@ -287,33 +338,49 @@ export const useSettingsPage = () => {
               canvas.height = height;
               ctx.drawImage(img, 0, 0, width, height);
               
-              // More aggressive compression (0.5 instead of 0.7) to keep Base64 size smaller
-              const compressedData = canvas.toDataURL('image/jpeg', 0.5);
-              console.log('Cover image compressed, original:', file.size, 'compressed:', compressedData.length);
+              // Start with aggressive compression
+              let quality = 0.4;
+              let compressedData = canvas.toDataURL('image/jpeg', quality);
               
-              // Additional check: if compressed data is still too large (>500KB for Base64), compress more
-              if (compressedData.length > 500 * 1024) {
-                console.log('Cover image still too large, applying extra compression');
-                const extraCompressed = canvas.toDataURL('image/jpeg', 0.3);
-                console.log('Extra compressed size:', extraCompressed.length);
-                setCoverPreview(extraCompressed);
-              } else {
-                setCoverPreview(compressedData);
+              // Base64 adds ~33% overhead, so target max 200KB for ~270KB final size
+              const maxBase64Size = 200 * 1024;
+              
+              // Reduce quality until we meet size requirements
+              while (compressedData.length > maxBase64Size && quality > 0.1) {
+                quality -= 0.05;
+                compressedData = canvas.toDataURL('image/jpeg', quality);
+                console.log(`Cover compression attempt at quality ${quality.toFixed(2)}: ${(compressedData.length / 1024).toFixed(2)} KB`);
               }
+              
+              if (compressedData.length > maxBase64Size) {
+                alert(`❌ Unable to compress cover image enough!\n\nFinal size: ${(compressedData.length / 1024).toFixed(2)} KB\nRequired: under 200 KB\n\nPlease use a smaller or simpler image.`);
+                if (coverInputRef.current) coverInputRef.current.value = '';
+                return;
+              }
+              
+              console.log(`Cover image compressed successfully: ${file.size} bytes → ${(compressedData.length / 1024).toFixed(2)} KB at quality ${quality.toFixed(2)}`);
+              setCoverPreview(compressedData);
             } catch (error) {
-              console.error('Error compressing cover image, using original:', error);
-              setCoverPreview(ev.target.result);
+              console.error('Error compressing cover image:', error);
+              alert(`❌ Failed to process cover image!\n\nError: ${error.message}\n\nPlease try a different image format (JPG/PNG recommended).`);
+              if (coverInputRef.current) coverInputRef.current.value = '';
             }
           };
           img.onerror = () => {
-            console.error('Error loading cover image, using original');
-            setCoverPreview(ev.target.result);
+            console.error('Error loading cover image');
+            alert('❌ Failed to load cover image!\n\nThe image file may be corrupted or in an unsupported format.\n\nPlease try a different image.');
+            if (coverInputRef.current) coverInputRef.current.value = '';
           };
           img.src = ev.target.result;
         } catch (error) {
           console.error('Error processing cover image:', error);
-          setCoverPreview(ev.target.result);
+          alert(`❌ Failed to read cover image!\n\nError: ${error.message}\n\nPlease try again or use a different image.`);
+          if (coverInputRef.current) coverInputRef.current.value = '';
         }
+      };
+      reader.onerror = () => {
+        alert('❌ Failed to read the cover image file!\n\nPlease check the file and try again.');
+        if (coverInputRef.current) coverInputRef.current.value = '';
       };
       reader.readAsDataURL(file);
     }
