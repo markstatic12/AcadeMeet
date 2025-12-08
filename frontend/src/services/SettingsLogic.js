@@ -121,7 +121,10 @@ export const useSettingsPage = () => {
       });
       
       if (!res.ok) {
-        throw new Error(`Server responded with ${res.status}`);
+        const errorData = await res.json().catch(() => ({}));
+        const errorMessage = errorData.error || errorData.message || `Server responded with ${res.status}`;
+        console.error('Update failed:', errorMessage, 'Status:', res.status);
+        throw new Error(errorMessage);
       }
       
       const data = await res.json();
@@ -174,9 +177,10 @@ export const useSettingsPage = () => {
     if (file) {
       console.log('Profile image selected:', file.name, file.size);
       
-      // Check file size (limit to 5MB)
+      // Check file size (limit to 5MB = 5120 KB per image)
       if (file.size > 5 * 1024 * 1024) {
-        alert('Image size should be less than 5MB');
+        const fileSizeKB = (file.size / 1024).toFixed(2);
+        alert(`Profile image size (${fileSizeKB} KB) must be less than 5120 KB. Each image has a separate 5120 KB limit.`);
         return;
       }
       
@@ -186,7 +190,7 @@ export const useSettingsPage = () => {
           const img = new Image();
           img.onload = () => {
             try {
-              // Compress image to max 800x800 for profile (use WebP for smaller payload)
+              // Compress image to max 800x800 for profile with better compression
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
               
@@ -210,9 +214,19 @@ export const useSettingsPage = () => {
               canvas.height = height;
               ctx.drawImage(img, 0, 0, width, height);
               
-              const compressedData = canvas.toDataURL('image/jpeg', 0.7);
+              // Use 0.6 quality for good balance between size and quality
+              const compressedData = canvas.toDataURL('image/jpeg', 0.6);
               console.log('Profile image compressed, original:', file.size, 'compressed:', compressedData.length);
-              setProfilePreview(compressedData);
+              
+              // Additional check: if compressed data is still too large (>300KB for Base64), compress more
+              if (compressedData.length > 300 * 1024) {
+                console.log('Profile image still too large, applying extra compression');
+                const extraCompressed = canvas.toDataURL('image/jpeg', 0.4);
+                console.log('Extra compressed size:', extraCompressed.length);
+                setProfilePreview(extraCompressed);
+              } else {
+                setProfilePreview(compressedData);
+              }
             } catch (error) {
               console.error('Error compressing profile image, using original:', error);
               setProfilePreview(ev.target.result);
@@ -237,9 +251,10 @@ export const useSettingsPage = () => {
     if (file) {
       console.log('Cover image selected:', file.name, file.size);
       
-      // Check file size (limit to 5MB)
+      // Check file size (limit to 5MB = 5120 KB per image)
       if (file.size > 5 * 1024 * 1024) {
-        alert('Image size should be less than 5MB');
+        const fileSizeKB = (file.size / 1024).toFixed(2);
+        alert(`Cover image size (${fileSizeKB} KB) must be less than 5120 KB. Each image has a separate 5120 KB limit.`);
         return;
       }
       
@@ -249,26 +264,42 @@ export const useSettingsPage = () => {
           const img = new Image();
           img.onload = () => {
             try {
-              // Compress image to max 1200px width for cover (use WebP for smaller payload)
+              // Compress image to max 1200px width for cover with more aggressive compression
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
               
               let width = img.width;
               let height = img.height;
               const maxWidth = 1200;
+              const maxHeight = 400; // Limit height for cover images
               
-              if (width > maxWidth) {
-                height = (height * maxWidth) / width;
-                width = maxWidth;
+              // Scale down maintaining aspect ratio, but also limit height
+              if (width > maxWidth || height > maxHeight) {
+                const widthRatio = maxWidth / width;
+                const heightRatio = maxHeight / height;
+                const ratio = Math.min(widthRatio, heightRatio);
+                
+                width = width * ratio;
+                height = height * ratio;
               }
               
               canvas.width = width;
               canvas.height = height;
               ctx.drawImage(img, 0, 0, width, height);
               
-              const compressedData = canvas.toDataURL('image/jpeg', 0.7);
+              // More aggressive compression (0.5 instead of 0.7) to keep Base64 size smaller
+              const compressedData = canvas.toDataURL('image/jpeg', 0.5);
               console.log('Cover image compressed, original:', file.size, 'compressed:', compressedData.length);
-              setCoverPreview(compressedData);
+              
+              // Additional check: if compressed data is still too large (>500KB for Base64), compress more
+              if (compressedData.length > 500 * 1024) {
+                console.log('Cover image still too large, applying extra compression');
+                const extraCompressed = canvas.toDataURL('image/jpeg', 0.3);
+                console.log('Extra compressed size:', extraCompressed.length);
+                setCoverPreview(extraCompressed);
+              } else {
+                setCoverPreview(compressedData);
+              }
             } catch (error) {
               console.error('Error compressing cover image, using original:', error);
               setCoverPreview(ev.target.result);
