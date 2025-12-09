@@ -17,6 +17,7 @@ const DashboardLayout = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [expandedView, setExpandedView] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
+  const [bellAnimation, setBellAnimation] = useState('');
   const notificationRef = useRef(null);
 
   useEffect(() => {
@@ -40,6 +41,17 @@ const DashboardLayout = ({ children }) => {
     const interval = setInterval(loadUnreadCount, 60000); // Every 60 seconds
     return () => clearInterval(interval);
   }, []);
+
+  // Trigger bell shake animation every 3 seconds when there are unread notifications
+  useEffect(() => {
+    if (unreadCount > 0) {
+      const shakeInterval = setInterval(() => {
+        setBellAnimation('bell-shake');
+        setTimeout(() => setBellAnimation(''), 600);
+      }, 3000);
+      return () => clearInterval(shakeInterval);
+    }
+  }, [unreadCount]);
 
   // Load notifications when modal opens
   useEffect(() => {
@@ -330,12 +342,18 @@ const DashboardLayout = ({ children }) => {
             {/* Notification Bell Icon */}
             <div className="relative" ref={notificationRef}>
               <button
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                onClick={() => {
+                  setBellAnimation('bell-click');
+                  setTimeout(() => setBellAnimation(''), 300);
+                  setShowNotifications(!showNotifications);
+                }}
+                className={`relative p-2 hover:bg-gray-800/80 rounded-lg transition-all duration-200 ${
+                  unreadCount > 0 ? 'bell-pulse' : ''
+                }`}
               >
-                <BellIcon className="w-5 h-5 text-white" />
+                <BellIcon className={`w-5 h-5 text-white transition-transform ${bellAnimation}`} />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-red-500 to-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg shadow-red-500/50 animate-pulse">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
@@ -343,7 +361,7 @@ const DashboardLayout = ({ children }) => {
 
               {/* Notification Modal */}
               {showNotifications && (
-                <div className={`absolute right-0 mt-2 w-96 bg-gray-900 border border-gray-800 rounded-lg shadow-2xl z-50 overflow-hidden flex flex-col transition-all duration-300 ${
+                <div className={`modal-fade-in absolute right-0 mt-2 w-96 bg-gray-900 border border-gray-800 rounded-lg shadow-2xl z-50 overflow-hidden flex flex-col transition-all duration-300 ${
                   expandedView ? 'h-[calc(100vh-100px)]' : 'max-h-[600px]'
                 }`}>
                   {/* Header */}

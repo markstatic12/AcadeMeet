@@ -37,6 +37,7 @@ const slides = [
 
 const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [sweepActive, setSweepActive] = useState(false);
 
   // Auto-transition logic (5 seconds)
   useEffect(() => {
@@ -47,8 +48,25 @@ const HeroCarousel = () => {
     return () => clearInterval(timer);
   }, []);
 
+  // Sweep effect every 3 seconds
+  useEffect(() => {
+    const sweepTimer = setInterval(() => {
+      setSweepActive(true);
+      setTimeout(() => setSweepActive(false), 1500);
+    }, 3000);
+
+    return () => clearInterval(sweepTimer);
+  }, []);
+
   return (
     <div className="hero-carousel-content">
+      {/* Sweep Effect Overlay */}
+      {sweepActive && (
+        <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
+          <div className="hero-sweep absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+        </div>
+      )}
+      
       {/* Animated Background Elements */}
       <div className="hero-bg-effects">
         <div className="floating-orb orb-1"></div>

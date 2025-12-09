@@ -25,7 +25,7 @@ const LoginPage = () => {
       <div className="w-full max-w-md mx-auto animate-fadeIn">
         <LoginHeader />
         
-        <AlertMessage message={error} />
+        <AlertMessage type="error" message={error} />
         
         <LoginForm
           email={email}
