@@ -11,7 +11,7 @@ import com.appdev.academeet.util.SessionStatusCalculator;
 
 
 public class SessionDTO {
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("h:mm a");
 
     private final Long id;
     private final String title;
