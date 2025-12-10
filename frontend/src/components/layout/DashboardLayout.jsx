@@ -131,7 +131,7 @@ const DashboardLayout = ({ children }) => {
         ));
         setUnreadCount(prev => Math.max(0, prev - 1));
       } else {
-        // Mark as unread - would need backend endpoint
+        await notificationService.markAsUnread(notification.id);
         setNotifications(notifications.map(n => 
           n.id === notification.id ? { ...n, read: false } : n
         ));

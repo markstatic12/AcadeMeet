@@ -82,6 +82,20 @@ public class NotificationController extends BaseController {
     }
     
     /**
+     * Mark notification as unread
+     */
+    @PatchMapping("/{id}/unread")
+    public ResponseEntity<?> markAsUnread(@PathVariable Long id) {
+        try {
+            User user = getAuthenticatedUser();
+            notificationService.markAsUnread(id, user.getId());
+            return ResponseEntity.ok(Map.of("message", "Notification marked as unread"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    /**
      * Mark all notifications as read
      */
     @PostMapping("/mark-all-read")

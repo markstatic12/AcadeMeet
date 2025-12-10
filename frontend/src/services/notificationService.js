@@ -52,6 +52,17 @@ export const notificationService = {
   },
 
   /**
+   * Mark notification as unread
+   */
+  async markAsUnread(notificationId) {
+    const response = await authFetch(`/notifications/${notificationId}/unread`, {
+      method: "PATCH",
+      body: JSON.stringify({}),
+    });
+    return handleResponse(response, "Failed to mark notification as unread");
+  },
+
+  /**
    * Mark all notifications as read
    */
   async markAllAsRead() {
