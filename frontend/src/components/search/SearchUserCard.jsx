@@ -1,9 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { UserIcon } from '../../icons';
+import { useUser } from '../../context/UserContext';
+import { authFetch } from '../../services/apiHelper';
 
 const SearchUserCard = ({ user }) => {
-  const { id, name, program, studentId, profileImageUrl } = user;
+  const { id, name, program, yearLevel, profileImageUrl, followers, isFollowing } = user;
+  const { currentUser } = useUser();
+  const [currentUserId, setCurrentUserId] = useState(null);
+  
+  // Fetch current user's ID
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      if (currentUser?.authenticated) {
+        try {
+          const response = await authFetch('/users/me');
+          if (response.ok) {
+            const data = await response.json();
+            setCurrentUserId(data.id);
+          }
+        } catch (error) {
+          console.error('Error fetching current user:', error);
+        }
+      }
+    };
+    
+    fetchCurrentUser();
+  }, [currentUser]);
+  
+  // Check if this is the current user's own profile
+  const isOwnProfile = currentUserId && currentUserId === id;
+  
+  // Format year level display (1 -> "1st Year", 2 -> "2nd Year", etc.)
+  const getYearLevelText = (level) => {
+    if (!level) return '';
+    const suffixes = ['th', 'st', 'nd', 'rd'];
+    const suffix = level >= 1 && level <= 3 ? suffixes[level] : suffixes[0];
+    return `${level}${suffix} Year`;
+  };
   
   return (
     <Link 
@@ -41,15 +75,35 @@ const SearchUserCard = ({ user }) => {
         
         {/* User Info */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-white font-bold text-sm mb-0.5 group-hover:text-indigo-300 transition-colors duration-300 truncate">
-            {name}
-          </h3>
+          <div className="flex items-center gap-2 mb-0.5">
+            <h3 className="text-white font-bold text-sm group-hover:text-indigo-300 transition-colors duration-300 truncate">
+              {name}
+            </h3>
+            {isOwnProfile && (
+              <span className="px-2 py-0.5 bg-purple-600 text-white text-[10px] font-semibold rounded-full whitespace-nowrap">
+                You
+              </span>
+            )}
+          </div>
           <p className="text-gray-400 text-xs mb-0.5 group-hover:text-gray-300 transition-colors duration-300 truncate">
             {program}
           </p>
-          <p className="text-gray-500 text-[11px] group-hover:text-gray-400 transition-colors duration-300 truncate">
-            {studentId}
-          </p>
+          <div className="flex items-center gap-1.5 text-[11px] group-hover:text-gray-400 transition-colors duration-300">
+            <span className="text-gray-500">
+              {yearLevel ? getYearLevelText(yearLevel) : 'Year level not specified'}
+            </span>
+            {yearLevel && !isOwnProfile && (
+              <>
+                <span className="text-gray-600">|</span>
+                <div className="flex items-center gap-1">
+                  <div className={`w-1.5 h-1.5 rounded-full ${isFollowing ? 'bg-green-500' : 'bg-gray-500'}`}></div>
+                  <span className={isFollowing ? 'text-green-400' : 'text-gray-500'}>
+                    {isFollowing ? 'Followed' : 'People'}
+                  </span>
+                </div>
+              </>
+            )}
+          </div>
         </div>
         
         {/* Arrow Icon */}

@@ -113,6 +113,23 @@ public class SearchController extends BaseController {
         userMap.put("followers", userService.getFollowerCount(user.getId()));
         userMap.put("following", userService.getFollowingCount(user.getId()));
         
+        // Check if current user is following this user
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.isAuthenticated() 
+                && authentication.getPrincipal() instanceof UserDetails) {
+                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                String email = userDetails.getUsername();
+                User currentUser = userService.getUserByEmail(email);
+                boolean isFollowing = userService.isFollowing(currentUser.getId(), user.getId());
+                userMap.put("isFollowing", isFollowing);
+            } else {
+                userMap.put("isFollowing", false);
+            }
+        } catch (Exception e) {
+            userMap.put("isFollowing", false);
+        }
+        
         return userMap;
     }
 

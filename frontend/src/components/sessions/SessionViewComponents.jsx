@@ -50,6 +50,14 @@ export const NotesDisplay = ({ notes = [] }) => {
     return parts[parts.length - 1];
   };
 
+  const getFullUrl = (filepath) => {
+    if (!filepath) return '#';
+    // If filepath already starts with http, return as is
+    if (filepath.startsWith('http')) return filepath;
+    // Otherwise prepend backend URL
+    return `http://localhost:8080${filepath}`;
+  };
+
   return (
     <div className="space-y-2.5">
       <div className="flex items-center gap-2">
@@ -63,10 +71,11 @@ export const NotesDisplay = ({ notes = [] }) => {
         {notes.map((note, index) => {
           const filepath = typeof note === 'string' ? note : note.filepath;
           const filename = getFilename(filepath);
+          const fullUrl = getFullUrl(filepath);
           return (
             <a
               key={index}
-              href={filepath}
+              href={fullUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-2.5 bg-gradient-to-r from-indigo-600/10 to-purple-600/10 border border-indigo-500/20 hover:border-indigo-500/40 rounded-lg transition-all group"
