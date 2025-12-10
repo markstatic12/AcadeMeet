@@ -164,24 +164,6 @@ public class Session {
         this.sessionTags.removeIf(tag -> tag.getTagName().equals(tagName));
     }
 
-    @Deprecated
-    public List<String> getNotes() {
-        return sessionNotes.stream()
-                .map(SessionNote::getFilepath)
-                .toList();
-    }
-
-    @Deprecated
-    public void setNotes(List<String> notePaths) {
-        this.sessionNotes.clear();
-        if (notePaths != null) {
-            for (String path : notePaths) {
-                SessionNote note = new SessionNote(this, path);
-                this.sessionNotes.add(note);
-            }
-        }
-    }
-
     public void addParticipant(User user) {
         SessionParticipant participant = new SessionParticipant(this, user);
         this.participants.add(participant);

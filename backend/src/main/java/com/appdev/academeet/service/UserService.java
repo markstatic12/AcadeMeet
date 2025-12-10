@@ -77,10 +77,6 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
     
-    public User updateUser(User user) {
-        return userRepository.save(user);
-    }
-    
     public User updateProfile(User user, UpdateProfileRequest request) {
         if (request.getName() != null && !request.getName().trim().isEmpty()) {
             user.setName(request.getName().trim());
@@ -111,17 +107,6 @@ public class UserService {
     
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
-    }
-    
-    public List<User> searchUsersByName(String keyword) {
-        return userRepository.findByNameContaining(keyword);
-    }
-    
-    public List<User> getUsersByProgram(String program) {
-        return userRepository.findByProgram(program);
-    }
-    public List<User> getUsersByYearLevel(Integer yearLevel) {
-        return userRepository.findByYearLevel(yearLevel);
     }
     
     @Transactional

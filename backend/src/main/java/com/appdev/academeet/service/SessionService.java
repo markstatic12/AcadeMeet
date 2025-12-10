@@ -11,9 +11,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -266,22 +264,6 @@ public class SessionService {
         
     }
 
-    public boolean checkParticipantLimit(Long sessionId) {
-        Optional<Session> sessionOpt = sessionRepository.findById(sessionId);
-        if (sessionOpt.isPresent()) {
-            Session session = sessionOpt.get();
-            Integer maxParticipants = session.getMaxParticipants();
-            Integer currentParticipants = session.getCurrentParticipants();
-            
-            if (maxParticipants == null) {
-                return true; 
-            }
-            
-            return currentParticipants < maxParticipants;
-        }
-        return false;
-    }
-
     @Transactional
     public void joinSession(Long sessionId, User user) {
         joinSession(sessionId, user, null);
@@ -359,29 +341,7 @@ public class SessionService {
         return sessionParticipantRepository.existsBySessionIdAndUserId(sessionId, userId);
     }
 
-    @Transactional
-    public void incrementParticipant(Long sessionId) {
-        Optional<Session> sessionOpt = sessionRepository.findById(sessionId);
-        if (sessionOpt.isPresent()) {
-            Session session = sessionOpt.get();
-            Integer current = session.getCurrentParticipants();
-            session.setCurrentParticipants(current + 1);
-            sessionRepository.save(session);
-        }
-    }
 
-    @Transactional
-    public void decrementParticipant(Long sessionId) {
-        Optional<Session> sessionOpt = sessionRepository.findById(sessionId);
-        if (sessionOpt.isPresent()) {
-            Session session = sessionOpt.get();
-            Integer current = session.getCurrentParticipants();
-            if (current > 0) {
-                session.setCurrentParticipants(current - 1);
-                sessionRepository.save(session);
-            }
-        }
-    }
 
     @Transactional
     public void updateSessionStatus(Long sessionId, SessionStatus newStatus, Long userId) {
@@ -522,37 +482,7 @@ public class SessionService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public Page<Session> searchSessions(String keyword, SessionStatus status, Long userId, Pageable pageable) {
-        Page<Session> sessions;
-        if (keyword != null && !keyword.trim().isEmpty() && status != null) {
-            sessions = sessionRepository.findByTitleContainingAndSessionStatus(keyword, status, pageable);
-        } else if (keyword != null && !keyword.trim().isEmpty()) {
-            sessions = sessionRepository.findByTitleContaining(keyword, pageable);
-        } else if (status != null) {
-            sessions = sessionRepository.findBySessionStatus(status, pageable);
-        } else {
-            sessions = sessionRepository.findAll(pageable);
-        }
 
-        // TODO: filter out PRIVATE sessions depending on user access (host/participant)
-        return sessions;
-    }
-
-    @Transactional(readOnly = true)
-    public List<Session> getSessionsByDateRange(LocalDateTime start, LocalDateTime end) {
-        return sessionRepository.findByStartTimeBetween(start, end);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<Session> getSessionsByStatus(SessionStatus status, Pageable pageable) {
-        return sessionRepository.findBySessionStatus(status, pageable);
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<Session> findById(Long sessionId) {
-        return sessionRepository.findById(sessionId);
-    }
 
     @Transactional(readOnly = true)
     public List<SessionDTO> getTrendingSessions() {
