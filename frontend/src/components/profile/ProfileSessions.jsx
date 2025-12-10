@@ -141,14 +141,12 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
                 <span className="font-medium truncate">{session.location}</span>
               </div>
               {/* Participants with refined sky blue */}
-              {session.maxParticipants && (
-                <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-sky-200 transition-colors">
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-600/18 to-sky-700/12 flex items-center justify-center group-hover:from-sky-600/22 group-hover:to-sky-700/16 transition-colors shrink-0 border border-sky-600/15">
-                    <span className="text-base">👥</span>
-                  </div>
-                  <span className="font-medium">{session.currentParticipants || 0}/{session.maxParticipants} participants</span>
+              <div className="flex items-center gap-2 text-gray-300 text-xs group-hover:text-sky-200 transition-colors">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-600/18 to-sky-700/12 flex items-center justify-center group-hover:from-sky-600/22 group-hover:to-sky-700/16 transition-colors shrink-0 border border-sky-600/15">
+                  <span className="text-base">👥</span>
                 </div>
-              )}
+                <span className="font-medium">{session.currentParticipants || 0}/{session.maxParticipants || '∞'} participants</span>
+              </div>
             </>
           )}
         </div>

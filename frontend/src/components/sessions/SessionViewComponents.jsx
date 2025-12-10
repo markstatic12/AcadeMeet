@@ -191,8 +191,6 @@ export const SessionTypeDisplay = ({ sessionType }) => {
 
 // Read-only Participants Display
 export const ParticipantsDisplay = ({ currentParticipants, maxParticipants, participants, participantCount, onClick }) => {
-  if (!maxParticipants) return null;
-  
   // Determine the actual participant count from various possible sources
   let count = 0;
   if (participantCount !== undefined && participantCount !== null) {
@@ -206,7 +204,7 @@ export const ParticipantsDisplay = ({ currentParticipants, maxParticipants, part
   const displayContent = (
     <div className="flex items-center gap-3 text-gray-300">
       <UsersIcon className="w-4 h-4 text-indigo-400 flex-shrink-0" />
-      <span className="text-sm">{count} / {maxParticipants} participants</span>
+      <span className="text-sm">{count} / {maxParticipants || '∞'} participants</span>
     </div>
   );
 
@@ -440,11 +438,7 @@ export const CommentsPanel = ({ sessionId }) => {
           </svg>
         </div>
         <h3 className="text-white font-bold text-base">Comments</h3>
-        {comments.length > 0 && (
-          <span className="ml-auto text-xs font-semibold text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-full">
-            {comments.length}
-          </span>
-        )}
+        {/* numeric comment count removed */}
       </div>
       
       {/* Comment Input */}
