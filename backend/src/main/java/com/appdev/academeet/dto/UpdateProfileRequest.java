@@ -1,8 +1,14 @@
 package com.appdev.academeet.dto;
 
+import jakarta.validation.constraints.Size;
+
 public class UpdateProfileRequest {
+    @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
     private String name;
+    
     private String school;
+    
+    @Size(min = 2, max = 200, message = "Program must be between 2 and 200 characters")
     private String program;
     private String studentId;
     private String bio;
