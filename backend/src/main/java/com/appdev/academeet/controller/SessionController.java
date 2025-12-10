@@ -2,7 +2,6 @@ package com.appdev.academeet.controller;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +24,7 @@ import com.appdev.academeet.dto.UpdateSessionRequest;
 import com.appdev.academeet.dto.UpdateStatusRequest;
 import com.appdev.academeet.model.Session;
 import com.appdev.academeet.model.SessionStatus;
+import com.appdev.academeet.model.SessionType;
 import com.appdev.academeet.model.User;
 import com.appdev.academeet.service.SessionService;
 
@@ -128,7 +128,8 @@ public class SessionController extends BaseController {
 
     @PatchMapping("/{id}/status")
     public ResponseEntity<Map<String, String>> updateSessionStatus(@PathVariable Long id, @Valid @RequestBody UpdateStatusRequest request) {
-        sessionService.updateSessionStatus(id, request.getStatus());
+        User user = getAuthenticatedUser();
+        sessionService.updateSessionStatus(id, request.getStatus(), user.getId());
         return ResponseEntity.ok(Map.of("message", "Session status updated successfully"));
     }
 
@@ -148,9 +149,20 @@ public class SessionController extends BaseController {
 
     @GetMapping("/{id}")
     public ResponseEntity<SessionDTO> getSessionById(@PathVariable Long id) {
-        Optional<Session> sessionOpt = sessionService.findById(id);
-        return sessionOpt.map(session -> ResponseEntity.ok(new SessionDTO(session)))
-                         .orElse(ResponseEntity.notFound().build());
+        User user = getAuthenticatedUser();
+        Session session = sessionService.findById(id)
+            .orElseThrow(() -> new RuntimeException("Session not found"));
+        
+        if (session.getSessionPrivacy() == SessionType.PRIVATE) {
+            boolean isOwner = session.getHost().getId().equals(user.getId());
+            boolean isParticipant = sessionService.isUserParticipant(id, user.getId());
+            
+            if (!isOwner && !isParticipant) {
+                throw new SecurityException("You do not have permission to view this private session");
+            }
+        }
+        
+        return ResponseEntity.ok(new SessionDTO(session));
     }
 
     @GetMapping

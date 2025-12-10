@@ -66,6 +66,7 @@ public class SessionNoteController extends BaseController {
 
         // If sessionId is provided, link the note to the session
         if (sessionId != null) {
+            // Authorization is checked inside addNoteAndGetDTO (only host can upload)
             NoteUploadResponse response = sessionNoteService.addNoteAndGetDTO(
                     sessionId, file, effectiveTitle, authenticatedUser.getId());
             return ResponseEntity.ok(response);
