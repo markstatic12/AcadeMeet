@@ -38,6 +38,8 @@ public class SecurityConfig {
                 .ignoringRequestMatchers("/api/auth/**") 
             )
             .authorizeHttpRequests(auth -> auth
+                // Allow preflight CORS requests without authentication
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/tags/**").permitAll()
