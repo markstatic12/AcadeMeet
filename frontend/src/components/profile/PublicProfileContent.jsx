@@ -330,26 +330,24 @@ const FeaturedSessionCard = ({ session }) => {
 // ===== PUBLIC SESSION CARD =====
 
 const PublicSessionCard = ({ session, index }) => {
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
+  const formatDate = () => {
+    if (session.month && session.day && session.year) {
+      return `${session.month} ${session.day}, ${session.year}`;
+    }
+    return 'TBD';
   };
   
-  const formatTime = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
-    });
+  const getMonthAbbr = () => {
+    if (!session.month) return 'TBD';
+    return session.month.substring(0, 3).toUpperCase();
+  };
+  
+  const getDayNumber = () => {
+    return session.day || '?';
   };
 
   const getAvailabilityColor = () => {
-    const percentageFull = (session.participants / session.maxParticipants) * 100;
+    const percentageFull = (session.currentParticipants / session.maxParticipants) * 100;
     if (percentageFull >= 90) return 'text-red-400';
     if (percentageFull >= 70) return 'text-yellow-400';
     return 'text-green-400';
@@ -368,10 +366,10 @@ const PublicSessionCard = ({ session, index }) => {
           {/* Left: Date Badge */}
           <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-xl flex flex-col items-center justify-center border border-indigo-500/30 shadow-lg">
             <span className="text-white text-xs font-medium">
-              {formatDate(session.startTime).split(' ')[0]}
+              {getMonthAbbr()}
             </span>
             <span className="text-white text-2xl font-bold leading-none">
-              {formatDate(session.startTime).split(' ')[1].replace(',', '')}
+              {getDayNumber()}
             </span>
           </div>
 
@@ -381,12 +379,19 @@ const PublicSessionCard = ({ session, index }) => {
               <h3 className="text-white font-bold text-base group-hover:text-indigo-300 transition-colors line-clamp-1">
                 {session.title}
               </h3>
-              {session.sessionType === 'PRIVATE' && (
+              {session.sessionType === 'PRIVATE' ? (
                 <div className="flex-shrink-0 px-2 py-1 bg-gray-700/50 rounded-lg border border-gray-600/50 flex items-center gap-1">
                   <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                   <span className="text-xs font-medium text-gray-400">Private</span>
+                </div>
+              ) : (
+                <div className="flex-shrink-0 px-2 py-1 bg-indigo-900/30 rounded-lg border border-indigo-700/50 flex items-center gap-1">
+                  <svg className="w-3 h-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-xs font-medium text-indigo-400">Public</span>
                 </div>
               )}
             </div>
@@ -434,20 +439,20 @@ const PublicSessionCard = ({ session, index }) => {
                   <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>{formatTime(session.startTime)} - {formatTime(session.endTime)}</span>
+                  <span>{session.startTime || 'TBD'} - {session.endTime || 'TBD'}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   </svg>
-                  <span>{session.location}</span>
+                  <span>{session.location || 'TBD'}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <svg className={`w-4 h-4 ${getAvailabilityColor()}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                   <span className={`font-medium ${getAvailabilityColor()}`}>
-                    {session.participants}/{session.maxParticipants}
+                    {session.currentParticipants || 0}/{session.maxParticipants || 0}
                   </span>
                 </div>
               </div>

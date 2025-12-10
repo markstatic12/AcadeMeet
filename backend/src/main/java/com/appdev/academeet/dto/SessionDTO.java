@@ -14,7 +14,7 @@ import com.appdev.academeet.model.SessionType;
  * Provides a clean interface for API responses with formatted data.
  */
 public class SessionDTO {
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("h:mm a");
 
     // Basic session info
     private final Long id;

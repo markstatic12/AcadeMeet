@@ -17,7 +17,11 @@ const SessionCard = ({ session }) => {
 
   // Determine if session ends in AM or PM
   const endTime = session.endTime || '';
-  const isPM = endTime.toLowerCase().includes('pm') || parseInt(endTime.split(':')[0]) >= 12;
+  // Handle both formats: already formatted (with AM/PM) or 24-hour format
+  const isPM = endTime.toLowerCase().includes('pm') || 
+               (!endTime.toLowerCase().includes('am') && 
+                !endTime.toLowerCase().includes('pm') && 
+                parseInt(endTime.split(':')[0]) >= 12);
 
   return (
     <div 
