@@ -1,7 +1,26 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sessionService } from './SessionService';
+import logger from '../utils/logger';
 
+// Helper: convert backend time strings (e.g., "2:30 PM") to 24-hour "HH:MM" format
+const to24Hour = (timeStr) => {
+  if (!timeStr || typeof timeStr !== 'string') return "";
+  const s = timeStr.trim();
+  // Match forms like "2:30 PM", "02:05 AM", "14:20", "2:30PM"
+  const m = s.match(/^(\d{1,2}):(\d{2})\s*([AaPp][Mm])?$/);
+  if (!m) return s; // Unknown format — return as-is and let validations handle it
+  let hour = parseInt(m[1], 10);
+  const minute = parseInt(m[2], 10);
+  const meridiem = m[3];
+  if (meridiem) {
+    const up = meridiem.toUpperCase();
+    if (up === 'PM' && hour < 12) hour += 12;
+    if (up === 'AM' && hour === 12) hour = 0;
+  }
+  const pad = (n) => (n < 10 ? `0${n}` : `${n}`);
+  return `${pad(hour)}:${pad(minute)}`;
+};
 // Session Form Logic Hook
 export const useSessionForm = (showToast) => {
   const navigate = useNavigate();
@@ -64,6 +83,15 @@ export const useSessionForm = (showToast) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    // Debug: log current sessionData snapshot
+    try {
+      logger.debug('Submitting session form with data:', sessionData);
+    } catch (logErr) {
+      // fallback
+      // eslint-disable-next-line no-console
+      console.debug('Submitting session form with data:', sessionData, logErr);
+    }
 
     // Validate required fields
     const errors = {};
@@ -158,6 +186,13 @@ export const useSessionForm = (showToast) => {
     }
 
     if (Object.keys(errors).length > 0) {
+      // Debug: log validation errors
+      try {
+        logger.debug('Session form validation errors:', errors);
+      } catch (logErr) {
+        // eslint-disable-next-line no-console
+        console.debug('Session form validation errors:', errors, logErr);
+      }
       setFieldErrors(errors);
       if (showToast) {
         showToast('error', 'Please ensure you provide valid inputs');
@@ -167,6 +202,14 @@ export const useSessionForm = (showToast) => {
     }
 
     try {
+      // Debug: log payload being sent to createSession
+      try {
+        logger.debug('Calling sessionService.createSession with payload:', sessionData);
+      } catch (logErr) {
+        // eslint-disable-next-line no-console
+        console.debug('Calling sessionService.createSession with payload:', sessionData, logErr);
+      }
+
       const createdSession = await sessionService.createSession(sessionData);
       
       // Link uploaded notes to the session if any
@@ -176,6 +219,7 @@ export const useSessionForm = (showToast) => {
           try {
             await noteService.linkNoteToSession(filepath, createdSession.id);
           } catch (linkError) {
+            // eslint-disable-next-line no-console
             console.error('Failed to link note:', filepath, linkError);
             // Continue linking other notes even if one fails
           }
@@ -190,7 +234,19 @@ export const useSessionForm = (showToast) => {
         navigate('/profile', { state: { sessionCreated: true, title: sessionData.title } });
       }, 1500);
     } catch (error) {
-      console.error("Error creating session:", error);
+      // Debug: log full error with response if available
+      try {
+        logger.error('Error creating session:', error);
+      } catch (logErr) {
+        // eslint-disable-next-line no-console
+        console.error('Error creating session:', error, logErr);
+      }
+
+      if (error?.response) {
+        // eslint-disable-next-line no-console
+        console.debug('Create session response data:', error.response.data, 'status:', error.response.status);
+      }
+
       if (showToast) {
         showToast('error', `Error creating session: ${error.message}`);
       }
@@ -231,7 +287,7 @@ export const useEditSessionForm = (sessionId, showToast) => {
     endTime: "",
     location: "",
     locationType: "in-person",
-    sessionPrivacy: "",
+     sessionPrivacy: "",
     password: "",
     maxParticipants: "",
     description: "",
@@ -273,11 +329,11 @@ export const useEditSessionForm = (sessionId, showToast) => {
           month: data.month || "",
           day: data.day || "",
           year: data.year || "",
-          startTime: data.startTime || "",
-          endTime: data.endTime || "",
+          startTime: to24Hour(data.startTime) || "",
+          endTime: to24Hour(data.endTime) || "",
           location: data.location || "",
           locationType: data.locationType || "in-person",
-          sessionPrivacy: data.sessionPrivacy || "",
+           sessionPrivacy: data.sessionPrivacy || data.sessionType || "",
           password: "", // Don't populate password for security
           maxParticipants: data.maxParticipants || "",
           description: data.description || "",

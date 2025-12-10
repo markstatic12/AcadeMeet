@@ -101,8 +101,8 @@ public class SessionService {
         session.setLocation(request.getLocation());
         session.setMaxParticipants(request.getMaxParticipants());
         
-        if (request.getSessionType() != null) {
-            session.setSessionPrivacy(request.getSessionType());
+        if (request.getSessionPrivacy() != null) {
+            session.setSessionPrivacy(request.getSessionPrivacy());
         }
         
         session.setTags(request.getTags());
@@ -129,8 +129,8 @@ public class SessionService {
         session.setLocation(request.getLocation());
         session.setMaxParticipants(request.getMaxParticipants());
         
-        if (request.getSessionType() != null) {
-            session.setSessionPrivacy(request.getSessionType());
+        if (request.getSessionPrivacy() != null) {
+            session.setSessionPrivacy(request.getSessionPrivacy());
         }
         
         session.setTags(request.getTags());

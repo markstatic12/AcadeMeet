@@ -99,8 +99,8 @@ public class CreateSessionRequest {
     public Integer getMaxParticipants() { return maxParticipants; }
     public void setMaxParticipants(Integer maxParticipants) { this.maxParticipants = maxParticipants; }
 
-    public SessionPrivacy getSessionType() { return sessionType; }
-    public void setSessionType(SessionPrivacy sessionType) { this.sessionType = sessionType; }
+    public SessionPrivacy getSessionPrivacy() { return sessionType; }
+    public void setSessionPrivacy(SessionPrivacy sessionType) { this.sessionType = sessionType; }
 
     public List<String> getTags() { return tags; }
     public void setTags(List<String> tags) { this.tags = tags; }

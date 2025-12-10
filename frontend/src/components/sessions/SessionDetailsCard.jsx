@@ -5,7 +5,7 @@ import { to12Hour } from '../../utils/timeUtils';
 import SessionStatusBadge from '../ui/SessionStatusBadge';
 
 const SessionDetailsCard = ({ session, onJoinClick, showJoinButton = true }) => {
-  const isPrivate = session.sessionType === 'PRIVATE';
+  const isPrivate = session.sessionPrivacy === 'PRIVATE';
   const isActive = session.status === 'ACTIVE' || session.status === 'SCHEDULED';
 
   return (

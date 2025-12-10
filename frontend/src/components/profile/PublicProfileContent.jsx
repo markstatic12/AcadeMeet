@@ -6,28 +6,22 @@ import { sessionService } from '../../services/SessionService';
 
 export const PublicProfileContent = ({ userData, activeTab, onTabChange }) => {
   return (
-    <div className="h-full flex flex-col bg-[#161A2B] border border-indigo-900/40 rounded-2xl overflow-hidden shadow-2xl shadow-indigo-950/30 transition-all hover:shadow-indigo-500/40 hover:border-indigo-500/60">
+    <div className="h-full flex flex-col bg-[#161A2B] border border-indigo-900/40 rounded-2xl overflow-hidden shadow-2xl transition-all hover:border-indigo-500/40">
       {/* Tab Bar Header */}
-      <div className="flex-shrink-0 border-b border-indigo-900/30 px-6 pt-5 pb-5">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-950/40 via-purple-950/30 to-indigo-950/40 backdrop-blur-xl border border-indigo-500/20 px-8 py-3.5 shadow-xl">
-          {/* Animated gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/15 to-indigo-500/10 animate-gradient-x"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer"></div>
-          
-          {/* Glowing edges */}
-          <div className="absolute inset-0 rounded-2xl">
-            <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-indigo-400/30 to-transparent"></div>
-            <div className="absolute bottom-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-purple-400/30 to-transparent"></div>
+      <div className="flex-shrink-0 border-b border-gray-800/50 bg-gradient-to-r from-gray-900/50 to-gray-800/50">
+        <div className="flex items-center px-6 py-4">
+          <div className="flex gap-2">
+            <TabButton
+              active={activeTab === 'about'}
+              onClick={() => onTabChange('about')}
+              icon={
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              }
+              label="Owned Session"
+            />
           </div>
-          
-          <h2 className="relative text-xl font-bold bg-gradient-to-r from-indigo-300 via-purple-300 to-indigo-300 bg-clip-text text-transparent tracking-tight flex items-center justify-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600/30 to-purple-600/30 border-2 border-indigo-400/30 flex items-center justify-center shadow-lg shadow-indigo-500/20 backdrop-blur-sm">
-              <svg className="w-4.5 h-4.5 text-indigo-300" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-              </svg>
-            </div>
-            Study Sessions
-          </h2>
         </div>
       </div>
 
@@ -330,25 +324,26 @@ const FeaturedSessionCard = ({ session }) => {
 // ===== PUBLIC SESSION CARD =====
 
 const PublicSessionCard = ({ session, index }) => {
-  const formatDate = () => {
-    if (session.month && session.day && session.year) {
-      return `${session.month} ${session.day}, ${session.year}`;
-    }
-    return 'TBD';
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
   };
   
-  const getMonthAbbr = () => {
-    if (!session.month) return 'TBD';
-    return session.month.substring(0, 3).toUpperCase();
-  };
-  
-  const getDayNumber = () => {
-    return session.day || '?';
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
   };
 
   const getAvailabilityColor = () => {
-    if (!session.maxParticipants) return 'text-green-400';
-    const percentageFull = (session.currentParticipants / session.maxParticipants) * 100;
+    const percentageFull = (session.participants / session.maxParticipants) * 100;
     if (percentageFull >= 90) return 'text-red-400';
     if (percentageFull >= 70) return 'text-yellow-400';
     return 'text-green-400';
@@ -367,10 +362,10 @@ const PublicSessionCard = ({ session, index }) => {
           {/* Left: Date Badge */}
           <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-xl flex flex-col items-center justify-center border border-indigo-500/30 shadow-lg">
             <span className="text-white text-xs font-medium">
-              {getMonthAbbr()}
+              {formatDate(session.startTime).split(' ')[0]}
             </span>
             <span className="text-white text-2xl font-bold leading-none">
-              {getDayNumber()}
+              {formatDate(session.startTime).split(' ')[1].replace(',', '')}
             </span>
           </div>
 
@@ -380,19 +375,12 @@ const PublicSessionCard = ({ session, index }) => {
               <h3 className="text-white font-bold text-base group-hover:text-indigo-300 transition-colors line-clamp-1">
                 {session.title}
               </h3>
-              {session.sessionType === 'PRIVATE' ? (
+              {session.sessionType === 'PRIVATE' && (
                 <div className="flex-shrink-0 px-2 py-1 bg-gray-700/50 rounded-lg border border-gray-600/50 flex items-center gap-1">
                   <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                   <span className="text-xs font-medium text-gray-400">Private</span>
-                </div>
-              ) : (
-                <div className="flex-shrink-0 px-2 py-1 bg-indigo-900/30 rounded-lg border border-indigo-700/50 flex items-center gap-1">
-                  <svg className="w-3 h-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="text-xs font-medium text-indigo-400">Public</span>
                 </div>
               )}
             </div>
@@ -440,20 +428,20 @@ const PublicSessionCard = ({ session, index }) => {
                   <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>{session.startTime || 'TBD'} - {session.endTime || 'TBD'}</span>
+                  <span>{formatTime(session.startTime)} - {formatTime(session.endTime)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   </svg>
-                  <span>{session.location || 'TBD'}</span>
+                  <span>{session.location}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <svg className={`w-4 h-4 ${getAvailabilityColor()}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                   <span className={`font-medium ${getAvailabilityColor()}`}>
-                    {session.currentParticipants || 0}/{session.maxParticipants || 0}
+                    {session.participants}/{session.maxParticipants}
                   </span>
                 </div>
               </div>

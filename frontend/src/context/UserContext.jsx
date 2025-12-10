@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import api from '../services/apiClient';
 import { authService } from '../services/authService';
 import logger from '../utils/logger';
@@ -24,12 +25,20 @@ const fetchUserData = async () => {
 export const UserProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   // Initialize user from cookie on mount (if cookie exists, server will authenticate)
   useEffect(() => {
     const initializeUser = async () => {
+      // Skip fetching on public pages to avoid expected 403 entries in the console
+      const publicPaths = ['/login', '/signup', '/'];
+      if (publicPaths.includes(location.pathname)) {
+        setCurrentUser(null);
+        setLoading(false);
+        return;
+      }
+
       // Try to fetch user data - if cookie exists and is valid, this will succeed
-      // If no cookie or invalid, this will fail silently (we're on a public page)
       const userData = await fetchUserData();
       if (userData) {
         setCurrentUser({
@@ -43,14 +52,13 @@ export const UserProvider = ({ children }) => {
           bio: userData.bio,
         });
       } else {
-        // No valid session - user is not logged in (normal for signup/login pages)
         setCurrentUser(null);
       }
       setLoading(false);
     };
 
     initializeUser();
-  }, []);
+  }, [location.pathname]);
 
   // Store user data after login/signup (cookie is set by server automatically)
   const login = async (userData) => {

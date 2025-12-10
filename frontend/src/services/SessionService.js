@@ -19,6 +19,8 @@ const handleResponse = async (response, errorMessage = 'Request failed') => {
 export const sessionService = {
  
   async createSession(sessionData) {
+    const resolvedType = sessionData.sessionPrivacy || sessionData.sessionType;
+
     const submissionData = {
       title: sessionData.title,
       description: sessionData.description,
@@ -29,9 +31,9 @@ export const sessionService = {
       endTime: sessionData.endTime,      // Send as string (e.g., "16:00")
       location: sessionData.location,
       maxParticipants: sessionData.maxParticipants ? parseInt(sessionData.maxParticipants) : null,
-      sessionPrivacy: sessionData.sessionPrivacy, // Should be 'PUBLIC' or 'PRIVATE'
+      sessionPrivacy: resolvedType,
       tags: sessionData.tags || [],
-      password: sessionData.sessionPrivacy === 'PUBLIC' ? null : sessionData.password
+      password: resolvedType === 'PUBLIC' ? null : sessionData.password
     };
 
     console.log('Creating session with data:', submissionData);
@@ -102,6 +104,8 @@ export const sessionService = {
   },
 
   async updateSession(sessionId, sessionData) {
+    const resolvedType = sessionData.sessionPrivacy || sessionData.sessionType;
+
     const submissionData = {
       title: sessionData.title,
       description: sessionData.description,
@@ -112,9 +116,11 @@ export const sessionService = {
       endTime: sessionData.endTime,      
       location: sessionData.location,
       maxParticipants: sessionData.maxParticipants ? parseInt(sessionData.maxParticipants) : null,
-      sessionPrivacy: sessionData.sessionPrivacy,
+      // Include both `sessionType` and `sessionPrivacy` for compatibility
+      sessionType: resolvedType,
+      sessionPrivacy: resolvedType,
       tags: sessionData.tags || [],
-      password: sessionData.sessionPrivacy === 'PUBLIC' ? null : sessionData.password
+      password: resolvedType === 'PUBLIC' ? null : sessionData.password
     };
 
     console.log('Updating session with data:', submissionData);

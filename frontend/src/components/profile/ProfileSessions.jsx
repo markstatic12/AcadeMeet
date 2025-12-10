@@ -44,7 +44,7 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
         <div className="flex items-center justify-between mb-2 relative z-10">
           <div className="flex items-center gap-2">
             <SessionStatusBadge status={session.status} />
-            {session.sessionType === 'PRIVATE' && (
+            {session.sessionPrivacy === 'PRIVATE' && (
               <div className="flex items-center px-2 py-0.5 bg-amber-900/20 backdrop-blur-sm rounded border border-amber-700/30 shadow-sm">
                 <LockIcon className="w-3 h-3 text-amber-500/90" />
                 <span className="text-xs text-amber-400/90 ml-1 font-medium">Private</span>
@@ -81,7 +81,7 @@ export const SessionCard = ({ session, openMenuId, onMenuToggle, onDelete }) => 
             </div>
             <span className="font-medium">{session.month} {session.day}, {session.year}</span>
           </div>
-          {session.sessionType === 'PRIVATE' ? (
+          {session.sessionPrivacy === 'PRIVATE' ? (
             <>
               {/* Blurred/Locked details for private sessions */}
               <div className="relative">
@@ -345,7 +345,7 @@ export const HistorySessionsContent = ({ historySessions, onBackToSessions }) =>
                   </div>
 
                   {/* Privacy Indicator */}
-                  {session.sessionType === 'PRIVATE' && (
+                    {session.sessionPrivacy === 'PRIVATE' && (
                     <div className="absolute top-2 left-28 flex items-center px-2 py-1 bg-black/30 backdrop-blur-sm rounded-lg border border-yellow-500/30">
                       <LockIcon className="w-3 h-3 text-yellow-400" />
                       <span className="text-xs text-yellow-400 ml-1 font-semibold">Private</span>

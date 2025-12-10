@@ -176,8 +176,8 @@ export const LocationDisplay = ({ location }) => {
 };
 
 // Read-only Session Type Display
-export const SessionTypeDisplay = ({ sessionType }) => {
-  const isPrivate = sessionType === 'PRIVATE';
+export const SessionPrivacyDisplay = ({ sessionPrivacy }) => {
+  const isPrivate = sessionPrivacy === 'PRIVATE';
   
   return (
     <div className="flex items-center gap-3 text-gray-300">
@@ -291,8 +291,8 @@ export const ViewDetailsPanel = ({ session, onParticipantsClick }) => {
         <HostDisplay host={session?.createdBy} />
         <div className="border-t border-indigo-900/10 my-3"></div>
 
-        <SessionTypeDisplay
-          sessionType={session?.sessionType}
+        <SessionPrivacyDisplay
+          sessionPrivacy={session?.sessionPrivacy}
         />
 
         {session?.tags && session.tags.length > 0 && (
