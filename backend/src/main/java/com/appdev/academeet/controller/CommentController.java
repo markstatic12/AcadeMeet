@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.appdev.academeet.dto.CommentDTO;
 import com.appdev.academeet.dto.CommentRequest;
 import com.appdev.academeet.dto.ReplyDTO;
-import com.appdev.academeet.model.Comment;
 import com.appdev.academeet.model.User;
 import com.appdev.academeet.service.CommentService;
 
@@ -33,17 +32,7 @@ public class CommentController extends BaseController {
     @PostMapping("/sessions/{sessionId}/comments")
     public ResponseEntity<?> createComment(@PathVariable Long sessionId, @RequestBody CommentRequest request) {
         User user = getAuthenticatedUser();
-        Comment saved = commentService.createComment(user.getId(), sessionId, request.getContent(), null);
-
-        CommentDTO dto = new CommentDTO(
-            saved.getCommentId(),
-            saved.getAuthor().getId(),
-            saved.getAuthor().getName(),
-            saved.getContent(),
-            saved.getCreatedAt(),
-            saved.getReplyCount()
-        );
-
+        CommentDTO dto = commentService.createCommentAndGetDTO(user.getId(), sessionId, request.getContent());
         return ResponseEntity.ok(dto);
     }
 
@@ -53,18 +42,7 @@ public class CommentController extends BaseController {
             @PathVariable Long commentId,
             @RequestBody CommentRequest request) {
         User user = getAuthenticatedUser();
-        Comment saved = commentService.createComment(user.getId(), sessionId, request.getContent(), commentId);
-
-        ReplyDTO dto = new ReplyDTO(
-            saved.getCommentId(),
-            saved.getAuthor().getId(),
-            saved.getAuthor().getName(),
-            saved.getContent(),
-            saved.getCreatedAt(),
-            null,
-            null
-        );
-
+        ReplyDTO dto = commentService.createReplyAndGetDTO(user.getId(), sessionId, commentId, request.getContent());
         return ResponseEntity.ok(dto);
     }
 

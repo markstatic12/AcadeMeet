@@ -64,14 +64,12 @@ public class SessionNoteController extends BaseController {
         String originalFilename = file.getOriginalFilename();
         String effectiveTitle = title != null ? title : originalFilename;
 
-        // If sessionId is provided, link the note to the session
         if (sessionId != null) {
-            // Authorization is checked inside addNoteAndGetDTO (only host can upload)
             NoteUploadResponse response = sessionNoteService.addNoteAndGetDTO(
                     sessionId, file, effectiveTitle, authenticatedUser.getId());
             return ResponseEntity.ok(response);
         } else {
-            // No sessionId provided - return file info for later linking
+            
             NoteUploadResponse response = sessionNoteService.createUnlinkedDTO(file, effectiveTitle);
             return ResponseEntity.ok(response);
         }

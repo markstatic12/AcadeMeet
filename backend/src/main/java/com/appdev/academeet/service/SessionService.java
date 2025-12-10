@@ -2,7 +2,6 @@ package com.appdev.academeet.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,40 +49,17 @@ public class SessionService {
     public SessionService(SessionRepository sessionRepository,
                           SessionParticipantRepository sessionParticipantRepository,
                           UserRepository userRepository,
+                          BCryptPasswordEncoder passwordEncoder,
                           ReminderService reminderService,
                           NotificationService notificationService,
                           JwtUtil jwtUtil) {
         this.sessionRepository = sessionRepository;
         this.sessionParticipantRepository = sessionParticipantRepository;
         this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
         this.reminderService = reminderService;
         this.notificationService = notificationService;
         this.jwtUtil = jwtUtil;
-    }
-
-    @Deprecated
-    private Month parseMonth(String monthStr) {
-        if (monthStr == null) {
-            throw new IllegalArgumentException("Month cannot be null");
-        }
-        
-        try {
-            int monthNum = Integer.parseInt(monthStr);
-            return Month.of(monthNum);
-        } catch (NumberFormatException e) {
-            return Month.valueOf(monthStr.toUpperCase());
-        }
-    }
-
-    @Deprecated
-    private LocalDateTime parseDateTime(String month, String day, String year, String timeStr) {
-        return DateTimeUtils.parseFromSeparateFields(month, day, year, timeStr);
-    }
-
-    @Deprecated
-    private LocalDateTime parseDateTimeNullable(String month, String day, String year, String timeStr) {
-        return DateTimeUtils.parseNullableFromSeparateFields(month, day, year, timeStr);
     }
 
     private Session mapToEntity(CreateSessionRequest request) {
@@ -91,18 +67,18 @@ public class SessionService {
         session.setTitle(request.getTitle());
         session.setDescription(request.getDescription());
     
-        LocalDateTime start = parseDateTime(request.getMonth(), request.getDay(), 
-                                            request.getYear(), request.getStartTime());
-        LocalDateTime end = parseDateTime(request.getMonth(), request.getDay(), 
-                                          request.getYear(), request.getEndTime());
+        LocalDateTime start = DateTimeUtils.parseFromSeparateFields(
+            request.getMonth(), request.getDay(), request.getYear(), request.getStartTime());
+        LocalDateTime end = DateTimeUtils.parseFromSeparateFields(
+            request.getMonth(), request.getDay(), request.getYear(), request.getEndTime());
         
         session.setStartTime(start);
         session.setEndTime(end);
         session.setLocation(request.getLocation());
         session.setMaxParticipants(request.getMaxParticipants());
         
-        if (request.getSessionType() != null) {
-            session.setSessionPrivacy(request.getSessionType());
+        if (request.getSessionPrivacy() != null) {
+            session.setSessionPrivacy(request.getSessionPrivacy());
         }
         
         session.setTags(request.getTags());
@@ -119,18 +95,18 @@ public class SessionService {
         session.setTitle(request.getTitle());
         session.setDescription(request.getDescription());
         
-        LocalDateTime parsedStartTime = parseDateTimeNullable(request.getMonth(), request.getDay(), 
-                                                               request.getYear(), request.getStartTime());
-        LocalDateTime parsedEndTime = parseDateTimeNullable(request.getMonth(), request.getDay(), 
-                                                            request.getYear(), request.getEndTime());
+        LocalDateTime parsedStartTime = DateTimeUtils.parseNullableFromSeparateFields(
+            request.getMonth(), request.getDay(), request.getYear(), request.getStartTime());
+        LocalDateTime parsedEndTime = DateTimeUtils.parseNullableFromSeparateFields(
+            request.getMonth(), request.getDay(), request.getYear(), request.getEndTime());
         
         session.setStartTime(parsedStartTime);
         session.setEndTime(parsedEndTime);
         session.setLocation(request.getLocation());
         session.setMaxParticipants(request.getMaxParticipants());
         
-        if (request.getSessionType() != null) {
-            session.setSessionPrivacy(request.getSessionType());
+        if (request.getSessionPrivacy() != null) {
+            session.setSessionPrivacy(request.getSessionPrivacy());
         }
         
         session.setTags(request.getTags());
@@ -177,11 +153,6 @@ public class SessionService {
         Session updates = mapToEntity(request);
         return updateSession(sessionId, updates, userId);
     }
-
-    public Session createSession(Session session) {
-        return sessionRepository.save(session);
-    }
-
     @Transactional
     public Session createSession(Session session, Long hostId) {
         User host = userRepository.findById(hostId)
@@ -546,8 +517,8 @@ public class SessionService {
             return sessions.stream()
                     .map(SessionDTO::new)
                     .collect(Collectors.toList());
-        } catch (Exception e) {
-            logger.error("Error retrieving sessions by date: {}-{}-{}", year, month, day, e);
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid date format: year={}, month={}, day={}", year, month, day, e);
             return new ArrayList<>();
         }
     }
@@ -643,6 +614,38 @@ public class SessionService {
         sessionRepository.save(session);
         
         return Map.of("message", "Participant removed successfully");
+    }
+
+    /**
+     * Get session by ID with privacy check for the current user
+     */
+    @Transactional(readOnly = true)
+    public SessionDTO getSessionByIdForUser(Long sessionId, Long userId) {
+        Session session = sessionRepository.findById(sessionId)
+            .orElseThrow(() -> new RuntimeException("Session not found"));
+        
+        if (session.getSessionPrivacy() == SessionPrivacy.PRIVATE) {
+            boolean isOwner = session.getHost().getId().equals(userId);
+            boolean isParticipant = isUserParticipant(sessionId, userId);
+            
+            if (!isOwner && !isParticipant) {
+                throw new SecurityException("You do not have permission to view this private session");
+            }
+        }
+        
+        return new SessionDTO(session);
+    }
+
+    /**
+     * Get sessions for user profile view (own or others)
+     */
+    @Transactional(readOnly = true)
+    public List<SessionDTO> getSessionsForUserView(Long profileUserId, Long currentUserId) {
+        if (currentUserId.equals(profileUserId)) {
+            return getSessionsByUserId(profileUserId);
+        } else {
+            return getPublicSessionsByUserId(profileUserId);
+        }
     }
 
 }

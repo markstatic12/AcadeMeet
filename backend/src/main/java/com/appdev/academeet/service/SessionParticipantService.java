@@ -20,14 +20,18 @@ import com.appdev.academeet.repository.UserRepository;
 @Service
 public class SessionParticipantService {
 
-    @Autowired
-    private SessionParticipantRepository sessionParticipantRepository;
+    private final SessionParticipantRepository sessionParticipantRepository;
+    private final SessionRepository sessionRepository;
+    private final UserRepository userRepository;
     
     @Autowired
-    private SessionRepository sessionRepository;
-    
-    @Autowired
-    private UserRepository userRepository;
+    public SessionParticipantService(SessionParticipantRepository sessionParticipantRepository,
+                                     SessionRepository sessionRepository,
+                                     UserRepository userRepository) {
+        this.sessionParticipantRepository = sessionParticipantRepository;
+        this.sessionRepository = sessionRepository;
+        this.userRepository = userRepository;
+    }
 
     /**
      * Add a participant to a session.

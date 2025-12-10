@@ -12,9 +12,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.WebUtils;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -34,19 +36,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         // Skip JWT filter for auth endpoints
         boolean skip = path.startsWith("/api/auth/");
-        System.out.println("JWT Filter - Path: " + path + ", Skip: " + skip);
+        logger.debug("JWT Filter - Path: {}, Skip: {}", path, skip);
         return skip;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        final String header = request.getHeader("Authorization");
         String token = null;
         String email = null;
 
+        // First, try to get token from Authorization header (fallback for clients not using cookies)
+        final String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             token = header.substring(7);
+            logger.debug("JWT Filter - Token found in Authorization header");
+        } else {
+            // Try to get token from HttpOnly cookie
+            Cookie cookie = WebUtils.getCookie(request, "token");
+            if (cookie != null) {
+                token = cookie.getValue();
+                logger.debug("JWT Filter - Token found in cookie");
+            } else {
+                logger.debug("JWT Filter - No token found in header or cookie");
+            }
+        }
+
+        // Validate token if present
+        if (token != null) {
             try {
                 if (jwtUtil.validateToken(token)) {
                     email = jwtUtil.getEmailFromToken(token);
@@ -58,8 +75,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 logger.error("JWT Filter - Token validation failed: {}", ex.getMessage());
                 // ignore and proceed without authentication
             }
-        } else {
-            logger.debug("JWT Filter - No Bearer token found in Authorization header");
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {

@@ -77,6 +77,22 @@ public class NotificationService {
     }
     
     /**
+     * Mark notification as unread
+     */
+    @Transactional
+    public void markAsUnread(Long notificationId, Long userId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
+        
+        if (!notification.getRecipient().getId().equals(userId)) {
+            throw new SecurityException("Unauthorized to mark this notification as unread");
+        }
+        
+        notification.setRead(false);
+        notificationRepository.save(notification);
+    }
+    
+    /**
      * Mark all notifications as read for a user
      */
     @Transactional

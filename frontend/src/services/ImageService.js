@@ -1,4 +1,4 @@
-import { authFetch } from './apiHelper';
+import api from './apiClient';
 
 const toDataURL = (file) => new Promise((resolve, reject) => {
   const reader = new FileReader();
@@ -12,34 +12,16 @@ export const imageService = {
     if (!imageFile) throw new Error('Image file is required');
     const dataUrl = await toDataURL(imageFile);
 
-    const response = await authFetch('/users/me', {
-      method: 'PUT',
-      body: JSON.stringify({ profilePic: dataUrl })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Failed to upload profile image');
-    }
-
-    return await response.json();
+    const response = await api.put('/users/me', { profilePic: dataUrl });
+    return response.data;
   },
 
   async uploadCoverImage(imageFile) {
     if (!imageFile) throw new Error('Image file is required');
     const dataUrl = await toDataURL(imageFile);
 
-    const response = await authFetch('/users/me', {
-      method: 'PUT',
-      body: JSON.stringify({ coverImage: dataUrl })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Failed to upload cover image');
-    }
-
-    return await response.json();
+    const response = await api.put('/users/me', { coverImage: dataUrl });
+    return response.data;
   },
 
   async deleteUserImage(imageType) {
@@ -47,17 +29,8 @@ export const imageService = {
 
     const payload = imageType === 'cover' ? { coverImage: '' } : { profilePic: '' };
 
-    const response = await authFetch('/users/me', {
-      method: 'PUT',
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `Failed to delete ${imageType} image`);
-    }
-
-    return await response.json();
+    const response = await api.put('/users/me', payload);
+    return response.data;
   },
 
   validateImageFile(file) {

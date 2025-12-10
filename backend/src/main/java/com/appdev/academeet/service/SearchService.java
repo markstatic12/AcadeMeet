@@ -4,7 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,14 +24,38 @@ import com.appdev.academeet.repository.UserRepository;
 @Service
 public class SearchService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private SessionRepository sessionRepository;
+    private final UserRepository userRepository;
+    private final SessionRepository sessionRepository;
+    private final UserService userService;
     
     @Autowired
-    private UserService userService;
+    public SearchService(UserRepository userRepository, SessionRepository sessionRepository, UserService userService) {
+        this.userRepository = userRepository;
+        this.sessionRepository = sessionRepository;
+        this.userService = userService;
+    }
+
+    /**
+     * Search all entities (users and sessions) with empty query handling
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Object> searchAll(String query, String sortBy, Long currentUserId) {
+        Map<String, Object> response = new HashMap<>();
+        
+        if (query == null || query.trim().isEmpty()) {
+            response.put("users", List.of());
+            response.put("sessions", List.of());
+            return response;
+        }
+        
+        List<Map<String, Object>> users = searchUsersMapped(query, null, null, sortBy, currentUserId);
+        List<SessionDTO> sessions = searchSessions(query, null, null, null, sortBy);
+        
+        response.put("users", users);
+        response.put("sessions", sessions);
+        
+        return response;
+    }
 
     @Transactional(readOnly = true)
     public List<java.util.Map<String, Object>> searchUsersMapped(String keyword, String program, Integer yearLevel, String sortBy, Long currentUserId) {
@@ -53,12 +79,8 @@ public class SearchService {
         userMap.put("following", userService.getFollowingCount(user.getId()));
         
         if (currentUserId != null) {
-            try {
-                boolean isFollowing = userService.isFollowing(currentUserId, user.getId());
-                userMap.put("isFollowing", isFollowing);
-            } catch (Exception e) {
-                userMap.put("isFollowing", false);
-            }
+            boolean isFollowing = userService.isFollowing(currentUserId, user.getId());
+            userMap.put("isFollowing", isFollowing);
         } else {
             userMap.put("isFollowing", false);
         }
@@ -163,8 +185,10 @@ public class SearchService {
                         .filter(session -> session.getStartTime() != null &&
                                           session.getStartTime().toLocalDate().equals(filterDate))
                         .collect(Collectors.toList());
-            } catch (Exception e) {
-                // Invalid date format, skip filter
+            } catch (java.time.format.DateTimeParseException e) {
+                // Invalid date format, skip date filter and log warning
+                org.slf4j.LoggerFactory.getLogger(SearchService.class)
+                    .warn("Invalid date format provided for search: {}", date);
             }
         }
 

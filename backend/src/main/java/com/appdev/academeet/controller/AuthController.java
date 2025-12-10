@@ -11,7 +11,9 @@ import com.appdev.academeet.dto.AuthResponse;
 import com.appdev.academeet.dto.LoginRequest;
 import com.appdev.academeet.dto.SignupRequest;
 import com.appdev.academeet.service.AuthService;
+import com.appdev.academeet.util.CookieUtil;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 @RestController
@@ -21,22 +23,34 @@ public class AuthController extends BaseController {
     @Autowired
     private AuthService authService;
     
+    @Autowired
+    private CookieUtil cookieUtil;
+    
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> signup(@Valid @RequestBody SignupRequest request) {
-        AuthResponse response = authService.signup(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<AuthResponse> signup(@Valid @RequestBody SignupRequest request, HttpServletResponse response) {
+        AuthResponse authResponse = authService.signup(request);
+        cookieUtil.setAuthTokenCookies(response, authResponse.getToken(), authResponse.getRefreshToken());
+        return ResponseEntity.ok(authResponse);
     }
     
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        AuthResponse response = authService.login(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
+        AuthResponse authResponse = authService.login(request);
+        cookieUtil.setAuthTokenCookies(response, authResponse.getToken(), authResponse.getRefreshToken());
+        return ResponseEntity.ok(authResponse);
     }
     
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refreshToken(@RequestBody java.util.Map<String, String> request) {
+    public ResponseEntity<AuthResponse> refreshToken(@RequestBody java.util.Map<String, String> request, HttpServletResponse response) {
         String refreshToken = request.get("refreshToken");
-        AuthResponse response = authService.refreshAccessToken(refreshToken);
-        return ResponseEntity.ok(response);
+        AuthResponse authResponse = authService.refreshAccessToken(refreshToken);
+        cookieUtil.setAuthTokenCookies(response, authResponse.getToken(), authResponse.getRefreshToken());
+        return ResponseEntity.ok(authResponse);
+    }
+    
+    @PostMapping("/logout")
+    public ResponseEntity<java.util.Map<String, String>> logout(HttpServletResponse response) {
+        cookieUtil.clearAuthCookies(response);
+        return ResponseEntity.ok(java.util.Map.of("message", "Logged out successfully"));
     }
 }

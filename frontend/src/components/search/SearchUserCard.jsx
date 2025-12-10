@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { UserIcon } from '../../icons';
 import { useUser } from '../../context/UserContext';
-import { authFetch } from '../../services/apiHelper';
 
 const SearchUserCard = ({ user }) => {
   const { id, name, program, yearLevel, profileImageUrl, followers, isFollowing } = user;

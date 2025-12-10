@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
-import { authFetch } from './apiHelper';
+import api from './apiClient';
 
 export const useSettingsPage = () => {
   const navigate = useNavigate();
@@ -68,8 +68,8 @@ export const useSettingsPage = () => {
     }
 
     // Then fetch complete data for settings-specific fields
-    authFetch('/users/me')
-      .then(res => res.json())
+    api.get('/users/me')
+      .then(res => res.data)
       .then(s => {
         console.log('Loaded user data:', s); // Debug log
         setStudent(s);
@@ -144,43 +144,8 @@ export const useSettingsPage = () => {
       });
       
       // Use /users/me endpoint - user ID extracted from JWT token
-      const res = await authFetch('/users/me', {
-        method: 'PUT',
-        body: JSON.stringify(updateData),
-      });
-      
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        let errorMessage = errorData.error || errorData.message || `Server error (${res.status})`;
-        
-        // Parse specific error types
-        if (errorMessage.includes('Data too long')) {
-          if (errorMessage.includes('profile_image_url')) {
-            errorMessage = '❌ Profile image is too large for database!\n\nThe compressed image still exceeds storage limits.\nPlease use a much smaller or simpler image.';
-          } else if (errorMessage.includes('cover_image_url')) {
-            errorMessage = '❌ Cover image is too large for database!\n\nThe compressed image still exceeds storage limits.\nPlease use a much smaller or simpler image.';
-          } else {
-            errorMessage = '❌ Image data is too large!\n\nOne or both images exceed database storage limits.\nPlease use smaller images.';
-          }
-        } else if (errorMessage.includes('Duplicate entry')) {
-          errorMessage = '❌ Duplicate entry detected!\n\nThis email or username may already be in use.';
-        } else if (errorMessage.includes('violates')) {
-          errorMessage = '❌ Data validation failed!\n\nPlease check all fields meet requirements.';
-        } else if (res.status === 401) {
-          errorMessage = '❌ Authentication failed!\n\nYour session may have expired. Please login again.';
-        } else if (res.status === 403) {
-          errorMessage = '❌ Access denied!\n\nYou do not have permission to update this profile.';
-        } else if (res.status === 404) {
-          errorMessage = '❌ Profile not found!\n\nYour account may have been deleted.';
-        } else if (res.status >= 500) {
-          errorMessage = `❌ Server error!\n\nThe server encountered an error (${res.status}).\nPlease try again later.`;
-        }
-        
-        console.error('Update failed:', errorMessage, 'Status:', res.status);
-        throw new Error(errorMessage);
-      }
-      
-      const data = await res.json();
+      const res = await api.put('/users/me', updateData);
+      const data = res.data;
       console.log('Update response:', data);
       
       // Use the response data directly instead of reloading

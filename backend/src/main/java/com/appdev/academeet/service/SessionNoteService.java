@@ -24,23 +24,27 @@ public class SessionNoteService {
 
     private static final int MAX_NOTES_PER_SESSION = 3;
 
-    @Autowired
-    private SessionNoteRepository sessionNoteRepository;
-
-    @Autowired
-    private SessionRepository sessionRepository;
+    private final SessionNoteRepository sessionNoteRepository;
+    private final SessionRepository sessionRepository;
+    private final UserRepository userRepository;
+    private final com.appdev.academeet.repository.SessionParticipantRepository sessionParticipantRepository;
+    private final NotificationService notificationService;
+    private final FileUploadService fileUploadService;
     
     @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
-    private com.appdev.academeet.repository.SessionParticipantRepository sessionParticipantRepository;
-    
-    @Autowired
-    private NotificationService notificationService;
-    
-    @Autowired
-    private FileUploadService fileUploadService;
+    public SessionNoteService(SessionNoteRepository sessionNoteRepository,
+                             SessionRepository sessionRepository,
+                             UserRepository userRepository,
+                             com.appdev.academeet.repository.SessionParticipantRepository sessionParticipantRepository,
+                             NotificationService notificationService,
+                             FileUploadService fileUploadService) {
+        this.sessionNoteRepository = sessionNoteRepository;
+        this.sessionRepository = sessionRepository;
+        this.userRepository = userRepository;
+        this.sessionParticipantRepository = sessionParticipantRepository;
+        this.notificationService = notificationService;
+        this.fileUploadService = fileUploadService;
+    }
 
     // ========================================
     // Private Mapping Helper Methods

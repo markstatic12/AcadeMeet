@@ -1,14 +1,6 @@
-import { authFetch, authFetchMultipart } from './apiHelper';
+import api from './apiClient';
 
 const API_BASE_URL = '/notes';
-
-const handleResponse = async (response, errorMessage = 'Request failed') => {
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || errorData.message || errorMessage);
-  }
-  return await response.json();
-};
 
 function normalizeNote(n) {
   return {
@@ -29,11 +21,8 @@ function normalizeNote(n) {
 
 export const noteService = {
   async getMyNotes() {
-    const response = await authFetch(`${API_BASE_URL}/me/active`, {
-      method: 'GET',
-    });
-    
-    const data = await handleResponse(response, 'Failed to load notes');
+    const response = await api.get(`${API_BASE_URL}/me/active`);
+    const data = response.data;
     const arr = Array.isArray(data) ? data : [];
     
     return arr.map(normalizeNote).sort((a, b) => {
@@ -44,11 +33,8 @@ export const noteService = {
   },
 
   async getNotesBySession(sessionId) {
-    const response = await authFetch(`${API_BASE_URL}/session/${sessionId}`, {
-      method: 'GET',
-    });
-
-    const data = await handleResponse(response, 'Failed to load session notes');
+    const response = await api.get(`${API_BASE_URL}/session/${sessionId}`);
+    const data = response.data;
     const arr = Array.isArray(data) ? data : [];
     
     return arr.map(normalizeNote).sort((a, b) => {
@@ -71,26 +57,24 @@ export const noteService = {
       formData.append('sessionId', options.sessionId);
     }
     
-    const response = await authFetchMultipart(`${API_BASE_URL}/upload`, formData);
-
-    const data = await handleResponse(response, 'Failed to upload file');
-    return normalizeNote(data);
-  },
-
-  async linkNoteToSession(filepath, sessionId) {
-    const params = new URLSearchParams();
-    params.append('filepath', filepath);
-    params.append('sessionId', sessionId);
-
-    const response = await authFetch(`${API_BASE_URL}/link?${params.toString()}`, {
-      method: 'POST',
+    const response = await api.post(`${API_BASE_URL}/upload`, formData, {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'multipart/form-data'
       }
     });
 
-    const data = await handleResponse(response, 'Failed to link note to session');
-    return data;
+    return normalizeNote(response.data);
+  },
+
+  async linkNoteToSession(filepath, sessionId) {
+    const response = await api.post(`${API_BASE_URL}/link`, null, {
+      params: {
+        filepath,
+        sessionId
+      }
+    });
+
+    return response.data;
   },
 
   async getLinkedNotes(sessionId) {
@@ -98,19 +82,11 @@ export const noteService = {
   },
 
   async deleteNote(noteId) {
-    const response = await authFetch(`${API_BASE_URL}/${noteId}`, {
-      method: 'DELETE',
-    });
-    
-    await handleResponse(response, 'Failed to delete note');
+    await api.delete(`${API_BASE_URL}/${noteId}`);
   },
 
   async getNoteCount(sessionId) {
-    const response = await authFetch(`${API_BASE_URL}/session/${sessionId}/count`, {
-      method: 'GET',
-    });
-
-    const data = await handleResponse(response, 'Failed to get note count');
-    return data.count || 0;
+    const response = await api.get(`${API_BASE_URL}/session/${sessionId}/count`);
+    return response.data.count || 0;
   }
 };

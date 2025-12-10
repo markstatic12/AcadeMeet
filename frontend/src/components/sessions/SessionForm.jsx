@@ -279,7 +279,7 @@ export const LocationInput = ({ value, onChange }) => {
 
 // ===== SESSION PRIVACY SELECTOR =====
 
-const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChange, onPasswordChange, onParticipantsChange, fieldErrors = {} }) => {
+const SessionPrivacySelector = ({ sessionPrivacy, password, maxParticipants, onChange, onPasswordChange, onParticipantsChange, fieldErrors = {} }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -289,9 +289,9 @@ const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChan
         <label className="flex items-center gap-2 cursor-pointer group">
           <input
             type="radio"
-            name="sessionType"
+            name="sessionPrivacy"
             value="PUBLIC"
-            checked={sessionType === 'PUBLIC'}
+            checked={sessionPrivacy === 'PUBLIC'}
             onChange={onChange}
             className="w-4 h-4 accent-indigo-500"
           />
@@ -300,34 +300,33 @@ const SessionPrivacySelector = ({ sessionType, password, maxParticipants, onChan
         <label className="flex items-center gap-2 cursor-pointer group">
           <input
             type="radio"
-            name="sessionType"
+            name="sessionPrivacy"
             value="PRIVATE"
-            checked={sessionType === 'PRIVATE'}
+            checked={sessionPrivacy === 'PRIVATE'}
             onChange={onChange}
             className="w-4 h-4 accent-indigo-500"
           />
           <span className="text-gray-300 text-sm group-hover:text-white transition-colors">Private</span>
         </label>
       </div>
-      {fieldErrors.sessionType && (
-        <p className="text-red-400 text-xs">{fieldErrors.sessionType}</p>
+      {fieldErrors.sessionPrivacy && (
+        <p className="text-red-400 text-xs">{fieldErrors.sessionPrivacy}</p>
       )}
 
-      {sessionType === 'PRIVATE' && (
+      {sessionPrivacy === 'PRIVATE' && (
         <div className="animate-fadeIn relative">
           <input
             type={showPassword ? "text" : "password"}
             name="password"
             value={password}
             onChange={onPasswordChange}
-            placeholder="Session password (min 6 chars)"
+            placeholder={password && password.length > 0 ? "Session password (min 6 chars)" : "Leave blank to keep existing password (enter to change)"}
             className={`w-full px-3.5 py-2.5 pr-10 bg-[#1e293b] border rounded-lg text-gray-300 text-sm focus:outline-none transition-all duration-200 ${
               fieldErrors.password 
                 ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' 
                 : 'border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
             }`}
             minLength={6}
-            required
           />
           <button
             type="button"
@@ -451,7 +450,7 @@ export const DetailsPanel = ({ sessionData, onChange, onPasswordChange, onPartic
             <label className="text-gray-300 text-sm font-semibold">Privacy</label>
           </div>
           <SessionPrivacySelector
-            sessionType={sessionData.sessionType}
+            sessionPrivacy={sessionData.sessionPrivacy}
             password={sessionData.password}
             maxParticipants={sessionData.maxParticipants}
             onChange={onChange}

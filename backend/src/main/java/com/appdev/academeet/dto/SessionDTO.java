@@ -112,7 +112,7 @@ public class SessionDTO {
     public String getStartTime() { return startTime; }
     public String getEndTime() { return endTime; }
     public String getLocation() { return location; }
-    public SessionPrivacy getSessionType() { return sessionType; }
+    public SessionPrivacy getSessionPrivacy() { return sessionType; }
     public SessionStatus getStatus() { return status; }
     public Integer getMaxParticipants() { return maxParticipants; }
     public Integer getCurrentParticipants() { return currentParticipants; }

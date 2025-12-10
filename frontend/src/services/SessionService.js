@@ -1,24 +1,12 @@
-import { authFetch } from './apiHelper';
+import api from './apiClient';
 
 const API_BASE = '/sessions';
-
-const handleResponse = async (response, errorMessage = 'Request failed') => {
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Error response:', response.status, errorText);
-    try {
-      const errorData = JSON.parse(errorText);
-      throw new Error(errorData.error || errorData.message || `${errorMessage} (${response.status})`);
-    } catch {
-      throw new Error(`${errorMessage} (${response.status}): ${errorText}`);
-    }
-  }
-  return await response.json();
-};
 
 export const sessionService = {
  
   async createSession(sessionData) {
+    const resolvedType = sessionData.sessionPrivacy || sessionData.sessionType;
+
     const submissionData = {
       title: sessionData.title,
       description: sessionData.description,
@@ -29,79 +17,57 @@ export const sessionService = {
       endTime: sessionData.endTime,      // Send as string (e.g., "16:00")
       location: sessionData.location,
       maxParticipants: sessionData.maxParticipants ? parseInt(sessionData.maxParticipants) : null,
-      sessionPrivacy: sessionData.sessionPrivacy, // Should be 'PUBLIC' or 'PRIVATE'
+      sessionPrivacy: resolvedType,
       tags: sessionData.tags || [],
-      password: sessionData.sessionPrivacy === 'PUBLIC' ? null : sessionData.password
+      password: resolvedType === 'PUBLIC' ? null : sessionData.password
     };
 
     console.log('Creating session with data:', submissionData);
 
-    const response = await authFetch(API_BASE, {
-      method: 'POST',
-      body: JSON.stringify(submissionData)
-    });
-
+    const response = await api.post(API_BASE, submissionData);
     console.log('Response status:', response.status);
     
-    return handleResponse(response, 'Failed to create session');
+    return response.data;
   },
 
   
   async validateSessionPassword(sessionId, password) {
-    const response = await authFetch(`${API_BASE}/${sessionId}/validate-password`, {
-      method: 'POST',
-      body: JSON.stringify({ password })
-    });
-
-    return handleResponse(response, 'Failed to validate password');
+    const response = await api.post(`${API_BASE}/${sessionId}/validate-password`, { password });
+    return response.data;
   },
 
   
   async joinSession(sessionId, password) {
-    const response = await authFetch(`${API_BASE}/${sessionId}/join`, {
-      method: 'POST',
-      body: JSON.stringify({ password })
-    });
-
-    return handleResponse(response, 'Failed to join session');
+    const response = await api.post(`${API_BASE}/${sessionId}/join`, { password });
+    return response.data;
   },
 
  
   async cancelJoinSession(sessionId) {
-    const response = await authFetch(`${API_BASE}/${sessionId}/cancel-join`, {
-      method: 'POST',
-      body: JSON.stringify({})
-    });
-
-    return handleResponse(response, 'Failed to cancel participation');
+    const response = await api.post(`${API_BASE}/${sessionId}/cancel-join`, {});
+    return response.data;
   },
 
   async leaveSession(sessionId) {
-    const response = await authFetch(`${API_BASE}/${sessionId}/leave`, {
-      method: 'DELETE'
-    });
-
-    return handleResponse(response, 'Failed to leave session');
+    const response = await api.delete(`${API_BASE}/${sessionId}/leave`);
+    return response.data;
   },
 
   async isUserParticipant(sessionId) {
-    const response = await authFetch(`${API_BASE}/${sessionId}/is-participant`, {
-      method: 'GET'
-    });
-
-    return handleResponse(response, 'Failed to check participation status');
+    const response = await api.get(`${API_BASE}/${sessionId}/is-participant`);
+    return response.data;
   },
 
   async updateSessionStatus(sessionId, status) {
-    const response = await authFetch(`${API_BASE}/${sessionId}/status`, {
-      method: 'PATCH',
-      body: JSON.stringify({ status })
-    });
-
-    return handleResponse(response, 'Failed to update session status');
+    const response = await api.patch(`${API_BASE}/${sessionId}/status`, { status });
+    return response.data;
   },
 
   async updateSession(sessionId, sessionData) {
+    const resolvedType = sessionData.sessionPrivacy || sessionData.sessionType;
+
+
+    // Only include password if user entered a non-empty value (for private sessions)
     const submissionData = {
       title: sessionData.title,
       description: sessionData.description,
@@ -112,127 +78,80 @@ export const sessionService = {
       endTime: sessionData.endTime,      
       location: sessionData.location,
       maxParticipants: sessionData.maxParticipants ? parseInt(sessionData.maxParticipants) : null,
-      sessionPrivacy: sessionData.sessionPrivacy,
-      tags: sessionData.tags || [],
-      password: sessionData.sessionPrivacy === 'PUBLIC' ? null : sessionData.password
+
+      sessionPrivacy: resolvedType,
+      tags: sessionData.tags || []
     };
+    if (resolvedType !== 'PUBLIC' && sessionData.password && sessionData.password.trim() !== '') {
+      submissionData.password = sessionData.password;
+    }
 
     console.log('Updating session with data:', submissionData);
 
-    const response = await authFetch(`${API_BASE}/${sessionId}`, {
-      method: 'PUT',
-      body: JSON.stringify(submissionData)
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Update session failed. Status:', response.status, 'Response:', errorText);
-      try {
-        const errorData = JSON.parse(errorText);
-        throw new Error(errorData.error || errorData.message || 'Failed to update session');
-      } catch {
-        throw new Error(`Failed to update session: ${response.status} - ${errorText}`);
-      }
-    }
-
-    return await response.json();
+    const response = await api.put(`${API_BASE}/${sessionId}`, submissionData);
+    return response.data;
   },
 
   async getSessionsByStatus(status) {
-    const url = status 
-      ? `${API_BASE}?status=${status}`
-      : API_BASE;
-    
-    const response = await authFetch(url, {
-      method: 'GET'
+    const response = await api.get(API_BASE, {
+      params: status ? { status } : {}
     });
-
-    return handleResponse(response, 'Failed to fetch sessions');
+    return response.data;
   },
 
   async getSessionsByDate(year, month, day) {
-    const params = new URLSearchParams({
-      year: year.toString(),
-      month: month.toString(),
-      day: day.toString()
+    const response = await api.get(`${API_BASE}/by-date`, {
+      params: {
+        year: year.toString(),
+        month: month.toString(),
+        day: day.toString()
+      }
     });
-    
-    const response = await authFetch(`${API_BASE}/by-date?${params}`, {
-      method: 'GET'
-    });
-
-    return handleResponse(response, 'Failed to fetch sessions for date');
+    return response.data;
   },
 
   async getTrendingSessions() {
-    const response = await authFetch(`${API_BASE}/trending`, {
-      method: 'GET'
-    });
-
-    return handleResponse(response, 'Failed to fetch trending sessions');
+    const response = await api.get(`${API_BASE}/trending`);
+    return response.data;
   },
 
   async getUserHostedSessions() {
-    const response = await authFetch(`${API_BASE}/user/me`, {
-      method: 'GET'
-    });
-
-    return handleResponse(response, 'Failed to fetch user hosted sessions');
+    const response = await api.get(`${API_BASE}/user/me`);
+    return response.data;
   },
 
   async getUserCompletedSessions() {
-    const response = await authFetch(`${API_BASE}/user/me/history`, {
-      method: 'GET'
-    });
-
-    return handleResponse(response, 'Failed to fetch completed sessions');
+    const response = await api.get(`${API_BASE}/user/me/history`);
+    return response.data;
   },
 
   async getJoinedSessions() {
-    const response = await authFetch(`${API_BASE}/user/me/joined`, {
-      method: 'GET'
-    });
-
-    return handleResponse(response, 'Failed to fetch joined sessions');
+    const response = await api.get(`${API_BASE}/user/me/joined`);
+    return response.data;
   },
 
   async getSessionsByUserId(userId) {
-    const response = await authFetch(`${API_BASE}/user/${userId}`, {
-      method: 'GET'
-    });
-
-    return handleResponse(response, 'Failed to fetch user sessions');
+    const response = await api.get(`${API_BASE}/user/${userId}`);
+    return response.data;
   },
 
   async getSessionById(sessionId) {
-    const response = await authFetch(`${API_BASE}/${sessionId}`, {
-      method: 'GET'
-    });
-
-    return handleResponse(response, 'Failed to fetch session');
+    const response = await api.get(`${API_BASE}/${sessionId}`);
+    return response.data;
   },
 
   async getAllSessions() {
-    const response = await authFetch(`${API_BASE}/all-sessions`, {
-      method: 'GET'
-    });
-
-    return handleResponse(response, 'Failed to fetch all sessions');
+    const response = await api.get(`${API_BASE}/all-sessions`);
+    return response.data;
   },
 
   async getSessionParticipants(sessionId) {
-    const response = await authFetch(`${API_BASE}/${sessionId}/participants`, {
-      method: 'GET'
-    });
-
-    return handleResponse(response, 'Failed to fetch session participants');
+    const response = await api.get(`${API_BASE}/${sessionId}/participants`);
+    return response.data;
   },
 
   async removeParticipant(sessionId, userId) {
-    const response = await authFetch(`${API_BASE}/${sessionId}/participants/${userId}`, {
-      method: 'DELETE'
-    });
-
-    return handleResponse(response, 'Failed to remove participant');
+    const response = await api.delete(`${API_BASE}/${sessionId}/participants/${userId}`);
+    return response.data;
   }
 };

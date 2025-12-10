@@ -1,6 +1,5 @@
 package com.appdev.academeet.controller;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,32 +22,17 @@ public class SearchController extends BaseController {
     private SearchService searchService;
 
     @GetMapping
-    public ResponseEntity<?> searchAll(
+    public ResponseEntity<Map<String, Object>> searchAll(
             @RequestParam(required = false) String q,
             @RequestParam(defaultValue = "relevance") String sortBy) {
         
-        Map<String, Object> response = new HashMap<>();
-        
-        if (q == null || q.trim().isEmpty()) {
-            response.put("users", List.of());
-            response.put("sessions", List.of());
-            return ResponseEntity.ok(response);
-        }
-        
         Long currentUserId = getCurrentUserIdOrNull();
-        
-        List<Map<String, Object>> users = searchService.searchUsersMapped(q, null, null, sortBy, currentUserId);
-        
-        List<SessionDTO> sessions = searchService.searchSessions(q, null, null, null, sortBy);
-        
-        response.put("users", users);
-        response.put("sessions", sessions);
-        
+        Map<String, Object> response = searchService.searchAll(q, sortBy, currentUserId);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/users")
-    public ResponseEntity<?> searchUsers(
+    public ResponseEntity<List<Map<String, Object>>> searchUsers(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String program,
             @RequestParam(required = false) Integer yearLevel,
@@ -56,12 +40,11 @@ public class SearchController extends BaseController {
         
         Long currentUserId = getCurrentUserIdOrNull();
         List<Map<String, Object>> users = searchService.searchUsersMapped(q, program, yearLevel, sortBy, currentUserId);
-        
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/sessions")
-    public ResponseEntity<?> searchSessions(
+    public ResponseEntity<List<SessionDTO>> searchSessions(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String date,
             @RequestParam(required = false) String timeOfDay,

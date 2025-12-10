@@ -15,7 +15,7 @@ const SessionCard = ({ session }) => {
     location, 
     description, 
     tags, 
-    sessionType, 
+    sessionPrivacy, 
     currentParticipants, 
     maxParticipants 
   } = session;
@@ -55,7 +55,7 @@ const SessionCard = ({ session }) => {
         
         {/* Privacy Badge on Image */}
         <div className="absolute top-3 right-3 z-10">
-          {sessionType === 'PRIVATE' ? (
+          {sessionPrivacy === 'PRIVATE' ? (
             <div className="px-3 py-1.5 bg-gray-900/80 backdrop-blur-sm rounded-lg border border-gray-700/50 flex items-center gap-1.5">
               <LockClosedIcon className="w-3.5 h-3.5 text-gray-300" />
               <span className="text-xs font-medium text-gray-300">Private</span>

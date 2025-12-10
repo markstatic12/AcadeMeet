@@ -108,6 +108,7 @@ public class CommentService {
                     comment.getCommentId(),
                     comment.getAuthor().getId(),
                     comment.getAuthor().getName(),
+                    comment.getAuthor().getProfileImageUrl(),
                     comment.getContent(),
                     comment.getCreatedAt(),
                     comment.getReplyCount()
@@ -127,6 +128,7 @@ public class CommentService {
                     reply.getCommentId(),
                     reply.getAuthor().getId(),
                     reply.getAuthor().getName(),
+                    reply.getAuthor().getProfileImageUrl(),
                     reply.getContent(),
                     reply.getCreatedAt(),
                     null,
@@ -158,6 +160,7 @@ public class CommentService {
                 reply.getCommentId(),
                 reply.getAuthor().getId(),
                 reply.getAuthor().getName(),
+                reply.getAuthor().getProfileImageUrl(),
                 reply.getContent(),
                 reply.getCreatedAt(),
                 null,
@@ -186,5 +189,40 @@ public class CommentService {
             // Parent comment: delete (cascade will remove replies)
             commentRepository.delete(comment);
         }
+    }
+
+    /**
+     * Create a comment and return DTO
+     */
+    @Transactional
+    public CommentDTO createCommentAndGetDTO(Long userId, Long sessionId, String content) {
+        Comment saved = createComment(userId, sessionId, content, null);
+        return new CommentDTO(
+            saved.getCommentId(),
+            saved.getAuthor().getId(),
+            saved.getAuthor().getName(),
+            saved.getAuthor().getProfileImageUrl(),
+            saved.getContent(),
+            saved.getCreatedAt(),
+            saved.getReplyCount()
+        );
+    }
+
+    /**
+     * Create a reply and return DTO
+     */
+    @Transactional
+    public ReplyDTO createReplyAndGetDTO(Long userId, Long sessionId, Long commentId, String content) {
+        Comment saved = createComment(userId, sessionId, content, commentId);
+        return new ReplyDTO(
+            saved.getCommentId(),
+            saved.getAuthor().getId(),
+            saved.getAuthor().getName(),
+            saved.getAuthor().getProfileImageUrl(),
+            saved.getContent(),
+            saved.getCreatedAt(),
+            null,
+            null
+        );
     }
 }

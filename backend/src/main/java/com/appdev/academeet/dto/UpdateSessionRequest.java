@@ -32,7 +32,7 @@ public class UpdateSessionRequest {
     @Max(value = 1000, message = "Cannot exceed 1000 participants")
     private Integer maxParticipants;
     
-    private SessionPrivacy sessionType;
+    private SessionPrivacy sessionPrivacy;
     
     @Size(max = 5, message = "Maximum 5 tags allowed")
     private List<String> tags;
@@ -69,8 +69,8 @@ public class UpdateSessionRequest {
     public Integer getMaxParticipants() { return maxParticipants; }
     public void setMaxParticipants(Integer maxParticipants) { this.maxParticipants = maxParticipants; }
 
-    public SessionPrivacy getSessionType() { return sessionType; }
-    public void setSessionType(SessionPrivacy sessionType) { this.sessionType = sessionType; }
+    public SessionPrivacy getSessionPrivacy() { return sessionPrivacy; }
+    public void setSessionPrivacy(SessionPrivacy sessionPrivacy) { this.sessionPrivacy = sessionPrivacy; }
 
     public List<String> getTags() { return tags; }
     public void setTags(List<String> tags) { this.tags = tags; }

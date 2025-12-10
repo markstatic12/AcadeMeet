@@ -44,8 +44,8 @@ public class CreateSessionRequest {
     @Max(value = 1000, message = "Cannot exceed 1000 participants")
     private Integer maxParticipants;
     
-    @NotNull(message = "Session type is required")
-    private SessionPrivacy sessionType;
+    @NotNull(message = "Session privacy is required")
+    private SessionPrivacy sessionPrivacy;
     
     @Size(max = 5, message = "Maximum 5 tags allowed")
     private List<String> tags;
@@ -57,7 +57,7 @@ public class CreateSessionRequest {
 
     public CreateSessionRequest(String title, String description, String month, String day, String year,
             String startTime, String endTime, String location, Integer maxParticipants, 
-            SessionPrivacy sessionType, List<String> tags) {
+            SessionPrivacy sessionPrivacy, List<String> tags) {
         this.title = title;
         this.description = description;
         this.month = month;
@@ -67,7 +67,7 @@ public class CreateSessionRequest {
         this.endTime = endTime;
         this.location = location;
         this.maxParticipants = maxParticipants;
-        this.sessionType = sessionType;
+        this.sessionPrivacy = sessionPrivacy;
         this.tags = tags;
     }
 
@@ -99,8 +99,8 @@ public class CreateSessionRequest {
     public Integer getMaxParticipants() { return maxParticipants; }
     public void setMaxParticipants(Integer maxParticipants) { this.maxParticipants = maxParticipants; }
 
-    public SessionPrivacy getSessionType() { return sessionType; }
-    public void setSessionType(SessionPrivacy sessionType) { this.sessionType = sessionType; }
+    public SessionPrivacy getSessionPrivacy() { return sessionPrivacy; }
+    public void setSessionPrivacy(SessionPrivacy sessionPrivacy) { this.sessionPrivacy = sessionPrivacy; }
 
     public List<String> getTags() { return tags; }
     public void setTags(List<String> tags) { this.tags = tags; }

@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useUser } from '../../context/UserContext';
 import { HomeIcon, SessionsIcon, ProfileIcon, SearchIcon, GearIcon, BellIcon } from '../../icons';
 import logo from '../../assets/academeet-white.svg';
-import { authFetch } from '../../services/apiHelper';
 import { notificationService } from '../../services/notificationService';
 
 const DashboardLayout = ({ children }) => {
@@ -131,7 +130,7 @@ const DashboardLayout = ({ children }) => {
         ));
         setUnreadCount(prev => Math.max(0, prev - 1));
       } else {
-        // Mark as unread - would need backend endpoint
+        await notificationService.markAsUnread(notification.id);
         setNotifications(notifications.map(n => 
           n.id === notification.id ? { ...n, read: false } : n
         ));
