@@ -97,5 +97,3 @@ export const authFetchMultipart = async (endpoint, formData, additionalHeaders =
     body: formData,
   });
 };
-
-export { API_BASE_URL };
