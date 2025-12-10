@@ -4,10 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,20 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.appdev.academeet.dto.NotificationDTO;
 import com.appdev.academeet.model.User;
-import com.appdev.academeet.repository.UserRepository;
 import com.appdev.academeet.service.NotificationService;
 
 @RestController
 @RequestMapping("/api/notifications")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
-public class NotificationController {
+public class NotificationController extends BaseController {
     
     private final NotificationService notificationService;
-    private final UserRepository userRepository;
     
-    public NotificationController(NotificationService notificationService, UserRepository userRepository) {
+    public NotificationController(NotificationService notificationService) {
         this.notificationService = notificationService;
-        this.userRepository = userRepository;
     }
     
     /**
@@ -101,18 +93,5 @@ public class NotificationController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
-    }
-    
-    private User getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("User not authenticated");
-        }
-        
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();
-        
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
