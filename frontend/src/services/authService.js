@@ -1,5 +1,19 @@
 import { API_BASE_URL } from './apiHelper';
 
+/**
+ * Authentication Service
+ * 
+ * ⚠️ SECURITY WARNING:
+ * Currently stores JWT tokens in localStorage, which is vulnerable to XSS attacks.
+ * 
+ * RECOMMENDED MIGRATION:
+ * - Backend: Set JWT in HttpOnly cookie (not accessible to JavaScript)
+ * - Frontend: Remove localStorage usage, use credentials: 'include' for automatic cookie handling
+ * - See SECURITY_STATUS.md for detailed migration plan
+ * 
+ * Current implementation provides basic security but should be upgraded before production.
+ */
+
 export const authService = {
   async refreshAccessToken() {
     try {

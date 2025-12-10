@@ -2,6 +2,8 @@ import React from 'react';
 import SessionStatusBadge from '../ui/SessionStatusBadge';
 import { CalendarIcon, ClockIcon, LocationIcon, UserIcon, UsersIcon, LockIcon, GlobeIcon } from '../../icons';
 import { formatTime as formatTimeUtil } from '../../utils/dateTimeUtils';
+import { buildSafeDownloadUrl, sanitizeFilePath } from '../../utils/urlValidator';
+import { API_BASE_URL } from '../../services/apiHelper';
 
 // Read-only Tags Display
 export const TagsDisplay = ({ tags = [] }) => {
@@ -52,10 +54,10 @@ export const NotesDisplay = ({ notes = [] }) => {
 
   const getFullUrl = (filepath) => {
     if (!filepath) return '#';
-    // If filepath already starts with http, return as is
+    // If filepath already starts with http, return as is (external links)
     if (filepath.startsWith('http')) return filepath;
-    // Otherwise prepend backend URL
-    return `http://localhost:8080${filepath}`;
+    // Otherwise use safe URL builder with validation
+    return buildSafeDownloadUrl(filepath, API_BASE_URL.replace('/api', ''));
   };
 
   return (
