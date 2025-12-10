@@ -1,32 +1,30 @@
 package com.appdev.academeet.controller;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.appdev.academeet.dto.UpdateProfileRequest;
+import com.appdev.academeet.dto.UserProfileResponse;
+import com.appdev.academeet.dto.UserSummaryDTO;
 import com.appdev.academeet.model.User;
 import com.appdev.academeet.service.UserService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
-public class UserController {
+public class UserController extends BaseController {
     
     @Autowired
     private UserService userService;
@@ -35,242 +33,83 @@ public class UserController {
      * Get current authenticated user's profile from JWT token
      */
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUserProfile() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication == null || !authentication.isAuthenticated()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("error", "User not authenticated"));
-            }
-            
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String email = userDetails.getUsername();
-            
-            User user = userService.getUserByEmail(email);
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", user.getId());
-            response.put("name", user.getName());
-            response.put("email", user.getEmail());
-            response.put("program", user.getProgram());
-            response.put("yearLevel", user.getYearLevel());
-            response.put("bio", user.getBio());
-            response.put("profilePic", user.getProfileImageUrl());
-            response.put("coverImage", user.getCoverImageUrl());
-            response.put("createdAt", user.getCreatedAt());
-            response.put("followers", userService.getFollowerCount(user.getId()));
-            response.put("following", userService.getFollowingCount(user.getId()));
-            
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to fetch user profile: " + e.getMessage()));
-        }
+    public ResponseEntity<UserProfileResponse> getCurrentUserProfile() {
+        User user = getAuthenticatedUser();
+        UserProfileResponse response = userService.getUserProfileDTO(user.getId());
+        return ResponseEntity.ok(response);
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserProfile(@PathVariable Long id) {
-        try {
-            User user = userService.getUserById(id);
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", user.getId());
-            response.put("name", user.getName());
-            response.put("email", user.getEmail());
-            response.put("program", user.getProgram());
-            response.put("yearLevel", user.getYearLevel());
-            response.put("bio", user.getBio());
-            response.put("profilePic", user.getProfileImageUrl());
-            response.put("coverImage", user.getCoverImageUrl());
-            response.put("createdAt", user.getCreatedAt());
-            response.put("followers", userService.getFollowerCount(user.getId()));
-            response.put("following", userService.getFollowingCount(user.getId()));
-            
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "User not found"));
-        }
+    public ResponseEntity<UserProfileResponse> getUserProfile(@PathVariable Long id) {
+        UserProfileResponse response = userService.getUserProfileDTO(id);
+        return ResponseEntity.ok(response);
     }
     
     /**
      * Update current authenticated user's profile (user ID from JWT)
      */
     @PutMapping("/me")
-    public ResponseEntity<?> updateMyProfile(@RequestBody UpdateProfileRequest request) {
-        try {
-            User currentUser = getAuthenticatedUser();
-            User user = currentUser;
-            
-            if (request.getName() != null && !request.getName().trim().isEmpty()) {
-                user.setName(request.getName().trim());
-            }
-            if (request.getProgram() != null && !request.getProgram().trim().isEmpty()) {
-                user.setProgram(request.getProgram().trim());
-            }
-            if (request.getBio() != null) {
-                user.setBio(request.getBio().trim());
-            }
-            if (request.getYearLevel() != null) {
-                user.setYearLevel(request.getYearLevel());
-            }
-            if (request.getProfilePic() != null) {
-                user.setProfileImageUrl(request.getProfilePic());
-            }
-            if (request.getCoverImage() != null) {
-                user.setCoverImageUrl(request.getCoverImage());
-            }
-            
-            User updatedUser = userService.updateUser(user);
-        
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", updatedUser.getId());
-            response.put("name", updatedUser.getName());
-            response.put("email", updatedUser.getEmail());
-            response.put("program", updatedUser.getProgram());
-            response.put("yearLevel", updatedUser.getYearLevel());
-            response.put("bio", updatedUser.getBio());
-            response.put("profilePic", updatedUser.getProfileImageUrl());
-            response.put("coverImage", updatedUser.getCoverImageUrl());
-            response.put("message", "Profile updated successfully");
-            
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to update profile: " + e.getMessage()));
-        }
-    }
-    
-    private User getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("User not authenticated");
-        }
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();
-        return userService.getUserByEmail(email);
+    public ResponseEntity<UserProfileResponse> updateMyProfile(@Valid @RequestBody UpdateProfileRequest request) {
+        User currentUser = getAuthenticatedUser();
+        UserProfileResponse response = userService.updateProfileDTO(currentUser, request);
+        return ResponseEntity.ok(response);
     }
     
     /**
      * Follow a user.
-     * POST /api/users/{userId}/follow
      */
-    @org.springframework.web.bind.annotation.PostMapping("/{userId}/follow")
-    public ResponseEntity<?> followUser(@PathVariable Long userId) {
-        try {
-            User currentUser = getAuthenticatedUser();
-            userService.followUser(currentUser.getId(), userId);
-            return ResponseEntity.noContent().build();
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to follow user: " + e.getMessage()));
-        }
+    @PostMapping("/{userId}/follow")
+    public ResponseEntity<Void> followUser(@PathVariable Long userId) {
+        User currentUser = getAuthenticatedUser();
+        userService.followUser(currentUser.getId(), userId);
+        return ResponseEntity.noContent().build();
     }
     
     /**
      * Unfollow a user.
-     * DELETE /api/users/{userId}/follow
      */
-    @org.springframework.web.bind.annotation.DeleteMapping("/{userId}/follow")
-    public ResponseEntity<?> unfollowUser(@PathVariable Long userId) {
-        try {
-            User currentUser = getAuthenticatedUser();
-            userService.unfollowUser(currentUser.getId(), userId);
-            return ResponseEntity.noContent().build();
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to unfollow user: " + e.getMessage()));
-        }
+    @DeleteMapping("/{userId}/follow")
+    public ResponseEntity<Void> unfollowUser(@PathVariable Long userId) {
+        User currentUser = getAuthenticatedUser();
+        userService.unfollowUser(currentUser.getId(), userId);
+        return ResponseEntity.noContent().build();
     }
     
     /**
      * Get a user's followers.
-     * GET /api/users/{userId}/followers
      */
     @GetMapping("/{userId}/followers")
-    public ResponseEntity<?> getFollowers(@PathVariable Long userId) {
-        try {
-            List<User> followers = userService.getFollowers(userId);
-            List<Map<String, Object>> response = followers.stream()
-                .map(user -> {
-                    Map<String, Object> userMap = new HashMap<>();
-                    userMap.put("id", user.getId());
-                    userMap.put("name", user.getName());
-                    userMap.put("email", user.getEmail());
-                    userMap.put("program", user.getProgram());
-                    userMap.put("profilePic", user.getProfileImageUrl());
-                    return userMap;
-                })
-                .toList();
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to fetch followers: " + e.getMessage()));
-        }
+    public ResponseEntity<List<UserSummaryDTO>> getFollowers(@PathVariable Long userId) {
+        List<UserSummaryDTO> response = userService.getFollowersDTO(userId);
+        return ResponseEntity.ok(response);
     }
     
     /**
      * Get users that a user is following.
-     * GET /api/users/{userId}/following
      */
     @GetMapping("/{userId}/following")
-    public ResponseEntity<?> getFollowing(@PathVariable Long userId) {
-        try {
-            List<User> following = userService.getFollowing(userId);
-            List<Map<String, Object>> response = following.stream()
-                .map(user -> {
-                    Map<String, Object> userMap = new HashMap<>();
-                    userMap.put("id", user.getId());
-                    userMap.put("name", user.getName());
-                    userMap.put("email", user.getEmail());
-                    userMap.put("program", user.getProgram());
-                    userMap.put("profilePic", user.getProfileImageUrl());
-                    return userMap;
-                })
-                .toList();
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to fetch following: " + e.getMessage()));
-        }
+    public ResponseEntity<List<UserSummaryDTO>> getFollowing(@PathVariable Long userId) {
+        List<UserSummaryDTO> response = userService.getFollowingDTO(userId);
+        return ResponseEntity.ok(response);
     }
     
     /**
      * Check if current user is following the specified user.
-     * GET /api/users/{userId}/is-following
      */
     @GetMapping("/{userId}/is-following")
-    public ResponseEntity<?> isFollowing(@PathVariable Long userId) {
-        try {
-            User currentUser = getAuthenticatedUser();
-            boolean isFollowing = userService.isFollowing(currentUser.getId(), userId);
-            return ResponseEntity.ok(Map.of("isFollowing", isFollowing));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to check follow status: " + e.getMessage()));
-        }
+    public ResponseEntity<Map<String, Boolean>> isFollowing(@PathVariable Long userId) {
+        User currentUser = getAuthenticatedUser();
+        boolean isFollowing = userService.isFollowing(currentUser.getId(), userId);
+        return ResponseEntity.ok(Map.of("isFollowing", isFollowing));
     }
 
     /**
      * Remove a follower (force them to unfollow you).
-     * DELETE /api/users/me/followers/{followerId}
      */
     @DeleteMapping("/me/followers/{followerId}")
-    public ResponseEntity<?> removeFollower(@PathVariable Long followerId) {
-        try {
-            User currentUser = getAuthenticatedUser();
-            // Remove the follower by unfollowing from their side (followerId -> currentUser.getId())
-            userService.unfollowUser(followerId, currentUser.getId());
-            return ResponseEntity.ok(Map.of("message", "Follower removed successfully"));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to remove follower: " + e.getMessage()));
-        }
+    public ResponseEntity<Map<String, String>> removeFollower(@PathVariable Long followerId) {
+        User currentUser = getAuthenticatedUser();
+        userService.unfollowUser(followerId, currentUser.getId());
+        return ResponseEntity.ok(Map.of("message", "Follower removed successfully"));
     }
 }
