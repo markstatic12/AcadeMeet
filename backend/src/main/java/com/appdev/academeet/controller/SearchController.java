@@ -7,10 +7,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,8 +19,7 @@ import com.appdev.academeet.service.UserService;
 
 @RestController
 @RequestMapping("/api/search")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
-public class SearchController {
+public class SearchController extends BaseController {
 
     @Autowired
     private SearchService searchService;
@@ -41,32 +36,27 @@ public class SearchController {
             @RequestParam(required = false) String q,
             @RequestParam(defaultValue = "relevance") String sortBy) {
         
-        try {
-            Map<String, Object> response = new HashMap<>();
-            
-            if (q == null || q.trim().isEmpty()) {
-                response.put("users", List.of());
-                response.put("sessions", List.of());
-                return ResponseEntity.ok(response);
-            }
-            
-            // Search users
-            List<Map<String, Object>> users = searchService.searchUsers(q, null, null, sortBy)
-                    .stream()
-                    .map(this::userToMap)
-                    .collect(Collectors.toList());
-            
-            // Search sessions
-            List<SessionDTO> sessions = searchService.searchSessions(q, null, null, null, sortBy);
-            
-            response.put("users", users);
-            response.put("sessions", sessions);
-            
+        Map<String, Object> response = new HashMap<>();
+        
+        if (q == null || q.trim().isEmpty()) {
+            response.put("users", List.of());
+            response.put("sessions", List.of());
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Search failed: " + e.getMessage()));
         }
+        
+        // Search users
+        List<Map<String, Object>> users = searchService.searchUsers(q, null, null, sortBy)
+                .stream()
+                .map(this::userToMap)
+                .collect(Collectors.toList());
+        
+        // Search sessions
+        List<SessionDTO> sessions = searchService.searchSessions(q, null, null, null, sortBy);
+        
+        response.put("users", users);
+        response.put("sessions", sessions);
+        
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -80,18 +70,13 @@ public class SearchController {
             @RequestParam(required = false) Integer yearLevel,
             @RequestParam(defaultValue = "relevance") String sortBy) {
         
-        try {
-            List<User> users = searchService.searchUsers(q, program, yearLevel, sortBy);
-            
-            List<Map<String, Object>> userList = users.stream()
-                    .map(this::userToMap)
-                    .collect(Collectors.toList());
-            
-            return ResponseEntity.ok(userList);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", "User search failed: " + e.getMessage()));
-        }
+        List<User> users = searchService.searchUsers(q, program, yearLevel, sortBy);
+        
+        List<Map<String, Object>> userList = users.stream()
+                .map(this::userToMap)
+                .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(userList);
     }
 
     /**
@@ -106,13 +91,8 @@ public class SearchController {
             @RequestParam(required = false) String privacy,
             @RequestParam(defaultValue = "relevance") String sortBy) {
         
-        try {
-            List<SessionDTO> sessions = searchService.searchSessions(q, date, timeOfDay, privacy, sortBy);
-            return ResponseEntity.ok(sessions);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Session search failed: " + e.getMessage()));
-        }
+        List<SessionDTO> sessions = searchService.searchSessions(q, date, timeOfDay, privacy, sortBy);
+        return ResponseEntity.ok(sessions);
     }
 
     /**

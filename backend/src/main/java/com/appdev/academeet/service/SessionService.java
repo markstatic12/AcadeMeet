@@ -5,7 +5,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.appdev.academeet.dto.CreateSessionRequest;
 import com.appdev.academeet.dto.SessionDTO;
+import com.appdev.academeet.dto.UpdateSessionRequest;
 import com.appdev.academeet.model.Session;
 import com.appdev.academeet.model.SessionParticipant;
 import com.appdev.academeet.model.SessionParticipantId;
@@ -60,6 +64,209 @@ public class SessionService {
         this.jwtUtil = jwtUtil;
     }
 
+    // ========================================
+    // Private Mapping Helper Methods
+    // ========================================
+    
+    /**
+     * Converts month name to Month enum.
+     * Supports both full names (January) and uppercase (JANUARY).
+     */
+    private Month parseMonth(String monthStr) {
+        if (monthStr == null) {
+            throw new IllegalArgumentException("Month cannot be null");
+        }
+        
+        try {
+            // Try parsing as numeric month first (1-12)
+            int monthNum = Integer.parseInt(monthStr);
+            return Month.of(monthNum);
+        } catch (NumberFormatException e) {
+            // Parse as month name (case-insensitive)
+            return Month.valueOf(monthStr.toUpperCase());
+        }
+    }
+
+    /**
+     * Converts separate date/time fields to LocalDateTime.
+     */
+    private LocalDateTime parseDateTime(String month, String day, String year, String timeStr) {
+        if (month == null || day == null || year == null || timeStr == null) {
+            throw new IllegalArgumentException("Date and time fields cannot be null");
+        }
+
+        try {
+            Month monthEnum = parseMonth(month);
+            int dayInt = Integer.parseInt(day);
+            int yearInt = Integer.parseInt(year);
+            
+            // Parse time (HH:mm format)
+            String[] timeParts = timeStr.split(":");
+            int hour = Integer.parseInt(timeParts[0]);
+            int minute = Integer.parseInt(timeParts[1]);
+            
+            return LocalDateTime.of(yearInt, monthEnum, dayInt, hour, minute);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid date/time format: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Converts separate date/time fields to LocalDateTime.
+     * Returns null if any required field is missing (for partial updates).
+     */
+    private LocalDateTime parseDateTimeNullable(String month, String day, String year, String timeStr) {
+        if (month == null || day == null || year == null || timeStr == null) {
+            return null;
+        }
+
+        try {
+            Month monthEnum = parseMonth(month);
+            int dayInt = Integer.parseInt(day);
+            int yearInt = Integer.parseInt(year);
+            
+            // Parse time (HH:mm format)
+            String[] timeParts = timeStr.split(":");
+            int hour = Integer.parseInt(timeParts[0]);
+            int minute = Integer.parseInt(timeParts[1]);
+            
+            return LocalDateTime.of(yearInt, monthEnum, dayInt, hour, minute);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid date/time format: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Maps CreateSessionRequest to Session entity.
+     * Does NOT perform business validation - only data conversion.
+     */
+    private Session mapToEntity(CreateSessionRequest request) {
+        Session session = new Session();
+        session.setTitle(request.getTitle());
+        session.setDescription(request.getDescription());
+        
+        // Convert separate date/time fields to LocalDateTime
+        LocalDateTime start = parseDateTime(request.getMonth(), request.getDay(), 
+                                            request.getYear(), request.getStartTime());
+        LocalDateTime end = parseDateTime(request.getMonth(), request.getDay(), 
+                                          request.getYear(), request.getEndTime());
+        
+        session.setStartTime(start);
+        session.setEndTime(end);
+        session.setLocation(request.getLocation());
+        session.setMaxParticipants(request.getMaxParticipants());
+        
+        if (request.getSessionType() != null) {
+            session.setSessionPrivacy(request.getSessionType());
+        }
+        
+        session.setTags(request.getTags());
+        
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            session.setSessionPassword(request.getPassword());
+        }
+        
+        return session;
+    }
+
+    /**
+     * Maps UpdateSessionRequest to Session entity for partial updates.
+     * Does NOT perform business validation - only data conversion.
+     * Null fields indicate no change.
+     */
+    private Session mapToEntity(UpdateSessionRequest request) {
+        Session session = new Session();
+        session.setTitle(request.getTitle());
+        session.setDescription(request.getDescription());
+        
+        // Convert separate date/time fields to LocalDateTime (only if provided)
+        LocalDateTime parsedStartTime = parseDateTimeNullable(request.getMonth(), request.getDay(), 
+                                                               request.getYear(), request.getStartTime());
+        LocalDateTime parsedEndTime = parseDateTimeNullable(request.getMonth(), request.getDay(), 
+                                                            request.getYear(), request.getEndTime());
+        
+        session.setStartTime(parsedStartTime);
+        session.setEndTime(parsedEndTime);
+        session.setLocation(request.getLocation());
+        session.setMaxParticipants(request.getMaxParticipants());
+        
+        if (request.getSessionType() != null) {
+            session.setSessionPrivacy(request.getSessionType());
+        }
+        
+        session.setTags(request.getTags());
+        
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            session.setSessionPassword(request.getPassword());
+        }
+        
+        return session;
+    }
+
+    // ========================================
+    // Business Validation Methods
+    // ========================================
+
+    // ========================================
+    // Business Validation Methods
+    // ========================================
+
+    /**
+     * Validates session business rules.
+     * This method contains all domain logic for session validation.
+     */
+    private void validateSessionData(Session session) {
+        // Validate start time is in the future
+        if (session.getStartTime() != null && session.getStartTime().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Session start time must be in the future");
+        }
+
+        // Validate end time is after start time
+        if (session.getStartTime() != null && session.getEndTime() != null) {
+            if (session.getEndTime().isBefore(session.getStartTime()) || 
+                session.getEndTime().equals(session.getStartTime())) {
+                throw new IllegalArgumentException("End time must be after start time");
+            }
+
+            // Validate minimum session duration (15 minutes)
+            long durationMinutes = Duration.between(session.getStartTime(), session.getEndTime()).toMinutes();
+            if (durationMinutes < 15) {
+                throw new IllegalArgumentException("Session must be at least 15 minutes long");
+            }
+        }
+
+        // Validate private session has password
+        if (session.getSessionPrivacy() == SessionType.PRIVATE) {
+            if (session.getSessionPassword() == null || session.getSessionPassword().trim().isEmpty()) {
+                throw new IllegalArgumentException("Private sessions must have a password");
+            }
+        }
+    }
+
+    // ========================================
+    // Public Service Methods
+    // ========================================
+    
+    /**
+     * Create session from DTO.
+     * Delegates to existing createSession after mapping.
+     */
+    @Transactional
+    public Session createSessionFromDTO(CreateSessionRequest request, Long hostId) {
+        Session session = mapToEntity(request);
+        return createSession(session, hostId);
+    }
+    
+    /**
+     * Update session from DTO.
+     * Delegates to existing updateSession after mapping.
+     */
+    @Transactional
+    public Session updateSessionFromDTO(Long sessionId, UpdateSessionRequest request, Long userId) {
+        Session updates = mapToEntity(request);
+        return updateSession(sessionId, updates, userId);
+    }
+
     public Session createSession(Session session) {
         return sessionRepository.save(session);
     }
@@ -69,16 +276,13 @@ public class SessionService {
         User host = userRepository.findById(hostId)
                 .orElseThrow(() -> new RuntimeException("Host user not found with id: " + hostId));
 
-        if (session.getStartTime() != null && session.getStartTime().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Session start time must be in the future");
-        }
+        // Perform business validation
+        validateSessionData(session);
 
         session.setHost(host);
 
+        // Encrypt password if private session
         if (session.getSessionPrivacy() == SessionType.PRIVATE) {
-            if (session.getSessionPassword() == null || session.getSessionPassword().trim().isEmpty()) {
-                throw new IllegalArgumentException("Private sessions must have a password");
-            }
             session.setSessionPassword(passwordEncoder.encode(session.getSessionPassword()));
         }
 
@@ -163,21 +367,28 @@ public class SessionService {
             .collect(Collectors.toList());
     }
 
-    public boolean validateSessionPassword(Long sessionId, String password) {
-        Optional<Session> sessionOpt = sessionRepository.findById(sessionId);
-        if (sessionOpt.isPresent()) {
-            Session session = sessionOpt.get();
-            if (session.getSessionPrivacy() == SessionType.PRIVATE) {
-                String stored = session.getSessionPassword();
-                if (stored == null) return false;
-                if (stored.startsWith("$2a$") || stored.startsWith("$2b$") || stored.startsWith("$2y$")) {
-                    return password != null && passwordEncoder.matches(password, stored);
-                }
-                return password != null && password.equals(stored);
+    public void validateSessionPassword(Long sessionId, String password) {
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Session not found"));
+        
+        if (session.getSessionPrivacy() == SessionType.PRIVATE) {
+            String stored = session.getSessionPassword();
+            if (stored == null) {
+                throw new SecurityException("Invalid password");
             }
-            return true; // Public sessions don't need password validation
+            
+            boolean isValid;
+            if (stored.startsWith("$2a$") || stored.startsWith("$2b$") || stored.startsWith("$2y$")) {
+                isValid = password != null && passwordEncoder.matches(password, stored);
+            } else {
+                isValid = password != null && password.equals(stored);
+            }
+            
+            if (!isValid) {
+                throw new SecurityException("Invalid password");
+            }
         }
-        return false;
+        // Public sessions don't need password validation - method returns normally
     }
 
     public boolean checkParticipantLimit(Long sessionId) {
@@ -215,11 +426,9 @@ public class SessionService {
         // Validate password if session is PRIVATE
         if (session.getSessionPrivacy() == SessionType.PRIVATE) {
             if (password == null || password.trim().isEmpty()) {
-                throw new RuntimeException("Password is required for private sessions");
+                throw new SecurityException("Password is required for private sessions");
             }
-            if (!validateSessionPassword(sessionId, password)) {
-                throw new RuntimeException("Invalid password");
-            }
+            validateSessionPassword(sessionId, password); // Throws exception if invalid
         }
 
         // Check participant limit

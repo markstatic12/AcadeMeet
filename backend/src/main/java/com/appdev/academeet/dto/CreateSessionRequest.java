@@ -1,10 +1,7 @@
 package com.appdev.academeet.dto;
 
-import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.List;
 
-import com.appdev.academeet.model.Session;
 import com.appdev.academeet.model.SessionType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -110,87 +107,4 @@ public class CreateSessionRequest {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password == null ? null : password.trim(); }
-
-    /**
-     * Converts month name to Month enum.
-     * Supports both full names (January) and uppercase (JANUARY).
-     */
-    private Month parseMonth(String monthStr) {
-        if (monthStr == null) {
-            throw new IllegalArgumentException("Month cannot be null");
-        }
-        
-        try {
-            // Try parsing as numeric month first (1-12)
-            int monthNum = Integer.parseInt(monthStr);
-            return Month.of(monthNum);
-        } catch (NumberFormatException e) {
-            // Parse as month name (case-insensitive)
-            return Month.valueOf(monthStr.toUpperCase());
-        }
-    }
-
-    /**
-     * Converts separate date/time fields to LocalDateTime.
-     */
-    private LocalDateTime parseDateTime(String timeStr) {
-        if (month == null || day == null || year == null || timeStr == null) {
-            throw new IllegalArgumentException("Date and time fields cannot be null");
-        }
-
-        try {
-            Month monthEnum = parseMonth(month);
-            int dayInt = Integer.parseInt(day);
-            int yearInt = Integer.parseInt(year);
-            
-            // Parse time (HH:mm format)
-            String[] timeParts = timeStr.split(":");
-            int hour = Integer.parseInt(timeParts[0]);
-            int minute = Integer.parseInt(timeParts[1]);
-            
-            return LocalDateTime.of(yearInt, monthEnum, dayInt, hour, minute);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid date/time format: " + e.getMessage(), e);
-        }
-    }
-
-    public Session toEntity() {
-        Session s = new Session();
-        s.setTitle(this.title);
-        s.setDescription(this.description);
-        
-        // Convert separate date/time fields to LocalDateTime
-        LocalDateTime start = parseDateTime(this.startTime);
-        LocalDateTime end = parseDateTime(this.endTime);
-        
-        // Validate date is in the future
-        if (start.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Session start time must be in the future");
-        }
-        
-        // Validate end time is after start time
-        if (end.isBefore(start) || end.equals(start)) {
-            throw new IllegalArgumentException("End time must be after start time");
-        }
-        
-        // Validate minimum session duration (15 minutes)
-        long durationMinutes = java.time.Duration.between(start, end).toMinutes();
-        if (durationMinutes < 15) {
-            throw new IllegalArgumentException("Session must be at least 15 minutes long");
-        }
-        
-        s.setStartTime(start);
-        s.setEndTime(end);
-        
-        s.setLocation(this.location);
-        s.setMaxParticipants(this.maxParticipants);
-        if (this.sessionType != null) {
-            s.setSessionPrivacy(this.sessionType);
-        }
-        s.setTags(this.tags);
-        if (this.password != null && !this.password.isEmpty()) {
-            s.setSessionPassword(this.password);
-        }
-        return s;
-    }
 }
