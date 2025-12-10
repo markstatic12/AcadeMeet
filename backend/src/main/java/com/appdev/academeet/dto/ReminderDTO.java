@@ -5,21 +5,19 @@ import java.time.LocalDateTime;
 import com.appdev.academeet.model.ReminderType;
 
 /**
- * DTO for reminder response with generated message
+ * Response DTO for reminders with generated message
+ * Immutable after construction
  */
 public class ReminderDTO {
-    private Long id;
-    private Long sessionId;
-    private String sessionTitle;
-    private String message;
-    private ReminderType type;
-    private LocalDateTime scheduledTime;
-    private boolean isRead;
-    private LocalDateTime readAt;
-    private boolean isOwner;
-
-    // Constructors
-    public ReminderDTO() {}
+    private final Long id;
+    private final Long sessionId;
+    private final String sessionTitle;
+    private final String message;
+    private final ReminderType type;
+    private final LocalDateTime scheduledTime;
+    private final boolean isRead;
+    private final LocalDateTime readAt;
+    private final boolean isOwner;
 
     public ReminderDTO(Long id, Long sessionId, String sessionTitle, String message, 
                       ReminderType type, LocalDateTime scheduledTime, boolean isRead, 
@@ -35,76 +33,14 @@ public class ReminderDTO {
         this.isOwner = isOwner;
     }
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getSessionId() {
-        return sessionId;
-    }
-
-    public void setSessionId(Long sessionId) {
-        this.sessionId = sessionId;
-    }
-
-    public String getSessionTitle() {
-        return sessionTitle;
-    }
-
-    public void setSessionTitle(String sessionTitle) {
-        this.sessionTitle = sessionTitle;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public ReminderType getType() {
-        return type;
-    }
-
-    public void setType(ReminderType type) {
-        this.type = type;
-    }
-
-    public LocalDateTime getScheduledTime() {
-        return scheduledTime;
-    }
-
-    public void setScheduledTime(LocalDateTime scheduledTime) {
-        this.scheduledTime = scheduledTime;
-    }
-
-    public boolean isRead() {
-        return isRead;
-    }
-
-    public void setRead(boolean read) {
-        isRead = read;
-    }
-
-    public LocalDateTime getReadAt() {
-        return readAt;
-    }
-
-    public void setReadAt(LocalDateTime readAt) {
-        this.readAt = readAt;
-    }
-
-    public boolean isOwner() {
-        return isOwner;
-    }
-
-    public void setOwner(boolean owner) {
-        isOwner = owner;
-    }
+    // Getters only (immutable)
+    public Long getId() { return id; }
+    public Long getSessionId() { return sessionId; }
+    public String getSessionTitle() { return sessionTitle; }
+    public String getMessage() { return message; }
+    public ReminderType getType() { return type; }
+    public LocalDateTime getScheduledTime() { return scheduledTime; }
+    public boolean isRead() { return isRead; }
+    public LocalDateTime getReadAt() { return readAt; }
+    public boolean isOwner() { return isOwner; }
 }
