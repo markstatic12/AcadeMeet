@@ -1,5 +1,11 @@
 // apiHelper.js - centralized API utility to add auth headers
 
+/**
+ * ⚠️ SECURITY NOTE:
+ * This file reads JWT tokens from localStorage, which is vulnerable to XSS.
+ * For production, migrate to HttpOnly cookies. See SECURITY_STATUS.md
+ */
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
 // Validate API URL is configured

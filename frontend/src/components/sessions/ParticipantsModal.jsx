@@ -1,5 +1,7 @@
 import React from 'react';
 import { CloseIcon } from '../../icons/icons';
+import { getSafeImageUrl } from '../../utils/urlValidator';
+import { API_BASE_URL } from '../../services/apiHelper';
 
 const ParticipantsModal = ({ 
   isOpen, 
@@ -46,9 +48,10 @@ const ParticipantsModal = ({
                     <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-indigo-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-500/30 transition-transform group-hover:scale-110 group-hover:rotate-6 border-2 border-white/10">
                       {participant.profilePic ? (
                         <img 
-                          src={`http://localhost:8080${participant.profilePic}`} 
+                          src={participant.profilePic.startsWith('http') ? getSafeImageUrl(participant.profilePic) : `${API_BASE_URL.replace('/api', '')}${participant.profilePic}`}
                           alt={participant.name} 
-                          className="w-full h-full object-cover" 
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
                         />
                       ) : (
                         <span className="text-white text-sm font-bold">
