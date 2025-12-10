@@ -21,11 +21,14 @@ import com.appdev.academeet.repository.UserRepository;
 @Service
 public class UserService {
     
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final UserFollowRepository userFollowRepository;
     
     @Autowired
-    private UserFollowRepository userFollowRepository;
+    public UserService(UserRepository userRepository, UserFollowRepository userFollowRepository) {
+        this.userRepository = userRepository;
+        this.userFollowRepository = userFollowRepository;
+    }
     
     private UserProfileResponse toProfileResponse(User user, Long followersCount, Long followingCount) {
         return new UserProfileResponse(

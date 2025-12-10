@@ -24,14 +24,16 @@ import com.appdev.academeet.repository.UserRepository;
 @Service
 public class SearchService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private SessionRepository sessionRepository;
+    private final UserRepository userRepository;
+    private final SessionRepository sessionRepository;
+    private final UserService userService;
     
     @Autowired
-    private UserService userService;
+    public SearchService(UserRepository userRepository, SessionRepository sessionRepository, UserService userService) {
+        this.userRepository = userRepository;
+        this.sessionRepository = sessionRepository;
+        this.userService = userService;
+    }
 
     /**
      * Search all entities (users and sessions) with empty query handling
