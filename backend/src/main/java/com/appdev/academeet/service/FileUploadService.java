@@ -33,26 +33,59 @@ public class FileUploadService {
             throw new IllegalArgumentException("File is empty");
         }
 
+        // Validate directory to prevent path traversal
+        if (directory == null || directory.contains("..")) {
+            throw new IllegalArgumentException("Invalid directory path");
+        }
+
         // Create upload directory if it doesn't exist
-        Path uploadPath = Paths.get(directory);
+        Path uploadPath = Paths.get(directory).normalize().toAbsolutePath();
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
 
-        // Generate unique filename
+        // Generate unique filename and sanitize original filename
         String originalFilename = file.getOriginalFilename();
+        if (originalFilename != null && originalFilename.contains("..")) {
+            throw new IllegalArgumentException("Invalid filename");
+        }
+        
         String fileExtension = "";
         if (originalFilename != null && originalFilename.contains(".")) {
             fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            // Validate file extension to prevent malicious files
+            if (!isAllowedExtension(fileExtension)) {
+                throw new IllegalArgumentException("File type not allowed");
+            }
         }
+        
         String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
-        Path filePath = uploadPath.resolve(uniqueFilename);
+        Path filePath = uploadPath.resolve(uniqueFilename).normalize();
+        
+        // Ensure the resolved path is still within the upload directory
+        if (!filePath.startsWith(uploadPath)) {
+            throw new SecurityException("Path traversal attempt detected");
+        }
 
         // Save file to disk
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         // Return relative path for storage
         return "/" + directory + "/" + uniqueFilename;
+    }
+    
+    /**
+     * Check if file extension is allowed.
+     */
+    private boolean isAllowedExtension(String extension) {
+        String[] allowedExtensions = {".pdf", ".doc", ".docx", ".txt", ".ppt", ".pptx", ".xls", ".xlsx", ".jpg", ".jpeg", ".png", ".gif"};
+        String lowerExt = extension.toLowerCase();
+        for (String allowed : allowedExtensions) {
+            if (lowerExt.equals(allowed)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

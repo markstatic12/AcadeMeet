@@ -396,13 +396,17 @@ public class SessionService {
     }
 
     @Transactional
-    public void updateSessionStatus(Long sessionId, SessionStatus newStatus) {
-        Optional<Session> sessionOpt = sessionRepository.findById(sessionId);
-        if (sessionOpt.isPresent()) {
-            Session session = sessionOpt.get();
-            session.setSessionStatus(newStatus);
-            sessionRepository.save(session);
+    public void updateSessionStatus(Long sessionId, SessionStatus newStatus, Long userId) {
+        Session session = sessionRepository.findById(sessionId)
+            .orElseThrow(() -> new RuntimeException("Session not found"));
+        
+        // Authorization check: only session owner can update status
+        if (!session.getHost().getId().equals(userId)) {
+            throw new SecurityException("Only the session owner can update session status");
         }
+        
+        session.setSessionStatus(newStatus);
+        sessionRepository.save(session);
     }
 
     @Transactional

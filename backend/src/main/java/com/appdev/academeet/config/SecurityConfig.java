@@ -33,20 +33,18 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
+
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/api/auth/**") 
+            )
             .authorizeHttpRequests(auth -> auth
-                // Public endpoints - must come first
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
-                // Allow read-only access to tags and notes listing without auth (GET)
                 .requestMatchers(HttpMethod.GET, "/api/tags/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/notes/**").permitAll()
-                // All other endpoints require authentication
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // Add JWT filter - but it will skip /api/auth/** due to shouldNotFilter()
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -55,10 +53,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:5174"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowedHeaders(Arrays.asList(
+            "Authorization", 
+            "Content-Type", 
+            "Accept",
+            "X-Requested-With"
+        ));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); 
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

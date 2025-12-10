@@ -190,12 +190,12 @@ public class SessionNoteService {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found with id: " + sessionId));
 
-        // Authorization check: only host, participants, or public sessions
+        // Authorization check: only host and participants can view notes
         boolean isHost = session.getHost().getId().equals(userId);
-        //boolean isParticipant = sessionParticipantService.isParticipant(sessionId, userId);
+        boolean isParticipant = sessionParticipantRepository.existsBySessionIdAndUserId(sessionId, userId);
 
-        if (!isHost /*&& !isParticipant*/) {
-            throw new SecurityException("Only the host  can view notes for this session");
+        if (!isHost && !isParticipant) {
+            throw new SecurityException("Only the host and participants can view notes for this session");
         }
 
         return sessionNoteRepository.findBySession_Id(sessionId);
