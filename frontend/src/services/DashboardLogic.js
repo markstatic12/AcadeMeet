@@ -12,52 +12,28 @@ export const useDashboardPage = () => {
 
   // Load user's notes when the Notes tab is active
   useEffect(() => {
-    let cancelled = false;
-    
     const loadNotes = async () => {
       if (activeNotesTab !== 'my') return;
       
-      // Note: Notes backend not yet implemented
-      // Skip loading for now to avoid errors
       setNotesLoading(false);
       setNotes([]);
       setNotesError('Notes feature coming soon');
-      return;
     };
 
     loadNotes();
-    
-    return () => {
-      cancelled = true;
-    };
   }, [activeNotesTab]);
 
   // Load all notes when the All Notes tab is active
   useEffect(() => {
-    let cancelled = false;
-    
     const loadAllNotes = async () => {
       if (activeNotesTab !== 'all') return;
       
-      // Notes backend not yet implemented
       setNotesLoading(false);
       setNotes([]);
       setNotesError('Notes feature coming soon');
-      return;
-      if (activeNotesTab !== 'all') return;
-      
-      // Notes backend not yet implemented
-      setNotesLoading(false);
-      setNotes([]);
-      setNotesError('Notes feature coming soon');
-      return;
     };
 
     loadAllNotes();
-    
-    return () => {
-      cancelled = true;
-    };
   }, [activeNotesTab]);
 
   const handleSessionTabChange = (tab) => {
