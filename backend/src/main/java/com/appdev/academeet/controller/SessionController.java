@@ -76,7 +76,17 @@ public class SessionController extends BaseController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<SessionDTO>> getSessionsByUserId(@PathVariable Long userId) {
-        List<SessionDTO> sessions = sessionService.getSessionsByUserId(userId);
+        User currentUser = getAuthenticatedUser();
+        List<SessionDTO> sessions;
+        
+        // If viewing own profile, show all sessions
+        if (currentUser.getId().equals(userId)) {
+            sessions = sessionService.getSessionsByUserId(userId);
+        } else {
+            // Viewing another user - only show public sessions
+            sessions = sessionService.getPublicSessionsByUserId(userId);
+        }
+        
         return ResponseEntity.ok(sessions);
     }
 

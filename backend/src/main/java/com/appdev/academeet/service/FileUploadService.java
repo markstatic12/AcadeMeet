@@ -107,12 +107,34 @@ public class FileUploadService {
      */
     public boolean deleteFile(String relativePath) {
         try {
-            if (relativePath != null && relativePath.startsWith("/")) {
+            if (relativePath == null || relativePath.trim().isEmpty()) {
+                return false;
+            }
+            
+            // Remove leading slash
+            if (relativePath.startsWith("/")) {
                 relativePath = relativePath.substring(1);
             }
-            Path filePath = Paths.get(relativePath);
+            
+            // Validate path to prevent traversal
+            if (relativePath.contains("..")) {
+                throw new SecurityException("Path traversal attempt detected");
+            }
+            
+            // Resolve against current directory and normalize
+            Path basePath = Paths.get("").toAbsolutePath().normalize();
+            Path filePath = basePath.resolve(relativePath).normalize();
+            
+            // Ensure file is within base directory
+            if (!filePath.startsWith(basePath)) {
+                throw new SecurityException("Path traversal attempt detected");
+            }
+            
             return Files.deleteIfExists(filePath);
         } catch (IOException e) {
+            return false;
+        } catch (SecurityException e) {
+            System.err.println("Security violation: " + e.getMessage());
             return false;
         }
     }

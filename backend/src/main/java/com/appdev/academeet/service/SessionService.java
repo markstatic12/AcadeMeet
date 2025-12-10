@@ -241,6 +241,19 @@ public class SessionService {
     }
 
     @Transactional(readOnly = true)
+    public List<SessionDTO> getPublicSessionsByUserId(Long userId) {
+        return sessionRepository.findByHost_Id(userId)
+                .stream()
+                .filter(session -> session.getSessionPrivacy() == SessionPrivacy.PUBLIC)
+                .map(SessionDTO::new)
+                .filter(dto -> {
+                    SessionStatus status = dto.getStatus();
+                    return status == SessionStatus.ACTIVE || status == SessionStatus.SCHEDULED;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<SessionDTO> getAllSessions() {
         return sessionRepository.findAllByOrderByStartTime()
             .stream()
