@@ -5,6 +5,5 @@ public enum SessionStatus {
     ACTIVE,
     COMPLETED,
     DELETED,
-    CANCELLED,
     TRASH
 }

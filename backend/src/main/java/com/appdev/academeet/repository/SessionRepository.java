@@ -34,7 +34,7 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     // Trending sessions ranked by tag popularity (top 4)
     @Query("SELECT s FROM Session s " +
            "LEFT JOIN s.sessionTags st " +
-           "WHERE s.sessionStatus NOT IN ('DELETED', 'CANCELLED', 'TRASH', 'COMPLETED') AND st.tagName IN (" +
+           "WHERE s.sessionStatus NOT IN ('DELETED', 'TRASH', 'COMPLETED') AND st.tagName IN (" +
            "  SELECT t.tagName FROM SessionTag t " +
            "  GROUP BY t.tagName " +
            "  ORDER BY COUNT(t) DESC" +

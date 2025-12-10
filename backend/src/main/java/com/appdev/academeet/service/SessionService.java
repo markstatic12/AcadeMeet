@@ -248,7 +248,6 @@ public class SessionService {
             .filter(dto -> {
                 SessionStatus status = dto.getStatus();
                 return status != SessionStatus.DELETED && 
-                       status != SessionStatus.CANCELLED && 
                        status != SessionStatus.TRASH &&
                        status != SessionStatus.COMPLETED;
             })

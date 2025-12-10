@@ -76,6 +76,14 @@ export const sessionService = {
     return handleResponse(response, 'Failed to cancel participation');
   },
 
+  async leaveSession(sessionId) {
+    const response = await authFetch(`${API_BASE}/${sessionId}/leave`, {
+      method: 'DELETE'
+    });
+
+    return handleResponse(response, 'Failed to leave session');
+  },
+
   async isUserParticipant(sessionId) {
     const response = await authFetch(`${API_BASE}/${sessionId}/is-participant`, {
       method: 'GET'

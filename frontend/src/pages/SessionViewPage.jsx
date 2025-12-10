@@ -268,8 +268,15 @@ const SessionViewPage = () => {
 
   const handleJoinSession = async () => {
     if (isParticipant) {
-      // User is already a participant, cancel their participation
-      await cancelJoinSession();
+      // User is already a participant
+      // Check if session is active to determine action
+      if (session.status === 'ACTIVE') {
+        // Session is active, user should leave
+        await leaveSession();
+      } else {
+        // Session is scheduled, user can cancel participation
+        await cancelJoinSession();
+      }
     } else {
       // User is not a participant, join the session
       const passwordToUse = session.sessionType === 'PRIVATE' ? validatedPassword : null;
@@ -370,6 +377,33 @@ const SessionViewPage = () => {
     } catch (error) {
       console.error('Error canceling participation:', error);
       alert(`Failed to cancel participation: ${error.message}`);
+    } finally {
+      setIsJoining(false);
+    }
+  };
+
+  const leaveSession = async () => {
+    if (!window.confirm('Are you sure you want to leave this active session?')) {
+      return;
+    }
+
+    try {
+      setIsJoining(true);
+      
+      await sessionService.leaveSession(sessionId);
+      
+      // Update participation status
+      setIsParticipant(false);
+      
+      // Show success message
+      alert(`You have left "${session.title}"`);
+      
+      // Refresh session data to update participant count
+      await fetchSession();
+      
+    } catch (error) {
+      console.error('Error leaving session:', error);
+      alert(`Failed to leave session: ${error.message}`);
     } finally {
       setIsJoining(false);
     }
@@ -540,8 +574,12 @@ const SessionViewPage = () => {
                         </svg>
                       )}
                       {isJoining 
-                        ? (isParticipant ? 'Canceling...' : 'Joining...') 
-                        : (isParticipant ? 'Cancel Join' : 'Join Session')
+                        ? (isParticipant 
+                            ? (session.status === 'ACTIVE' ? 'Leaving...' : 'Canceling...') 
+                            : 'Joining...') 
+                        : (isParticipant 
+                            ? (session.status === 'ACTIVE' ? 'Leave Session' : 'Cancel Join') 
+                            : 'Join Session')
                       }
                     </>
                   )}

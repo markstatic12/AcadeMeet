@@ -110,7 +110,6 @@ const SessionDetailsCard = ({ session, onJoinClick, showJoinButton = true }) => 
           <div className="text-center py-3">
             <p className="text-gray-400 text-sm">
               {session.status === 'COMPLETED' && 'This session has ended'}
-              {session.status === 'CANCELLED' && 'This session has been cancelled'}
               {session.status === 'DELETED' && 'This session is no longer available'}
             </p>
           </div>
