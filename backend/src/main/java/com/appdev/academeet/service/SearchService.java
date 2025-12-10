@@ -77,12 +77,8 @@ public class SearchService {
         userMap.put("following", userService.getFollowingCount(user.getId()));
         
         if (currentUserId != null) {
-            try {
-                boolean isFollowing = userService.isFollowing(currentUserId, user.getId());
-                userMap.put("isFollowing", isFollowing);
-            } catch (Exception e) {
-                userMap.put("isFollowing", false);
-            }
+            boolean isFollowing = userService.isFollowing(currentUserId, user.getId());
+            userMap.put("isFollowing", isFollowing);
         } else {
             userMap.put("isFollowing", false);
         }
@@ -187,8 +183,10 @@ public class SearchService {
                         .filter(session -> session.getStartTime() != null &&
                                           session.getStartTime().toLocalDate().equals(filterDate))
                         .collect(Collectors.toList());
-            } catch (Exception e) {
-                // Invalid date format, skip filter
+            } catch (java.time.format.DateTimeParseException e) {
+                // Invalid date format, skip date filter and log warning
+                org.slf4j.LoggerFactory.getLogger(SearchService.class)
+                    .warn("Invalid date format provided for search: {}", date);
             }
         }
 

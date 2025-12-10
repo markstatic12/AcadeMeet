@@ -2,7 +2,6 @@ package com.appdev.academeet.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,40 +49,17 @@ public class SessionService {
     public SessionService(SessionRepository sessionRepository,
                           SessionParticipantRepository sessionParticipantRepository,
                           UserRepository userRepository,
+                          BCryptPasswordEncoder passwordEncoder,
                           ReminderService reminderService,
                           NotificationService notificationService,
                           JwtUtil jwtUtil) {
         this.sessionRepository = sessionRepository;
         this.sessionParticipantRepository = sessionParticipantRepository;
         this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
         this.reminderService = reminderService;
         this.notificationService = notificationService;
         this.jwtUtil = jwtUtil;
-    }
-
-    @Deprecated
-    private Month parseMonth(String monthStr) {
-        if (monthStr == null) {
-            throw new IllegalArgumentException("Month cannot be null");
-        }
-        
-        try {
-            int monthNum = Integer.parseInt(monthStr);
-            return Month.of(monthNum);
-        } catch (NumberFormatException e) {
-            return Month.valueOf(monthStr.toUpperCase());
-        }
-    }
-
-    @Deprecated
-    private LocalDateTime parseDateTime(String month, String day, String year, String timeStr) {
-        return DateTimeUtils.parseFromSeparateFields(month, day, year, timeStr);
-    }
-
-    @Deprecated
-    private LocalDateTime parseDateTimeNullable(String month, String day, String year, String timeStr) {
-        return DateTimeUtils.parseNullableFromSeparateFields(month, day, year, timeStr);
     }
 
     private Session mapToEntity(CreateSessionRequest request) {
@@ -91,10 +67,10 @@ public class SessionService {
         session.setTitle(request.getTitle());
         session.setDescription(request.getDescription());
     
-        LocalDateTime start = parseDateTime(request.getMonth(), request.getDay(), 
-                                            request.getYear(), request.getStartTime());
-        LocalDateTime end = parseDateTime(request.getMonth(), request.getDay(), 
-                                          request.getYear(), request.getEndTime());
+        LocalDateTime start = DateTimeUtils.parseFromSeparateFields(
+            request.getMonth(), request.getDay(), request.getYear(), request.getStartTime());
+        LocalDateTime end = DateTimeUtils.parseFromSeparateFields(
+            request.getMonth(), request.getDay(), request.getYear(), request.getEndTime());
         
         session.setStartTime(start);
         session.setEndTime(end);
@@ -119,10 +95,10 @@ public class SessionService {
         session.setTitle(request.getTitle());
         session.setDescription(request.getDescription());
         
-        LocalDateTime parsedStartTime = parseDateTimeNullable(request.getMonth(), request.getDay(), 
-                                                               request.getYear(), request.getStartTime());
-        LocalDateTime parsedEndTime = parseDateTimeNullable(request.getMonth(), request.getDay(), 
-                                                            request.getYear(), request.getEndTime());
+        LocalDateTime parsedStartTime = DateTimeUtils.parseNullableFromSeparateFields(
+            request.getMonth(), request.getDay(), request.getYear(), request.getStartTime());
+        LocalDateTime parsedEndTime = DateTimeUtils.parseNullableFromSeparateFields(
+            request.getMonth(), request.getDay(), request.getYear(), request.getEndTime());
         
         session.setStartTime(parsedStartTime);
         session.setEndTime(parsedEndTime);
@@ -546,8 +522,8 @@ public class SessionService {
             return sessions.stream()
                     .map(SessionDTO::new)
                     .collect(Collectors.toList());
-        } catch (Exception e) {
-            logger.error("Error retrieving sessions by date: {}-{}-{}", year, month, day, e);
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid date format: year={}, month={}, day={}", year, month, day, e);
             return new ArrayList<>();
         }
     }

@@ -18,14 +18,16 @@ import com.appdev.academeet.security.JwtUtil;
 @Service
 public class AuthService {
     
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
     
     @Autowired
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    
-    @Autowired
-    private JwtUtil jwtUtil;
+    public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+    }
     
     public AuthResponse signup(SignupRequest request) {
         // Check if email already exists
