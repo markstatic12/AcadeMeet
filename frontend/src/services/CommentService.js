@@ -1,12 +1,7 @@
-/**
- * Comment Service - handles comment and reply operations
- */
 import api from './apiClient';
 
 export const getSessionComments = async (sessionId) => {
   const response = await api.get(`/sessions/${sessionId}/comments`);
-  
-  // Backend now returns comments grouped with replies as CommentDTO[]
   return response.data;
 };
 
@@ -26,7 +21,6 @@ export const createReply = async (sessionId, commentId, content) => {
 
 export const deleteComment = async (sessionId, commentId) => {
   await api.delete(`/sessions/${sessionId}/comments/${commentId}`);
-  // 204 No Content response has no body
   return;
 };
 

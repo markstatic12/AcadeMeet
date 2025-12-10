@@ -1,6 +1,4 @@
-// Dashboard Service
 import { useState, useEffect } from 'react';
-import { noteService } from './noteService';
 
 export const useDashboardPage = () => {
   const [activeSessionTab, setActiveSessionTab] = useState('available');
@@ -10,7 +8,6 @@ export const useDashboardPage = () => {
   const [notesLoading, setNotesLoading] = useState(false);
   const [notesError, setNotesError] = useState(null);
 
-  // Load user's notes when the Notes tab is active
   useEffect(() => {
     const loadNotes = async () => {
       if (activeNotesTab !== 'my') return;
@@ -56,7 +53,6 @@ export const useDashboardPage = () => {
     });
   };
 
-  // Convenience wrappers to match DashboardPage props
   const goToPreviousMonth = () => handleMonthChange('prev');
   const goToNextMonth = () => handleMonthChange('next');
 

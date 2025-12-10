@@ -5,12 +5,11 @@ import api from './apiClient';
 
 export const useSettingsPage = () => {
   const navigate = useNavigate();
-  const { currentUser, logout, refreshUser } = useUser(); // Get user from context
+  const { currentUser, logout, refreshUser } = useUser(); 
   const [saving, setSaving] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [student, setStudent] = useState(null);
 
-  // Profile form state
   const [form, setForm] = useState({
     name: '',
     program: '',
@@ -18,7 +17,6 @@ export const useSettingsPage = () => {
     yearLevel: '',
   });
 
-  // Track original form values to detect changes
   const [originalForm, setOriginalForm] = useState({
     name: '',
     program: '',
@@ -26,7 +24,6 @@ export const useSettingsPage = () => {
     yearLevel: '',
   });
 
-  // Image previews
   const [profilePreview, setProfilePreview] = useState(null);
   const [coverPreview, setCoverPreview] = useState(null);
   const [originalProfilePreview, setOriginalProfilePreview] = useState(null);
@@ -34,10 +31,8 @@ export const useSettingsPage = () => {
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
 
-  // Detect if form has changes
   const hasChanges = () => {
     const formChanged = Object.keys(form).some(key => {
-      // Convert both to strings for comparison to handle number/string differences
       const current = String(form[key] || '');
       const original = String(originalForm[key] || '');
       return current !== original;
@@ -50,9 +45,7 @@ export const useSettingsPage = () => {
     return formChanged || imagesChanged;
   };
 
-  // Load student data from backend using JWT
   useEffect(() => {
-    // Initialize from context first
     if (currentUser) {
       const loadedForm = {
         name: currentUser.name || '',
@@ -67,11 +60,10 @@ export const useSettingsPage = () => {
       setOriginalProfilePreview(currentUser.profilePic || null);
     }
 
-    // Then fetch complete data for settings-specific fields
     api.get('/users/me')
       .then(res => res.data)
       .then(s => {
-        console.log('Loaded user data:', s); // Debug log
+        console.log('Loaded user data:', s);
         setStudent(s);
         
         const loadedForm = {
@@ -114,7 +106,6 @@ export const useSettingsPage = () => {
     try {
       setSaving(true);
       
-      // Validate image sizes before sending
       if (profilePreview && profilePreview.length > 250 * 1024) {
         showToast('❌ Profile image is too large after compression. Please use a smaller image.', 'error');
         setSaving(false);
@@ -127,7 +118,6 @@ export const useSettingsPage = () => {
         return;
       }
       
-      // Prepare data to send (user ID extracted from JWT by backend)
       const updateData = {
         name: form.name,
         program: form.program,
@@ -143,15 +133,12 @@ export const useSettingsPage = () => {
         coverImage: updateData.coverImage ? `[Base64 image: ${(updateData.coverImage.length / 1024).toFixed(2)} KB]` : null,
       });
       
-      // Use /users/me endpoint - user ID extracted from JWT token
       const res = await api.put('/users/me', updateData);
       const data = res.data;
       console.log('Update response:', data);
       
-      // Use the response data directly instead of reloading
       setStudent(data);
       
-      // Update form values from response
       const newFormValues = {
         name: data.name || '',
         program: data.program || '',
@@ -176,7 +163,6 @@ export const useSettingsPage = () => {
       
       console.log('Images updated successfully');
       
-      // Refresh user data in context so navbar updates immediately
       await refreshUser();
       
       showToast('✅ Profile updated successfully!', 'success');
@@ -193,7 +179,6 @@ export const useSettingsPage = () => {
     if (file) {
       console.log('Profile image selected:', file.name, file.size);
       
-      // Check file size (limit to 5MB = 5120 KB)
       if (file.size > 5 * 1024 * 1024) {
         const fileSizeKB = (file.size / 1024).toFixed(2);
         alert(`❌ Profile image is too large!\n\nYour image: ${fileSizeKB} KB\nMaximum allowed: 5,120 KB (5 MB)\n\nPlease choose a smaller image or compress it before uploading.`);
@@ -207,7 +192,6 @@ export const useSettingsPage = () => {
           const img = new Image();
           img.onload = () => {
             try {
-              // Compress image to max 800x800 for profile
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
               
@@ -231,15 +215,11 @@ export const useSettingsPage = () => {
               canvas.height = height;
               ctx.drawImage(img, 0, 0, width, height);
               
-              // Start with aggressive compression
               let quality = 0.5;
               let compressedData = canvas.toDataURL('image/jpeg', quality);
               
-              // Base64 adds ~33% overhead, so target max 200KB for ~270KB final size
-              // This ensures it stays well under typical VARCHAR limits
               const maxBase64Size = 200 * 1024;
               
-              // Reduce quality until we meet size requirements
               while (compressedData.length > maxBase64Size && quality > 0.1) {
                 quality -= 0.05;
                 compressedData = canvas.toDataURL('image/jpeg', quality);
@@ -285,7 +265,6 @@ export const useSettingsPage = () => {
     if (file) {
       console.log('Cover image selected:', file.name, file.size);
       
-      // Check file size (limit to 5MB = 5120 KB)
       if (file.size > 5 * 1024 * 1024) {
         const fileSizeKB = (file.size / 1024).toFixed(2);
         alert(`❌ Cover image is too large!\n\nYour image: ${fileSizeKB} KB\nMaximum allowed: 5,120 KB (5 MB)\n\nPlease choose a smaller image or compress it before uploading.`);
@@ -299,7 +278,6 @@ export const useSettingsPage = () => {
           const img = new Image();
           img.onload = () => {
             try {
-              // Compress image to max 1200px width for cover
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
               
@@ -308,7 +286,6 @@ export const useSettingsPage = () => {
               const maxWidth = 1200;
               const maxHeight = 400;
               
-              // Scale down maintaining aspect ratio
               if (width > maxWidth || height > maxHeight) {
                 const widthRatio = maxWidth / width;
                 const heightRatio = maxHeight / height;
@@ -322,14 +299,11 @@ export const useSettingsPage = () => {
               canvas.height = height;
               ctx.drawImage(img, 0, 0, width, height);
               
-              // Start with aggressive compression
               let quality = 0.4;
               let compressedData = canvas.toDataURL('image/jpeg', quality);
               
-              // Base64 adds ~33% overhead, so target max 200KB for ~270KB final size
               const maxBase64Size = 200 * 1024;
               
-              // Reduce quality until we meet size requirements
               while (compressedData.length > maxBase64Size && quality > 0.1) {
                 quality -= 0.05;
                 compressedData = canvas.toDataURL('image/jpeg', quality);

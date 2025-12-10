@@ -1,19 +1,9 @@
 import api from './apiClient';
 import logger from '../utils/logger';
 
-/**
- * Authentication Service
- * 
- * ✅ SECURITY: Now uses HttpOnly cookies for token storage
- * - Tokens are sent/received automatically via cookies (withCredentials: true)
- * - No localStorage usage for tokens (prevents XSS token theft)
- * - Automatic token refresh handled by apiClient interceptor
- */
-
 export const authService = {
   async refreshAccessToken() {
     try {
-      // Server will read refreshToken from cookie and set new token cookie
       const response = await api.post('/auth/refresh', {});
       logger.debug('Token refresh successful');
       return response.data;
@@ -64,7 +54,6 @@ export const authService = {
       logger.debug('Logout successful');
     } catch (error) {
       logger.error('Logout error:', error);
-      // Even if server logout fails, we should clear client state
     }
   }
 };

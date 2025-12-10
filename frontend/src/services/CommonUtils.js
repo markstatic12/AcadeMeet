@@ -29,8 +29,6 @@ export const useToast = () => {
 };
 
 // Panel height utility hook
-// Returns a CSS height string (e.g. '480px') based on the referenced element's height.
-// Usage: const panelHeight = usePanelHeight(ref, [deps]);
 export const usePanelHeight = (ref, deps = []) => {
   const [panelHeight, setPanelHeight] = useState(null);
 
@@ -52,7 +50,6 @@ export const usePanelHeight = (ref, deps = []) => {
     calc();
     window.addEventListener('resize', calc);
     return () => window.removeEventListener('resize', calc);
-    // deps should include any values that affect the reference size (e.g. userData)
   }, deps);
 
   return panelHeight;
