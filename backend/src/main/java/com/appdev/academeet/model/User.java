@@ -29,8 +29,6 @@ public class User {
     @Column(name = "year_level")
     private Integer yearLevel;
 
-    @Column(name = "phone_number", length = 45)
-    private String phoneNumber;
 
     @Column(nullable = false, unique = true, length = 125)
     private String email;
@@ -38,8 +36,6 @@ public class User {
     @Column(name = "password_hash", nullable = false, length = 255)
     private String password;
 
-    @Column(name = "password_salt", length = 64)
-    private String passwordSalt;
 
     @Column(length = 500)
     private String bio;
@@ -113,13 +109,7 @@ public class User {
     }
 
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
+    
 
     public String getEmail() {
         return email;
@@ -137,13 +127,7 @@ public class User {
         this.password = password;
     }
 
-    public String getPasswordSalt() {
-        return passwordSalt;
-    }
-
-    public void setPasswordSalt(String passwordSalt) {
-        this.passwordSalt = passwordSalt;
-    }
+    
 
     public String getBio() {
         return bio;
