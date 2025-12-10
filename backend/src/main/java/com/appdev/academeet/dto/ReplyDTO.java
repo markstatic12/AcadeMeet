@@ -5,19 +5,21 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+/**
+ * Response DTO for comment replies
+ * Immutable after construction
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReplyDTO {
-    private Long commentId;
-    private Long userId;
-    private String userName;
-    private String profilePic;
-    private String content;
+    private final Long commentId;
+    private final Long userId;
+    private final String userName;
+    private final String profilePic;
+    private final String content;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime createdAt;
-    private Long replyingToUserId;
-    private String replyingToUserName;
-
-    public ReplyDTO() {}
+    private final LocalDateTime createdAt;
+    private final Long replyingToUserId;
+    private final String replyingToUserName;
 
     public ReplyDTO(Long commentId, Long userId, String userName, String profilePic, String content, 
                    LocalDateTime createdAt, Long replyingToUserId, String replyingToUserName) {
@@ -31,28 +33,13 @@ public class ReplyDTO {
         this.replyingToUserName = replyingToUserName;
     }
 
-    // Getters and Setters
+    // Getters only (immutable)
     public Long getCommentId() { return commentId; }
-    public void setCommentId(Long commentId) { this.commentId = commentId; }
-
     public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
-
     public String getUserName() { return userName; }
-    public void setUserName(String userName) { this.userName = userName; }
-
     public String getProfilePic() { return profilePic; }
-    public void setProfilePic(String profilePic) { this.profilePic = profilePic; }
-
     public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
-
     public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
     public Long getReplyingToUserId() { return replyingToUserId; }
-    public void setReplyingToUserId(Long replyingToUserId) { this.replyingToUserId = replyingToUserId; }
-
     public String getReplyingToUserName() { return replyingToUserName; }
-    public void setReplyingToUserName(String replyingToUserName) { this.replyingToUserName = replyingToUserName; }
 }

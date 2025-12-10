@@ -5,16 +5,18 @@ import java.time.LocalDateTime;
 import com.appdev.academeet.model.Notification;
 import com.appdev.academeet.model.NotificationType;
 
+/**
+ * Response DTO for notifications
+ * Immutable after construction
+ */
 public class NotificationDTO {
-    private Long id;
-    private Long sessionId;
-    private String sessionTitle;
-    private NotificationType type;
-    private String message;
-    private Boolean read;
-    private LocalDateTime createdAt;
-    
-    public NotificationDTO() {}
+    private final Long id;
+    private final Long sessionId;
+    private final String sessionTitle;
+    private final NotificationType type;
+    private final String message;
+    private final Boolean read;
+    private final LocalDateTime createdAt;
     
     public NotificationDTO(Notification notification) {
         this.id = notification.getId();
@@ -26,60 +28,12 @@ public class NotificationDTO {
         this.createdAt = notification.getCreatedAt();
     }
     
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-    
-    public void setId(Long id) {
-        this.id = id;
-    }
-    
-    public Long getSessionId() {
-        return sessionId;
-    }
-    
-    public void setSessionId(Long sessionId) {
-        this.sessionId = sessionId;
-    }
-    
-    public String getSessionTitle() {
-        return sessionTitle;
-    }
-    
-    public void setSessionTitle(String sessionTitle) {
-        this.sessionTitle = sessionTitle;
-    }
-    
-    public NotificationType getType() {
-        return type;
-    }
-    
-    public void setType(NotificationType type) {
-        this.type = type;
-    }
-    
-    public String getMessage() {
-        return message;
-    }
-    
-    public void setMessage(String message) {
-        this.message = message;
-    }
-    
-    public Boolean getRead() {
-        return read;
-    }
-    
-    public void setRead(Boolean read) {
-        this.read = read;
-    }
-    
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+    // Getters only (immutable)
+    public Long getId() { return id; }
+    public Long getSessionId() { return sessionId; }
+    public String getSessionTitle() { return sessionTitle; }
+    public NotificationType getType() { return type; }
+    public String getMessage() { return message; }
+    public Boolean getRead() { return read; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
 }
