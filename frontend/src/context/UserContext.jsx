@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { API_BASE_URL } from '../services/apiHelper';
+import api from '../services/apiClient';
+import { authService } from '../services/authService';
 import logger from '../utils/logger';
 
 const UserContext = createContext(null);
@@ -7,29 +8,15 @@ const UserContext = createContext(null);
 // Helper function to fetch user data from backend
 const fetchUserData = async () => {
   try {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-
-    const response = await fetch(`${API_BASE_URL}/users/me`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        // Token expired or invalid
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        return null;
-      }
-      throw new Error('Failed to fetch user data');
-    }
-
-    return await response.json();
+    // Use axios apiClient (sends cookies automatically with withCredentials: true)
+    const response = await api.get('/users/me');
+    return response.data;
   } catch (error) {
-    logger.debug('Error fetching user data:', error);
+    if (error.response?.status === 401) {
+      logger.debug('User not authenticated (401)');
+    } else {
+      logger.debug('Error fetching user data:', error.message);
+    }
     return null;
   }
 };
@@ -38,27 +25,22 @@ export const UserProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Initialize user from token on mount and fetch full user data
+  // Initialize user from cookie on mount (if cookie exists, server will authenticate)
   useEffect(() => {
     const initializeUser = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        // Fetch complete user data from backend
-        const userData = await fetchUserData();
-        if (userData) {
-          setCurrentUser({
-            authenticated: true,
-            id: userData.id,
-            name: userData.name,
-            email: userData.email,
-            profilePic: userData.profilePic || userData.profileImageUrl,
-            program: userData.program,
-            yearLevel: userData.yearLevel,
-            bio: userData.bio,
-          });
-        } else {
-          setCurrentUser(null);
-        }
+      // Try to fetch user data - if cookie exists and is valid, this will succeed
+      const userData = await fetchUserData();
+      if (userData) {
+        setCurrentUser({
+          authenticated: true,
+          id: userData.id,
+          name: userData.name,
+          email: userData.email,
+          profilePic: userData.profilePic || userData.profileImageUrl,
+          program: userData.program,
+          yearLevel: userData.yearLevel,
+          bio: userData.bio,
+        });
       }
       setLoading(false);
     };
@@ -66,22 +48,9 @@ export const UserProvider = ({ children }) => {
     initializeUser();
   }, []);
 
-  // Store tokens after login/signup and fetch user data
+  // Store user data after login/signup (cookie is set by server automatically)
   const login = async (userData) => {
-    const token = userData.token;
-    const refreshToken = userData.refreshToken;
-    
-    if (!token) {
-      throw new Error('No token found in response');
-    }
-    
-    // Store tokens
-    localStorage.setItem('token', token);
-    if (refreshToken) {
-      localStorage.setItem('refreshToken', refreshToken);
-    }
-
-    // Fetch and store complete user data
+    // Server has already set HttpOnly cookie - just fetch and store user data
     const fullUserData = await fetchUserData();
     if (fullUserData) {
       setCurrentUser({
@@ -94,19 +63,36 @@ export const UserProvider = ({ children }) => {
         yearLevel: fullUserData.yearLevel,
         bio: fullUserData.bio,
       });
+    } else {
+      // Fallback: use data from login response if /users/me fails
+      setCurrentUser({
+        authenticated: true,
+        id: userData.id,
+        name: userData.name,
+        email: userData.email,
+        profilePic: userData.profilePic,
+        program: userData.program,
+        yearLevel: userData.yearLevel,
+        bio: userData.bio,
+      });
     }
   };
 
-  // Clear tokens on logout
-  const logout = () => {
+  // Clear user state and call backend logout to clear cookies
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      logger.error('Logout error:', error);
+    }
     setCurrentUser(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
   };
 
-  // Get auth token
+  // Get auth token - not needed anymore (cookies are httpOnly)
+  // Kept for backward compatibility but returns null
   const getToken = () => {
-    return localStorage.getItem('token');
+    logger.warn('getToken() called but tokens are now in HttpOnly cookies');
+    return null;
   };
 
   // Refresh user data (for profile updates)

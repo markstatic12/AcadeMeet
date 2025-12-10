@@ -1,119 +1,70 @@
-import { API_BASE_URL } from './apiHelper';
+import api from './apiClient';
+import logger from '../utils/logger';
 
 /**
  * Authentication Service
  * 
- * ⚠️ SECURITY WARNING:
- * Currently stores JWT tokens in localStorage, which is vulnerable to XSS attacks.
- * 
- * RECOMMENDED MIGRATION:
- * - Backend: Set JWT in HttpOnly cookie (not accessible to JavaScript)
- * - Frontend: Remove localStorage usage, use credentials: 'include' for automatic cookie handling
- * - See SECURITY_STATUS.md for detailed migration plan
- * 
- * Current implementation provides basic security but should be upgraded before production.
+ * ✅ SECURITY: Now uses HttpOnly cookies for token storage
+ * - Tokens are sent/received automatically via cookies (withCredentials: true)
+ * - No localStorage usage for tokens (prevents XSS token theft)
+ * - Automatic token refresh handled by apiClient interceptor
  */
 
 export const authService = {
   async refreshAccessToken() {
     try {
-      const refreshToken = localStorage.getItem('refreshToken');
-      
-      if (!refreshToken) {
-        throw new Error('No refresh token available');
-      }
-      
-      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ refreshToken }),
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Token refresh failed');
-      }
-      
-      // Update access token in localStorage
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-      }
-      
-      return data.token;
+      // Server will read refreshToken from cookie and set new token cookie
+      const response = await api.post('/auth/refresh', {});
+      logger.debug('Token refresh successful');
+      return response.data;
     } catch (error) {
-      // Clear tokens if refresh fails
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
+      logger.error('Token refresh failed:', error);
       throw error;
     }
   },
 
   async signup(name, email, password, program, yearLevel) {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, password, program, yearLevel: parseInt(yearLevel) }),
+      const response = await api.post('/auth/signup', {
+        name,
+        email,
+        password,
+        program,
+        yearLevel: parseInt(yearLevel)
       });
-
-      // Check if response has content before parsing JSON
-      const text = await response.text();
-      if (!text) {
-        throw new Error(`Signup failed: Empty response (Status: ${response.status})`);
-      }
-
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        throw new Error(`Signup failed: Invalid JSON response (Status: ${response.status})`);
-      }
       
-      if (!response.ok) {
-        throw new Error(data.message || 'Signup failed');
-      }
-
-      return data;
+      logger.debug('Signup successful');
+      return response.data;
     } catch (error) {
-      throw error;
+      const message = error.response?.data?.message || error.message || 'Signup failed';
+      logger.error('Signup error:', message);
+      throw new Error(message);
     }
   },
 
   async login(email, password) {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      const response = await api.post('/auth/login', {
+        email,
+        password
       });
-
-      // Check if response has content before parsing JSON
-      const text = await response.text();
-      if (!text) {
-        throw new Error(`Login failed: Empty response (Status: ${response.status})`);
-      }
-
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        throw new Error(`Login failed: Invalid JSON response (Status: ${response.status})`);
-      }
       
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-
-      return data;
+      logger.debug('Login successful');
+      return response.data;
     } catch (error) {
-      throw error;
+      const message = error.response?.data?.message || error.message || 'Login failed';
+      logger.error('Login error:', message);
+      throw new Error(message);
     }
   },
+
+  async logout() {
+    try {
+      await api.post('/auth/logout');
+      logger.debug('Logout successful');
+    } catch (error) {
+      logger.error('Logout error:', error);
+      // Even if server logout fails, we should clear client state
+    }
+  }
 };
