@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +36,8 @@ import com.appdev.academeet.util.DateTimeUtils;
 
 @Service
 public class SessionService {
+
+    private static final Logger logger = LoggerFactory.getLogger(SessionService.class);
 
     private final SessionRepository sessionRepository;
     private final SessionParticipantRepository sessionParticipantRepository;
@@ -534,16 +538,16 @@ public class SessionService {
                 monthInt = java.time.Month.valueOf(month.toUpperCase()).getValue();
             }
             
-            System.out.println("Searching for sessions: " + yearInt + "-" + monthInt + "-" + dayInt);
+            logger.debug("Searching for sessions on date: {}-{}-{}", yearInt, monthInt, dayInt);
             
             List<Session> sessions = sessionRepository.findByYearMonthDay(yearInt, monthInt, dayInt);
-            System.out.println("Found " + sessions.size() + " sessions");
+            logger.debug("Found {} sessions for the specified date", sessions.size());
             
             return sessions.stream()
                     .map(SessionDTO::new)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            System.err.println("Error in getSessionsByDate: " + e.getMessage());
+            logger.error("Error retrieving sessions by date: {}-{}-{}", year, month, day, e);
             return new ArrayList<>();
         }
     }

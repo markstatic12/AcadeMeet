@@ -2,6 +2,8 @@ package com.appdev.academeet.security;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +20,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -46,16 +50,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 if (jwtUtil.validateToken(token)) {
                     email = jwtUtil.getEmailFromToken(token);
-                    System.out.println("JWT Filter - Token valid, email: " + email);
+                    logger.debug("JWT Filter - Valid token for user: {}", email);
                 } else {
-                    System.out.println("JWT Filter - Token validation failed");
+                    logger.warn("JWT Filter - Invalid token");
                 }
             } catch (Exception ex) {
-                System.out.println("JWT Filter - Exception during token validation: " + ex.getMessage());
+                logger.error("JWT Filter - Token validation failed: {}", ex.getMessage());
                 // ignore and proceed without authentication
             }
         } else {
-            System.out.println("JWT Filter - No Bearer token found in Authorization header");
+            logger.debug("JWT Filter - No Bearer token found in Authorization header");
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
