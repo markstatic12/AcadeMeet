@@ -1,10 +1,5 @@
 package com.appdev.academeet.service;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -13,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -22,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.appdev.academeet.dto.CreateSessionRequest;
 import com.appdev.academeet.dto.SessionDTO;
@@ -535,7 +528,6 @@ public class SessionService {
                     .collect(Collectors.toList());
         } catch (Exception e) {
             System.err.println("Error in getSessionsByDate: " + e.getMessage());
-            e.printStackTrace();
             return new ArrayList<>();
         }
     }
@@ -565,31 +557,6 @@ public class SessionService {
     @Transactional(readOnly = true)
     public Page<Session> getSessionsByStatus(SessionStatus status, Pageable pageable) {
         return sessionRepository.findBySessionStatus(status, pageable);
-    }
-
-    public String uploadSessionImage(Long sessionId, MultipartFile file, String imageType) throws IOException {
-        Optional<Session> sessionOpt = sessionRepository.findById(sessionId);
-        if (sessionOpt.isPresent()) {
-            Session session = sessionOpt.get();
-            
-            String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            Path uploadPath = Paths.get("uploads/sessions/");
-            
-            Files.createDirectories(uploadPath);
-            
-            Path filePath = uploadPath.resolve(filename);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            
-            String imageUrl = "/uploads/sessions/" + filename;
-            
-            if ("profile".equals(imageType)) {
-                session.setProfileImageUrl(imageUrl);
-            } 
-
-            sessionRepository.save(session);
-            return imageUrl;
-        }
-        throw new RuntimeException("Session not found");
     }
 
     @Transactional(readOnly = true)
