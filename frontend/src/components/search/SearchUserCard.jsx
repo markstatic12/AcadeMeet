@@ -3,7 +3,15 @@ import { Link } from 'react-router-dom';
 import { UserIcon } from '../../icons';
 
 const SearchUserCard = ({ user }) => {
-  const { id, name, program, studentId, profileImageUrl } = user;
+  const { id, name, program, yearLevel, profileImageUrl } = user;
+  
+  // Format year level display (1 -> "1st Year", 2 -> "2nd Year", etc.)
+  const getYearLevelText = (level) => {
+    if (!level) return '';
+    const suffixes = ['th', 'st', 'nd', 'rd'];
+    const suffix = level >= 1 && level <= 3 ? suffixes[level] : suffixes[0];
+    return `${level}${suffix} Year`;
+  };
   
   return (
     <Link 
@@ -48,7 +56,7 @@ const SearchUserCard = ({ user }) => {
             {program}
           </p>
           <p className="text-gray-500 text-[11px] group-hover:text-gray-400 transition-colors duration-300 truncate">
-            {studentId}
+            {yearLevel ? getYearLevelText(yearLevel) : 'Year level not specified'}
           </p>
         </div>
         
