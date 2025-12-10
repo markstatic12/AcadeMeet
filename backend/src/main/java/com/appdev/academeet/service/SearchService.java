@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.appdev.academeet.dto.SessionDTO;
 import com.appdev.academeet.model.Session;
+import com.appdev.academeet.model.SessionPrivacy;
 import com.appdev.academeet.model.SessionStatus;
-import com.appdev.academeet.model.SessionType;
 import com.appdev.academeet.model.User;
 import com.appdev.academeet.repository.SessionRepository;
 import com.appdev.academeet.repository.UserRepository;
@@ -196,8 +196,8 @@ public class SearchService {
         }
 
         if (privacy != null && !privacy.trim().isEmpty() && !privacy.equalsIgnoreCase("All Sessions")) {
-            SessionType privacyType = privacy.equalsIgnoreCase("public") ? 
-                                      SessionType.PUBLIC : SessionType.PRIVATE;
+            SessionPrivacy privacyType = privacy.equalsIgnoreCase("public") ? 
+                                      SessionPrivacy.PUBLIC : SessionPrivacy.PRIVATE;
             sessions = sessions.stream()
                     .filter(session -> session.getSessionPrivacy() == privacyType)
                     .collect(Collectors.toList());

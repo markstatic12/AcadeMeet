@@ -24,7 +24,6 @@ import com.appdev.academeet.dto.UpdateSessionRequest;
 import com.appdev.academeet.dto.UpdateStatusRequest;
 import com.appdev.academeet.model.Session;
 import com.appdev.academeet.model.SessionStatus;
-import com.appdev.academeet.model.SessionType;
 import com.appdev.academeet.model.User;
 import com.appdev.academeet.service.SessionService;
 
@@ -153,7 +152,7 @@ public class SessionController extends BaseController {
         Session session = sessionService.findById(id)
             .orElseThrow(() -> new RuntimeException("Session not found"));
         
-        if (session.getSessionPrivacy() == SessionType.PRIVATE) {
+        if (session.getSessionPrivacy() == com.appdev.academeet.model.SessionPrivacy.PRIVATE) {
             boolean isOwner = session.getHost().getId().equals(user.getId());
             boolean isParticipant = sessionService.isUserParticipant(id, user.getId());
             

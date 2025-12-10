@@ -29,9 +29,9 @@ export const sessionService = {
       endTime: sessionData.endTime,      // Send as string (e.g., "16:00")
       location: sessionData.location,
       maxParticipants: sessionData.maxParticipants ? parseInt(sessionData.maxParticipants) : null,
-      sessionType: sessionData.sessionType, // Should be 'PUBLIC' or 'PRIVATE'
+      sessionPrivacy: sessionData.sessionPrivacy, // Should be 'PUBLIC' or 'PRIVATE'
       tags: sessionData.tags || [],
-      password: sessionData.sessionType === 'PUBLIC' ? null : sessionData.password
+      password: sessionData.sessionPrivacy === 'PUBLIC' ? null : sessionData.password
     };
 
     console.log('Creating session with data:', submissionData);
@@ -112,9 +112,9 @@ export const sessionService = {
       endTime: sessionData.endTime,      
       location: sessionData.location,
       maxParticipants: sessionData.maxParticipants ? parseInt(sessionData.maxParticipants) : null,
-      sessionType: sessionData.sessionType,
+      sessionPrivacy: sessionData.sessionPrivacy,
       tags: sessionData.tags || [],
-      password: sessionData.sessionType === 'PUBLIC' ? null : sessionData.password
+      password: sessionData.sessionPrivacy === 'PUBLIC' ? null : sessionData.password
     };
 
     console.log('Updating session with data:', submissionData);

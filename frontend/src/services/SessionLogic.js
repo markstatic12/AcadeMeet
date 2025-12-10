@@ -15,7 +15,7 @@ export const useSessionForm = (showToast) => {
     endTime: "",
     location: "",
     locationType: "in-person",
-    sessionType: "",
+    sessionPrivacy: "",
     password: "",
     maxParticipants: "",
     description: "",
@@ -75,7 +75,7 @@ export const useSessionForm = (showToast) => {
       { name: 'startTime', label: 'Start Time' },
       { name: 'endTime', label: 'End Time' },
       { name: 'location', label: 'Location' },
-      { name: 'sessionType', label: 'Session Type' }
+      { name: 'sessionPrivacy', label: 'Session Type' }
     ];
 
     requiredFields.forEach(field => {
@@ -148,7 +148,7 @@ export const useSessionForm = (showToast) => {
     }
 
     // Validate private session password
-    if (sessionData.sessionType === 'PRIVATE' && (!sessionData.password || sessionData.password.length < 6)) {
+    if (sessionData.sessionPrivacy === 'PRIVATE' && (!sessionData.password || sessionData.password.length < 6)) {
       errors.password = 'Password must be at least 6 characters';
     }
 
@@ -231,7 +231,7 @@ export const useEditSessionForm = (sessionId, showToast) => {
     endTime: "",
     location: "",
     locationType: "in-person",
-    sessionType: "",
+    sessionPrivacy: "",
     password: "",
     maxParticipants: "",
     description: "",
@@ -277,7 +277,7 @@ export const useEditSessionForm = (sessionId, showToast) => {
           endTime: data.endTime || "",
           location: data.location || "",
           locationType: data.locationType || "in-person",
-          sessionType: data.sessionType || "",
+          sessionPrivacy: data.sessionPrivacy || "",
           password: "", // Don't populate password for security
           maxParticipants: data.maxParticipants || "",
           description: data.description || "",
@@ -344,7 +344,7 @@ export const useEditSessionForm = (sessionId, showToast) => {
       { name: 'startTime', label: 'Start Time' },
       { name: 'endTime', label: 'End Time' },
       { name: 'location', label: 'Location' },
-      { name: 'sessionType', label: 'Session Type' }
+      { name: 'sessionPrivacy', label: 'Session Type' }
     ];
 
     requiredFields.forEach(field => {
@@ -417,7 +417,7 @@ export const useEditSessionForm = (sessionId, showToast) => {
     }
 
     // Validate private session password if changed
-    if (sessionData.sessionType === 'PRIVATE' && sessionData.password && sessionData.password.length < 6) {
+    if (sessionData.sessionPrivacy === 'PRIVATE' && sessionData.password && sessionData.password.length < 6) {
       errors.password = 'Password must be at least 6 characters';
     }
 

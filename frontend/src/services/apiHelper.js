@@ -1,6 +1,18 @@
 // apiHelper.js - centralized API utility to add auth headers
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+
+// Validate API URL is configured
+if (!API_BASE_URL) {
+  throw new Error('VITE_API_BASE_URL environment variable is not configured');
+}
+
+// Warn if using HTTP in production
+if (import.meta.env.PROD && !API_BASE_URL.startsWith('https://')) {
+  console.error('⚠️  WARNING: Using HTTP in production is insecure! Configure HTTPS.');
+}
+
+export { API_BASE_URL };  // Export for reuse
 
 /**
  * Build headers with JWT token from localStorage
