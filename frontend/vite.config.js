@@ -27,7 +27,16 @@ export default defineConfig(({ mode }) => {
                 "style-src 'self' 'unsafe-inline'",   // Tailwind uses inline styles
                 "img-src 'self' data: https:",
                 "font-src 'self' data:",
-                `connect-src 'self' ${apiBaseUrl || 'http://localhost:8080'}`,
+                // Use only the origin (no path) for connect-src to match fetch requests
+                (() => {
+                  try {
+                    const raw = apiBaseUrl || 'http://localhost:8080';
+                    const origin = new URL(raw).origin;
+                    return `connect-src 'self' ${origin}`;
+                  } catch (e) {
+                    return `connect-src 'self' ${apiBaseUrl || 'http://localhost:8080'}`;
+                  }
+                })(),
                 "frame-ancestors 'none'",
                 "base-uri 'self'",
                 "form-action 'self'"

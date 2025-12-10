@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         // Skip JWT filter for auth endpoints
         boolean skip = path.startsWith("/api/auth/");
-        System.out.println("JWT Filter - Path: " + path + ", Skip: " + skip);
+        logger.debug("JWT Filter - Path: {}, Skip: {}", path, skip);
         return skip;
     }
 

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { API_BASE_URL } from '../services/apiHelper';
+import logger from '../utils/logger';
 
 const UserContext = createContext(null);
 
@@ -28,7 +29,7 @@ const fetchUserData = async () => {
 
     return await response.json();
   } catch (error) {
-    console.error('Error fetching user data:', error);
+    logger.debug('Error fetching user data:', error);
     return null;
   }
 };
