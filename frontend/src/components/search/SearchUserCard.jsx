@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { UserIcon } from '../../icons';
+import { useUser } from '../../context/UserContext';
 
 const SearchUserCard = ({ user }) => {
-  const { id, name, program, yearLevel, profileImageUrl } = user;
+  const { id, name, program, yearLevel, profileImageUrl, followers, isFollowing } = user;
   
   // Format year level display (1 -> "1st Year", 2 -> "2nd Year", etc.)
   const getYearLevelText = (level) => {
@@ -55,9 +56,22 @@ const SearchUserCard = ({ user }) => {
           <p className="text-gray-400 text-xs mb-0.5 group-hover:text-gray-300 transition-colors duration-300 truncate">
             {program}
           </p>
-          <p className="text-gray-500 text-[11px] group-hover:text-gray-400 transition-colors duration-300 truncate">
-            {yearLevel ? getYearLevelText(yearLevel) : 'Year level not specified'}
-          </p>
+          <div className="flex items-center gap-1.5 text-[11px] group-hover:text-gray-400 transition-colors duration-300">
+            <span className="text-gray-500">
+              {yearLevel ? getYearLevelText(yearLevel) : 'Year level not specified'}
+            </span>
+            {yearLevel && (
+              <>
+                <span className="text-gray-600">|</span>
+                <div className="flex items-center gap-1">
+                  <div className={`w-1.5 h-1.5 rounded-full ${isFollowing ? 'bg-green-500' : 'bg-gray-500'}`}></div>
+                  <span className={isFollowing ? 'text-green-400' : 'text-gray-500'}>
+                    {isFollowing ? 'Followed' : 'People'}
+                  </span>
+                </div>
+              </>
+            )}
+          </div>
         </div>
         
         {/* Arrow Icon */}
