@@ -38,12 +38,6 @@ public class CommentService {
     }
 
     @Transactional
-    public void createComment(Long userId, Long sessionId, String content) {
-        // Keep backward-compatible wrapper that delegates to the new create method
-        createComment(userId, sessionId, content, null);
-    }
-    
-    @Transactional
     public Comment createComment(Long userId, Long sessionId, String content, Long parentCommentId) {
         if (content == null || content.trim().isEmpty()) {
             throw new IllegalArgumentException("Comment content cannot be empty");
@@ -77,11 +71,6 @@ public class CommentService {
         }
 
         return saved;
-    }
-
-    @Transactional
-    public void createReply(Long userId, Long sessionId, Long parentCommentId, String content) {
-        createComment(userId, sessionId, content, parentCommentId);
     }
 
     @Transactional(readOnly = true)
