@@ -4,8 +4,7 @@ import { imageService } from '../../services/ImageService';
 const ImageUpload = ({ 
   currentImageUrl, 
   onImageUpdate, 
-  uploadType = 'profile', // 'profile', 'cover', 'session'
-  sessionId,
+  uploadType = 'profile', // 'profile', 'cover'
   className = ''
 }) => {
   const [isUploading, setIsUploading] = useState(false);
@@ -25,9 +24,6 @@ const ImageUpload = ({
           break;
         case 'cover':
           result = await imageService.uploadCoverImage(file);
-          break;
-        case 'session':
-          result = await imageService.uploadSessionImage(sessionId, file);
           break;
         default:
           throw new Error('Invalid upload type');
@@ -73,11 +69,7 @@ const ImageUpload = ({
 
     try {
       setIsUploading(true);
-      if (uploadType === 'session') {
-        await imageService.deleteSessionImage(sessionId);
-      } else {
-        await imageService.deleteUserImage(uploadType);
-      }
+      await imageService.deleteUserImage(uploadType);
       onImageUpdate(null);
     } catch (error) {
       alert(`Failed to remove image: ${error.message}`);
@@ -92,8 +84,6 @@ const ImageUpload = ({
         return 'Upload Profile Picture';
       case 'cover':
         return 'Upload Cover Image';
-      case 'session':
-        return 'Upload Session Image';
       default:
         return 'Upload Image';
     }
@@ -103,8 +93,6 @@ const ImageUpload = ({
     switch (uploadType) {
       case 'cover':
         return 'aspect-[3/1]';
-      case 'session':
-        return 'aspect-[16/9]';
       case 'profile':
       default:
         return 'aspect-square';

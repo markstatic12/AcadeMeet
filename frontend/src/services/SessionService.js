@@ -1,11 +1,7 @@
-/**
- * Session API Service - handles all session-related HTTP requests
- */
 import { authFetch } from './apiHelper';
 
 const API_BASE = '/sessions';
 
-// Helper function to handle API responses
 const handleResponse = async (response, errorMessage = 'Request failed') => {
   if (!response.ok) {
     const errorText = await response.text();
@@ -13,7 +9,7 @@ const handleResponse = async (response, errorMessage = 'Request failed') => {
     try {
       const errorData = JSON.parse(errorText);
       throw new Error(errorData.error || errorData.message || `${errorMessage} (${response.status})`);
-    } catch (e) {
+    } catch {
       throw new Error(`${errorMessage} (${response.status}): ${errorText}`);
     }
   }
@@ -21,9 +17,7 @@ const handleResponse = async (response, errorMessage = 'Request failed') => {
 };
 
 export const sessionService = {
-  /**
-   * Creates a new session with proper data formatting
-   */
+ 
   async createSession(sessionData) {
     const submissionData = {
       title: sessionData.title,
@@ -52,9 +46,7 @@ export const sessionService = {
     return handleResponse(response, 'Failed to create session');
   },
 
-  /**
-   * Validates session password without joining (for private session access)
-   */
+  
   async validateSessionPassword(sessionId, password) {
     const response = await authFetch(`${API_BASE}/${sessionId}/validate-password`, {
       method: 'POST',
@@ -64,9 +56,7 @@ export const sessionService = {
     return handleResponse(response, 'Failed to validate password');
   },
 
-  /**
-   * Joins a session with password validation and participant increment
-   */
+  
   async joinSession(sessionId, password) {
     const response = await authFetch(`${API_BASE}/${sessionId}/join`, {
       method: 'POST',
@@ -76,9 +66,7 @@ export const sessionService = {
     return handleResponse(response, 'Failed to join session');
   },
 
-  /**
-   * Cancels participation in a session
-   */
+ 
   async cancelJoinSession(sessionId) {
     const response = await authFetch(`${API_BASE}/${sessionId}/cancel-join`, {
       method: 'POST',
@@ -88,9 +76,6 @@ export const sessionService = {
     return handleResponse(response, 'Failed to cancel participation');
   },
 
-  /**
-   * Checks if the current user is a participant of a session
-   */
   async isUserParticipant(sessionId) {
     const response = await authFetch(`${API_BASE}/${sessionId}/is-participant`, {
       method: 'GET'
@@ -99,9 +84,6 @@ export const sessionService = {
     return handleResponse(response, 'Failed to check participation status');
   },
 
-  /**
-   * Updates session status (e.g., ACTIVE, COMPLETED, CANCELLED, TRASH)
-   */
   async updateSessionStatus(sessionId, status) {
     const response = await authFetch(`${API_BASE}/${sessionId}/status`, {
       method: 'PATCH',
@@ -111,18 +93,15 @@ export const sessionService = {
     return handleResponse(response, 'Failed to update session status');
   },
 
-  /**
-   * Updates session details
-   */
   async updateSession(sessionId, sessionData) {
     const submissionData = {
       title: sessionData.title,
       description: sessionData.description,
-      month: sessionData.month,  // Send as string (e.g., "January")
-      day: sessionData.day,      // Send as string (e.g., "15")
-      year: sessionData.year,    // Send as string (e.g., "2025")
-      startTime: sessionData.startTime,  // Send as string (e.g., "14:30")
-      endTime: sessionData.endTime,      // Send as string (e.g., "16:00")
+      month: sessionData.month,  
+      day: sessionData.day,      
+      year: sessionData.year,   
+      startTime: sessionData.startTime,  
+      endTime: sessionData.endTime,      
       location: sessionData.location,
       maxParticipants: sessionData.maxParticipants ? parseInt(sessionData.maxParticipants) : null,
       sessionType: sessionData.sessionType,
@@ -143,7 +122,7 @@ export const sessionService = {
       try {
         const errorData = JSON.parse(errorText);
         throw new Error(errorData.error || errorData.message || 'Failed to update session');
-      } catch (e) {
+      } catch {
         throw new Error(`Failed to update session: ${response.status} - ${errorText}`);
       }
     }
@@ -151,9 +130,6 @@ export const sessionService = {
     return await response.json();
   },
 
-  /**
-   * Fetches sessions filtered by status or all sessions if no status provided
-   */
   async getSessionsByStatus(status) {
     const url = status 
       ? `${API_BASE}?status=${status}`
@@ -166,54 +142,6 @@ export const sessionService = {
     return handleResponse(response, 'Failed to fetch sessions');
   },
 
-  /**
-   * Fetches sessions available for linking (non-private sessions)
-   */
-  async getSessionsForLinking() {
-    const response = await authFetch(`${API_BASE}?status=ACTIVE,SCHEDULED`, {
-      method: 'GET'
-    });
-    
-    const sessions = await handleResponse(response, 'Failed to fetch sessions for linking');
-    // Filter out private sessions that user doesn't have access to
-    return sessions.filter(session => 
-      session.sessionType === 'PUBLIC' || 
-      session.sessionType === 'PROTECTED'
-    );
-  },
-
-  // MUST FETCH ONLY ACTIVE SESSIONS
-  async getAllSessions() {
-    const url = `${API_BASE}?status=ACTIVE`;
-    
-    const response = await authFetch(url, {
-      method: 'GET'
-    });
-    
-    console.log('Fetching all [ACTIVE] sessions:', response);
-
-    return handleResponse(response, 'Failed to fetch all sessions');
-  },
-
-  //FETCHES SESSION BY SESSION ID
-  async getSessionById(sessionId) {
-    const response = await authFetch(`${API_BASE}/${sessionId}`, {
-      method: 'GET'
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw new Error('Session not found');
-      }
-      throw new Error(`Failed to fetch session: ${response.status}`);
-    }
-
-    return await response.json();
-  },
-
-  /**
-   * Gets sessions scheduled for a specific date
-   */
   async getSessionsByDate(year, month, day) {
     const params = new URLSearchParams({
       year: year.toString(),
@@ -228,9 +156,6 @@ export const sessionService = {
     return handleResponse(response, 'Failed to fetch sessions for date');
   },
 
-  /**
-   * Gets top 4 trending sessions based on tag popularity
-   */
   async getTrendingSessions() {
     const response = await authFetch(`${API_BASE}/trending`, {
       method: 'GET'
@@ -239,9 +164,6 @@ export const sessionService = {
     return handleResponse(response, 'Failed to fetch trending sessions');
   },
 
-  /**
-   * Gets all sessions hosted by the current user
-   */
   async getUserHostedSessions() {
     const response = await authFetch(`${API_BASE}/user/me`, {
       method: 'GET'
@@ -250,9 +172,6 @@ export const sessionService = {
     return handleResponse(response, 'Failed to fetch user hosted sessions');
   },
 
-  /**
-   * Gets completed sessions (history) for the current user
-   */
   async getUserCompletedSessions() {
     const response = await authFetch(`${API_BASE}/user/me/history`, {
       method: 'GET'
@@ -261,10 +180,6 @@ export const sessionService = {
     return handleResponse(response, 'Failed to fetch completed sessions');
   },
 
-  /**
-   * Gets all sessions that the current user has joined (as participant)
-   * Returns only SCHEDULED and ACTIVE sessions
-   */
   async getJoinedSessions() {
     const response = await authFetch(`${API_BASE}/user/me/joined`, {
       method: 'GET'
@@ -273,9 +188,6 @@ export const sessionService = {
     return handleResponse(response, 'Failed to fetch joined sessions');
   },
 
-  /**
-   * Gets all sessions hosted by a specific user (for viewing other users' profiles)
-   */
   async getSessionsByUserId(userId) {
     const response = await authFetch(`${API_BASE}/user/${userId}`, {
       method: 'GET'
@@ -284,9 +196,22 @@ export const sessionService = {
     return handleResponse(response, 'Failed to fetch user sessions');
   },
 
-  /**
-   * Gets the list of participants for a specific session
-   */
+  async getSessionById(sessionId) {
+    const response = await authFetch(`${API_BASE}/${sessionId}`, {
+      method: 'GET'
+    });
+
+    return handleResponse(response, 'Failed to fetch session');
+  },
+
+  async getAllSessions() {
+    const response = await authFetch(`${API_BASE}/all-sessions`, {
+      method: 'GET'
+    });
+
+    return handleResponse(response, 'Failed to fetch all sessions');
+  },
+
   async getSessionParticipants(sessionId) {
     const response = await authFetch(`${API_BASE}/${sessionId}/participants`, {
       method: 'GET'
@@ -295,9 +220,6 @@ export const sessionService = {
     return handleResponse(response, 'Failed to fetch session participants');
   },
 
-  /**
-   * Removes a participant from a session (host only)
-   */
   async removeParticipant(sessionId, userId) {
     const response = await authFetch(`${API_BASE}/${sessionId}/participants/${userId}`, {
       method: 'DELETE'

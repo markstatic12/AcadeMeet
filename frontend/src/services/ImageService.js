@@ -1,13 +1,21 @@
-import { authFetch, authFetchMultipart } from './apiHelper';
+import { authFetch } from './apiHelper';
 
-const API_BASE_URL = '';
+const toDataURL = (file) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = () => resolve(reader.result);
+  reader.onerror = (err) => reject(err);
+  reader.readAsDataURL(file);
+});
 
 export const imageService = {
   async uploadProfileImage(imageFile) {
-    const formData = new FormData();
-    formData.append('image', imageFile);
+    if (!imageFile) throw new Error('Image file is required');
+    const dataUrl = await toDataURL(imageFile);
 
-    const response = await authFetchMultipart(`/users/me/profile-image`, formData);
+    const response = await authFetch('/users/me', {
+      method: 'PUT',
+      body: JSON.stringify({ profilePic: dataUrl })
+    });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -18,10 +26,13 @@ export const imageService = {
   },
 
   async uploadCoverImage(imageFile) {
-    const formData = new FormData();
-    formData.append('image', imageFile);
+    if (!imageFile) throw new Error('Image file is required');
+    const dataUrl = await toDataURL(imageFile);
 
-    const response = await authFetchMultipart(`/users/me/cover-image`, formData);
+    const response = await authFetch('/users/me', {
+      method: 'PUT',
+      body: JSON.stringify({ coverImage: dataUrl })
+    });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -31,41 +42,19 @@ export const imageService = {
     return await response.json();
   },
 
-  async uploadSessionImage(sessionId, imageFile) {
-    const formData = new FormData();
-    formData.append('image', imageFile);
-
-    const response = await authFetchMultipart(`/sessions/${sessionId}/image`, formData);
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Failed to upload session image');
-    }
-
-    return await response.json();
-  },
-
   async deleteUserImage(imageType) {
-    const response = await authFetch(`/users/me/${imageType}-image`, {
-      method: 'DELETE',
+    if (!imageType) throw new Error('Image type is required (profile|cover)');
+
+    const payload = imageType === 'cover' ? { coverImage: '' } : { profilePic: '' };
+
+    const response = await authFetch('/users/me', {
+      method: 'PUT',
+      body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.error || `Failed to delete ${imageType} image`);
-    }
-
-    return await response.json();
-  },
-
-  async deleteSessionImage(sessionId) {
-    const response = await authFetch(`/sessions/${sessionId}/image`, {
-      method: 'DELETE',
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Failed to delete session image');
     }
 
     return await response.json();
