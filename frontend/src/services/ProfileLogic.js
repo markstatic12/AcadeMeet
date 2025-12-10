@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
-import { authFetch } from './apiHelper';
+import api from './apiClient';
 import { sessionService } from './SessionService';
 
 
@@ -75,10 +75,9 @@ export const useProfilePage = () => {
       // Refresh user context data first
       await refreshUser();
       
-      const response = await authFetch('/users/me');
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Profile loaded user data:', data);
+      const response = await api.get('/users/me');
+      const data = response.data;
+      console.log('Profile loaded user data:', data);
         setUserData({
           id: data.id,
           name: data.name || 'User',
@@ -102,7 +101,6 @@ export const useProfilePage = () => {
           studentId: data.studentId || '',
           bio: data.bio || ''
         });
-      }
     } catch (error) {
       console.error('Failed to fetch user data:', error);
     }
@@ -161,21 +159,14 @@ export const useProfilePage = () => {
       setIsEditing(true);
       
       // Use /users/me endpoint - user ID extracted from JWT token
-      const response = await authFetch('/users/me', {
-        method: 'PUT',
-        body: JSON.stringify({
-          name: editForm.name,
-          school: editForm.school,
-          studentId: editForm.studentId,
-          bio: editForm.bio
-        })
+      const response = await api.put('/users/me', {
+        name: editForm.name,
+        school: editForm.school,
+        studentId: editForm.studentId,
+        bio: editForm.bio
       });
       
-      if (!response.ok) {
-        throw new Error('Failed to update profile');
-      }
-      
-      const updatedData = await response.json();
+      const updatedData = response.data;
       
       setUserData(prev => ({
         ...prev,
@@ -228,8 +219,8 @@ export const useProfilePage = () => {
 
   const refreshFollowLists = async () => {
     try{
-      const meResponse = await authFetch('/users/me');
-      const meData = await meResponse.json();
+      const meResponse = await api.get('/users/me');
+      const meData = meResponse.data;
       const userId = meData.id;
       
       // Update userData with fresh counts from /users/me
@@ -239,14 +230,12 @@ export const useProfilePage = () => {
         following: meData.following || 0
       }));
       
-      const [foRes, fiRes] = await Promise.all([
-        authFetch(`/users/${userId}/followers`),
-        authFetch(`/users/${userId}/following`)
+      const [followersRes, followingRes] = await Promise.all([
+        api.get(`/users/${userId}/followers`),
+        api.get(`/users/${userId}/following`)
       ]);
-      const [followers, following] = await Promise.all([
-        foRes.ok ? foRes.json() : Promise.resolve([]),
-        fiRes.ok ? fiRes.json() : Promise.resolve([])
-      ]);
+      const followers = followersRes.data;
+      const following = followingRes.data;
       setFollowersList(Array.isArray(followers)? followers: []);
       setFollowingList(Array.isArray(following)? following: []);
     }catch(err){
@@ -258,31 +247,21 @@ export const useProfilePage = () => {
 
   const removeFollower = async (followerId) => {
     try{
-      const response = await authFetch(`/users/me/followers/${followerId}`,{
-        method:'DELETE'
-      });
-      
-      if (response.ok || response.status === 204) {
-        // Refresh user data to get accurate counts
-        await refreshUserData();
-        // Update local lists - remove from followers
-        setFollowersList(prev=> prev.filter(u=>u.id!==followerId));
-      }
+      await api.delete(`/users/me/followers/${followerId}`);
+      // Refresh user data to get accurate counts
+      await refreshUserData();
+      // Update local lists - remove from followers
+      setFollowersList(prev=> prev.filter(u=>u.id!==followerId));
     }catch(e){ console.error('Remove follower failed', e); }
   };
 
   const unfollowUser = async (followingId) => {
     try{
-      const response = await authFetch(`/users/${followingId}/follow`,{
-        method:'DELETE'
-      });
-      
-      if (response.ok || response.status === 204) {
-        // Refresh user data to get accurate counts
-        await refreshUserData();
-        // Update local lists
-        setFollowingList(prev=> prev.filter(u=>u.id!==followingId));
-      }
+      await api.delete(`/users/${followingId}/follow`);
+      // Refresh user data to get accurate counts
+      await refreshUserData();
+      // Update local lists
+      setFollowingList(prev=> prev.filter(u=>u.id!==followingId));
     }catch(e){ console.error('Unfollow failed', e); }
   };
 
@@ -333,13 +312,8 @@ export const useSessions = () => {
   // Fetch ACTIVE sessions from backend
   const fetchActiveSessions = async () => {
     try {
-      const res = await authFetch('/sessions/user/me', {
-        method: "GET",
-      });
-
-      if (!res.ok) throw new Error("Failed to fetch sessions");
-
-      const data = await res.json();
+      const res = await api.get('/sessions/user/me');
+      const data = res.data;
       console.log("Fetched sessions:", data);
       
       // Backend already filters to ACTIVE and SCHEDULED sessions
@@ -367,13 +341,8 @@ export const useSessions = () => {
   // Fetch TRASH sessions from backend
   const fetchTrashedSessions = async () => {
     try {
-      const res = await authFetch('/sessions/user/me/trash', {
-        method: "GET",
-      });
-
-      if (!res.ok) throw new Error("Failed to fetch trashed sessions");
-
-      const data = await res.json();
+      const res = await api.get('/sessions/user/me/trash');
+      const data = res.data;
       
       // Data is already filtered to TRASH on backend
       const trashed = (Array.isArray(data) ? data : []);
@@ -387,12 +356,8 @@ export const useSessions = () => {
   // Fetch COMPLETED (history) sessions from backend
   const fetchCompletedSessions = async () => {
     try {
-      const res = await authFetch('/sessions/user/me/history', {
-        method: "GET",
-      });
-
-      if (!res.ok) throw new Error("Failed to fetch completed sessions");
-      const data = await res.json();
+      const res = await api.get('/sessions/user/me/history');
+      const data = res.data;
       
       const completed = (Array.isArray(data) ? data : []);
       setHistorySessions(completed);

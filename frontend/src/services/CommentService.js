@@ -1,64 +1,36 @@
 /**
  * Comment Service - handles comment and reply operations
  */
-import { authFetch } from './apiHelper';
-
-// Helper function to handle API responses
-const handleResponse = async (response, errorMessage = 'Request failed') => {
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || errorData.message || errorMessage);
-  }
-  return await response.json();
-};
+import api from './apiClient';
 
 export const getSessionComments = async (sessionId) => {
-  const response = await authFetch(`/sessions/${sessionId}/comments`);
-  const comments = await handleResponse(response, 'Failed to fetch comments');
+  const response = await api.get(`/sessions/${sessionId}/comments`);
   
   // Backend now returns comments grouped with replies as CommentDTO[]
-  return comments;
+  return response.data;
 };
 
 export const createComment = async (sessionId, content) => {
-  const response = await authFetch(`/sessions/${sessionId}/comments`, {
-    method: 'POST',
-    body: JSON.stringify({ content })
-  });
-
-  return await handleResponse(response, 'Failed to create comment');
+  const response = await api.post(`/sessions/${sessionId}/comments`, { content });
+  return response.data;
 };
 
 export const createReply = async (sessionId, commentId, content) => {
-  const response = await authFetch(
+  const response = await api.post(
     `/sessions/${sessionId}/comments/${commentId}/replies`,
-    {
-      method: 'POST',
-      body: JSON.stringify({ content })
-    }
+    { content }
   );
 
-  return await handleResponse(response, 'Failed to create reply');
+  return response.data;
 };
 
 export const deleteComment = async (sessionId, commentId) => {
-  const response = await authFetch(
-    `/sessions/${sessionId}/comments/${commentId}`,
-    {
-      method: 'DELETE'
-    }
-  );
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || errorData.message || 'Failed to delete comment');
-  }
-  
+  await api.delete(`/sessions/${sessionId}/comments/${commentId}`);
   // 204 No Content response has no body
   return;
 };
 
 export const getReplies = async (commentId) => {
-  const response = await authFetch(`/comments/${commentId}/replies`);
-  return await handleResponse(response, 'Failed to fetch replies');
+  const response = await api.get(`/comments/${commentId}/replies`);
+  return response.data;
 };

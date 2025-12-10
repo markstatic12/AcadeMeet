@@ -4,7 +4,7 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import { PublicProfileCard } from '../components/profile/PublicProfileCard';
 import { PublicProfileContent } from '../components/profile/PublicProfileContent';
 import { useUser } from '../context/UserContext';
-import { authFetch } from '../services/apiHelper';
+import api from '../services/apiClient';
 import { BackIcon } from '../icons/icons';
 import '../styles/profile/ProfilePage.css';
 
@@ -36,10 +36,8 @@ const PublicProfilePage = () => {
       setLoading(true);
       
       // Fetch user profile from API
-      const response = await authFetch(`/users/${userId}`);
-      
-      if (response.ok) {
-        const data = await response.json();
+      const response = await api.get(`/users/${userId}`);
+      const data = response.data;
         setUserData({
           id: data.id,
           name: data.name,
@@ -61,9 +59,6 @@ const PublicProfilePage = () => {
         
         // Check if current user is following this user
         await checkFollowStatus();
-      } else {
-        throw new Error('Failed to fetch user profile');
-      }
     } catch (error) {
       console.error('Failed to load user profile:', error);
       setUserData({
@@ -90,11 +85,9 @@ const PublicProfilePage = () => {
 
   const checkFollowStatus = async () => {
     try {
-      const response = await authFetch(`/users/${userId}/is-following`);
-      if (response.ok) {
-        const data = await response.json();
-        setIsFollowing(data.isFollowing || false);
-      }
+      const response = await api.get(`/users/${userId}/is-following`);
+      const data = response.data;
+      setIsFollowing(data.isFollowing || false);
     } catch (error) {
       console.error('Failed to check follow status:', error);
       setIsFollowing(false);
@@ -105,36 +98,26 @@ const PublicProfilePage = () => {
     try {
       if (isFollowing) {
         // Unfollow
-        const response = await authFetch(`/users/${userId}/follow`, {
-          method: 'DELETE',
-        });
+        await api.delete(`/users/${userId}/follow`);
+        setIsFollowing(false);
+        setUserData(prev => ({
+          ...prev,
+          followersCount: Math.max(0, prev.followersCount - 1)
+        }));
         
-        if (response.ok || response.status === 204) {
-          setIsFollowing(false);
-          setUserData(prev => ({
-            ...prev,
-            followersCount: Math.max(0, prev.followersCount - 1)
-          }));
-          
-          // Dispatch custom event to notify ProfilePage to refresh
-          window.dispatchEvent(new CustomEvent('user-follow-changed'));
-        }
+        // Dispatch custom event to notify ProfilePage to refresh
+        window.dispatchEvent(new CustomEvent('user-follow-changed'));
       } else {
         // Follow
-        const response = await authFetch(`/users/${userId}/follow`, {
-          method: 'POST',
-        });
+        await api.post(`/users/${userId}/follow`);
+        setIsFollowing(true);
+        setUserData(prev => ({
+          ...prev,
+          followersCount: prev.followersCount + 1
+        }));
         
-        if (response.ok || response.status === 204) {
-          setIsFollowing(true);
-          setUserData(prev => ({
-            ...prev,
-            followersCount: prev.followersCount + 1
-          }));
-          
-          // Dispatch custom event to notify ProfilePage to refresh
-          window.dispatchEvent(new CustomEvent('user-follow-changed'));
-        }
+        // Dispatch custom event to notify ProfilePage to refresh
+        window.dispatchEvent(new CustomEvent('user-follow-changed'));
       }
     } catch (error) {
       console.error('Failed to follow/unfollow:', error);

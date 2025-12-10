@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useUser } from '../../context/UserContext';
 import { HomeIcon, SessionsIcon, ProfileIcon, SearchIcon, GearIcon, BellIcon } from '../../icons';
 import logo from '../../assets/academeet-white.svg';
-import { authFetch } from '../../services/apiHelper';
 import { notificationService } from '../../services/notificationService';
 
 const DashboardLayout = ({ children }) => {

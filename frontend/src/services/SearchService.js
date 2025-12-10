@@ -1,4 +1,4 @@
-import { authFetch } from './apiHelper';
+import api from './apiClient';
 
 /**
  * Search Service
@@ -14,15 +14,11 @@ const SearchService = {
    */
   searchAll: async (query, sortBy = 'relevance') => {
     try {
-      const params = new URLSearchParams();
-      if (query) params.append('q', query);
-      params.append('sortBy', sortBy);
+      const params = { sortBy };
+      if (query) params.q = query;
 
-      const response = await authFetch(`/search?${params.toString()}`);
-      if (!response.ok) {
-        throw new Error('Failed to search');
-      }
-      return await response.json();
+      const response = await api.get('/search', { params });
+      return response.data;
     } catch (error) {
       console.error('Error searching all:', error);
       throw error;
@@ -40,21 +36,17 @@ const SearchService = {
    */
   searchUsers: async (query, filters = {}) => {
     try {
-      const params = new URLSearchParams();
-      if (query) params.append('q', query);
+      const params = { sortBy: filters.sortBy || 'relevance' };
+      if (query) params.q = query;
       if (filters.program && filters.program !== 'All Programs') {
-        params.append('program', filters.program);
+        params.program = filters.program;
       }
       if (filters.yearLevel && filters.yearLevel !== 'All Year Levels') {
-        params.append('yearLevel', filters.yearLevel);
+        params.yearLevel = filters.yearLevel;
       }
-      params.append('sortBy', filters.sortBy || 'relevance');
 
-      const response = await authFetch(`/search/users?${params.toString()}`);
-      if (!response.ok) {
-        throw new Error('Failed to search users');
-      }
-      return await response.json();
+      const response = await api.get('/search/users', { params });
+      return response.data;
     } catch (error) {
       console.error('Error searching users:', error);
       throw error;
@@ -73,24 +65,20 @@ const SearchService = {
    */
   searchSessions: async (query, filters = {}) => {
     try {
-      const params = new URLSearchParams();
-      if (query) params.append('q', query);
+      const params = { sortBy: filters.sortBy || 'relevance' };
+      if (query) params.q = query;
       if (filters.date) {
-        params.append('date', filters.date);
+        params.date = filters.date;
       }
       if (filters.timeOfDay && filters.timeOfDay !== 'Any Time') {
-        params.append('timeOfDay', filters.timeOfDay);
+        params.timeOfDay = filters.timeOfDay;
       }
       if (filters.privacy && filters.privacy !== 'All Sessions') {
-        params.append('privacy', filters.privacy.toLowerCase());
+        params.privacy = filters.privacy.toLowerCase();
       }
-      params.append('sortBy', filters.sortBy || 'relevance');
 
-      const response = await authFetch(`/search/sessions?${params.toString()}`);
-      if (!response.ok) {
-        throw new Error('Failed to search sessions');
-      }
-      return await response.json();
+      const response = await api.get('/search/sessions', { params });
+      return response.data;
     } catch (error) {
       console.error('Error searching sessions:', error);
       throw error;
