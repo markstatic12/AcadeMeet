@@ -1,6 +1,7 @@
 package com.appdev.academeet.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +27,6 @@ public class UserService {
     @Autowired
     private UserFollowRepository userFollowRepository;
     
-    // ========================================
-    // Private Mapping Helper Methods
-    // ========================================
-    
-    /**
-     * Maps User entity to UserProfileResponse DTO.
-     */
     private UserProfileResponse toProfileResponse(User user, Long followersCount, Long followingCount) {
         return new UserProfileResponse(
             user.getId(),
@@ -49,9 +43,7 @@ public class UserService {
         );
     }
     
-    /**
-     * Maps User entity to UserSummaryDTO.
-     */
+    
     private UserSummaryDTO toSummaryDTO(User user) {
         return new UserSummaryDTO(
             user.getId(),
@@ -62,18 +54,11 @@ public class UserService {
         );
     }
     
-    /**
-     * Maps list of User entities to UserSummaryDTO list.
-     */
     private List<UserSummaryDTO> toSummaryDTOList(List<User> users) {
         return users.stream()
             .map(this::toSummaryDTO)
             .collect(Collectors.toList());
     }
-    
-    // ========================================
-    // Public Service Methods
-    // ========================================
     
     public User getUserById(Long id) {
         return userRepository.findById(id)
@@ -84,13 +69,16 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
     
     public User updateUser(User user) {
         return userRepository.save(user);
     }
     
     public User updateProfile(User user, UpdateProfileRequest request) {
-        // Validate and update profile fields
         if (request.getName() != null && !request.getName().trim().isEmpty()) {
             user.setName(request.getName().trim());
         }
@@ -159,7 +147,6 @@ public class UserService {
         userFollowRepository.deleteByFollowerIdAndFollowingId(followerId, followingId);
     }
     
-    // Get followers with full profile details
     @Transactional(readOnly = true)
     public List<User> getFollowers(Long userId) {
         getUserById(userId);
@@ -167,7 +154,6 @@ public class UserService {
         return java.util.Collections.unmodifiableList(followers);
     }
     
-    // Get users that a user is following
     @Transactional(readOnly = true)
     public List<User> getFollowing(Long userId) {
 
@@ -176,7 +162,6 @@ public class UserService {
         return java.util.Collections.unmodifiableList(following);
     }
     
-    // Get follower/following counts
     public long getFollowerCount(Long userId) {
         return userFollowRepository.countFollowersByFollowingId(userId);
     }
@@ -189,13 +174,6 @@ public class UserService {
         return userFollowRepository.existsByFollowerIdAndFollowingId(followerId, followingId);
     }
     
-    // ========================================
-    // DTO-Returning Methods for Controllers
-    // ========================================
-    
-    /**
-     * Get user profile as DTO with follower counts.
-     */
     @Transactional(readOnly = true)
     public UserProfileResponse getUserProfileDTO(Long userId) {
         User user = getUserById(userId);
@@ -204,27 +182,18 @@ public class UserService {
         return toProfileResponse(user, followersCount, followingCount);
     }
     
-    /**
-     * Get followers as DTOs.
-     */
     @Transactional(readOnly = true)
     public List<UserSummaryDTO> getFollowersDTO(Long userId) {
         List<User> followers = getFollowers(userId);
         return toSummaryDTOList(followers);
     }
     
-    /**
-     * Get following as DTOs.
-     */
     @Transactional(readOnly = true)
     public List<UserSummaryDTO> getFollowingDTO(Long userId) {
         List<User> following = getFollowing(userId);
         return toSummaryDTOList(following);
     }
     
-    /**
-     * Update profile and return updated DTO.
-     */
     @Transactional
     public UserProfileResponse updateProfileDTO(User user, UpdateProfileRequest request) {
         User updatedUser = updateProfile(user, request);

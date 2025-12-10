@@ -6,18 +6,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.appdev.academeet.exception.UnauthorizedException;
 import com.appdev.academeet.model.User;
-import com.appdev.academeet.repository.UserRepository;
+import com.appdev.academeet.service.UserService;
 
 public abstract class BaseController {
 
     @Autowired
-    protected UserRepository userRepository;
+    protected UserService userService;
 
-    /**
-     * Get the currently authenticated user from the security context.
-     * @return the authenticated User entity
-     * @throws UnauthorizedException if user is not authenticated or not found
-     */
     protected User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
@@ -26,7 +21,7 @@ public abstract class BaseController {
         }
         
         String email = authentication.getName();
-        return userRepository.findByEmail(email)
+        return userService.findByEmail(email)
                 .orElseThrow(() -> new UnauthorizedException("Authenticated user not found"));
     }
 }

@@ -37,6 +37,7 @@ import com.appdev.academeet.repository.SessionParticipantRepository;
 import com.appdev.academeet.repository.SessionRepository;
 import com.appdev.academeet.repository.UserRepository;
 import com.appdev.academeet.security.JwtUtil;
+import com.appdev.academeet.util.DateTimeUtils;
 
 @Service
 public class SessionService {
@@ -64,88 +65,35 @@ public class SessionService {
         this.jwtUtil = jwtUtil;
     }
 
-    // ========================================
-    // Private Mapping Helper Methods
-    // ========================================
-    
-    /**
-     * Converts month name to Month enum.
-     * Supports both full names (January) and uppercase (JANUARY).
-     */
+    @Deprecated
     private Month parseMonth(String monthStr) {
         if (monthStr == null) {
             throw new IllegalArgumentException("Month cannot be null");
         }
         
         try {
-            // Try parsing as numeric month first (1-12)
             int monthNum = Integer.parseInt(monthStr);
             return Month.of(monthNum);
         } catch (NumberFormatException e) {
-            // Parse as month name (case-insensitive)
             return Month.valueOf(monthStr.toUpperCase());
         }
     }
 
-    /**
-     * Converts separate date/time fields to LocalDateTime.
-     */
+    @Deprecated
     private LocalDateTime parseDateTime(String month, String day, String year, String timeStr) {
-        if (month == null || day == null || year == null || timeStr == null) {
-            throw new IllegalArgumentException("Date and time fields cannot be null");
-        }
-
-        try {
-            Month monthEnum = parseMonth(month);
-            int dayInt = Integer.parseInt(day);
-            int yearInt = Integer.parseInt(year);
-            
-            // Parse time (HH:mm format)
-            String[] timeParts = timeStr.split(":");
-            int hour = Integer.parseInt(timeParts[0]);
-            int minute = Integer.parseInt(timeParts[1]);
-            
-            return LocalDateTime.of(yearInt, monthEnum, dayInt, hour, minute);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid date/time format: " + e.getMessage(), e);
-        }
+        return DateTimeUtils.parseFromSeparateFields(month, day, year, timeStr);
     }
 
-    /**
-     * Converts separate date/time fields to LocalDateTime.
-     * Returns null if any required field is missing (for partial updates).
-     */
+    @Deprecated
     private LocalDateTime parseDateTimeNullable(String month, String day, String year, String timeStr) {
-        if (month == null || day == null || year == null || timeStr == null) {
-            return null;
-        }
-
-        try {
-            Month monthEnum = parseMonth(month);
-            int dayInt = Integer.parseInt(day);
-            int yearInt = Integer.parseInt(year);
-            
-            // Parse time (HH:mm format)
-            String[] timeParts = timeStr.split(":");
-            int hour = Integer.parseInt(timeParts[0]);
-            int minute = Integer.parseInt(timeParts[1]);
-            
-            return LocalDateTime.of(yearInt, monthEnum, dayInt, hour, minute);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid date/time format: " + e.getMessage(), e);
-        }
+        return DateTimeUtils.parseNullableFromSeparateFields(month, day, year, timeStr);
     }
 
-    /**
-     * Maps CreateSessionRequest to Session entity.
-     * Does NOT perform business validation - only data conversion.
-     */
     private Session mapToEntity(CreateSessionRequest request) {
         Session session = new Session();
         session.setTitle(request.getTitle());
         session.setDescription(request.getDescription());
-        
-        // Convert separate date/time fields to LocalDateTime
+    
         LocalDateTime start = parseDateTime(request.getMonth(), request.getDay(), 
                                             request.getYear(), request.getStartTime());
         LocalDateTime end = parseDateTime(request.getMonth(), request.getDay(), 
@@ -169,17 +117,11 @@ public class SessionService {
         return session;
     }
 
-    /**
-     * Maps UpdateSessionRequest to Session entity for partial updates.
-     * Does NOT perform business validation - only data conversion.
-     * Null fields indicate no change.
-     */
     private Session mapToEntity(UpdateSessionRequest request) {
         Session session = new Session();
         session.setTitle(request.getTitle());
         session.setDescription(request.getDescription());
         
-        // Convert separate date/time fields to LocalDateTime (only if provided)
         LocalDateTime parsedStartTime = parseDateTimeNullable(request.getMonth(), request.getDay(), 
                                                                request.getYear(), request.getStartTime());
         LocalDateTime parsedEndTime = parseDateTimeNullable(request.getMonth(), request.getDay(), 
@@ -203,39 +145,23 @@ public class SessionService {
         return session;
     }
 
-    // ========================================
-    // Business Validation Methods
-    // ========================================
-
-    // ========================================
-    // Business Validation Methods
-    // ========================================
-
-    /**
-     * Validates session business rules.
-     * This method contains all domain logic for session validation.
-     */
     private void validateSessionData(Session session) {
-        // Validate start time is in the future
         if (session.getStartTime() != null && session.getStartTime().isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("Session start time must be in the future");
         }
 
-        // Validate end time is after start time
         if (session.getStartTime() != null && session.getEndTime() != null) {
             if (session.getEndTime().isBefore(session.getStartTime()) || 
                 session.getEndTime().equals(session.getStartTime())) {
                 throw new IllegalArgumentException("End time must be after start time");
             }
 
-            // Validate minimum session duration (15 minutes)
             long durationMinutes = Duration.between(session.getStartTime(), session.getEndTime()).toMinutes();
             if (durationMinutes < 15) {
                 throw new IllegalArgumentException("Session must be at least 15 minutes long");
             }
         }
 
-        // Validate private session has password
         if (session.getSessionPrivacy() == SessionType.PRIVATE) {
             if (session.getSessionPassword() == null || session.getSessionPassword().trim().isEmpty()) {
                 throw new IllegalArgumentException("Private sessions must have a password");
@@ -243,24 +169,12 @@ public class SessionService {
         }
     }
 
-    // ========================================
-    // Public Service Methods
-    // ========================================
-    
-    /**
-     * Create session from DTO.
-     * Delegates to existing createSession after mapping.
-     */
     @Transactional
     public Session createSessionFromDTO(CreateSessionRequest request, Long hostId) {
         Session session = mapToEntity(request);
         return createSession(session, hostId);
     }
     
-    /**
-     * Update session from DTO.
-     * Delegates to existing updateSession after mapping.
-     */
     @Transactional
     public Session updateSessionFromDTO(Long sessionId, UpdateSessionRequest request, Long userId) {
         Session updates = mapToEntity(request);
@@ -276,56 +190,43 @@ public class SessionService {
         User host = userRepository.findById(hostId)
                 .orElseThrow(() -> new RuntimeException("Host user not found with id: " + hostId));
 
-        // Perform business validation
         validateSessionData(session);
-
         session.setHost(host);
 
-        // Encrypt password if private session
         if (session.getSessionPrivacy() == SessionType.PRIVATE) {
             session.setSessionPassword(passwordEncoder.encode(session.getSessionPassword()));
         }
 
-        session.setCurrentParticipants(1); // Host is automatically a participant
+        session.setCurrentParticipants(1); 
         Session saved = sessionRepository.save(session);
 
-        // Add host as a participant
         SessionParticipant participant = new SessionParticipant(saved, host);
         sessionParticipantRepository.save(participant);
 
         return saved;
     }
 
-    // --- MODIFIED METHOD ---
-    @Transactional(readOnly = true) // <-- ADD TRANSACTIONAL
+    @Transactional(readOnly = true) 
     public List<SessionDTO> getSessionsByUserId(Long userId) {
         return sessionRepository.findByHost_Id(userId)
                 .stream()
-                .map(SessionDTO::new) // <-- CONVERT TO DTO first to get calculated status
+                .map(SessionDTO::new) 
                 .filter(dto -> {
                     SessionStatus status = dto.getStatus();
-                    // Only return ACTIVE and SCHEDULED sessions (exclude COMPLETED, TRASH, DELETED, CANCELLED)
                     return status == SessionStatus.ACTIVE || status == SessionStatus.SCHEDULED;
                 })
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Gets completed sessions (history) for a specific user.
-     */
     @Transactional(readOnly = true)
     public List<SessionDTO> getCompletedSessionsByUserId(Long userId) {
         return sessionRepository.findByHost_Id(userId)
                 .stream()
-                .map(SessionDTO::new) // Convert to DTO first to get calculated status
+                .map(SessionDTO::new) 
                 .filter(dto -> dto.getStatus() == SessionStatus.COMPLETED)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Gets trashed sessions for a specific user.
-     * TRASH is a manually set status, so we check database status before DTO conversion.
-     */
     @Transactional(readOnly = true)
     public List<SessionDTO> getTrashedSessionsByUserId(Long userId) {
         return sessionRepository.findByHost_Id(userId)
@@ -335,30 +236,24 @@ public class SessionService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Gets all sessions that a user has joined (is a participant in).
-     * Returns only SCHEDULED and ACTIVE sessions.
-     */
     @Transactional(readOnly = true)
     public List<SessionDTO> getJoinedSessionsByUserId(Long userId) {
         return sessionParticipantRepository.findByUserId(userId)
                 .stream()
                 .map(SessionParticipant::getSession)
-                .map(SessionDTO::new) // Auto-calculates status
+                .map(SessionDTO::new) 
                 .filter(dto -> dto.getStatus() == SessionStatus.SCHEDULED || 
                               dto.getStatus() == SessionStatus.ACTIVE)
                 .collect(Collectors.toList());
     }
 
-    // --- MODIFIED METHOD ---
-    @Transactional(readOnly = true) // <-- ADD TRANSACTIONAL
+    @Transactional(readOnly = true)
     public List<SessionDTO> getAllSessions() {
         return sessionRepository.findAllByOrderByStartTime()
             .stream()
-            .map(SessionDTO::new) // Convert to DTO first (calculates status)
+            .map(SessionDTO::new) 
             .filter(dto -> {
                 SessionStatus status = dto.getStatus();
-                // Exclude DELETED, CANCELLED, TRASH, and COMPLETED sessions (including auto-calculated COMPLETED)
                 return status != SessionStatus.DELETED && 
                        status != SessionStatus.CANCELLED && 
                        status != SessionStatus.TRASH &&
@@ -388,7 +283,7 @@ public class SessionService {
                 throw new SecurityException("Invalid password");
             }
         }
-        // Public sessions don't need password validation - method returns normally
+        
     }
 
     public boolean checkParticipantLimit(Long sessionId) {
@@ -399,7 +294,7 @@ public class SessionService {
             Integer currentParticipants = session.getCurrentParticipants();
             
             if (maxParticipants == null) {
-                return true; // No limit set
+                return true; 
             }
             
             return currentParticipants < maxParticipants;
@@ -414,24 +309,21 @@ public class SessionService {
 
     @Transactional
     public void joinSession(Long sessionId, User user, String password) {
-        // Check if user has already joined
+        
         if (sessionParticipantRepository.existsBySessionIdAndUserId(sessionId, user.getId())) {
             throw new RuntimeException("User has already joined this session");
         }
 
-        // Get session
         Session session = sessionRepository.findById(sessionId)
             .orElseThrow(() -> new RuntimeException("Session not found"));
 
-        // Validate password if session is PRIVATE
         if (session.getSessionPrivacy() == SessionType.PRIVATE) {
             if (password == null || password.trim().isEmpty()) {
                 throw new SecurityException("Password is required for private sessions");
             }
-            validateSessionPassword(sessionId, password); // Throws exception if invalid
+            validateSessionPassword(sessionId, password); 
         }
 
-        // Check participant limit
         Integer maxParticipants = session.getMaxParticipants();
         Integer currentParticipants = session.getCurrentParticipants();
         
@@ -439,33 +331,24 @@ public class SessionService {
             throw new RuntimeException("Session is full");
         }
 
-        // Create participant record
         SessionParticipant participant = new SessionParticipant(session, user);
         sessionParticipantRepository.save(participant);
-
-        // Increment participant count
         session.setCurrentParticipants(currentParticipants + 1);
         sessionRepository.save(session);
-
-        // Auto-create reminders for participant
         reminderService.createRemindersForSession(user, session);
         
-        // Send notifications
         notificationService.notifyJoinConfirmation(user, session);
         notificationService.notifyParticipantJoined(user, session);
     }
 
     @Transactional
     public void cancelJoinSession(Long sessionId, User user) {
-        // Check if user is a participant
         SessionParticipantId participantId = new SessionParticipantId(sessionId, user.getId());
         SessionParticipant participant = sessionParticipantRepository.findById(participantId)
             .orElseThrow(() -> new RuntimeException("User is not a participant of this session"));
 
-        // Delete participant record
         sessionParticipantRepository.delete(participant);
 
-        // Decrement participant count
         Session session = sessionRepository.findById(sessionId)
             .orElseThrow(() -> new RuntimeException("Session not found"));
         
@@ -476,9 +359,6 @@ public class SessionService {
         }
     }
 
-    /**
-     * Leave by user id.
-     */
     @Transactional
     public void leaveSession(Long sessionId, Long userId) {
         User user = userRepository.findById(userId)
@@ -487,7 +367,6 @@ public class SessionService {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found with id: " + sessionId));
 
-        // Don't allow host to leave
         if (session.getHost() != null && session.getHost().getId().equals(userId)) {
             throw new IllegalStateException("Host cannot leave their own session. Delete the session instead.");
         }
@@ -546,7 +425,6 @@ public class SessionService {
         session.setSessionStatus(SessionStatus.COMPLETED);
         sessionRepository.save(session);
         
-        // Notify all participants that session was canceled
         List<User> participants = sessionParticipantRepository.findBySessionId(sessionId).stream()
                 .map(SessionParticipant::getUser)
                 .collect(Collectors.toList());
@@ -561,18 +439,15 @@ public class SessionService {
         }
 
         Session existingSession = sessionOpt.get();
-        
-        // Verify that the user is the session owner
+
         if (!existingSession.getHost().getId().equals(userId)) {
             throw new RuntimeException("Unauthorized: Only the session owner can edit this session");
         }
 
-        // Determine the intended privacy after update (respect null -> keep existing)
         SessionType intendedPrivacy = updatedSession.getSessionPrivacy() != null
                 ? updatedSession.getSessionPrivacy()
                 : existingSession.getSessionPrivacy();
 
-        // If switching to PRIVATE, ensure there is either an existing password or a new password provided
         if (intendedPrivacy == SessionType.PRIVATE) {
             boolean hasExistingPassword = existingSession.getSessionPassword() != null
                     && !existingSession.getSessionPassword().isEmpty();
@@ -583,12 +458,10 @@ public class SessionService {
             }
         }
 
-        // If switching to PUBLIC, clear any stored password to avoid surprise retained hashes
         if (intendedPrivacy == SessionType.PUBLIC) {
             existingSession.setSessionPassword(null);
         }
 
-        // Update session fields only when non-null on the incoming object to support partial updates
         if (updatedSession.getTitle() != null) {
             existingSession.setTitle(updatedSession.getTitle());
         }
@@ -605,7 +478,6 @@ public class SessionService {
             existingSession.setMaxParticipants(updatedSession.getMaxParticipants());
         }
 
-        // Update date and time fields if provided
         if (updatedSession.getStartTime() != null) {
             existingSession.setStartTime(updatedSession.getStartTime());
         }
@@ -613,12 +485,10 @@ public class SessionService {
             existingSession.setEndTime(updatedSession.getEndTime());
         }
 
-        // Update tags if provided
         if (updatedSession.getTags() != null) {
             existingSession.setTags(updatedSession.getTags());
         }
 
-        // Only update password if provided (for PRIVATE sessions)
         if (updatedSession.getSessionPassword() != null && !updatedSession.getSessionPassword().isEmpty()) {
             existingSession.setSessionPassword(passwordEncoder.encode(updatedSession.getSessionPassword()));
         }
@@ -626,7 +496,6 @@ public class SessionService {
         existingSession.setUpdatedAt(LocalDateTime.now());
         Session savedSession = sessionRepository.save(existingSession);
         
-        // Notify all participants about session update
         List<User> participants = sessionParticipantRepository.findBySessionId(sessionId).stream()
                 .map(SessionParticipant::getUser)
                 .collect(Collectors.toList());
@@ -646,17 +515,13 @@ public class SessionService {
     @Transactional(readOnly = true)
     public List<SessionDTO> getSessionsByDate(String year, String month, String day) {
         try {
-            // Convert month name to number (1-12)
             int yearInt = Integer.parseInt(year);
             int dayInt = Integer.parseInt(day);
             
-            // Convert month name to number
             int monthInt;
             try {
-                // Try parsing as number first
                 monthInt = Integer.parseInt(month);
             } catch (NumberFormatException e) {
-                // Parse month name (e.g., "December" -> 12)
                 monthInt = java.time.Month.valueOf(month.toUpperCase()).getValue();
             }
             
@@ -675,9 +540,6 @@ public class SessionService {
         }
     }
 
-    /**
-     * New: search sessions with optional keyword/status and pagination.
-     */
     @Transactional(readOnly = true)
     public Page<Session> searchSessions(String keyword, SessionStatus status, Long userId, Pageable pageable) {
         Page<Session> sessions;
@@ -710,20 +572,16 @@ public class SessionService {
         if (sessionOpt.isPresent()) {
             Session session = sessionOpt.get();
             
-            // Create unique filename
             String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
             Path uploadPath = Paths.get("uploads/sessions/");
             
-            // Create directory if it doesn't exist
             Files.createDirectories(uploadPath);
             
-            // Save file
             Path filePath = uploadPath.resolve(filename);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             
             String imageUrl = "/uploads/sessions/" + filename;
             
-            // Update appropriate field based on image type
             if ("profile".equals(imageType)) {
                 session.setProfileImageUrl(imageUrl);
             } 
@@ -739,9 +597,6 @@ public class SessionService {
         return sessionRepository.findById(sessionId);
     }
 
-    /**
-     * Get trending sessions ranked by tag popularity (top 4).
-     */
     @Transactional(readOnly = true)
     public List<SessionDTO> getTrendingSessions() {
         List<Session> trending = sessionRepository.findTrendingSessions(PageRequest.of(0, 4));
@@ -750,19 +605,14 @@ public class SessionService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get all participants for a session.
-     */
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getSessionParticipants(Long sessionId) {
-        // Verify session exists
+        
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
         
-        // Get all participants
         List<SessionParticipant> participants = sessionParticipantRepository.findBySessionId(sessionId);
         
-        // Map to user info
         return participants.stream()
                 .map(sp -> {
                     User user = sp.getUser();
@@ -779,40 +629,29 @@ public class SessionService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Remove a participant from a session (host only).
-     */
     @Transactional
     public Map<String, String> removeParticipant(Long sessionId, Long userId, String token) {
-        // Extract user from token
         String jwt = token.replace("Bearer ", "");
         String email = jwtUtil.getEmailFromToken(jwt);
         User currentUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
-        // Get session
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
         
-        // Verify current user is the host
         if (!session.getHost().getId().equals(currentUser.getId())) {
             throw new RuntimeException("Only the host can remove participants");
         }
         
-        // Verify user to remove is not the host
         if (userId.equals(currentUser.getId())) {
             throw new RuntimeException("Host cannot be removed from the session");
         }
         
-        // Check if user is a participant
         SessionParticipantId participantId = new SessionParticipantId(sessionId, userId);
         SessionParticipant participant = sessionParticipantRepository.findById(participantId)
                 .orElseThrow(() -> new RuntimeException("User is not a participant of this session"));
         
-        // Remove participant
         sessionParticipantRepository.delete(participant);
-        
-        // Decrement participant count
         session.setCurrentParticipants(session.getCurrentParticipants() - 1);
         sessionRepository.save(session);
         
