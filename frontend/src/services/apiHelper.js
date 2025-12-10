@@ -1,105 +1,94 @@
-// apiHelper.js - centralized API utility to add auth headers
-
 /**
- * ⚠️ SECURITY NOTE:
- * This file reads JWT tokens from localStorage, which is vulnerable to XSS.
- * For production, migrate to HttpOnly cookies. See SECURITY_STATUS.md
+ * API Helper - Backward compatibility wrapper for axios-based requests
+ * 
+ * This file provides compatibility shims for legacy code using authFetch/authFetchMultipart.
+ * New code should use the api client from apiClient.js directly.
  */
+
+import api from './apiClient';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
-// Validate API URL is configured
-if (!API_BASE_URL) {
-  throw new Error('VITE_API_BASE_URL environment variable is not configured');
-}
-
-// Warn if using HTTP in production
-if (import.meta.env.PROD && !API_BASE_URL.startsWith('https://')) {
-  console.error('⚠️  WARNING: Using HTTP in production is insecure! Configure HTTPS.');
-}
-
-export { API_BASE_URL };  // Export for reuse
+export { API_BASE_URL };
 
 /**
- * Build headers with JWT token from localStorage
- * @param {Object} additionalHeaders - Additional headers to include
- * @returns {Object} Headers object with Authorization if token exists
+ * Legacy authFetch wrapper - now uses axios with cookies
+ * @deprecated Use api from './apiClient' directly for new code
+ */
+export const authFetch = async (endpoint, options = {}) => {
+  try {
+    const url = endpoint.startsWith('http') ? endpoint : endpoint;
+    const method = options.method || 'GET';
+    const config = {
+      method,
+      url,
+      data: options.body ? JSON.parse(options.body) : undefined,
+      headers: options.headers,
+    };
+    
+    const response = await api(config);
+    
+    // Return fetch-like response object for backward compatibility
+    return {
+      ok: true,
+      status: response.status,
+      statusText: response.statusText,
+      json: async () => response.data,
+      text: async () => JSON.stringify(response.data),
+    };
+  } catch (error) {
+    // Return fetch-like error response
+    if (error.response) {
+      return {
+        ok: false,
+        status: error.response.status,
+        statusText: error.response.statusText,
+        json: async () => error.response.data,
+        text: async () => JSON.stringify(error.response.data),
+      };
+    }
+    throw error;
+  }
+};
+
+/**
+ * Legacy authFetchMultipart wrapper - now uses axios with cookies
+ * @deprecated Use api.post() with FormData directly for new code
+ */
+export const authFetchMultipart = async (endpoint, formData, additionalHeaders = {}) => {
+  try {
+    const url = endpoint.startsWith('http') ? endpoint : endpoint;
+    const response = await api.post(url, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        ...additionalHeaders,
+      },
+    });
+    
+    return {
+      ok: true,
+      status: response.status,
+      json: async () => response.data,
+    };
+  } catch (error) {
+    if (error.response) {
+      return {
+        ok: false,
+        status: error.response.status,
+        json: async () => error.response.data,
+      };
+    }
+    throw error;
+  }
+};
+
+/**
+ * @deprecated Not needed with cookie-based auth
  */
 export const buildAuthHeaders = (additionalHeaders = {}) => {
-  const headers = {
+  console.warn('buildAuthHeaders is deprecated - tokens are now in HttpOnly cookies');
+  return {
     'Content-Type': 'application/json',
     ...additionalHeaders,
   };
-  
-  const token = localStorage.getItem('token');
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-  
-  return headers;
-};
-
-/**
- * Fetch wrapper that automatically includes auth headers and handles token refresh
- * @param {string} endpoint - API endpoint (relative to API_BASE_URL)
- * @param {Object} options - fetch options
- * @returns {Promise<Response>} fetch response
- */
-export const authFetch = async (endpoint, options = {}) => {
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
-  
-  const headers = buildAuthHeaders(options.headers || {});
-  
-  let response = await fetch(url, {
-    ...options,
-    headers,
-  });
-  
-  // If 401 Unauthorized, try to refresh token and retry once
-  if (response.status === 401 && !options._isRetry) {
-    try {
-      // Import authService dynamically to avoid circular dependency
-      const { authService } = await import('./authService.js');
-      await authService.refreshAccessToken();
-      
-      // Retry request with new token
-      const newHeaders = buildAuthHeaders(options.headers || {});
-      response = await fetch(url, {
-        ...options,
-        headers: newHeaders,
-        _isRetry: true, // Prevent infinite retry loop
-      });
-    } catch (error) {
-      // Refresh failed, redirect to login
-      console.error('Token refresh failed:', error);
-      window.location.href = '/login';
-    }
-  }
-  
-  return response;
-};
-
-/**
- * Fetch wrapper for multipart/form-data (file uploads) with auth
- * @param {string} endpoint - API endpoint
- * @param {FormData} formData - form data to send
- * @param {Object} additionalHeaders - Additional headers (do NOT include Content-Type for multipart)
- * @returns {Promise<Response>} fetch response
- */
-export const authFetchMultipart = async (endpoint, formData, additionalHeaders = {}) => {
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
-  
-  const headers = { ...additionalHeaders };
-  
-  const token = localStorage.getItem('token');
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-  
-  // Do NOT set Content-Type - browser will set it with boundary
-  return fetch(url, {
-    method: 'POST',
-    headers,
-    body: formData,
-  });
 };
