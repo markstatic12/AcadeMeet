@@ -162,9 +162,7 @@ export const CommentPanel = ({ sessionId, className = '' }) => {
   return (
     <div className={`bg-gray-900 rounded-lg p-6 ${className}`}>
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-semibold text-white">
-          Comments ({comments.length})
-        </h3>
+        <h3 className="text-xl font-semibold text-white">Comments</h3>
       </div>
 
       {error && (

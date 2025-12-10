@@ -347,6 +347,7 @@ const PublicSessionCard = ({ session, index }) => {
   };
 
   const getAvailabilityColor = () => {
+    if (!session.maxParticipants) return 'text-green-400';
     const percentageFull = (session.currentParticipants / session.maxParticipants) * 100;
     if (percentageFull >= 90) return 'text-red-400';
     if (percentageFull >= 70) return 'text-yellow-400';

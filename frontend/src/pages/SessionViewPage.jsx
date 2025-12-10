@@ -194,6 +194,13 @@ const SessionViewPage = () => {
         const sessionData = await sessionService.getSessionById(sessionId);
         console.log('Loaded session:', sessionData);
         
+        // Wait for currentUserId to be loaded before checking ownership for private sessions
+        if (sessionData.sessionType === 'PRIVATE' && currentUserId === null) {
+          // Still loading user ID, wait for next effect run
+          setLoading(true);
+          return;
+        }
+        
         if (requiresPasswordAuth(sessionData)) {
           // For private sessions, show password modal immediately
           setSessionTitle(sessionData.title);
@@ -220,7 +227,7 @@ const SessionViewPage = () => {
     if (sessionId) {
       loadSession();
     }
-  }, [sessionId]); 
+  }, [sessionId, currentUserId]); 
 
   const checkParticipationStatus = async () => {
     try {
