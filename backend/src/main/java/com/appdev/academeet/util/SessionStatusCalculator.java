@@ -9,13 +9,10 @@ public class SessionStatusCalculator {
     public static SessionStatus calculateStatus(Session session) {
        
         SessionStatus currentStatus = session.getSessionStatus();
-        if (currentStatus == SessionStatus.DELETED || 
-            currentStatus == SessionStatus.CANCELLED || 
+        if (currentStatus == SessionStatus.DELETED ||
             currentStatus == SessionStatus.TRASH) {
             return currentStatus;
-        }
-        
-        LocalDateTime now = LocalDateTime.now();
+        }        LocalDateTime now = LocalDateTime.now();
         LocalDateTime startTime = session.getStartTime();
         LocalDateTime endTime = session.getEndTime();
         
