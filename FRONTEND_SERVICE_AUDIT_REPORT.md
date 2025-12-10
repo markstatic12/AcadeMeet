@@ -282,7 +282,7 @@ These endpoints exist in the backend but are not currently used by the frontend:
    - `GET /api/comments/comments/{commentId}/replies` - Alternative way to get replies by comment ID (frontend uses session-based approach instead)
 
 2. **SessionController**:
-   - `POST /api/sessions/{id}/upload-image` - Backend endpoint exists but frontend removed this functionality per user decision
+   - `POST /api/sessions/{id}/upload-image` - REMOVED from backend (session images feature removed)
    - `GET /api/sessions/user/me/trash` - Backend endpoint for trashed sessions (not currently used in frontend)
    - `PUT /api/sessions/{sessionId}/close` - Backend endpoint to close session (not currently used in frontend)
    - `DELETE /api/sessions/{sessionId}/leave` - Backend endpoint to leave session (not currently used in frontend)

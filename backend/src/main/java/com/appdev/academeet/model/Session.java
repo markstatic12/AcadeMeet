@@ -45,18 +45,15 @@ public class Session {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SessionTag> sessionTags = new ArrayList<>();
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SessionNote> sessionNotes = new ArrayList<>();
 
-    // Participants relationship
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SessionParticipant> participants = new ArrayList<>();
 
-    // Session Privacy & Status
     @Enumerated(EnumType.STRING)
     @Column(name = "session_privacy")
     private SessionType sessionPrivacy = SessionType.PUBLIC;
@@ -68,18 +65,12 @@ public class Session {
     @Column(name = "session_password")
     private String sessionPassword; 
 
-    // Participant Management
     @Column(name = "max_participants")
     private Integer maxParticipants;
 
     @Column(name = "current_participants")
     private Integer currentParticipants = 0;
 
-    // Images
-    @Column(name = "profile_image_url")
-    private String profileImageUrl;
-
-    // Timestamps
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -115,7 +106,7 @@ public class Session {
     public String getSessionPassword() { return sessionPassword; }
     public Integer getMaxParticipants() { return maxParticipants; }
     public Integer getCurrentParticipants() { return currentParticipants; }
-    public String getProfileImageUrl() { return profileImageUrl; }
+    
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
 
@@ -135,11 +126,10 @@ public class Session {
     public void setSessionPassword(String sessionPassword) { this.sessionPassword = sessionPassword; }
     public void setMaxParticipants(Integer maxParticipants) { this.maxParticipants = maxParticipants; }
     public void setCurrentParticipants(Integer currentParticipants) { this.currentParticipants = currentParticipants; }
-    public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
+    
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     
-    // Convenience methods for working with tags (backwards compatibility)
     public List<String> getTags() {
         return sessionTags.stream()
                 .map(SessionTag::getTagName)
@@ -147,27 +137,16 @@ public class Session {
     }
 
     public void setTags(List<String> tagNames) {
-        // Update tags idempotently: remove tags not present in the incoming list,
-        // and add only new tags. This avoids deleting and re-inserting identical
-        // tag rows in a single flush which can cause unique constraint violations
-        // on (session_id, tag_name).
         if (tagNames == null) {
             this.sessionTags.clear();
             return;
         }
 
-        // Use a set for quick lookup of desired tag names
         java.util.Set<String> desired = new java.util.HashSet<>(tagNames);
-
-        // Remove existing tags that are not desired
         this.sessionTags.removeIf(existing -> !desired.contains(existing.getTagName()));
-
-        // Build a set of existing names to avoid duplicates when adding
         java.util.Set<String> existingNames = this.sessionTags.stream()
                 .map(SessionTag::getTagName)
                 .collect(java.util.stream.Collectors.toSet());
-
-        // Add only tags that don't already exist
         for (String tagName : tagNames) {
             if (!existingNames.contains(tagName)) {
                 SessionTag tag = new SessionTag(this, tagName);
@@ -203,7 +182,6 @@ public class Session {
         }
     }
 
-    // Convenience methods for working with participants
     public void addParticipant(User user) {
         SessionParticipant participant = new SessionParticipant(this, user);
         this.participants.add(participant);
