@@ -46,6 +46,11 @@ api.interceptors.response.use(
 
     // If 401 and we haven't retried yet, attempt token refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // Skip retry for auth endpoints (login/signup/refresh)
+      if (originalRequest.url?.includes('/auth/')) {
+        return Promise.reject(error);
+      }
+
       if (isRefreshing) {
         // Another request is already refreshing - queue this request
         return new Promise((resolve, reject) => {
@@ -72,9 +77,13 @@ api.interceptors.response.use(
         isRefreshing = false;
         processQueue(refreshError);
         
-        // Refresh failed - redirect to login
-        logger.debug('Token refresh failed, redirecting to login');
-        window.location.href = '/login';
+        // Refresh failed - only redirect if not on public pages
+        const currentPath = window.location.pathname;
+        const publicPaths = ['/login', '/signup', '/'];
+        if (!publicPaths.includes(currentPath)) {
+          logger.debug('Token refresh failed, redirecting to login');
+          window.location.href = '/login';
+        }
         return Promise.reject(refreshError);
       }
     }

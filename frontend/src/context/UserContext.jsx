@@ -29,6 +29,7 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     const initializeUser = async () => {
       // Try to fetch user data - if cookie exists and is valid, this will succeed
+      // If no cookie or invalid, this will fail silently (we're on a public page)
       const userData = await fetchUserData();
       if (userData) {
         setCurrentUser({
@@ -41,6 +42,9 @@ export const UserProvider = ({ children }) => {
           yearLevel: userData.yearLevel,
           bio: userData.bio,
         });
+      } else {
+        // No valid session - user is not logged in (normal for signup/login pages)
+        setCurrentUser(null);
       }
       setLoading(false);
     };
