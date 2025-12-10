@@ -77,16 +77,7 @@ public class SessionController extends BaseController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<SessionDTO>> getSessionsByUserId(@PathVariable Long userId) {
         User currentUser = getAuthenticatedUser();
-        List<SessionDTO> sessions;
-        
-        // If viewing own profile, show all sessions
-        if (currentUser.getId().equals(userId)) {
-            sessions = sessionService.getSessionsByUserId(userId);
-        } else {
-            // Viewing another user - only show public sessions
-            sessions = sessionService.getPublicSessionsByUserId(userId);
-        }
-        
+        List<SessionDTO> sessions = sessionService.getSessionsForUserView(userId, currentUser.getId());
         return ResponseEntity.ok(sessions);
     }
 
@@ -159,19 +150,8 @@ public class SessionController extends BaseController {
     @GetMapping("/{id}")
     public ResponseEntity<SessionDTO> getSessionById(@PathVariable Long id) {
         User user = getAuthenticatedUser();
-        Session session = sessionService.findById(id)
-            .orElseThrow(() -> new RuntimeException("Session not found"));
-        
-        if (session.getSessionPrivacy() == com.appdev.academeet.model.SessionPrivacy.PRIVATE) {
-            boolean isOwner = session.getHost().getId().equals(user.getId());
-            boolean isParticipant = sessionService.isUserParticipant(id, user.getId());
-            
-            if (!isOwner && !isParticipant) {
-                throw new SecurityException("You do not have permission to view this private session");
-            }
-        }
-        
-        return ResponseEntity.ok(new SessionDTO(session));
+        SessionDTO session = sessionService.getSessionByIdForUser(id, user.getId());
+        return ResponseEntity.ok(session);
     }
 
     @GetMapping

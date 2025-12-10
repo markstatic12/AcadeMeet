@@ -30,27 +30,19 @@ public class ReminderController extends BaseController {
      */
     @GetMapping("/active")
     public ResponseEntity<List<ReminderDTO>> getActiveReminders() {
-        try {
-            User user = getAuthenticatedUser();
-            List<ReminderDTO> reminders = reminderService.getActiveReminders(user.getId());
-            return ResponseEntity.ok(reminders);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+        User user = getAuthenticatedUser();
+        List<ReminderDTO> reminders = reminderService.getActiveReminders(user.getId());
+        return ResponseEntity.ok(reminders);
     }
 
     /**
      * Mark reminder as read (when user clicks on it)
      */
     @PatchMapping("/{reminderId}/read")
-    public ResponseEntity<?> markAsRead(@PathVariable Long reminderId) {
-        try {
-            User user = getAuthenticatedUser();
-            reminderService.markAsRead(reminderId, user.getId());
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+    public ResponseEntity<Void> markAsRead(@PathVariable Long reminderId) {
+        User user = getAuthenticatedUser();
+        reminderService.markAsRead(reminderId, user.getId());
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -58,12 +50,8 @@ public class ReminderController extends BaseController {
      */
     @GetMapping("/unread/count")
     public ResponseEntity<Map<String, Long>> getUnreadCount() {
-        try {
-            User user = getAuthenticatedUser();
-            Long count = reminderService.getUnreadCount(user.getId());
-            return ResponseEntity.ok(Map.of("count", count));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+        User user = getAuthenticatedUser();
+        Long count = reminderService.getUnreadCount(user.getId());
+        return ResponseEntity.ok(Map.of("count", count));
     }
 }

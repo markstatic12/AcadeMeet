@@ -645,4 +645,36 @@ public class SessionService {
         return Map.of("message", "Participant removed successfully");
     }
 
+    /**
+     * Get session by ID with privacy check for the current user
+     */
+    @Transactional(readOnly = true)
+    public SessionDTO getSessionByIdForUser(Long sessionId, Long userId) {
+        Session session = sessionRepository.findById(sessionId)
+            .orElseThrow(() -> new RuntimeException("Session not found"));
+        
+        if (session.getSessionPrivacy() == SessionPrivacy.PRIVATE) {
+            boolean isOwner = session.getHost().getId().equals(userId);
+            boolean isParticipant = isUserParticipant(sessionId, userId);
+            
+            if (!isOwner && !isParticipant) {
+                throw new SecurityException("You do not have permission to view this private session");
+            }
+        }
+        
+        return new SessionDTO(session);
+    }
+
+    /**
+     * Get sessions for user profile view (own or others)
+     */
+    @Transactional(readOnly = true)
+    public List<SessionDTO> getSessionsForUserView(Long profileUserId, Long currentUserId) {
+        if (currentUserId.equals(profileUserId)) {
+            return getSessionsByUserId(profileUserId);
+        } else {
+            return getPublicSessionsByUserId(profileUserId);
+        }
+    }
+
 }

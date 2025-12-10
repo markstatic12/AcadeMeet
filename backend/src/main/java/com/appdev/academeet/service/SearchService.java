@@ -4,7 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,28 @@ public class SearchService {
     
     @Autowired
     private UserService userService;
+
+    /**
+     * Search all entities (users and sessions) with empty query handling
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Object> searchAll(String query, String sortBy, Long currentUserId) {
+        Map<String, Object> response = new HashMap<>();
+        
+        if (query == null || query.trim().isEmpty()) {
+            response.put("users", List.of());
+            response.put("sessions", List.of());
+            return response;
+        }
+        
+        List<Map<String, Object>> users = searchUsersMapped(query, null, null, sortBy, currentUserId);
+        List<SessionDTO> sessions = searchSessions(query, null, null, null, sortBy);
+        
+        response.put("users", users);
+        response.put("sessions", sessions);
+        
+        return response;
+    }
 
     @Transactional(readOnly = true)
     public List<java.util.Map<String, Object>> searchUsersMapped(String keyword, String program, Integer yearLevel, String sortBy, Long currentUserId) {
