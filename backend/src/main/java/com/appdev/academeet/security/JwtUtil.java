@@ -90,7 +90,7 @@ public class JwtUtil {
             return true;
         } catch (SignatureException | MalformedJwtException | ExpiredJwtException | 
                  UnsupportedJwtException | IllegalArgumentException ex) {
-            // Invalid JWT token (signature, malformed, expired, unsupported, or empty)
+            
         }
         return false;
     }

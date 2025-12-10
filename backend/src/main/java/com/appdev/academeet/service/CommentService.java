@@ -42,13 +42,9 @@ public class CommentService {
         // Keep backward-compatible wrapper that delegates to the new create method
         createComment(userId, sessionId, content, null);
     }
-    /**
-     * Create a comment or reply with validation. Returns the saved Comment.
-     * If parentCommentId is non-null, it will validate the parent exists and is in the same session.
-     */
+    
     @Transactional
     public Comment createComment(Long userId, Long sessionId, String content, Long parentCommentId) {
-        // Business Rule: Validate content is not empty
         if (content == null || content.trim().isEmpty()) {
             throw new IllegalArgumentException("Comment content cannot be empty");
         }
@@ -67,20 +63,16 @@ public class CommentService {
                 throw new IllegalArgumentException("Parent comment must be in the same session");
             }
 
-            // Attach to root comment (single-level nesting semantics)
             parentComment = parentComment.getParentComment() != null ? parentComment.getParentComment() : parentComment;
         }
 
         Comment comment = new Comment(session, user, content, parentComment);
         Comment saved = commentRepository.save(comment);
 
-        // If this was a reply, update the parent's reply count atomically
         if (parentComment != null) {
             commentRepository.updateReplyCount(parentComment.getCommentId(), 1);
-            // Notify original commenter about reply
             notificationService.notifyCommentReply(parentComment.getAuthor(), user, session);
         } else {
-            // This is a new comment on session - notify session owner
             notificationService.notifyCommentOnSession(user, session);
         }
 
@@ -89,16 +81,13 @@ public class CommentService {
 
     @Transactional
     public void createReply(Long userId, Long sessionId, Long parentCommentId, String content) {
-        // Delegate to createComment which already validates and updates reply count
         createComment(userId, sessionId, content, parentCommentId);
     }
 
     @Transactional(readOnly = true)
     public List<CommentDTO> getSessionCommentsGrouped(Long sessionId) {
-        // Fetch all comments for the session efficiently (repository provides this)
         List<Comment> allComments = commentRepository.findBySessionIdOrderByCreatedAtAsc(sessionId);
 
-        // Build parent map and collect parent ids
         Map<Long, CommentDTO> parentCommentsMap = new HashMap<>();
         List<Long> parentIds = new ArrayList<>();
 
@@ -118,7 +107,6 @@ public class CommentService {
             }
         }
 
-        // Batch fetch replies for the parent ids
         Map<Long, List<ReplyDTO>> repliesMap = new HashMap<>();
         if (!parentIds.isEmpty()) {
             List<Comment> replies = commentRepository.findByParentComment_CommentIdIn(parentIds);
@@ -138,14 +126,12 @@ public class CommentService {
             }
         }
 
-        // Combine parent comments with their replies
         List<CommentDTO> result = new ArrayList<>();
         for (CommentDTO parentDTO : parentCommentsMap.values()) {
             parentDTO.setReplies(repliesMap.getOrDefault(parentDTO.getCommentId(), new ArrayList<>()));
             result.add(parentDTO);
         }
 
-        // Sort by creation date
         result.sort((a, b) -> a.getCreatedAt().compareTo(b.getCreatedAt()));
 
         return result;
@@ -182,18 +168,13 @@ public class CommentService {
 
         Comment parent = comment.getParentComment();
         if (parent != null) {
-            // It's a reply: delete and decrement parent's reply count
             commentRepository.delete(comment);
             commentRepository.updateReplyCount(parent.getCommentId(), -1);
         } else {
-            // Parent comment: delete (cascade will remove replies)
             commentRepository.delete(comment);
         }
     }
 
-    /**
-     * Create a comment and return DTO
-     */
     @Transactional
     public CommentDTO createCommentAndGetDTO(Long userId, Long sessionId, String content) {
         Comment saved = createComment(userId, sessionId, content, null);
@@ -208,9 +189,6 @@ public class CommentService {
         );
     }
 
-    /**
-     * Create a reply and return DTO
-     */
     @Transactional
     public ReplyDTO createReplyAndGetDTO(Long userId, Long sessionId, Long commentId, String content) {
         Comment saved = createComment(userId, sessionId, content, commentId);

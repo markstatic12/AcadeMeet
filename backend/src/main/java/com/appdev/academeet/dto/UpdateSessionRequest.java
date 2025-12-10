@@ -11,19 +11,17 @@ import jakarta.validation.constraints.Size;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UpdateSessionRequest {
-    // All fields nullable to support partial updates (PATCH semantics)
     @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
     private String title;
     
     @Size(max = 5000, message = "Description must not exceed 5000 characters")
     private String description;
     
-    // Frontend sends separate date/time fields
-    private String month;  // e.g., "January", "February"
-    private String day;    // e.g., "15"
-    private String year;   // e.g., "2025"
-    private String startTime;  // e.g., "14:30"
-    private String endTime;    // e.g., "16:00"
+    private String month; 
+    private String day;    
+    private String year;   
+    private String startTime;  
+    private String endTime;   
     
     @Size(min = 3, message = "Location must be at least 3 characters")
     private String location;

@@ -56,7 +56,6 @@ public class Notification {
         }
     }
     
-    // Constructors
     public Notification() {}
     
     public Notification(User recipient, Session session, NotificationType type, String message) {
@@ -67,7 +66,6 @@ public class Notification {
         this.isRead = false;
     }
     
-    // Getters and Setters
     public Long getId() {
         return id;
     }

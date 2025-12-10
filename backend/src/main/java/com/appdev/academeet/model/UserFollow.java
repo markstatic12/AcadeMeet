@@ -43,7 +43,6 @@ public class UserFollow {
         }
     }
 
-    // Constructors
     public UserFollow() {
     }
 
@@ -53,7 +52,6 @@ public class UserFollow {
         this.following = following;
     }
 
-    // Getters and Setters
     public UserFollowId getId() {
         return id;
     }

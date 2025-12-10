@@ -5,10 +5,6 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-/**
- * Response DTO for comment replies
- * Immutable after construction
- */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReplyDTO {
     private final Long commentId;
@@ -33,7 +29,7 @@ public class ReplyDTO {
         this.replyingToUserName = replyingToUserName;
     }
 
-    // Getters only (immutable)
+    // Getters only
     public Long getCommentId() { return commentId; }
     public Long getUserId() { return userId; }
     public String getUserName() { return userName; }

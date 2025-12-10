@@ -24,10 +24,7 @@ public class NotificationController extends BaseController {
     public NotificationController(NotificationService notificationService) {
         this.notificationService = notificationService;
     }
-    
-    /**
-     * Get all notifications for current user
-     */
+   
     @GetMapping("/all")
     public ResponseEntity<List<NotificationDTO>> getAllNotifications() {
         User user = getAuthenticatedUser();
@@ -35,19 +32,13 @@ public class NotificationController extends BaseController {
         return ResponseEntity.ok(notifications);
     }
     
-    /**
-     * Get unread notifications for current user
-     */
     @GetMapping("/unread")
     public ResponseEntity<List<NotificationDTO>> getUnreadNotifications() {
         User user = getAuthenticatedUser();
         List<NotificationDTO> notifications = notificationService.getUnreadNotifications(user.getId());
         return ResponseEntity.ok(notifications);
     }
-    
-    /**
-     * Get unread notification count
-     */
+
     @GetMapping("/unread/count")
     public ResponseEntity<Map<String, Long>> getUnreadCount() {
         User user = getAuthenticatedUser();
@@ -55,29 +46,20 @@ public class NotificationController extends BaseController {
         return ResponseEntity.ok(Map.of("count", count));
     }
     
-    /**
-     * Mark notification as read
-     */
     @PatchMapping("/{id}/read")
     public ResponseEntity<Map<String, String>> markAsRead(@PathVariable Long id) {
         User user = getAuthenticatedUser();
         notificationService.markAsRead(id, user.getId());
         return ResponseEntity.ok(Map.of("message", "Notification marked as read"));
     }
-    
-    /**
-     * Mark notification as unread
-     */
+ 
     @PatchMapping("/{id}/unread")
     public ResponseEntity<Map<String, String>> markAsUnread(@PathVariable Long id) {
         User user = getAuthenticatedUser();
         notificationService.markAsUnread(id, user.getId());
         return ResponseEntity.ok(Map.of("message", "Notification marked as unread"));
     }
-    
-    /**
-     * Mark all notifications as read
-     */
+
     @PostMapping("/mark-all-read")
     public ResponseEntity<Map<String, String>> markAllAsRead() {
         User user = getAuthenticatedUser();

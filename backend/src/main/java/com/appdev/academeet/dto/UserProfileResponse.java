@@ -2,10 +2,6 @@ package com.appdev.academeet.dto;
 
 import java.time.LocalDateTime;
 
-/**
- * Response DTO for user profile information
- * Immutable after construction
- */
 public class UserProfileResponse {
     private final Long id;
     private final String name;
@@ -35,7 +31,7 @@ public class UserProfileResponse {
         this.following = following;
     }
 
-    // Getters only (immutable)
+    // Getters only 
     public Long getId() { return id; }
     public String getName() { return name; }
     public String getEmail() { return email; }

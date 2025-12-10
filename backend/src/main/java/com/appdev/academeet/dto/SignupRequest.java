@@ -25,7 +25,6 @@ public class SignupRequest {
     private Integer yearLevel;
     private String profilePic;
     
-    // Constructors
     public SignupRequest() {
     }
     
@@ -38,7 +37,6 @@ public class SignupRequest {
         this.profilePic = profilePic;
     }
     
-    // Getters and Setters
     public String getName() {
         return name;
     }

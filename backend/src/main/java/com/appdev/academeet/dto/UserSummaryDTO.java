@@ -1,9 +1,5 @@
 package com.appdev.academeet.dto;
 
-/**
- * Response DTO for users in lists (followers, following, search results)
- * Immutable after construction
- */
 public class UserSummaryDTO {
     private final Long id;
     private final String name;
@@ -19,7 +15,7 @@ public class UserSummaryDTO {
         this.profilePic = profilePic;
     }
 
-    // Getters only (immutable)
+    // Getters only 
     public Long getId() { return id; }
     public String getName() { return name; }
     public String getEmail() { return email; }

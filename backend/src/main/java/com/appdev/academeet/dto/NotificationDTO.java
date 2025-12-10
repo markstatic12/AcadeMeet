@@ -5,10 +5,6 @@ import java.time.LocalDateTime;
 import com.appdev.academeet.model.Notification;
 import com.appdev.academeet.model.NotificationType;
 
-/**
- * Response DTO for notifications
- * Immutable after construction
- */
 public class NotificationDTO {
     private final Long id;
     private final Long sessionId;
@@ -28,7 +24,7 @@ public class NotificationDTO {
         this.createdAt = notification.getCreatedAt();
     }
     
-    // Getters only (immutable)
+    // Getters only 
     public Long getId() { return id; }
     public Long getSessionId() { return sessionId; }
     public String getSessionTitle() { return sessionTitle; }

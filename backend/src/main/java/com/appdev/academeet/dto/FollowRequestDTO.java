@@ -1,13 +1,8 @@
 package com.appdev.academeet.dto;
 
-/**
- * DTO for follow requests.
- * Used when a user wants to follow another user.
- */
 public class FollowRequestDTO {
-    private Long followingId; // The ID of the user to be followed
-    
-    // Constructors
+    private Long followingId;
+
     public FollowRequestDTO() {
     }
     
@@ -15,7 +10,6 @@ public class FollowRequestDTO {
         this.followingId = followingId;
     }
     
-    // Getters and Setters
     public Long getFollowingId() {
         return followingId;
     }

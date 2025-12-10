@@ -388,7 +388,6 @@ public class SessionService {
         Session session = sessionRepository.findById(sessionId)
             .orElseThrow(() -> new RuntimeException("Session not found"));
         
-        // Authorization check: only session owner can update status
         if (!session.getHost().getId().equals(userId)) {
             throw new SecurityException("Only the session owner can update session status");
         }
@@ -616,9 +615,6 @@ public class SessionService {
         return Map.of("message", "Participant removed successfully");
     }
 
-    /**
-     * Get session by ID with privacy check for the current user
-     */
     @Transactional(readOnly = true)
     public SessionDTO getSessionByIdForUser(Long sessionId, Long userId) {
         Session session = sessionRepository.findById(sessionId)
@@ -636,9 +632,6 @@ public class SessionService {
         return new SessionDTO(session);
     }
 
-    /**
-     * Get sessions for user profile view (own or others)
-     */
     @Transactional(readOnly = true)
     public List<SessionDTO> getSessionsForUserView(Long profileUserId, Long currentUserId) {
         if (currentUserId.equals(profileUserId)) {

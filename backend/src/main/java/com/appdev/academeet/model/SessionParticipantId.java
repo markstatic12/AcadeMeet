@@ -6,10 +6,6 @@ import java.util.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
-/**
- * Composite primary key for SessionParticipant.
- * Combines session_id and participant_id (user_id) as the primary key.
- */
 @Embeddable
 public class SessionParticipantId implements Serializable {
 
