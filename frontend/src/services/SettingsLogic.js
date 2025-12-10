@@ -5,7 +5,7 @@ import { authFetch } from './apiHelper';
 
 export const useSettingsPage = () => {
   const navigate = useNavigate();
-  const { logout } = useUser();
+  const { currentUser, logout, refreshUser } = useUser(); // Get user from context
   const [saving, setSaving] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [student, setStudent] = useState(null);
@@ -52,6 +52,22 @@ export const useSettingsPage = () => {
 
   // Load student data from backend using JWT
   useEffect(() => {
+    // Initialize from context first
+    if (currentUser) {
+      const loadedForm = {
+        name: currentUser.name || '',
+        program: currentUser.program || '',
+        bio: currentUser.bio || '',
+        yearLevel: currentUser.yearLevel || '',
+      };
+      
+      setForm(loadedForm);
+      setOriginalForm(loadedForm);
+      setProfilePreview(currentUser.profilePic || null);
+      setOriginalProfilePreview(currentUser.profilePic || null);
+    }
+
+    // Then fetch complete data for settings-specific fields
     authFetch('/users/me')
       .then(res => res.json())
       .then(s => {
@@ -76,7 +92,7 @@ export const useSettingsPage = () => {
         setOriginalCoverPreview(loadedCoverImage);
       })
       .catch(err => console.error('Failed to load user', err));
-  }, []);
+  }, [currentUser]);
 
   const handleBack = () => {
     navigate(-1);
@@ -194,6 +210,9 @@ export const useSettingsPage = () => {
       setOriginalCoverPreview(newCoverImage);
       
       console.log('Images updated successfully');
+      
+      // Refresh user data in context so navbar updates immediately
+      await refreshUser();
       
       showToast('✅ Profile updated successfully!', 'success');
     } catch (e) {

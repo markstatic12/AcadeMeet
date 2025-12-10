@@ -7,26 +7,9 @@ import { authFetch } from '../../services/apiHelper';
 const SearchUserCard = ({ user }) => {
   const { id, name, program, yearLevel, profileImageUrl, followers, isFollowing } = user;
   const { currentUser } = useUser();
-  const [currentUserId, setCurrentUserId] = useState(null);
   
-  // Fetch current user's ID
-  useEffect(() => {
-    const fetchCurrentUser = async () => {
-      if (currentUser?.authenticated) {
-        try {
-          const response = await authFetch('/users/me');
-          if (response.ok) {
-            const data = await response.json();
-            setCurrentUserId(data.id);
-          }
-        } catch (error) {
-          console.error('Error fetching current user:', error);
-        }
-      }
-    };
-    
-    fetchCurrentUser();
-  }, [currentUser]);
+  // Get current user ID directly from context instead of fetching
+  const currentUserId = currentUser?.id;
   
   // Check if this is the current user's own profile
   const isOwnProfile = currentUserId && currentUserId === id;

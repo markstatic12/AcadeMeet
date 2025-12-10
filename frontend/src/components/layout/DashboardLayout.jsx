@@ -9,7 +9,7 @@ import { notificationService } from '../../services/notificationService';
 const DashboardLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [currentUser, setCurrentUser] = useState(null);
+  const { currentUser } = useUser(); // Get user from context instead of local state
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState('all'); // 'all' or 'unread'
@@ -20,20 +20,7 @@ const DashboardLayout = ({ children }) => {
   const [bellAnimation, setBellAnimation] = useState('');
   const notificationRef = useRef(null);
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const res = await authFetch('/users/me');
-        if (!res.ok) throw new Error(`Failed to load user (status ${res.status})`);
-        const data = await res.json();
-        if (mounted) setCurrentUser(data);
-      } catch (err) {
-        console.error('Failed to load user', err);
-      }
-    })();
-    return () => { mounted = false; };
-  }, []);
+  // Removed redundant authFetch - user data now comes from UserContext
 
   // Load unread count on mount and periodically
   useEffect(() => {
@@ -497,10 +484,12 @@ const DashboardLayout = ({ children }) => {
             </div>
 
             {/* User Name */}
-            {currentUser && (
+            {currentUser ? (
               <span className="text-sm font-medium text-white">
                 {currentUser.name}
               </span>
+            ) : (
+              <div className="h-4 w-24 bg-gray-700 animate-pulse rounded"></div>
             )}
             {/* User Avatar */}
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center ring-2 ring-indigo-500/30 overflow-hidden flex-shrink-0">
@@ -510,8 +499,10 @@ const DashboardLayout = ({ children }) => {
                   alt={currentUser.name} 
                   className="w-full h-full object-cover"
                 />
-              ) : (
+              ) : currentUser ? (
                 <ProfileIcon className="w-5 h-5 text-white" />
+              ) : (
+                <div className="w-full h-full bg-gray-700 animate-pulse"></div>
               )}
             </div>
             

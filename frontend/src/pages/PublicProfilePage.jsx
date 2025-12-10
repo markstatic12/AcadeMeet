@@ -11,34 +11,21 @@ import '../styles/profile/ProfilePage.css';
 const PublicProfilePage = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
-  const { user: currentUser } = useUser();
+  const { currentUser } = useUser(); // Get user from context
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [activeTab, setActiveTab] = useState('about'); // 'about', 'schedule'
-  const [currentUserId, setCurrentUserId] = useState(null);
 
-  // Fetch current user's ID and check if viewing self
+  // Get current user ID from context
+  const currentUserId = currentUser?.id;
+
+  // Check if viewing self and redirect to own profile
   useEffect(() => {
-    const checkIfOwnProfile = async () => {
-      try {
-        const response = await authFetch('/users/me');
-        if (response.ok) {
-          const data = await response.json();
-          setCurrentUserId(data.id);
-          
-          // Redirect to own profile if viewing self
-          if (userId && parseInt(userId) === data.id) {
-            navigate('/profile', { replace: true, state: { fromSearch: true } });
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch current user:', error);
-      }
-    };
-
-    checkIfOwnProfile();
-  }, [userId, navigate]);
+    if (currentUserId && userId && parseInt(userId) === currentUserId) {
+      navigate('/profile', { replace: true, state: { fromSearch: true } });
+    }
+  }, [userId, currentUserId, navigate]);
 
   useEffect(() => {
     fetchUserProfile();

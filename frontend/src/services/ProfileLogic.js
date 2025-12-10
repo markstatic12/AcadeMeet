@@ -8,6 +8,7 @@ import { sessionService } from './SessionService';
 
 export const useProfilePage = () => {
   const navigate = useNavigate();
+  const { currentUser, refreshUser } = useUser(); // Get user and refresh function from context
   const [showEditModal, setShowEditModal] = useState(false);
   const [showFollowersManager, setShowFollowersManager] = useState(false);
   const [followTab, setFollowTab] = useState('followers');
@@ -20,17 +21,19 @@ export const useProfilePage = () => {
   const [openCardMenuId, setOpenCardMenuId] = useState(null);
   const [completedSessions, setCompletedSessions] = useState([]); //NOT YET IMPLEMENTED
 
-  // User data from centralized context
+  // User data from centralized context - initialize from currentUser
   const [userData, setUserData] = useState({
-    id: null,
-    name: '',
-    email: '',
-    school: '',
-    program: '',
-    yearLevel: null,
+    id: currentUser?.id || null,
+    name: currentUser?.name || '',
+    email: currentUser?.email || '',
+    school: 'CIT University',
+    program: currentUser?.program || '',
+    yearLevel: currentUser?.yearLevel || null,
     studentId: '',
-    bio: 'No bio yet',
+    bio: currentUser?.bio || 'No bio yet',
     coverImage: null,
+    profilePic: currentUser?.profilePic || null,
+    profileImageUrl: currentUser?.profilePic || null,
     followers: 0,
     following: 0,
     isOnline: true
@@ -38,15 +41,40 @@ export const useProfilePage = () => {
 
   // Edit form state
   const [editForm, setEditForm] = useState({
-    name: '',
+    name: currentUser?.name || '',
     school: '',
     studentId: '',
-    bio: ''
+    bio: currentUser?.bio || ''
   });
 
-  // Fetch user data from backend using JWT
+  // Sync userData with currentUser from context when it changes
+  useEffect(() => {
+    if (currentUser) {
+      setUserData({
+        id: currentUser.id,
+        name: currentUser.name || 'User',
+        email: currentUser.email || '',
+        school: 'CIT University',
+        program: currentUser.program || '',
+        yearLevel: currentUser.yearLevel || null,
+        studentId: '',
+        bio: currentUser.bio || 'No bio yet',
+        coverImage: null,
+        profilePic: currentUser.profilePic || null,
+        profileImageUrl: currentUser.profilePic || null,
+        followers: 0,
+        following: 0,
+        isOnline: true
+      });
+    }
+  }, [currentUser]);
+
+  // Fetch user data from backend using JWT (for profile-specific data like followers/following)
   const refreshUserData = async () => {
     try {
+      // Refresh user context data first
+      await refreshUser();
+      
       const response = await authFetch('/users/me');
       if (response.ok) {
         const data = await response.json();
