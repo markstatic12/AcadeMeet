@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
 import PageHeader from '../components/common/PageHeader';
 import { SessionViewHeader, ViewDetailsPanel, ViewOverviewPanel, CommentsPanel } from '../components/sessions/SessionViewComponents';
 import SessionStatusBadge from '../components/ui/SessionStatusBadge';
@@ -129,6 +130,7 @@ const PasswordModal = ({ isOpen, onClose, onSubmit, sessionTitle, needsAuthentic
 const SessionViewPage = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
+  const { currentUser } = useUser(); // Get user from context
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -137,27 +139,12 @@ const SessionViewPage = () => {
   const [needsAuthentication, setNeedsAuthentication] = useState(false);
   const [sessionTitle, setSessionTitle] = useState('');
   const [validatedPassword, setValidatedPassword] = useState(null);
-  const [currentUserId, setCurrentUserId] = useState(null);
   const [isParticipant, setIsParticipant] = useState(false);
   const [showParticipantsModal, setShowParticipantsModal] = useState(false);
   const [participants, setParticipants] = useState([]);
 
-  // Fetch current user ID on mount using centralized authFetch helper
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const { authFetch } = await import('../services/apiHelper');
-        const res = await authFetch('/users/me');
-        if (!res.ok) throw new Error(`Failed to load current user (status ${res.status})`);
-        const data = await res.json();
-        if (mounted) setCurrentUserId(data.id);
-      } catch (err) {
-        console.error('Failed to load current user', err);
-      }
-    })();
-    return () => { mounted = false; };
-  }, []);
+  // Get current user ID from context instead of fetching
+  const currentUserId = currentUser?.id;
 
   const isSessionOwner = session && currentUserId && session.createdBy?.id === currentUserId;
 
