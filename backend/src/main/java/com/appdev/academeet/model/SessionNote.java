@@ -29,7 +29,6 @@ public class SessionNote {
     @Column(name = "linked_at")
     private LocalDateTime linkedAt;
 
-    // Lifecycle Methods
     @PrePersist
     protected void onCreate() {
         if (linkedAt == null) {
@@ -40,7 +39,6 @@ public class SessionNote {
         }
     }
 
-    // Constructors
     public SessionNote() {}
 
     public SessionNote(Session session, String filepath) {
@@ -48,7 +46,6 @@ public class SessionNote {
         this.filepath = filepath;
     }
 
-    // Getters and Setters
     public String getNoteId() {
         return noteId;
     }

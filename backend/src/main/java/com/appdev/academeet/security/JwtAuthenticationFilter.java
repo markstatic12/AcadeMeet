@@ -34,7 +34,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        // Skip JWT filter for auth endpoints
         boolean skip = path.startsWith("/api/auth/");
         logger.debug("JWT Filter - Path: {}, Skip: {}", path, skip);
         return skip;
@@ -46,13 +45,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = null;
         String email = null;
 
-        // First, try to get token from Authorization header (fallback for clients not using cookies)
         final String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             token = header.substring(7);
             logger.debug("JWT Filter - Token found in Authorization header");
         } else {
-            // Try to get token from HttpOnly cookie
             Cookie cookie = WebUtils.getCookie(request, "token");
             if (cookie != null) {
                 token = cookie.getValue();
@@ -62,7 +59,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // Validate token if present
         if (token != null) {
             try {
                 if (jwtUtil.validateToken(token)) {
@@ -73,7 +69,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             } catch (Exception ex) {
                 logger.error("JWT Filter - Token validation failed: {}", ex.getMessage());
-                // ignore and proceed without authentication
             }
         }
 

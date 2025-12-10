@@ -63,7 +63,7 @@ public class User {
             this.createdAt = LocalDateTime.now();
         }
     }
-    // --- Constructors ---
+    
     public User() {
     }
 
@@ -75,7 +75,6 @@ public class User {
         this.yearLevel = yearLevel;
     }
 
-    // --- Getters and Setters ---
     public Long getId() {
         return id;
     }

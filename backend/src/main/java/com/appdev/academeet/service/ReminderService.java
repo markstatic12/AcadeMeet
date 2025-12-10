@@ -25,22 +25,16 @@ public class ReminderService {
         this.reminderRepository = reminderRepository;
     }
 
-    /**
-     * Auto-create reminders when user joins or creates a session
-     */
     @Transactional
     public void createRemindersForSession(User user, Session session) {
-        // Check if reminders already exist
         if (reminderRepository.existsByUserIdAndSessionId(user.getId(), session.getId())) {
-            return; // Already created
+            return;
         }
 
         LocalDateTime sessionStart = session.getStartTime();
         LocalDateTime now = LocalDateTime.now();
 
-        // Always create "Day Before" reminder (will show if scheduledTime <= now)
         LocalDateTime dayBeforeTime = sessionStart.minusDays(1);
-        // Only create if the scheduled time hasn't passed AND session hasn't started yet
         if (dayBeforeTime.isBefore(sessionStart) && sessionStart.isAfter(now)) {
             Reminder dayBeforeReminder = new Reminder(
                 user,
@@ -51,9 +45,7 @@ public class ReminderService {
             reminderRepository.save(dayBeforeReminder);
         }
 
-        // Always create "1 Hour Before" reminder (will show if scheduledTime <= now)
         LocalDateTime oneHourBeforeTime = sessionStart.minusHours(1);
-        // Only create if the scheduled time is before session start AND session hasn't started yet
         if (oneHourBeforeTime.isBefore(sessionStart) && sessionStart.isAfter(now)) {
             Reminder oneHourReminder = new Reminder(
                 user,
@@ -65,48 +57,34 @@ public class ReminderService {
         }
     }
 
-    /**
-     * Get active reminders for user
-     * Returns only the MOST RECENT reminder per session
-     * Sorted by: unread first, then by scheduled time descending
-     */
     @Transactional(readOnly = true)
     public List<ReminderDTO> getActiveReminders(Long userId) {
         LocalDateTime now = LocalDateTime.now();
         List<Reminder> allReminders = reminderRepository.findActiveRemindersByUserId(userId, now);
 
-        // Group by session and keep only the most recent reminder per session
         Map<Long, Reminder> latestReminderPerSession = new java.util.HashMap<>();
         for (Reminder reminder : allReminders) {
             Long sessionId = reminder.getSession().getId();
-            // Since query sorts by scheduledTime DESC, first one we see is the latest
             if (!latestReminderPerSession.containsKey(sessionId)) {
                 latestReminderPerSession.put(sessionId, reminder);
             }
         }
-
-        // Convert to DTOs and sort: unread first, then by scheduled time descending
+        
         return latestReminderPerSession.values().stream()
             .map(this::convertToDTO)
             .sorted((a, b) -> {
-                // Sort by read status first (unread = false comes first)
                 int readCompare = Boolean.compare(a.isRead(), b.isRead());
                 if (readCompare != 0) return readCompare;
-                // Then by scheduled time descending (most recent first)
                 return b.getScheduledTime().compareTo(a.getScheduledTime());
             })
             .collect(Collectors.toList());
     }
 
-    /**
-     * Mark reminder as read
-     */
     @Transactional
     public void markAsRead(Long reminderId, Long userId) {
         Reminder reminder = reminderRepository.findById(reminderId)
             .orElseThrow(() -> new RuntimeException("Reminder not found"));
-
-        // Verify ownership
+        
         if (!reminder.getUser().getId().equals(userId)) {
             throw new RuntimeException("Unauthorized");
         }
@@ -115,26 +93,14 @@ public class ReminderService {
         reminderRepository.save(reminder);
     }
 
-    /**
-     * Delete all reminders for a user-session pair
-     * Called when user cancels participation
-     */
     @Transactional
     public void deleteRemindersForUserSession(Long userId, Long sessionId) {
         reminderRepository.deleteByUserIdAndSessionId(userId, sessionId);
     }
-
-    /**
-     * Get unread reminder count
-     */
     @Transactional(readOnly = true)
     public Long getUnreadCount(Long userId) {
         return reminderRepository.countUnreadReminders(userId, LocalDateTime.now());
     }
-
-    /**
-     * Convert Reminder entity to DTO with generated message
-     */
     private ReminderDTO convertToDTO(Reminder reminder) {
         Session session = reminder.getSession();
         User user = reminder.getUser();
@@ -155,9 +121,6 @@ public class ReminderService {
         );
     }
 
-    /**
-     * Generate time-aware message template based on reminder type and user role
-     */
     private String generateMessage(ReminderType type, Session session, boolean isOwner) {
         String title = session.getTitle();
         LocalDateTime startTime = session.getStartTime();
@@ -165,13 +128,11 @@ public class ReminderService {
 
         switch (type) {
             case DAY_BEFORE:
-                // 24+ hours before: Session is tomorrow
                 return isOwner
                     ? String.format("⏰ Your session \"%s\" is scheduled for tomorrow at %s.", title, formattedTime)
                     : String.format("⏰ Upcoming session: \"%s\" tomorrow at %s.", title, formattedTime);
 
             case ONE_HOUR_BEFORE:
-                // 1-23 hours before: Session is coming up today
                 return isOwner
                     ? String.format("⏰ Your session \"%s\" is coming up today at %s.", title, formattedTime)
                     : String.format("⏰ \"%s\" is coming up today at %s.", title, formattedTime);

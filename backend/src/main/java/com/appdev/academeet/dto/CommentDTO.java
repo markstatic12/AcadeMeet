@@ -7,10 +7,6 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-/**
- * Response DTO for comments with nested replies
- * Immutable after construction
- */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommentDTO {
     private final Long commentId;
@@ -35,7 +31,7 @@ public class CommentDTO {
         this.replies = new ArrayList<>();
     }
 
-    // Getters only (immutable)
+    // Getters only 
     public Long getCommentId() { return commentId; }
     public Long getUserId() { return userId; }
     public String getUserName() { return userName; }
@@ -45,7 +41,6 @@ public class CommentDTO {
     public int getReplyCount() { return replyCount; }
     public List<ReplyDTO> getReplies() { return replies; }
     
-    // Only setter needed for lazy-loading replies
     public void setReplies(List<ReplyDTO> replies) { 
         this.replies = replies == null ? new ArrayList<>() : new ArrayList<>(replies); 
     }

@@ -9,7 +9,6 @@ import com.appdev.academeet.model.SessionPrivacy;
 import com.appdev.academeet.model.SessionStatus;
 import com.appdev.academeet.util.SessionStatusCalculator;
 
-
 public class SessionDTO {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("h:mm a");
 
@@ -25,17 +24,14 @@ public class SessionDTO {
     private final String startTime;
     private final String endTime;
     private final String location;
-    private final SessionPrivacy sessionType;
+    private final SessionPrivacy sessionPrivacy;
     private final SessionStatus status;
     private final Integer maxParticipants;
     private final Integer currentParticipants;
     private final String createdAt;
     private final List<String> tags;
-    private final List<String> notes; // File paths for session notes
-    
-    /**
-     * Host information structure for frontend compatibility.
-     */
+    private final List<String> notes; 
+
     public static class HostInfo {
         private final Long id;
         private final String name;
@@ -49,16 +45,11 @@ public class SessionDTO {
         public String getName() { return name; }
     }
 
-    /**
-     * Converts a Session entity to a SessionDTO.
-     * Handles null safety and formats time fields for JSON serialization.
-     */
     public SessionDTO(Session session) {
         this.id = session.getId();
         this.title = session.getTitle();
         this.description = session.getDescription();
         
-        // Host info - handle potential null host
         if (session.getHost() != null) {
             this.hostName = session.getHost().getName();
             this.createdBy = new HostInfo(session.getHost().getId(), session.getHost().getName());
@@ -67,12 +58,10 @@ public class SessionDTO {
             this.createdBy = null;
         }
         
-        // Date and location
         if (session.getStartTime() != null) {
-            // Convert month to proper case (January instead of JANUARY)
             Month monthEnum = session.getStartTime().getMonth();
-            String monthName = monthEnum.toString(); // Returns "JANUARY"
-            this.month = monthName.charAt(0) + monthName.substring(1).toLowerCase(); // Converts to "January"
+            String monthName = monthEnum.toString();
+            this.month = monthName.charAt(0) + monthName.substring(1).toLowerCase(); 
             this.day = String.valueOf(session.getStartTime().getDayOfMonth());
             this.year = String.valueOf(session.getStartTime().getYear());
         } else {
@@ -82,25 +71,21 @@ public class SessionDTO {
         }
         this.location = session.getLocation();
         
-        // Session settings
-        this.sessionType = session.getSessionPrivacy();
-        this.status = SessionStatusCalculator.calculateStatus(session); // Delegate to utility
+        this.sessionPrivacy = session.getSessionPrivacy();
+        this.status = SessionStatusCalculator.calculateStatus(session); 
         this.maxParticipants = session.getMaxParticipants();
         this.currentParticipants = session.getCurrentParticipants();
         this.createdAt = session.getCreatedAt() != null ? session.getCreatedAt().toString() : null;
         this.tags = session.getTags();
         
-        // Extract note file paths from SessionNote entities
         this.notes = session.getSessionNotes().stream()
                 .map(sessionNote -> sessionNote.getFilepath())
                 .toList();
 
-        // Format time fields for JSON - handle nulls gracefully
         this.startTime = session.getStartTime() != null ? session.getStartTime().format(TIME_FORMATTER) : null;
         this.endTime = session.getEndTime() != null ? session.getEndTime().format(TIME_FORMATTER) : null;
     }
 
-    // Getters for Jackson JSON serialization
     public Long getId() { return id; }
     public String getTitle() { return title; }
     public String getDescription() { return description; }
@@ -112,7 +97,7 @@ public class SessionDTO {
     public String getStartTime() { return startTime; }
     public String getEndTime() { return endTime; }
     public String getLocation() { return location; }
-    public SessionPrivacy getSessionPrivacy() { return sessionType; }
+    public SessionPrivacy getSessionPrivacy() { return sessionPrivacy; }
     public SessionStatus getStatus() { return status; }
     public Integer getMaxParticipants() { return maxParticipants; }
     public Integer getCurrentParticipants() { return currentParticipants; }

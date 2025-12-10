@@ -6,10 +6,8 @@ import logger from '../utils/logger';
 
 const UserContext = createContext(null);
 
-// Helper function to fetch user data from backend
 const fetchUserData = async () => {
   try {
-    // Use axios apiClient (sends cookies automatically with withCredentials: true)
     const response = await api.get('/users/me');
     return response.data;
   } catch (error) {
@@ -27,10 +25,8 @@ export const UserProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
-  // Initialize user from cookie on mount (if cookie exists, server will authenticate)
   useEffect(() => {
     const initializeUser = async () => {
-      // Skip fetching on public pages to avoid expected 403 entries in the console
       const publicPaths = ['/login', '/signup', '/'];
       if (publicPaths.includes(location.pathname)) {
         setCurrentUser(null);
@@ -38,7 +34,6 @@ export const UserProvider = ({ children }) => {
         return;
       }
 
-      // Try to fetch user data - if cookie exists and is valid, this will succeed
       const userData = await fetchUserData();
       if (userData) {
         setCurrentUser({
@@ -60,9 +55,7 @@ export const UserProvider = ({ children }) => {
     initializeUser();
   }, [location.pathname]);
 
-  // Store user data after login/signup (cookie is set by server automatically)
   const login = async (userData) => {
-    // Server has already set HttpOnly cookie - just fetch and store user data
     const fullUserData = await fetchUserData();
     if (fullUserData) {
       setCurrentUser({
@@ -76,7 +69,6 @@ export const UserProvider = ({ children }) => {
         bio: fullUserData.bio,
       });
     } else {
-      // Fallback: use data from login response if /users/me fails
       setCurrentUser({
         authenticated: true,
         id: userData.id,
@@ -90,7 +82,6 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  // Clear user state and call backend logout to clear cookies
   const logout = async () => {
     try {
       await authService.logout();
@@ -100,7 +91,6 @@ export const UserProvider = ({ children }) => {
     setCurrentUser(null);
   };
 
-  // Get auth token - not needed anymore (cookies are httpOnly)
   // Kept for backward compatibility but returns null
   const getToken = () => {
     logger.warn('getToken() called but tokens are now in HttpOnly cookies');

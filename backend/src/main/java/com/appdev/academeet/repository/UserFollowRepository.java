@@ -13,53 +13,28 @@ import com.appdev.academeet.model.UserFollowId;
 
 @Repository
 public interface UserFollowRepository extends JpaRepository<UserFollow, UserFollowId> {
-    
-    /**
-     * Get all users that the specified user is following.
-     */
     @Query("SELECT uf FROM UserFollow uf WHERE uf.id.followerId = :followerId")
     List<UserFollow> findByFollowerId(@Param("followerId") Long followerId);
     
-    /**
-     * Get all followers of the specified user.
-     */
     @Query("SELECT uf FROM UserFollow uf WHERE uf.id.followingId = :followingId")
     List<UserFollow> findByFollowingId(@Param("followingId") Long followingId);
 
-    /**
-     * Return follower User entities for a given following user id (avoids loading UserFollow wrappers)
-     */
     @Query("SELECT uf.follower FROM UserFollow uf WHERE uf.id.followingId = :followingId")
     List<com.appdev.academeet.model.User> findFollowersByFollowingId(@Param("followingId") Long followingId);
-    
-    /**
-     * Check if a user is already following another user.
-     */
+
     @Query("SELECT CASE WHEN COUNT(uf) > 0 THEN true ELSE false END FROM UserFollow uf WHERE uf.id.followerId = :followerId AND uf.id.followingId = :followingId")
     boolean existsByFollowerIdAndFollowingId(@Param("followerId") Long followerId, @Param("followingId") Long followingId);
     
-    /**
-     * Count how many users are following a specific user.
-     */
     @Query("SELECT COUNT(uf) FROM UserFollow uf WHERE uf.id.followingId = :followingId")
     long countFollowersByFollowingId(@Param("followingId") Long followingId);
-    
-    /**
-     * Count how many users a specific user is following.
-     */
+
     @Query("SELECT COUNT(uf) FROM UserFollow uf WHERE uf.id.followerId = :followerId")
     long countFollowingByFollowerId(@Param("followerId") Long followerId);
-    
-    /**
-     * Delete a follow relationship (unfollow).
-     */
+
     @Query("DELETE FROM UserFollow uf WHERE uf.id.followerId = :followerId AND uf.id.followingId = :followingId")
     @org.springframework.data.jpa.repository.Modifying
     void deleteByFollowerIdAndFollowingId(@Param("followerId") Long followerId, @Param("followingId") Long followingId);
 
-    /**
-     * Return following User entities for a given follower user id (avoids loading UserFollow wrappers)
-     */
     @Query("SELECT uf.following FROM UserFollow uf WHERE uf.id.followerId = :followerId")
     List<com.appdev.academeet.model.User> findFollowingByFollowerId(@Param("followerId") Long followerId);
 }

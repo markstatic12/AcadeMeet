@@ -22,16 +22,12 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("SELECT c FROM Comment c WHERE c.session.id = :sessionId ORDER BY c.createdAt ASC")
     List<Comment> findBySessionIdOrderByCreatedAtAsc(@Param("sessionId") Long sessionId);
 
-    // Derived query to fetch replies for a given parent comment id
     List<Comment> findByParentComment_CommentId(Long commentId);
 
-    // Fetch replies for a collection of parent ids (batch fetch to avoid N+1)
     List<Comment> findByParentComment_CommentIdIn(Collection<Long> parentIds);
 
-    // Page parent (top-level) comments for a session
     Page<Comment> findByParentCommentIsNullAndSessionIdOrderByCreatedAtAsc(Long sessionId, Pageable pageable);
 
-    // Atomic reply count update (call inside a transaction)
     @Modifying
     @Query("UPDATE Comment c SET c.replyCount = c.replyCount + :delta WHERE c.commentId = :id")
     void updateReplyCount(@Param("id") Long id, @Param("delta") int delta);

@@ -1,9 +1,5 @@
 package com.appdev.academeet.dto;
 
-/**
- * Response DTO for note details with session information
- * Immutable after construction
- */
 public class NoteDetailsDTO {
     private final String noteId;
     private final String filepath;
@@ -24,7 +20,7 @@ public class NoteDetailsDTO {
         this.sessionTitle = sessionTitle;
     }
 
-    // Getters only (immutable)
+    // Getters only 
     public String getNoteId() { return noteId; }
     public String getFilepath() { return filepath; }
     public String getTitle() { return title; }

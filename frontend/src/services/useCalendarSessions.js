@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { sessionService } from './SessionService';
 
 export const useCalendarSessions = (currentMonth) => {
-  const [sessionsMap, setSessionsMap] = useState({}); // Maps "YYYY-MM-DD" to sessions array
+  const [sessionsMap, setSessionsMap] = useState({}); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -13,10 +13,8 @@ export const useCalendarSessions = (currentMonth) => {
     setError(null);
 
     try {
-      // Get all sessions for the user
       const allSessions = await sessionService.getAllSessions();
       
-      // Filter sessions for the current month
       const year = currentMonth.getFullYear().toString();
       const monthName = currentMonth.toLocaleString('default', { month: 'long' });
       
@@ -24,7 +22,6 @@ export const useCalendarSessions = (currentMonth) => {
         session.year === year && session.month?.toUpperCase() === monthName.toUpperCase()
       );
 
-      // Group sessions by day
       const newSessionsMap = {};
       monthSessions.forEach(session => {
         const dayKey = `${year}-${monthName}-${session.day}`;

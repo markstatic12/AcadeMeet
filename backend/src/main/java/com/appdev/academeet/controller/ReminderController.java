@@ -24,10 +24,6 @@ public class ReminderController extends BaseController {
         this.reminderService = reminderService;
     }
 
-    /**
-     * Get active reminders for authenticated user
-     * Sorted by: unread first, then by scheduled time descending
-     */
     @GetMapping("/active")
     public ResponseEntity<List<ReminderDTO>> getActiveReminders() {
         User user = getAuthenticatedUser();
@@ -35,19 +31,13 @@ public class ReminderController extends BaseController {
         return ResponseEntity.ok(reminders);
     }
 
-    /**
-     * Mark reminder as read (when user clicks on it)
-     */
     @PatchMapping("/{reminderId}/read")
     public ResponseEntity<Void> markAsRead(@PathVariable Long reminderId) {
         User user = getAuthenticatedUser();
         reminderService.markAsRead(reminderId, user.getId());
         return ResponseEntity.noContent().build();
     }
-
-    /**
-     * Get unread reminder count (for badge)
-     */
+    
     @GetMapping("/unread/count")
     public ResponseEntity<Map<String, Long>> getUnreadCount() {
         User user = getAuthenticatedUser();

@@ -10,11 +10,11 @@ export const sessionService = {
     const submissionData = {
       title: sessionData.title,
       description: sessionData.description,
-      month: sessionData.month,  // Send as string (e.g., "January")
-      day: sessionData.day,      // Send as string (e.g., "15")
-      year: sessionData.year,    // Send as string (e.g., "2025")
-      startTime: sessionData.startTime,  // Send as string (e.g., "14:30")
-      endTime: sessionData.endTime,      // Send as string (e.g., "16:00")
+      month: sessionData.month,  
+      day: sessionData.day,      
+      year: sessionData.year,   
+      startTime: sessionData.startTime,  
+      endTime: sessionData.endTime,      
       location: sessionData.location,
       maxParticipants: sessionData.maxParticipants ? parseInt(sessionData.maxParticipants) : null,
       sessionPrivacy: resolvedType,
@@ -66,8 +66,6 @@ export const sessionService = {
   async updateSession(sessionId, sessionData) {
     const resolvedType = sessionData.sessionPrivacy || sessionData.sessionType;
 
-
-    // Only include password if user entered a non-empty value (for private sessions)
     const submissionData = {
       title: sessionData.title,
       description: sessionData.description,

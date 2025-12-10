@@ -55,7 +55,6 @@ public class Reminder {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // Lifecycle Methods
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
@@ -63,7 +62,6 @@ public class Reminder {
         }
     }
 
-    // Constructors
     public Reminder() {}
 
     public Reminder(User user, Session session, ReminderType type, LocalDateTime scheduledTime) {
@@ -75,7 +73,6 @@ public class Reminder {
         this.header = generateHeader(type, session);
     }
     
-    // Helper method to generate header based on type
     private String generateHeader(ReminderType type, Session session) {
         if (session == null) return "Session Reminder";
         
@@ -89,7 +86,6 @@ public class Reminder {
         }
     }
 
-    // Getters
     public Long getId() {
         return id;
     }
@@ -126,7 +122,6 @@ public class Reminder {
         return header;
     }
 
-    // Setters
     public void setId(Long id) {
         this.id = id;
     }
@@ -163,7 +158,6 @@ public class Reminder {
         this.header = header;
     }
 
-    // Helper method
     public void markAsRead() {
         this.isRead = true;
         this.readAt = LocalDateTime.now();

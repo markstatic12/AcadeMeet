@@ -13,10 +13,9 @@ public class UpdateProfileRequest {
     private String studentId;
     private String bio;
     private Integer yearLevel;
-    private String profilePic; // allow updating avatar as data URL or URL
-    private String coverImage; // allow updating cover image
+    private String profilePic; 
+    private String coverImage; 
     
-    // Constructors
     public UpdateProfileRequest() {
     }
     
@@ -29,7 +28,6 @@ public class UpdateProfileRequest {
         this.yearLevel = yearLevel;
     }
     
-    // Getters and Setters
     public String getName() {
         return name;
     }

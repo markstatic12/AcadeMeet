@@ -4,10 +4,7 @@ import java.time.LocalDateTime;
 
 import com.appdev.academeet.model.ReminderType;
 
-/**
- * Response DTO for reminders with generated message
- * Immutable after construction
- */
+
 public class ReminderDTO {
     private final Long id;
     private final Long sessionId;
@@ -33,7 +30,7 @@ public class ReminderDTO {
         this.isOwner = isOwner;
     }
 
-    // Getters only (immutable)
+    // Getters only
     public Long getId() { return id; }
     public Long getSessionId() { return sessionId; }
     public String getSessionTitle() { return sessionTitle; }

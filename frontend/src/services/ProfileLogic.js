@@ -8,7 +8,7 @@ import { sessionService } from './SessionService';
 
 export const useProfilePage = () => {
   const navigate = useNavigate();
-  const { currentUser, refreshUser } = useUser(); // Get user and refresh function from context
+  const { currentUser, refreshUser } = useUser(); 
   const [showEditModal, setShowEditModal] = useState(false);
   const [showFollowersManager, setShowFollowersManager] = useState(false);
   const [followTab, setFollowTab] = useState('followers');
@@ -19,9 +19,8 @@ export const useProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [sessionsView, setSessionsView] = useState('active');
   const [openCardMenuId, setOpenCardMenuId] = useState(null);
-  const [completedSessions, setCompletedSessions] = useState([]); //NOT YET IMPLEMENTED
+  const [completedSessions, setCompletedSessions] = useState([]); 
 
-  // User data from centralized context - initialize from currentUser
   const [userData, setUserData] = useState({
     id: currentUser?.id || null,
     name: currentUser?.name || '',
@@ -39,7 +38,6 @@ export const useProfilePage = () => {
     isOnline: true
   });
 
-  // Edit form state
   const [editForm, setEditForm] = useState({
     name: currentUser?.name || '',
     school: '',
@@ -47,7 +45,6 @@ export const useProfilePage = () => {
     bio: currentUser?.bio || ''
   });
 
-  // Sync userData with currentUser from context when it changes
   useEffect(() => {
     if (currentUser) {
       setUserData({
@@ -69,10 +66,8 @@ export const useProfilePage = () => {
     }
   }, [currentUser]);
 
-  // Fetch user data from backend using JWT (for profile-specific data like followers/following)
   const refreshUserData = async () => {
     try {
-      // Refresh user context data first
       await refreshUser();
       
       const response = await api.get('/users/me');
@@ -109,7 +104,6 @@ export const useProfilePage = () => {
   useEffect(() => {
     refreshUserData();
     
-    // Listen for follow changes from other pages
     const handleFollowChange = () => {
       console.log('Follow change detected, refreshing user data...');
       refreshUserData();
@@ -122,7 +116,6 @@ export const useProfilePage = () => {
     };
   }, []);
 
-  // Open edit modal
   const openEditModal = () => {
     setEditForm({
       name: userData.name,
@@ -133,7 +126,6 @@ export const useProfilePage = () => {
     setShowEditModal(true);
   };
 
-  // Close edit modal
   const closeEditModal = () => {
     setShowEditModal(false);
     setEditForm({
@@ -144,7 +136,6 @@ export const useProfilePage = () => {
     });
   };
 
-  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditForm(prev => ({
@@ -153,12 +144,9 @@ export const useProfilePage = () => {
     }));
   };
 
-  // Save profile changes
   const saveProfileChanges = async () => {
     try {
       setIsEditing(true);
-      
-      // Use /users/me endpoint - user ID extracted from JWT token
       const response = await api.put('/users/me', {
         name: editForm.name,
         school: editForm.school,
@@ -248,9 +236,9 @@ export const useProfilePage = () => {
   const removeFollower = async (followerId) => {
     try{
       await api.delete(`/users/me/followers/${followerId}`);
-      // Refresh user data to get accurate counts
+      
       await refreshUserData();
-      // Update local lists - remove from followers
+      
       setFollowersList(prev=> prev.filter(u=>u.id!==followerId));
     }catch(e){ console.error('Remove follower failed', e); }
   };
@@ -258,9 +246,9 @@ export const useProfilePage = () => {
   const unfollowUser = async (followingId) => {
     try{
       await api.delete(`/users/${followingId}/follow`);
-      // Refresh user data to get accurate counts
+      
       await refreshUserData();
-      // Update local lists
+      
       setFollowingList(prev=> prev.filter(u=>u.id!==followingId));
     }catch(e){ console.error('Unfollow failed', e); }
   };
@@ -309,23 +297,19 @@ export const useSessions = () => {
   const [trashedSessions, setTrashedSessions] = useState([]);
   const [historySessions, setHistorySessions] = useState([]);
 
-  // Fetch ACTIVE sessions from backend
   const fetchActiveSessions = async () => {
     try {
       const res = await api.get('/sessions/user/me');
       const data = res.data;
       console.log("Fetched sessions:", data);
       
-      // Backend already filters to ACTIVE and SCHEDULED sessions
       const activeSessions = (Array.isArray(data) ? data : [])
         .sort((a, b) => {
-          // Define status priority: ACTIVE first, then SCHEDULED
           const statusPriority = { 'ACTIVE': 1, 'SCHEDULED': 2 };
           const priorityDiff = (statusPriority[a.status] || 999) - (statusPriority[b.status] || 999);
           
           if (priorityDiff !== 0) return priorityDiff;
           
-          // Within same status, sort by start time
           const dateA = new Date(`${a.year}-${a.month}-${a.day} ${a.startTime}`);
           const dateB = new Date(`${b.year}-${b.month}-${b.day} ${b.startTime}`);
           return dateA - dateB;
@@ -338,13 +322,11 @@ export const useSessions = () => {
     }
   };
 
-  // Fetch TRASH sessions from backend
   const fetchTrashedSessions = async () => {
     try {
       const res = await api.get('/sessions/user/me/trash');
       const data = res.data;
       
-      // Data is already filtered to TRASH on backend
       const trashed = (Array.isArray(data) ? data : []);
       setTrashedSessions(trashed);
     } catch (err) {
@@ -353,7 +335,6 @@ export const useSessions = () => {
     }
   };
 
-  // Fetch COMPLETED (history) sessions from backend
   const fetchCompletedSessions = async () => {
     try {
       const res = await api.get('/sessions/user/me/history');
@@ -367,7 +348,6 @@ export const useSessions = () => {
     }
   };
 
-  // Initial fetch on mount
   useEffect(() => {
     fetchActiveSessions();
     fetchTrashedSessions();
@@ -380,7 +360,6 @@ export const useSessions = () => {
     try {
       await sessionService.updateSessionStatus(sessionId, 'TRASH');
       
-      // Refresh both active and trashed sessions from backend
       await fetchActiveSessions();
       await fetchTrashedSessions();
     } catch (error) {
@@ -393,7 +372,6 @@ export const useSessions = () => {
     try {
       await sessionService.updateSessionStatus(sessionId, 'ACTIVE');
       
-      // Refresh both active and trashed sessions from backend
       await fetchActiveSessions();
       await fetchTrashedSessions();
     } catch (error) {

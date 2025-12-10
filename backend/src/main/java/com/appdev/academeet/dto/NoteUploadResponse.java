@@ -1,9 +1,5 @@
 package com.appdev.academeet.dto;
 
-/**
- * Response DTO for note upload operations
- * Immutable after construction
- */
 public class NoteUploadResponse {
     private final String noteId;
     private final String title;
@@ -22,7 +18,7 @@ public class NoteUploadResponse {
         this.message = message;
     }
 
-    // Getters only (immutable)
+    // Getters only 
     public String getNoteId() { return noteId; }
     public String getTitle() { return title; }
     public String getFilepath() { return filepath; }

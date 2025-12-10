@@ -31,9 +31,6 @@ public class SessionNoteController extends BaseController {
         this.sessionNoteService = sessionNoteService;
     }
 
-    /**
-     * Get all notes for the authenticated user (from all their hosted sessions).
-     */
     @GetMapping("/me/active")
     public ResponseEntity<List<NoteDetailsDTO>> getMyNotes() {
         User authenticatedUser = getAuthenticatedUser();
@@ -41,9 +38,6 @@ public class SessionNoteController extends BaseController {
         return ResponseEntity.ok(allNotes);
     }
 
-    /**
-     * Get notes for a specific session.
-     */
     @GetMapping("/session/{sessionId}")
     public ResponseEntity<List<NoteDetailsDTO>> getSessionNotes(@PathVariable Long sessionId) {
         User authenticatedUser = getAuthenticatedUser();
@@ -51,9 +45,6 @@ public class SessionNoteController extends BaseController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Upload a file note and optionally link it to a session.
-     */
     @PostMapping("/upload")
     public ResponseEntity<NoteUploadResponse> uploadFileNote(
             @RequestParam("file") MultipartFile file,
@@ -75,9 +66,6 @@ public class SessionNoteController extends BaseController {
         }
     }
 
-    /**
-     * Link an uploaded file to a session.
-     */
     @PostMapping("/link")
     public ResponseEntity<NoteUploadResponse> linkNoteToSession(
             @RequestParam("filepath") String filepath,
@@ -88,9 +76,6 @@ public class SessionNoteController extends BaseController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Delete a note.
-     */
     @DeleteMapping("/{noteId}")
     public ResponseEntity<Map<String, String>> deleteNote(@PathVariable String noteId) {
         User authenticatedUser = getAuthenticatedUser();
@@ -98,9 +83,6 @@ public class SessionNoteController extends BaseController {
         return ResponseEntity.ok(Map.of("message", "Note deleted successfully"));
     }
 
-    /**
-     * Get note count for a session.
-     */
     @GetMapping("/session/{sessionId}/count")
     public ResponseEntity<Map<String, Long>> getNoteCount(@PathVariable Long sessionId) {
         long count = sessionNoteService.getNoteCount(sessionId);

@@ -50,7 +50,6 @@ public class Comment {
     @Column(name = "reply_count")
     private Integer replyCount = 0;
 
-    // Lifecycle Methods
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
@@ -58,7 +57,6 @@ public class Comment {
         }
     }
 
-    // Constructors
     public Comment() {}
 
     public Comment(Session session, User author, String content, Comment parentComment) {
@@ -88,7 +86,6 @@ public class Comment {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public void setReplyCount(Integer replyCount) { this.replyCount = replyCount; }
 
-    // Helper methods
     public void incrementReplyCount() {
         this.replyCount++;
     }

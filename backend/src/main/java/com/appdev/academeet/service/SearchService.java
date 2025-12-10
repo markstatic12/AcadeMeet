@@ -35,9 +35,6 @@ public class SearchService {
         this.userService = userService;
     }
 
-    /**
-     * Search all entities (users and sessions) with empty query handling
-     */
     @Transactional(readOnly = true)
     public Map<String, Object> searchAll(String query, String sortBy, Long currentUserId) {
         Map<String, Object> response = new HashMap<>();
@@ -186,7 +183,6 @@ public class SearchService {
                                           session.getStartTime().toLocalDate().equals(filterDate))
                         .collect(Collectors.toList());
             } catch (java.time.format.DateTimeParseException e) {
-                // Invalid date format, skip date filter and log warning
                 org.slf4j.LoggerFactory.getLogger(SearchService.class)
                     .warn("Invalid date format provided for search: {}", date);
             }

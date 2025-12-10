@@ -3,13 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { sessionService } from './SessionService';
 import logger from '../utils/logger';
 
-// Helper: convert backend time strings (e.g., "2:30 PM") to 24-hour "HH:MM" format
+
 const to24Hour = (timeStr) => {
   if (!timeStr || typeof timeStr !== 'string') return "";
   const s = timeStr.trim();
-  // Match forms like "2:30 PM", "02:05 AM", "14:20", "2:30PM"
   const m = s.match(/^(\d{1,2}):(\d{2})\s*([AaPp][Mm])?$/);
-  if (!m) return s; // Unknown format — return as-is and let validations handle it
+  if (!m) return s; 
   let hour = parseInt(m[1], 10);
   const minute = parseInt(m[2], 10);
   const meridiem = m[3];
@@ -21,7 +20,7 @@ const to24Hour = (timeStr) => {
   const pad = (n) => (n < 10 ? `0${n}` : `${n}`);
   return `${pad(hour)}:${pad(minute)}`;
 };
-// Session Form Logic Hook
+
 export const useSessionForm = (showToast) => {
   const navigate = useNavigate();
 
@@ -40,7 +39,7 @@ export const useSessionForm = (showToast) => {
     description: "",
     tags: [],
     noteIds: [],
-    uploadedNoteFilepaths: [] // Store filepaths of uploaded notes before session creation
+    uploadedNoteFilepaths: [] 
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,7 +47,7 @@ export const useSessionForm = (showToast) => {
 
   const handleChange = (e) => {
     setSessionData({ ...sessionData, [e.target.name]: e.target.value });
-    // Clear error when user types
+    
     if (fieldErrors[e.target.name]) {
       setFieldErrors({ ...fieldErrors, [e.target.name]: null });
     }
@@ -84,16 +83,12 @@ export const useSessionForm = (showToast) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Debug: log current sessionData snapshot
     try {
       logger.debug('Submitting session form with data:', sessionData);
     } catch (logErr) {
-      // fallback
-      // eslint-disable-next-line no-console
       console.debug('Submitting session form with data:', sessionData, logErr);
     }
 
-    // Validate required fields
     const errors = {};
     const requiredFields = [
       { name: 'title', label: 'Session Title' },
@@ -112,7 +107,6 @@ export const useSessionForm = (showToast) => {
       }
     });
 
-    // Validate title length
     if (sessionData.title && sessionData.title.length < 3) {
       errors.title = 'Title must be at least 3 characters';
     }
@@ -120,7 +114,6 @@ export const useSessionForm = (showToast) => {
       errors.title = 'Title must not exceed 100 characters';
     }
 
-    // Validate date is not in the past
     if (sessionData.month && sessionData.day && sessionData.year && sessionData.startTime) {
       const monthIndex = ['January', 'February', 'March', 'April', 'May', 'June', 
                           'July', 'August', 'September', 'October', 'November', 'December']
@@ -142,7 +135,6 @@ export const useSessionForm = (showToast) => {
       }
     }
 
-    // Validate time range
     if (sessionData.startTime && sessionData.endTime) {
       const [startHour, startMin] = sessionData.startTime.split(':').map(Number);
       const [endHour, endMin] = sessionData.endTime.split(':').map(Number);
@@ -153,18 +145,15 @@ export const useSessionForm = (showToast) => {
         errors.endTime = 'End time must be after start time';
       }
 
-      // Check minimum session duration (at least 15 minutes)
       if (endMinutes - startMinutes < 15) {
         errors.endTime = 'Session must be at least 15 minutes long';
       }
     }
 
-    // Validate location
     if (sessionData.location && sessionData.location.length < 3) {
       errors.location = 'Location must be at least 3 characters';
     }
 
-    // Validate max participants
     if (sessionData.maxParticipants) {
       const maxP = parseInt(sessionData.maxParticipants);
       if (isNaN(maxP) || maxP < 1) {
@@ -175,22 +164,18 @@ export const useSessionForm = (showToast) => {
       }
     }
 
-    // Validate private session password
     if (sessionData.sessionPrivacy === 'PRIVATE' && (!sessionData.password || sessionData.password.length < 6)) {
       errors.password = 'Password must be at least 6 characters';
     }
 
-    // Validate description length
     if (sessionData.description && sessionData.description.length > 5000) {
       errors.description = 'Description must not exceed 5000 characters';
     }
 
     if (Object.keys(errors).length > 0) {
-      // Debug: log validation errors
       try {
         logger.debug('Session form validation errors:', errors);
       } catch (logErr) {
-        // eslint-disable-next-line no-console
         console.debug('Session form validation errors:', errors, logErr);
       }
       setFieldErrors(errors);
@@ -202,26 +187,22 @@ export const useSessionForm = (showToast) => {
     }
 
     try {
-      // Debug: log payload being sent to createSession
       try {
         logger.debug('Calling sessionService.createSession with payload:', sessionData);
       } catch (logErr) {
-        // eslint-disable-next-line no-console
         console.debug('Calling sessionService.createSession with payload:', sessionData, logErr);
       }
 
       const createdSession = await sessionService.createSession(sessionData);
       
-      // Link uploaded notes to the session if any
       if (sessionData.uploadedNoteFilepaths && sessionData.uploadedNoteFilepaths.length > 0) {
         const { noteService } = await import('./noteService');
         for (const filepath of sessionData.uploadedNoteFilepaths) {
           try {
             await noteService.linkNoteToSession(filepath, createdSession.id);
           } catch (linkError) {
-            // eslint-disable-next-line no-console
             console.error('Failed to link note:', filepath, linkError);
-            // Continue linking other notes even if one fails
+            
           }
         }
       }
@@ -229,21 +210,17 @@ export const useSessionForm = (showToast) => {
       if (showToast) {
         showToast('success', 'Session created successfully!');
       }
-      // Navigate after a brief delay to show the toast
       setTimeout(() => {
         navigate('/profile', { state: { sessionCreated: true, title: sessionData.title } });
       }, 1500);
     } catch (error) {
-      // Debug: log full error with response if available
       try {
         logger.error('Error creating session:', error);
       } catch (logErr) {
-        // eslint-disable-next-line no-console
         console.error('Error creating session:', error, logErr);
       }
 
       if (error?.response) {
-        // eslint-disable-next-line no-console
         console.debug('Create session response data:', error.response.data, 'status:', error.response.status);
       }
 
@@ -274,7 +251,6 @@ export const useSessionForm = (showToast) => {
   };
 };
 
-// Edit Session Form Logic Hook
 export const useEditSessionForm = (sessionId, showToast) => {
   const navigate = useNavigate();
 
@@ -292,23 +268,21 @@ export const useEditSessionForm = (sessionId, showToast) => {
     maxParticipants: "",
     description: "",
     tags: [],
-    uploadedNoteFilepaths: [] // Store filepaths of uploaded notes (strings)
+    uploadedNoteFilepaths: [] 
   });
 
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
-  const [originalNotes, setOriginalNotes] = useState([]); // Track original note objects (with id and filepath)
-  const [originalSessionPrivacy, setOriginalSessionPrivacy] = useState(''); // Track original privacy to detect changes
+  const [originalNotes, setOriginalNotes] = useState([]); 
+  const [originalSessionPrivacy, setOriginalSessionPrivacy] = useState('');
 
-  // Fetch existing session data
   useEffect(() => {
     const fetchSession = async () => {
       try {
         setLoading(true);
         const data = await sessionService.getSessionById(sessionId);
         
-        // Fetch linked notes if any
         let linkedNotes = [];
         try {
           const { noteService } = await import('./noteService');
@@ -317,10 +291,8 @@ export const useEditSessionForm = (sessionId, showToast) => {
           console.warn('Could not fetch linked notes:', noteError);
         }
 
-        // Store original notes to track changes
         setOriginalNotes(linkedNotes);
 
-        // Extract only filepaths as strings
         const noteFilepaths = linkedNotes
           .map(note => note.filepath)
           .filter(fp => fp && typeof fp === 'string');
@@ -338,7 +310,7 @@ export const useEditSessionForm = (sessionId, showToast) => {
           location: data.location || "",
           locationType: data.locationType || "in-person",
            sessionPrivacy: privacy,
-          password: "", // Don't populate password for security
+          password: "", 
           maxParticipants: data.maxParticipants || "",
           description: data.description || "",
           tags: data.tags || [],
@@ -362,7 +334,6 @@ export const useEditSessionForm = (sessionId, showToast) => {
 
   const handleChange = (e) => {
     setSessionData({ ...sessionData, [e.target.name]: e.target.value });
-    // Clear error when user types
     if (fieldErrors[e.target.name]) {
       setFieldErrors({ ...fieldErrors, [e.target.name]: null });
     }
@@ -394,7 +365,6 @@ export const useEditSessionForm = (sessionId, showToast) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Validate required fields
     const errors = {};
     const requiredFields = [
       { name: 'title', label: 'Session Title' },
@@ -413,7 +383,6 @@ export const useEditSessionForm = (sessionId, showToast) => {
       }
     });
 
-    // Validate title length
     if (sessionData.title && sessionData.title.length < 3) {
       errors.title = 'Title must be at least 3 characters';
     }
@@ -421,7 +390,6 @@ export const useEditSessionForm = (sessionId, showToast) => {
       errors.title = 'Title must not exceed 100 characters';
     }
 
-    // Validate date is not in the past
     if (sessionData.month && sessionData.day && sessionData.year && sessionData.startTime) {
       const monthIndex = ['January', 'February', 'March', 'April', 'May', 'June', 
                           'July', 'August', 'September', 'October', 'November', 'December']
@@ -443,7 +411,6 @@ export const useEditSessionForm = (sessionId, showToast) => {
       }
     }
 
-    // Validate time range
     if (sessionData.startTime && sessionData.endTime) {
       const [startHour, startMin] = sessionData.startTime.split(':').map(Number);
       const [endHour, endMin] = sessionData.endTime.split(':').map(Number);
@@ -454,18 +421,15 @@ export const useEditSessionForm = (sessionId, showToast) => {
         errors.endTime = 'End time must be after start time';
       }
 
-      // Check minimum session duration (at least 15 minutes)
       if (endMinutes - startMinutes < 15) {
         errors.endTime = 'Session must be at least 15 minutes long';
       }
     }
 
-    // Validate location
     if (sessionData.location && sessionData.location.length < 3) {
       errors.location = 'Location must be at least 3 characters';
     }
 
-    // Validate max participants
     if (sessionData.maxParticipants) {
       const maxP = parseInt(sessionData.maxParticipants);
       if (isNaN(maxP) || maxP < 1) {
@@ -476,9 +440,6 @@ export const useEditSessionForm = (sessionId, showToast) => {
       }
     }
 
-    // Validate private session password
-    // Require password only when changing from public to private
-    // If already private and password is blank, it means keep existing password
     const isChangingToPrivate = originalSessionPrivacy !== 'PRIVATE' && sessionData.sessionPrivacy === 'PRIVATE';
     const isStayingPrivate = originalSessionPrivacy === 'PRIVATE' && sessionData.sessionPrivacy === 'PRIVATE';
     
@@ -488,7 +449,6 @@ export const useEditSessionForm = (sessionId, showToast) => {
       errors.password = 'Password must be at least 6 characters';
     }
 
-    // Validate description length
     if (sessionData.description && sessionData.description.length > 5000) {
       errors.description = 'Description must not exceed 5000 characters';
     }
@@ -507,41 +467,33 @@ export const useEditSessionForm = (sessionId, showToast) => {
       
       const { noteService } = await import('./noteService');
       
-      // uploadedNoteFilepaths now contains only strings (guaranteed by UploadNoteModal)
-      // Determine which notes are new (not in original notes)
       const originalFilepaths = originalNotes.map(note => note.filepath).filter(Boolean);
       const currentFilepaths = sessionData.uploadedNoteFilepaths || [];
       const newFilepaths = currentFilepaths.filter(fp => !originalFilepaths.includes(fp));
       
-      // Determine which notes were deleted (in original but not in current)
       const deletedNotes = originalNotes.filter(note => !currentFilepaths.includes(note.filepath));
       
-      // Delete removed notes
       for (const note of deletedNotes) {
         try {
           await noteService.deleteNote(note.id);
           console.log('Deleted note:', note.id);
         } catch (deleteError) {
           console.error('Failed to delete note:', note.id, deleteError);
-          // Continue deleting other notes even if one fails
         }
       }
       
-      // Link only newly uploaded notes to the session
       for (const filepath of newFilepaths) {
         try {
           await noteService.linkNoteToSession(filepath, sessionId);
           console.log('Linked new note:', filepath);
         } catch (linkError) {
           console.error('Failed to link note:', filepath, linkError);
-          // Continue linking other notes even if one fails
         }
       }
       
       if (showToast) {
         showToast('success', 'Session updated successfully!');
       }
-      // Navigate after a brief delay to show the toast
       setTimeout(() => {
         navigate(`/session/${sessionId}`);
       }, 1500);
@@ -574,7 +526,6 @@ export const useEditSessionForm = (sessionId, showToast) => {
   };
 };
 
-// Sessions Page Logic Hook
 export const useSessionsPage = () => {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -585,7 +536,6 @@ export const useSessionsPage = () => {
       setLoading(true);
       const data = await sessionService.getAllSessions();
       
-      // Sort sessions: ACTIVE → SCHEDULED → COMPLETED
       const statusPriority = {
         'ACTIVE': 1,
         'SCHEDULED': 2,
@@ -596,7 +546,6 @@ export const useSessionsPage = () => {
         const priorityDiff = (statusPriority[a.status] || 999) - (statusPriority[b.status] || 999);
         if (priorityDiff !== 0) return priorityDiff;
         
-        // Within same status, sort by start date/time
         const dateA = new Date(`${a.year}-${a.month}-${a.day} ${a.startTime}`);
         const dateB = new Date(`${b.year}-${b.month}-${b.day} ${b.startTime}`);
         return dateA - dateB;

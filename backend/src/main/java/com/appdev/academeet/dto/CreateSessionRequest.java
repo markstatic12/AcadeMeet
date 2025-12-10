@@ -20,21 +20,20 @@ public class CreateSessionRequest {
     @Size(max = 5000, message = "Description must not exceed 5000 characters")
     private String description;
     
-    // Frontend sends separate date/time fields
     @NotBlank(message = "Month is required")
-    private String month;  // e.g., "January", "February"
+    private String month;  
     
     @NotBlank(message = "Day is required")
-    private String day;    // e.g., "15"
+    private String day;  
     
     @NotBlank(message = "Year is required")
-    private String year;   // e.g., "2025"
+    private String year; 
     
     @NotBlank(message = "Start time is required")
-    private String startTime;  // e.g., "14:30"
+    private String startTime;
     
     @NotBlank(message = "End time is required")
-    private String endTime;    // e.g., "16:00"
+    private String endTime;
     
     @NotBlank(message = "Location is required")
     @Size(min = 3, message = "Location must be at least 3 characters")
@@ -71,7 +70,6 @@ public class CreateSessionRequest {
         this.tags = tags;
     }
 
-    // Getters and Setters
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title == null ? null : title.trim(); }
 

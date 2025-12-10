@@ -1,9 +1,5 @@
 package com.appdev.academeet.dto;
 
-/**
- * Response DTO for authentication endpoints (login/signup)
- * Immutable after construction
- */
 public class AuthResponse {
     private final Long id;
     private final String name;
@@ -26,7 +22,7 @@ public class AuthResponse {
         this.refreshToken = refreshToken;
     }
     
-    // Getters only (immutable)
+    // Getters only 
     public Long getId() { return id; }
     public String getName() { return name; }
     public String getEmail() { return email; }
