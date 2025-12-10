@@ -299,6 +299,7 @@ export const useEditSessionForm = (sessionId, showToast) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const [originalNotes, setOriginalNotes] = useState([]); // Track original note objects (with id and filepath)
+  const [originalSessionPrivacy, setOriginalSessionPrivacy] = useState(''); // Track original privacy to detect changes
 
   // Fetch existing session data
   useEffect(() => {
@@ -324,6 +325,9 @@ export const useEditSessionForm = (sessionId, showToast) => {
           .map(note => note.filepath)
           .filter(fp => fp && typeof fp === 'string');
 
+        const privacy = data.sessionPrivacy || data.sessionType || "";
+        setOriginalSessionPrivacy(privacy);
+        
         setSessionData({
           title: data.title || "",
           month: data.month || "",
@@ -333,7 +337,7 @@ export const useEditSessionForm = (sessionId, showToast) => {
           endTime: to24Hour(data.endTime) || "",
           location: data.location || "",
           locationType: data.locationType || "in-person",
-           sessionPrivacy: data.sessionPrivacy || data.sessionType || "",
+           sessionPrivacy: privacy,
           password: "", // Don't populate password for security
           maxParticipants: data.maxParticipants || "",
           description: data.description || "",
@@ -472,8 +476,15 @@ export const useEditSessionForm = (sessionId, showToast) => {
       }
     }
 
-    // Validate private session password if changed
-    if (sessionData.sessionPrivacy === 'PRIVATE' && sessionData.password && sessionData.password.length < 6) {
+    // Validate private session password
+    // Require password only when changing from public to private
+    // If already private and password is blank, it means keep existing password
+    const isChangingToPrivate = originalSessionPrivacy !== 'PRIVATE' && sessionData.sessionPrivacy === 'PRIVATE';
+    const isStayingPrivate = originalSessionPrivacy === 'PRIVATE' && sessionData.sessionPrivacy === 'PRIVATE';
+    
+    if (isChangingToPrivate && (!sessionData.password || sessionData.password.trim() === '')) {
+      errors.password = 'Password is required when changing to private';
+    } else if (sessionData.password && sessionData.password.length < 6) {
       errors.password = 'Password must be at least 6 characters';
     }
 

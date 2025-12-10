@@ -106,6 +106,8 @@ export const sessionService = {
   async updateSession(sessionId, sessionData) {
     const resolvedType = sessionData.sessionPrivacy || sessionData.sessionType;
 
+
+    // Only include password if user entered a non-empty value (for private sessions)
     const submissionData = {
       title: sessionData.title,
       description: sessionData.description,
@@ -116,12 +118,13 @@ export const sessionService = {
       endTime: sessionData.endTime,      
       location: sessionData.location,
       maxParticipants: sessionData.maxParticipants ? parseInt(sessionData.maxParticipants) : null,
-      // Include both `sessionType` and `sessionPrivacy` for compatibility
-      sessionType: resolvedType,
+
       sessionPrivacy: resolvedType,
-      tags: sessionData.tags || [],
-      password: resolvedType === 'PUBLIC' ? null : sessionData.password
+      tags: sessionData.tags || []
     };
+    if (resolvedType !== 'PUBLIC' && sessionData.password && sessionData.password.trim() !== '') {
+      submissionData.password = sessionData.password;
+    }
 
     console.log('Updating session with data:', submissionData);
 

@@ -320,14 +320,13 @@ const SessionPrivacySelector = ({ sessionPrivacy, password, maxParticipants, onC
             name="password"
             value={password}
             onChange={onPasswordChange}
-            placeholder="Session password (min 6 chars)"
+            placeholder={password && password.length > 0 ? "Session password (min 6 chars)" : "Leave blank to keep existing password (enter to change)"}
             className={`w-full px-3.5 py-2.5 pr-10 bg-[#1e293b] border rounded-lg text-gray-300 text-sm focus:outline-none transition-all duration-200 ${
               fieldErrors.password 
                 ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' 
                 : 'border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
             }`}
             minLength={6}
-            required
           />
           <button
             type="button"
