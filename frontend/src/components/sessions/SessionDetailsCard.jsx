@@ -51,17 +51,34 @@ const SessionDetailsCard = ({ session, onJoinClick, showJoinButton = true }) => 
         </div>
 
         {/* Participant Info */}
-        {session.maxParticipants && (
-          <div className="flex items-center gap-3 text-gray-300">
-            <span className="text-indigo-400">👥</span>
-            <span>
-              {session.currentParticipants || 0} / {session.maxParticipants} participants
-              {session.maxParticipants - (session.currentParticipants || 0) === 0 && (
-                <span className="text-orange-400 ml-2">(Full)</span>
-              )}
-            </span>
-          </div>
-        )}
+        {(() => {
+          const hasParticipantInfo = (
+            session.maxParticipants !== undefined ||
+            session.currentParticipants !== undefined ||
+            session.participants !== undefined ||
+            session.participantCount !== undefined
+          );
+
+          if (!hasParticipantInfo) return null;
+
+          const count = session.currentParticipants ?? session.participantCount ?? (Array.isArray(session.participants) ? session.participants.length : 0);
+
+          return (
+            <div className="flex items-center gap-3 text-gray-300">
+              <span className="text-indigo-400">👥</span>
+              <span>
+                {session.maxParticipants ? (
+                  <>{count} / {session.maxParticipants} participants</>
+                ) : (
+                  <>{count} participants</>
+                )}
+                {session.maxParticipants && session.maxParticipants - count === 0 && (
+                  <span className="text-orange-400 ml-2">(Full)</span>
+                )}
+              </span>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Description */}

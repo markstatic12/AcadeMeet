@@ -259,18 +259,32 @@ export const ViewDetailsPanel = ({ session, onParticipantsClick }) => {
       </div>
 
       <div className="flex-1 px-5 py-4 space-y-3 overflow-y-auto custom-scrollbar min-h-0">
-        {session?.maxParticipants && (
-          <>
-            <ParticipantsDisplay
-              currentParticipants={session?.currentParticipants}
-              maxParticipants={session?.maxParticipants}
-              participants={session?.participants}
-              participantCount={session?.participantCount}
-              onClick={onParticipantsClick}
-            />
-            <div className="border-t border-indigo-900/10 my-3"></div>
-          </>
-        )}
+        {(() => {
+          // Show participant info if any participant-related data exists
+          const hasParticipantInfo = session && (
+            session.maxParticipants !== undefined ||
+            session.currentParticipants !== undefined ||
+            session.participants !== undefined ||
+            session.participantCount !== undefined
+          );
+
+          if (hasParticipantInfo) {
+            return (
+              <>
+                <ParticipantsDisplay
+                  currentParticipants={session?.currentParticipants}
+                  maxParticipants={session?.maxParticipants}
+                  participants={session?.participants}
+                  participantCount={session?.participantCount}
+                  onClick={onParticipantsClick}
+                />
+                <div className="border-t border-indigo-900/10 my-3"></div>
+              </>
+            );
+          }
+
+          return null;
+        })()}
 
         <DateDisplay
           month={session?.month}
