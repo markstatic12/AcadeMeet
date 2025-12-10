@@ -27,28 +27,54 @@ public class SearchService {
 
     @Autowired
     private SessionRepository sessionRepository;
+    
+    @Autowired
+    private UserService userService;
 
-    /**
-     * Search for users with optional filters
-     * 
-     * @param keyword Case-insensitive search term for name, email
-     * @param program Filter by program (e.g., "BSIT", "BSCS")
-     * @param yearLevel Filter by year level (1-4)
-     * @param sortBy Sort order: "relevance", "name"
-     * @return List of matching users
-     */
+    @Transactional(readOnly = true)
+    public List<java.util.Map<String, Object>> searchUsersMapped(String keyword, String program, Integer yearLevel, String sortBy, Long currentUserId) {
+        List<User> users = searchUsers(keyword, program, yearLevel, sortBy);
+        
+        return users.stream()
+                .map(user -> mapUserToResponse(user, currentUserId))
+                .collect(Collectors.toList());
+    }
+    
+    private java.util.Map<String, Object> mapUserToResponse(User user, Long currentUserId) {
+        java.util.Map<String, Object> userMap = new java.util.HashMap<>();
+        userMap.put("id", user.getId());
+        userMap.put("name", user.getName());
+        userMap.put("email", user.getEmail());
+        userMap.put("program", user.getProgram());
+        userMap.put("yearLevel", user.getYearLevel());
+        userMap.put("bio", user.getBio());
+        userMap.put("profileImageUrl", user.getProfileImageUrl());
+        userMap.put("followers", userService.getFollowerCount(user.getId()));
+        userMap.put("following", userService.getFollowingCount(user.getId()));
+        
+        if (currentUserId != null) {
+            try {
+                boolean isFollowing = userService.isFollowing(currentUserId, user.getId());
+                userMap.put("isFollowing", isFollowing);
+            } catch (Exception e) {
+                userMap.put("isFollowing", false);
+            }
+        } else {
+            userMap.put("isFollowing", false);
+        }
+        
+        return userMap;
+    }
+    
     @Transactional(readOnly = true)
     public List<User> searchUsers(String keyword, String program, Integer yearLevel, String sortBy) {
         List<User> users = new ArrayList<>();
 
-        // If no filters, return empty list to avoid loading all users
         if ((keyword == null || keyword.trim().isEmpty()) && program == null && yearLevel == null) {
             return users;
         }
 
-        // Start with all users or filtered by keyword
         if (keyword != null && !keyword.trim().isEmpty()) {
-            // Case-insensitive search in name and email
             String lowerKeyword = keyword.toLowerCase();
             users = userRepository.findAll().stream()
                     .filter(user -> 
@@ -61,7 +87,6 @@ public class SearchService {
             users = userRepository.findAll();
         }
 
-        // Apply program filter
         if (program != null && !program.trim().isEmpty() && !program.equalsIgnoreCase("All Programs")) {
             final String programFilter = program.trim();
             users = users.stream()
@@ -70,7 +95,6 @@ public class SearchService {
                     .collect(Collectors.toList());
         }
 
-        // Apply year level filter
         if (yearLevel != null) {
             users = users.stream()
                     .filter(user -> user.getYearLevel() != null && 
@@ -78,11 +102,9 @@ public class SearchService {
                     .collect(Collectors.toList());
         }
 
-        // Sort results
         if ("name".equalsIgnoreCase(sortBy)) {
             users.sort(Comparator.comparing(User::getName, String.CASE_INSENSITIVE_ORDER));
         } else {
-            // Default to relevance (keyword matches prioritized)
             if (keyword != null && !keyword.trim().isEmpty()) {
                 final String lowerKeyword = keyword.toLowerCase();
                 users.sort((u1, u2) -> {
@@ -105,31 +127,18 @@ public class SearchService {
         return users;
     }
 
-    /**
-     * Search for sessions with optional filters
-     * 
-     * @param keyword Case-insensitive search term for title, location, tags
-     * @param date Filter by specific date (format: "yyyy-MM-dd")
-     * @param timeOfDay Filter by time of day: "morning", "afternoon", "evening"
-     * @param privacy Filter by privacy: "public", "private", or null for all
-     * @param sortBy Sort order: "relevance", "newest", "oldest"
-     * @return List of matching sessions as DTOs
-     */
     @Transactional(readOnly = true)
-    public List<SessionDTO> searchSessions(String keyword, String date, String timeOfDay, 
-                                           String privacy, String sortBy) {
-        // If no filters, return empty list
+    public List<SessionDTO> searchSessions(String keyword, String date, String timeOfDay, String privacy, String sortBy) {
+        
         if ((keyword == null || keyword.trim().isEmpty()) && date == null && 
             timeOfDay == null && privacy == null) {
             return new ArrayList<>();
         }
 
-        // Start with all active sessions
         List<Session> sessions = sessionRepository.findAll().stream()
                 .filter(session -> session.getSessionStatus() == SessionStatus.ACTIVE)
                 .collect(Collectors.toList());
 
-        // Apply keyword filter (search in title, location, description, tags)
         if (keyword != null && !keyword.trim().isEmpty()) {
             final String lowerKeyword = keyword.toLowerCase();
             sessions = sessions.stream()
@@ -147,7 +156,6 @@ public class SearchService {
                     .collect(Collectors.toList());
         }
 
-        // Apply date filter
         if (date != null && !date.trim().isEmpty()) {
             try {
                 LocalDate filterDate = LocalDate.parse(date);
@@ -160,7 +168,6 @@ public class SearchService {
             }
         }
 
-        // Apply time of day filter
         if (timeOfDay != null && !timeOfDay.trim().isEmpty() && !timeOfDay.equalsIgnoreCase("Any Time")) {
             sessions = sessions.stream()
                     .filter(session -> {
@@ -188,7 +195,6 @@ public class SearchService {
                     .collect(Collectors.toList());
         }
 
-        // Apply privacy filter
         if (privacy != null && !privacy.trim().isEmpty() && !privacy.equalsIgnoreCase("All Sessions")) {
             SessionType privacyType = privacy.equalsIgnoreCase("public") ? 
                                       SessionType.PUBLIC : SessionType.PRIVATE;
@@ -197,7 +203,6 @@ public class SearchService {
                     .collect(Collectors.toList());
         }
 
-        // Sort results
         if ("newest".equalsIgnoreCase(sortBy)) {
             sessions.sort((s1, s2) -> {
                 if (s1.getCreatedAt() == null) return 1;
@@ -211,7 +216,6 @@ public class SearchService {
                 return s1.getCreatedAt().compareTo(s2.getCreatedAt());
             });
         } else {
-            // Default to relevance (keyword matches in title prioritized)
             if (keyword != null && !keyword.trim().isEmpty()) {
                 final String lowerKeyword = keyword.toLowerCase();
                 sessions.sort((s1, s2) -> {
@@ -223,13 +227,11 @@ public class SearchService {
                     if (s1TitleMatch && !s2TitleMatch) return -1;
                     if (!s1TitleMatch && s2TitleMatch) return 1;
                     
-                    // Secondary sort by start time
                     if (s1.getStartTime() == null) return 1;
                     if (s2.getStartTime() == null) return -1;
                     return s1.getStartTime().compareTo(s2.getStartTime());
                 });
             } else {
-                // No keyword, sort by upcoming sessions first
                 sessions.sort((s1, s2) -> {
                     if (s1.getStartTime() == null) return 1;
                     if (s2.getStartTime() == null) return -1;
@@ -238,7 +240,6 @@ public class SearchService {
             }
         }
 
-        // Convert to DTOs
         return sessions.stream()
                 .map(SessionDTO::new)
                 .collect(Collectors.toList());

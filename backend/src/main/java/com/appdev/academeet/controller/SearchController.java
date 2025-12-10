@@ -3,13 +3,9 @@ package com.appdev.academeet.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.appdev.academeet.dto.SessionDTO;
 import com.appdev.academeet.model.User;
 import com.appdev.academeet.service.SearchService;
-import com.appdev.academeet.service.UserService;
 
 @RestController
 @RequestMapping("/api/search")
@@ -27,13 +22,6 @@ public class SearchController extends BaseController {
     @Autowired
     private SearchService searchService;
 
-    @Autowired
-    private UserService userService;
-
-    /**
-     * Search for both users and sessions
-     * GET /api/search?q=keyword&sortBy=relevance
-     */
     @GetMapping
     public ResponseEntity<?> searchAll(
             @RequestParam(required = false) String q,
@@ -47,13 +35,10 @@ public class SearchController extends BaseController {
             return ResponseEntity.ok(response);
         }
         
-        // Search users
-        List<Map<String, Object>> users = searchService.searchUsers(q, null, null, sortBy)
-                .stream()
-                .map(this::userToMap)
-                .collect(Collectors.toList());
+        Long currentUserId = getCurrentUserIdOrNull();
         
-        // Search sessions
+        List<Map<String, Object>> users = searchService.searchUsersMapped(q, null, null, sortBy, currentUserId);
+        
         List<SessionDTO> sessions = searchService.searchSessions(q, null, null, null, sortBy);
         
         response.put("users", users);
@@ -62,10 +47,6 @@ public class SearchController extends BaseController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Search for users only with filters
-     * GET /api/search/users?q=keyword&program=BSIT&yearLevel=3&sortBy=relevance
-     */
     @GetMapping("/users")
     public ResponseEntity<?> searchUsers(
             @RequestParam(required = false) String q,
@@ -73,19 +54,12 @@ public class SearchController extends BaseController {
             @RequestParam(required = false) Integer yearLevel,
             @RequestParam(defaultValue = "relevance") String sortBy) {
         
-        List<User> users = searchService.searchUsers(q, program, yearLevel, sortBy);
+        Long currentUserId = getCurrentUserIdOrNull();
+        List<Map<String, Object>> users = searchService.searchUsersMapped(q, program, yearLevel, sortBy, currentUserId);
         
-        List<Map<String, Object>> userList = users.stream()
-                .map(this::userToMap)
-                .collect(Collectors.toList());
-        
-        return ResponseEntity.ok(userList);
+        return ResponseEntity.ok(users);
     }
 
-    /**
-     * Search for sessions only with filters
-     * GET /api/search/sessions?q=keyword&date=2025-12-31&timeOfDay=morning&privacy=public&sortBy=relevance
-     */
     @GetMapping("/sessions")
     public ResponseEntity<?> searchSessions(
             @RequestParam(required = false) String q,
@@ -97,51 +71,13 @@ public class SearchController extends BaseController {
         List<SessionDTO> sessions = searchService.searchSessions(q, date, timeOfDay, privacy, sortBy);
         return ResponseEntity.ok(sessions);
     }
-
-    /**
-     * Helper method to convert User entity to Map for response
-     */
-    private Map<String, Object> userToMap(User user) {
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("id", user.getId());
-        userMap.put("name", user.getName());
-        userMap.put("email", user.getEmail());
-        userMap.put("program", user.getProgram());
-        userMap.put("yearLevel", user.getYearLevel());
-        userMap.put("bio", user.getBio());
-        userMap.put("profileImageUrl", user.getProfileImageUrl());
-        userMap.put("studentId", formatStudentId(user));
-        
-        // Add follower counts
-        userMap.put("followers", userService.getFollowerCount(user.getId()));
-        userMap.put("following", userService.getFollowingCount(user.getId()));
-        
-        // Check if current user is following this user
+    
+    private Long getCurrentUserIdOrNull() {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.isAuthenticated() 
-                && authentication.getPrincipal() instanceof UserDetails) {
-                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-                String email = userDetails.getUsername();
-                User currentUser = userService.getUserByEmail(email);
-                boolean isFollowing = userService.isFollowing(currentUser.getId(), user.getId());
-                userMap.put("isFollowing", isFollowing);
-            } else {
-                userMap.put("isFollowing", false);
-            }
+            User currentUser = getAuthenticatedUser();
+            return currentUser.getId();
         } catch (Exception e) {
-            userMap.put("isFollowing", false);
+            return null;
         }
-        
-        return userMap;
-    }
-
-    /**
-     * Helper method to format student ID
-     * Format: "PROGRAM, YY-XXXX-XXX" (placeholder format)
-     */
-    private String formatStudentId(User user) {
-        String program = user.getProgram() != null ? user.getProgram() : "N/A";
-        return String.format("%s, 23-2684-%03d", program, user.getId() % 1000);
     }
 }

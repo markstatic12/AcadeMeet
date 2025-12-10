@@ -29,9 +29,6 @@ public class UserController extends BaseController {
     @Autowired
     private UserService userService;
     
-    /**
-     * Get current authenticated user's profile from JWT token
-     */
     @GetMapping("/me")
     public ResponseEntity<UserProfileResponse> getCurrentUserProfile() {
         User user = getAuthenticatedUser();
@@ -45,9 +42,6 @@ public class UserController extends BaseController {
         return ResponseEntity.ok(response);
     }
     
-    /**
-     * Update current authenticated user's profile (user ID from JWT)
-     */
     @PutMapping("/me")
     public ResponseEntity<UserProfileResponse> updateMyProfile(@Valid @RequestBody UpdateProfileRequest request) {
         User currentUser = getAuthenticatedUser();
@@ -55,9 +49,6 @@ public class UserController extends BaseController {
         return ResponseEntity.ok(response);
     }
     
-    /**
-     * Follow a user.
-     */
     @PostMapping("/{userId}/follow")
     public ResponseEntity<Void> followUser(@PathVariable Long userId) {
         User currentUser = getAuthenticatedUser();
@@ -65,9 +56,6 @@ public class UserController extends BaseController {
         return ResponseEntity.noContent().build();
     }
     
-    /**
-     * Unfollow a user.
-     */
     @DeleteMapping("/{userId}/follow")
     public ResponseEntity<Void> unfollowUser(@PathVariable Long userId) {
         User currentUser = getAuthenticatedUser();
@@ -75,27 +63,18 @@ public class UserController extends BaseController {
         return ResponseEntity.noContent().build();
     }
     
-    /**
-     * Get a user's followers.
-     */
     @GetMapping("/{userId}/followers")
     public ResponseEntity<List<UserSummaryDTO>> getFollowers(@PathVariable Long userId) {
         List<UserSummaryDTO> response = userService.getFollowersDTO(userId);
         return ResponseEntity.ok(response);
     }
-    
-    /**
-     * Get users that a user is following.
-     */
+
     @GetMapping("/{userId}/following")
     public ResponseEntity<List<UserSummaryDTO>> getFollowing(@PathVariable Long userId) {
         List<UserSummaryDTO> response = userService.getFollowingDTO(userId);
         return ResponseEntity.ok(response);
     }
     
-    /**
-     * Check if current user is following the specified user.
-     */
     @GetMapping("/{userId}/is-following")
     public ResponseEntity<Map<String, Boolean>> isFollowing(@PathVariable Long userId) {
         User currentUser = getAuthenticatedUser();
@@ -103,9 +82,6 @@ public class UserController extends BaseController {
         return ResponseEntity.ok(Map.of("isFollowing", isFollowing));
     }
 
-    /**
-     * Remove a follower (force them to unfollow you).
-     */
     @DeleteMapping("/me/followers/{followerId}")
     public ResponseEntity<Map<String, String>> removeFollower(@PathVariable Long followerId) {
         User currentUser = getAuthenticatedUser();
