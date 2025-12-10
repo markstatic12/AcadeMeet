@@ -7,7 +7,42 @@
 
 ## Overview
 
-This guide documents security best practices and configurations for the AcadeMeet application in a **local development environment** using MySQL Workbench. Since this application will remain in development and not be deployed to production, the security measures are balanced between safety and development convenience.
+This guide documents security best practices and configurations for the AcadeMeet application in a **local development environment** using MySQL Workbench. The application uses **HttpOnly cookie-based authentication** with JWT tokens for secure session management.
+
+---
+
+## 🔐 Authentication Architecture (Cookie-Based)
+
+### Current Implementation
+- **Backend:** Sets HttpOnly cookies containing JWT tokens (access + refresh)
+- **Frontend:** Uses Axios with `withCredentials: true` to send cookies automatically
+- **Security Benefits:**
+  - Tokens inaccessible to JavaScript (prevents XSS token theft)
+  - Automatic token refresh on 401 responses
+  - No localStorage usage for sensitive data
+
+### Cookie Configuration (Development)
+```java
+// Backend: AuthController sets cookies
+ResponseCookie cookie = ResponseCookie.from("token", accessToken)
+    .httpOnly(true)          // Cannot be accessed by JavaScript
+    .secure(false)           // Set true for HTTPS in production
+    .sameSite("Lax")        // CSRF protection (adequate for dev)
+    .path("/")
+    .maxAge(3600)           // 1 hour
+    .build();
+```
+
+### Frontend Axios Configuration
+```javascript
+// frontend/src/services/apiClient.js
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true,    // CRITICAL: sends/receives cookies
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 15000
+});
+```
 
 ---
 
@@ -15,7 +50,22 @@ This guide documents security best practices and configurations for the AcadeMee
 
 ### Backend Security Improvements
 
-#### 1. ✅ Proper Logging Instead of System.out
+#### 1. ✅ Cookie-Based Authentication
+- **Changed:** Tokens now stored in HttpOnly cookies (not localStorage)
+- **Files Updated:**
+  - `AuthController.java` - Sets cookies on login/signup/refresh; clears on logout
+  - `JwtAuthenticationFilter.java` - Reads token from cookie (with Authorization header fallback)
+- **Benefits:**
+  - Tokens cannot be stolen via XSS
+  - Automatic refresh handled by interceptors
+  - Logout properly clears cookies
+
+#### 2. ✅ CSRF Protection
+- **Status:** Disabled for stateless JWT API
+- **Rationale:** JWT in Authorization header (not cookies for auth logic) doesn't require CSRF tokens
+- **Note:** SameSite=Lax provides basic CSRF protection for cookie transport
+
+#### 3. ✅ Proper Logging Instead of System.out
 - **Changed:** Replaced all `System.out.println()` with SLF4J logger
 - **Files Updated:**
   - `SessionService.java` - Added logger for session date queries
@@ -25,7 +75,7 @@ This guide documents security best practices and configurations for the AcadeMee
   - No sensitive data exposure in production logs
   - Better debugging capabilities
 
-#### 2. ✅ IDOR Protection
+#### 4. ✅ IDOR Protection
 - **Fixed:** Authorization checks for session operations
 - **Locations:**
   - `SessionController.updateSessionStatus()` - Owner-only updates
@@ -33,7 +83,7 @@ This guide documents security best practices and configurations for the AcadeMee
   - `SessionNoteService.getNotesForSession()` - Host/participant check
   - `SessionNoteService.addNote()` - Host-only access
 
-#### 3. ✅ Path Traversal Prevention
+#### 5. ✅ Path Traversal Prevention
 - **Fixed:** File upload/delete operations secured
 - **Location:** `FileUploadService.java`
 - **Protections:**
@@ -42,7 +92,7 @@ This guide documents security best practices and configurations for the AcadeMee
   - File extension whitelist
   - Ensures files stay within upload directory
 
-#### 4. ✅ Privacy Controls
+#### 6. ✅ Privacy Controls
 - **Fixed:** Session visibility based on privacy settings
 - **Location:** `SessionController.getSessionsByUserId()`
 - **Logic:**
