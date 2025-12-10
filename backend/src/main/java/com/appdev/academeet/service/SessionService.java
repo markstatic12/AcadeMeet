@@ -153,11 +153,6 @@ public class SessionService {
         Session updates = mapToEntity(request);
         return updateSession(sessionId, updates, userId);
     }
-
-    public Session createSession(Session session) {
-        return sessionRepository.save(session);
-    }
-
     @Transactional
     public Session createSession(Session session, Long hostId) {
         User host = userRepository.findById(hostId)
