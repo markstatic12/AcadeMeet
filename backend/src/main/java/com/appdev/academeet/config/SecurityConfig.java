@@ -33,10 +33,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            // Disable CSRF for stateless JWT authentication (tokens in Authorization header, not cookies)
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // Allow preflight CORS requests without authentication
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()

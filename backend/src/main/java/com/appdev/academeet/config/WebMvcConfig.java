@@ -9,7 +9,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Serve uploaded files from the uploads directory
         String uploadDir = "file:" + System.getProperty("user.dir") + "/uploads/";
         
         registry.addResourceHandler("/uploads/**")
