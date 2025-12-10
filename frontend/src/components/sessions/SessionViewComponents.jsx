@@ -498,9 +498,17 @@ export const CommentsPanel = ({ sessionId }) => {
               <div key={comment.commentId} className="group hover:bg-white/[0.02] rounded-lg p-2.5 transition-colors">
                 {/* Parent Comment */}
                 <div className="flex items-start gap-2.5">
-                  <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-md">
-                    {getInitials(comment.userName)}
-                  </div>
+                  {comment.profilePic ? (
+                    <img 
+                      src={comment.profilePic} 
+                      alt={comment.userName}
+                      className="w-8 h-8 rounded-lg object-cover flex-shrink-0 shadow-md ring-2 ring-indigo-500/20"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-md">
+                      {getInitials(comment.userName)}
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-white text-xs font-semibold">{comment.userName}</span>
@@ -542,9 +550,17 @@ export const CommentsPanel = ({ sessionId }) => {
                   <div className="ml-10 mt-2 space-y-2 pl-3 border-l-2 border-indigo-900/20">
                     {comment.replies.map((reply) => (
                       <div key={reply.commentId} className="flex items-start gap-2.5 hover:bg-white/[0.02] rounded-lg p-2 transition-colors">
-                        <div className="w-7 h-7 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-md">
-                          {getInitials(reply.userName)}
-                        </div>
+                        {reply.profilePic ? (
+                          <img 
+                            src={reply.profilePic} 
+                            alt={reply.userName}
+                            className="w-7 h-7 rounded-lg object-cover flex-shrink-0 shadow-md ring-2 ring-purple-500/20"
+                          />
+                        ) : (
+                          <div className="w-7 h-7 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-md">
+                            {getInitials(reply.userName)}
+                          </div>
+                        )}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-white text-xs font-semibold">{reply.userName}</span>

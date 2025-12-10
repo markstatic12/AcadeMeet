@@ -108,6 +108,7 @@ public class CommentService {
                     comment.getCommentId(),
                     comment.getAuthor().getId(),
                     comment.getAuthor().getName(),
+                    comment.getAuthor().getProfileImageUrl(),
                     comment.getContent(),
                     comment.getCreatedAt(),
                     comment.getReplyCount()
@@ -127,6 +128,7 @@ public class CommentService {
                     reply.getCommentId(),
                     reply.getAuthor().getId(),
                     reply.getAuthor().getName(),
+                    reply.getAuthor().getProfileImageUrl(),
                     reply.getContent(),
                     reply.getCreatedAt(),
                     null,

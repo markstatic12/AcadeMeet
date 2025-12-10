@@ -10,6 +10,7 @@ public class ReplyDTO {
     private Long commentId;
     private Long userId;
     private String userName;
+    private String profilePic;
     private String content;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
@@ -18,11 +19,12 @@ public class ReplyDTO {
 
     public ReplyDTO() {}
 
-    public ReplyDTO(Long commentId, Long userId, String userName, String content, 
+    public ReplyDTO(Long commentId, Long userId, String userName, String profilePic, String content, 
                    LocalDateTime createdAt, Long replyingToUserId, String replyingToUserName) {
         this.commentId = commentId;
         this.userId = userId;
         this.userName = userName;
+        this.profilePic = profilePic;
         this.content = content;
         this.createdAt = createdAt;
         this.replyingToUserId = replyingToUserId;
@@ -38,6 +40,9 @@ public class ReplyDTO {
 
     public String getUserName() { return userName; }
     public void setUserName(String userName) { this.userName = userName; }
+
+    public String getProfilePic() { return profilePic; }
+    public void setProfilePic(String profilePic) { this.profilePic = profilePic; }
 
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }

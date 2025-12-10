@@ -39,6 +39,7 @@ public class CommentController extends BaseController {
             saved.getCommentId(),
             saved.getAuthor().getId(),
             saved.getAuthor().getName(),
+            saved.getAuthor().getProfileImageUrl(),
             saved.getContent(),
             saved.getCreatedAt(),
             saved.getReplyCount()
@@ -59,6 +60,7 @@ public class CommentController extends BaseController {
             saved.getCommentId(),
             saved.getAuthor().getId(),
             saved.getAuthor().getName(),
+            saved.getAuthor().getProfileImageUrl(),
             saved.getContent(),
             saved.getCreatedAt(),
             null,
