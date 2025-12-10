@@ -56,7 +56,7 @@ public class Session {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "session_privacy")
-    private SessionType sessionPrivacy = SessionType.PUBLIC;
+    private SessionPrivacy sessionPrivacy = SessionPrivacy.PUBLIC;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "session_status")
@@ -101,7 +101,7 @@ public class Session {
     public List<SessionTag> getSessionTags() { return sessionTags; }
     public List<SessionParticipant> getParticipants() { return participants; }
     public List<SessionNote> getSessionNotes() { return sessionNotes; }
-    public SessionType getSessionPrivacy() { return sessionPrivacy; }
+    public SessionPrivacy getSessionPrivacy() { return sessionPrivacy; }
     public SessionStatus getSessionStatus() { return sessionStatus; }
     public String getSessionPassword() { return sessionPassword; }
     public Integer getMaxParticipants() { return maxParticipants; }
@@ -121,7 +121,7 @@ public class Session {
     public void setSessionTags(List<SessionTag> sessionTags) { this.sessionTags = sessionTags; }
     public void setParticipants(List<SessionParticipant> participants) { this.participants = participants; }
     public void setSessionNotes(List<SessionNote> sessionNotes) { this.sessionNotes = sessionNotes; }
-    public void setSessionPrivacy(SessionType sessionPrivacy) { this.sessionPrivacy = sessionPrivacy; }
+    public void setSessionPrivacy(SessionPrivacy sessionPrivacy) { this.sessionPrivacy = sessionPrivacy; }
     public void setSessionStatus(SessionStatus sessionStatus) { this.sessionStatus = sessionStatus; }
     public void setSessionPassword(String sessionPassword) { this.sessionPassword = sessionPassword; }
     public void setMaxParticipants(Integer maxParticipants) { this.maxParticipants = maxParticipants; }

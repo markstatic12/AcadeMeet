@@ -5,8 +5,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.appdev.academeet.model.Session;
+import com.appdev.academeet.model.SessionPrivacy;
 import com.appdev.academeet.model.SessionStatus;
-import com.appdev.academeet.model.SessionType;
 import com.appdev.academeet.util.SessionStatusCalculator;
 
 
@@ -25,7 +25,7 @@ public class SessionDTO {
     private final String startTime;
     private final String endTime;
     private final String location;
-    private final SessionType sessionType;
+    private final SessionPrivacy sessionType;
     private final SessionStatus status;
     private final Integer maxParticipants;
     private final Integer currentParticipants;
@@ -112,7 +112,7 @@ public class SessionDTO {
     public String getStartTime() { return startTime; }
     public String getEndTime() { return endTime; }
     public String getLocation() { return location; }
-    public SessionType getSessionType() { return sessionType; }
+    public SessionPrivacy getSessionType() { return sessionType; }
     public SessionStatus getStatus() { return status; }
     public Integer getMaxParticipants() { return maxParticipants; }
     public Integer getCurrentParticipants() { return currentParticipants; }

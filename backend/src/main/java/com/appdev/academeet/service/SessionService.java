@@ -23,8 +23,8 @@ import com.appdev.academeet.dto.UpdateSessionRequest;
 import com.appdev.academeet.model.Session;
 import com.appdev.academeet.model.SessionParticipant;
 import com.appdev.academeet.model.SessionParticipantId;
+import com.appdev.academeet.model.SessionPrivacy;
 import com.appdev.academeet.model.SessionStatus;
-import com.appdev.academeet.model.SessionType;
 import com.appdev.academeet.model.User;
 import com.appdev.academeet.repository.SessionParticipantRepository;
 import com.appdev.academeet.repository.SessionRepository;
@@ -155,7 +155,7 @@ public class SessionService {
             }
         }
 
-        if (session.getSessionPrivacy() == SessionType.PRIVATE) {
+        if (session.getSessionPrivacy() == SessionPrivacy.PRIVATE) {
             if (session.getSessionPassword() == null || session.getSessionPassword().trim().isEmpty()) {
                 throw new IllegalArgumentException("Private sessions must have a password");
             }
@@ -186,7 +186,7 @@ public class SessionService {
         validateSessionData(session);
         session.setHost(host);
 
-        if (session.getSessionPrivacy() == SessionType.PRIVATE) {
+        if (session.getSessionPrivacy() == SessionPrivacy.PRIVATE) {
             session.setSessionPassword(passwordEncoder.encode(session.getSessionPassword()));
         }
 
@@ -258,7 +258,7 @@ public class SessionService {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
         
-        if (session.getSessionPrivacy() == SessionType.PRIVATE) {
+        if (session.getSessionPrivacy() == SessionPrivacy.PRIVATE) {
             String stored = session.getSessionPassword();
             if (stored == null) {
                 throw new SecurityException("Invalid password");
@@ -309,7 +309,7 @@ public class SessionService {
         Session session = sessionRepository.findById(sessionId)
             .orElseThrow(() -> new RuntimeException("Session not found"));
 
-        if (session.getSessionPrivacy() == SessionType.PRIVATE) {
+        if (session.getSessionPrivacy() == SessionPrivacy.PRIVATE) {
             if (password == null || password.trim().isEmpty()) {
                 throw new SecurityException("Password is required for private sessions");
             }
@@ -440,11 +440,11 @@ public class SessionService {
             throw new RuntimeException("Unauthorized: Only the session owner can edit this session");
         }
 
-        SessionType intendedPrivacy = updatedSession.getSessionPrivacy() != null
+        SessionPrivacy intendedPrivacy = updatedSession.getSessionPrivacy() != null
                 ? updatedSession.getSessionPrivacy()
                 : existingSession.getSessionPrivacy();
 
-        if (intendedPrivacy == SessionType.PRIVATE) {
+        if (intendedPrivacy == SessionPrivacy.PRIVATE) {
             boolean hasExistingPassword = existingSession.getSessionPassword() != null
                     && !existingSession.getSessionPassword().isEmpty();
             boolean hasNewPassword = updatedSession.getSessionPassword() != null
@@ -454,7 +454,7 @@ public class SessionService {
             }
         }
 
-        if (intendedPrivacy == SessionType.PUBLIC) {
+        if (intendedPrivacy == SessionPrivacy.PUBLIC) {
             existingSession.setSessionPassword(null);
         }
 

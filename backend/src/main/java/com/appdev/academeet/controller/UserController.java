@@ -26,8 +26,12 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/users")
 public class UserController extends BaseController {
     
+    private final UserService userService;
+    
     @Autowired
-    private UserService userService;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
     
     @GetMapping("/me")
     public ResponseEntity<UserProfileResponse> getCurrentUserProfile() {

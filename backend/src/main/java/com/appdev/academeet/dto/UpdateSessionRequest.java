@@ -2,7 +2,7 @@ package com.appdev.academeet.dto;
 
 import java.util.List;
 
-import com.appdev.academeet.model.SessionType;
+import com.appdev.academeet.model.SessionPrivacy;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import jakarta.validation.constraints.Max;
@@ -32,7 +32,7 @@ public class UpdateSessionRequest {
     @Max(value = 1000, message = "Cannot exceed 1000 participants")
     private Integer maxParticipants;
     
-    private SessionType sessionType;
+    private SessionPrivacy sessionType;
     
     @Size(max = 5, message = "Maximum 5 tags allowed")
     private List<String> tags;
@@ -69,8 +69,8 @@ public class UpdateSessionRequest {
     public Integer getMaxParticipants() { return maxParticipants; }
     public void setMaxParticipants(Integer maxParticipants) { this.maxParticipants = maxParticipants; }
 
-    public SessionType getSessionType() { return sessionType; }
-    public void setSessionType(SessionType sessionType) { this.sessionType = sessionType; }
+    public SessionPrivacy getSessionType() { return sessionType; }
+    public void setSessionType(SessionPrivacy sessionType) { this.sessionType = sessionType; }
 
     public List<String> getTags() { return tags; }
     public void setTags(List<String> tags) { this.tags = tags; }

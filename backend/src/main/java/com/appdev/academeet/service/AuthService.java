@@ -22,7 +22,7 @@ public class AuthService {
     private UserRepository userRepository;
     
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     
     @Autowired
     private JwtUtil jwtUtil;

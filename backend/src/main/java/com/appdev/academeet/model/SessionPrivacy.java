@@ -1,6 +1,6 @@
 package com.appdev.academeet.model;
 
-public enum SessionType {
+public enum SessionPrivacy {
     PUBLIC,
     PRIVATE
 }
