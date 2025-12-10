@@ -1,10 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { UserIcon } from '../../icons';
 import { useUser } from '../../context/UserContext';
+import { authFetch } from '../../services/apiHelper';
 
 const SearchUserCard = ({ user }) => {
   const { id, name, program, yearLevel, profileImageUrl, followers, isFollowing } = user;
+  const { currentUser } = useUser();
+  const [currentUserId, setCurrentUserId] = useState(null);
+  
+  // Fetch current user's ID
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      if (currentUser?.authenticated) {
+        try {
+          const response = await authFetch('/users/me');
+          if (response.ok) {
+            const data = await response.json();
+            setCurrentUserId(data.id);
+          }
+        } catch (error) {
+          console.error('Error fetching current user:', error);
+        }
+      }
+    };
+    
+    fetchCurrentUser();
+  }, [currentUser]);
+  
+  // Check if this is the current user's own profile
+  const isOwnProfile = currentUserId && currentUserId === id;
   
   // Format year level display (1 -> "1st Year", 2 -> "2nd Year", etc.)
   const getYearLevelText = (level) => {
@@ -50,9 +75,16 @@ const SearchUserCard = ({ user }) => {
         
         {/* User Info */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-white font-bold text-sm mb-0.5 group-hover:text-indigo-300 transition-colors duration-300 truncate">
-            {name}
-          </h3>
+          <div className="flex items-center gap-2 mb-0.5">
+            <h3 className="text-white font-bold text-sm group-hover:text-indigo-300 transition-colors duration-300 truncate">
+              {name}
+            </h3>
+            {isOwnProfile && (
+              <span className="px-2 py-0.5 bg-purple-600 text-white text-[10px] font-semibold rounded-full whitespace-nowrap">
+                You
+              </span>
+            )}
+          </div>
           <p className="text-gray-400 text-xs mb-0.5 group-hover:text-gray-300 transition-colors duration-300 truncate">
             {program}
           </p>
@@ -60,7 +92,7 @@ const SearchUserCard = ({ user }) => {
             <span className="text-gray-500">
               {yearLevel ? getYearLevelText(yearLevel) : 'Year level not specified'}
             </span>
-            {yearLevel && (
+            {yearLevel && !isOwnProfile && (
               <>
                 <span className="text-gray-600">|</span>
                 <div className="flex items-center gap-1">
