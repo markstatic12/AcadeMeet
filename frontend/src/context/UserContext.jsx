@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { API_BASE_URL } from '../services/apiHelper';
 
 const UserContext = createContext(null);
 
@@ -8,7 +9,7 @@ const fetchUserData = async () => {
     const token = localStorage.getItem('token');
     if (!token) return null;
 
-    const response = await fetch('http://localhost:8080/api/users/me', {
+    const response = await fetch(`${API_BASE_URL}/users/me`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
