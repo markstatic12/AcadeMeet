@@ -1,6 +1,5 @@
 package com.appdev.academeet.dto;
 
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -8,32 +7,24 @@ import java.util.List;
 import com.appdev.academeet.model.Session;
 import com.appdev.academeet.model.SessionStatus;
 import com.appdev.academeet.model.SessionType;
+import com.appdev.academeet.util.SessionStatusCalculator;
 
-/**
- * Data Transfer Object for Session entities.
- * Provides a clean interface for API responses with formatted data.
- */
+
 public class SessionDTO {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
-    // Basic session info
     private final Long id;
     private final String title;
     private final String description;
     
-    // Host information
     private final String hostName;
-    private final HostInfo createdBy; // Frontend expects this structure for ownership checks
-    
-    // Date and time fields
+    private final HostInfo createdBy; 
     private final String month;
     private final String day;
     private final String year;
     private final String startTime;
     private final String endTime;
     private final String location;
-    
-    // Session configuration
     private final SessionType sessionType;
     private final SessionStatus status;
     private final Integer maxParticipants;
@@ -41,43 +32,6 @@ public class SessionDTO {
     private final String createdAt;
     private final List<String> tags;
     private final List<String> notes; // File paths for session notes
-    
-    /**
-     * Calculates the current status of a session based on its start and end times.
-     * 
-     * @param session The session entity
-     * @return The calculated session status
-     */
-    private static SessionStatus calculateSessionStatus(Session session) {
-        // If session is manually set to DELETED, CANCELLED, or TRASH, keep that status
-        SessionStatus currentStatus = session.getSessionStatus();
-        if (currentStatus == SessionStatus.DELETED || 
-            currentStatus == SessionStatus.CANCELLED || 
-            currentStatus == SessionStatus.TRASH) {
-            return currentStatus;
-        }
-        
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startTime = session.getStartTime();
-        LocalDateTime endTime = session.getEndTime();
-        
-        if (startTime == null || endTime == null) {
-            return SessionStatus.SCHEDULED; // Default for sessions without time
-        }
-        
-        // Before start time -> SCHEDULED
-        if (now.isBefore(startTime)) {
-            return SessionStatus.SCHEDULED;
-        }
-        
-        // Between start and end time -> ACTIVE
-        if (now.isAfter(startTime) && now.isBefore(endTime)) {
-            return SessionStatus.ACTIVE;
-        }
-        
-        // After end time -> COMPLETED
-        return SessionStatus.COMPLETED;
-    }
     
     /**
      * Host information structure for frontend compatibility.
@@ -130,7 +84,7 @@ public class SessionDTO {
         
         // Session settings
         this.sessionType = session.getSessionPrivacy();
-        this.status = calculateSessionStatus(session); // Dynamically calculate status
+        this.status = SessionStatusCalculator.calculateStatus(session); // Delegate to utility
         this.maxParticipants = session.getMaxParticipants();
         this.currentParticipants = session.getCurrentParticipants();
         this.createdAt = session.getCreatedAt() != null ? session.getCreatedAt().toString() : null;
