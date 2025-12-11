@@ -583,21 +583,19 @@ const SessionViewPage = () => {
           </div>
 
           {/* Session Title and Icon Hero */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-start gap-4">
             {/* Session Icon */}
-            <div className="relative flex-shrink-0">
+            <div className="flex flex-col items-center gap-2 flex-shrink-0">
               <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-xl shadow-indigo-500/40 border-2 border-indigo-400/20">
                 <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M4 5h13v7h2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h8v-2H4V5zm16 10l-4-4v3H9v2h7v3l4-4z" />
                 </svg>
               </div>
-              <div className="absolute -bottom-1.5 -right-1.5">
-                <SessionStatusBadge status={session?.status || 'ACTIVE'} />
-              </div>
+              <SessionStatusBadge status={session?.status || 'ACTIVE'} />
             </div>
 
             {/* Title and Metadata */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 pt-1">
               <h1 className="text-2xl font-bold text-white tracking-tight mb-1.5">
                 {session?.title || 'Untitled Session'}
               </h1>
