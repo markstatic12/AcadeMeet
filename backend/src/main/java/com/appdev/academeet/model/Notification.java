@@ -19,7 +19,8 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "notifications", indexes = {
     @Index(name = "idx_notification_user_created", columnList = "user_id, created_at"),
-    @Index(name = "idx_notification_user_read", columnList = "user_id, is_read")
+    @Index(name = "idx_notification_user_read", columnList = "user_id, is_read"),
+    @Index(name = "idx_notification_scheduled", columnList = "scheduled_time")
 })
 public class Notification {
     
@@ -43,6 +44,9 @@ public class Notification {
     @Column(name = "message", nullable = false, length = 500)
     private String message;
     
+    @Column(name = "scheduled_time")
+    private LocalDateTime scheduledTime;
+    
     @Column(name = "is_read", nullable = false)
     private Boolean isRead = false;
     
@@ -64,6 +68,16 @@ public class Notification {
         this.type = type;
         this.message = message;
         this.isRead = false;
+        this.scheduledTime = null;
+    }
+    
+    public Notification(User recipient, Session session, NotificationType type, String message, LocalDateTime scheduledTime) {
+        this.recipient = recipient;
+        this.session = session;
+        this.type = type;
+        this.message = message;
+        this.isRead = false;
+        this.scheduledTime = scheduledTime;
     }
     
     public Long getId() {
@@ -120,5 +134,21 @@ public class Notification {
     
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+    
+    public LocalDateTime getScheduledTime() {
+        return scheduledTime;
+    }
+    
+    public void setScheduledTime(LocalDateTime scheduledTime) {
+        this.scheduledTime = scheduledTime;
+    }
+    
+    public boolean isScheduled() {
+        return scheduledTime != null;
+    }
+    
+    public boolean isInstant() {
+        return scheduledTime == null;
     }
 }

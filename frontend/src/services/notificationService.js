@@ -7,7 +7,6 @@ export const notificationService = {
     return response.data;
   },
 
-
   async getUnreadNotifications() {
     const response = await api.get("/notifications/unread");
     return response.data;
@@ -30,6 +29,16 @@ export const notificationService = {
 
   async markAllAsRead() {
     const response = await api.post("/notifications/mark-all-read", {});
+    return response.data;
+  },
+
+  async getActiveReminders() {
+    const response = await api.get("/notifications/reminders/active");
+    return response.data;
+  },
+
+  async getUnreadReminderCount() {
+    const response = await api.get("/notifications/reminders/unread/count");
     return response.data;
   },
 };

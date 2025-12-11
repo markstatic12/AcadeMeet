@@ -5,7 +5,7 @@ import SessionTabs from './SessionTabs';
 import { ChevronLeftIcon, ChevronRightIcon } from '../../icons';
 import { useCalendarSessions } from '../../services/useCalendarSessions';
 import DaySessionsModal from './DaySessionsModal';
-import { reminderService } from '../../services/ReminderService';
+import { notificationService } from '../../services/notificationService';
 import { sessionService } from '../../services/SessionService';
 import SessionStatusBadge from '../ui/SessionStatusBadge';
 import { to12Hour } from '../../utils/timeUtils';
@@ -152,7 +152,7 @@ const RemindersTab = () => {
 
   const loadReminders = async () => {
     try {
-      const data = await reminderService.getActiveReminders();
+      const data = await notificationService.getActiveReminders();
       setReminders(data);
       setError(null);
     } catch (err) {
@@ -166,12 +166,12 @@ const RemindersTab = () => {
   const handleReminderClick = async (reminder) => {
     try {
       // Mark as read
-      await reminderService.markAsRead(reminder.id);
+      await notificationService.markAsRead(reminder.id);
       
       // Update local state to show as read
       setReminders(reminders.map(r => 
         r.id === reminder.id 
-          ? { ...r, read: true, readAt: new Date().toISOString() }
+          ? { ...r, read: true }
           : r
       ));
 
@@ -246,27 +246,21 @@ const RemindersTab = () => {
                 className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                   reminder.read
                     ? 'bg-gray-800/30 border-gray-700/30 opacity-50 hover:opacity-60'
-                    : reminder.isOwner
-                      ? 'bg-indigo-500/10 border-indigo-500/30 hover:bg-indigo-500/20'
-                      : 'bg-purple-500/10 border-purple-500/30 hover:bg-purple-500/20'
+                    : 'bg-indigo-500/10 border-indigo-500/30 hover:bg-indigo-500/20'
                 }`}
               >
                 <div
                   className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
                     reminder.read
                       ? 'bg-gray-700/30'
-                      : reminder.isOwner
-                        ? 'bg-indigo-500/20'
-                        : 'bg-purple-500/20'
+                      : 'bg-indigo-500/20'
                   }`}
                 >
                   <span
                     className={`text-lg ${
                       reminder.read
                         ? 'text-gray-500'
-                        : reminder.isOwner
-                          ? 'text-indigo-300'
-                          : 'text-purple-300'
+                        : 'text-indigo-300'
                     }`}
                   >
                     ⏰
@@ -279,16 +273,6 @@ const RemindersTab = () => {
                   <p className="text-gray-500 text-xs">
                     {formatScheduledTime(reminder.scheduledTime)}
                   </p>
-                  {reminder.read && (
-                    <p className="text-gray-600 text-xs mt-1 italic">
-                      Read {new Date(reminder.readAt).toLocaleString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: '2-digit'
-                      })}
-                    </p>
-                  )}
                 </div>
               </div>
             ))}

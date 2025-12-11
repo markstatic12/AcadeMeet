@@ -13,6 +13,7 @@ public class NotificationDTO {
     private final String message;
     private final Boolean read;
     private final LocalDateTime createdAt;
+    private final LocalDateTime scheduledTime;
     
     public NotificationDTO(Notification notification) {
         this.id = notification.getId();
@@ -22,6 +23,7 @@ public class NotificationDTO {
         this.message = notification.getMessage();
         this.read = notification.isRead();
         this.createdAt = notification.getCreatedAt();
+        this.scheduledTime = notification.getScheduledTime();
     }
     
     // Getters only 
@@ -32,4 +34,6 @@ public class NotificationDTO {
     public String getMessage() { return message; }
     public Boolean getRead() { return read; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getScheduledTime() { return scheduledTime; }
+    public boolean isScheduled() { return scheduledTime != null; }
 }

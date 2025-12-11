@@ -1,5 +1,6 @@
 package com.appdev.academeet.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,24 +28,30 @@ public class NotificationService {
         Notification notification = new Notification(recipient, session, type, message);
         notificationRepository.save(notification);
     }
+    
+    @Transactional
+    public void createReminder(User recipient, Session session, NotificationType type, String message, LocalDateTime scheduledTime) {
+        Notification reminder = new Notification(recipient, session, type, message, scheduledTime);
+        notificationRepository.save(reminder);
+    }
    
     @Transactional(readOnly = true)
     public List<NotificationDTO> getAllNotifications(Long userId) {
-        return notificationRepository.findAllByUserId(userId).stream()
+        return notificationRepository.findAllByUserId(userId, LocalDateTime.now()).stream()
                 .map(NotificationDTO::new)
                 .collect(Collectors.toList());
     }
     
     @Transactional(readOnly = true)
     public List<NotificationDTO> getUnreadNotifications(Long userId) {
-        return notificationRepository.findUnreadByUserId(userId).stream()
+        return notificationRepository.findUnreadByUserId(userId, LocalDateTime.now()).stream()
                 .map(NotificationDTO::new)
                 .collect(Collectors.toList());
     }
     
     @Transactional(readOnly = true)
     public Long getUnreadCount(Long userId) {
-        return notificationRepository.countUnreadByUserId(userId);
+        return notificationRepository.countUnreadByUserId(userId, LocalDateTime.now());
     }
     
     @Transactional
@@ -153,5 +160,65 @@ public class NotificationService {
                 createNotification(participant, session, NotificationType.NOTES_UPLOADED, message);
             }
         }
+    }
+    
+    @Transactional(readOnly = true)
+    public List<NotificationDTO> getActiveReminders(Long userId) {
+        LocalDateTime now = LocalDateTime.now();
+        return notificationRepository.findActiveRemindersByUserId(userId, now).stream()
+                .map(NotificationDTO::new)
+                .collect(Collectors.toList());
+    }
+    
+    @Transactional(readOnly = true)
+    public Long getUnreadReminderCount(Long userId) {
+        LocalDateTime now = LocalDateTime.now();
+        return notificationRepository.countUnreadRemindersByUserId(userId, now);
+    }
+    
+    @Transactional
+    public void deleteRemindersForUserSession(Long userId, Long sessionId) {
+        notificationRepository.deleteRemindersByUserIdAndSessionId(userId, sessionId);
+    }
+    
+    @Transactional
+    public void createRemindersForSession(User user, Session session) {
+        if (notificationRepository.existsReminderByUserIdAndSessionId(user.getId(), session.getId())) {
+            return;
+        }
+
+        LocalDateTime sessionStart = session.getStartTime();
+        LocalDateTime now = LocalDateTime.now();
+        
+        long hoursUntilSession = java.time.Duration.between(now, sessionStart).toHours();
+        
+        // Only create reminders if session is in the future
+        if (sessionStart.isBefore(now) || sessionStart.isEqual(now)) {
+            return;
+        }
+        
+        // If session is more than 24 hours away, create 24-hour reminder
+        // If session is between 1-24 hours away, create 1-hour reminder only
+        // If session is less than 1 hour away, don't create any reminders
+        
+        if (hoursUntilSession >= 24) {
+            // Create 24-hour reminder
+            LocalDateTime dayBeforeTime = sessionStart.minusDays(1);
+            String message = String.format("📅 Your session \"%s\" is tomorrow at %s", 
+                    session.getTitle(), 
+                    sessionStart.toLocalTime().toString());
+            createReminder(user, session, NotificationType.REMINDER_DAY_BEFORE, message, dayBeforeTime);
+            
+            // Also create 1-hour reminder for later
+            LocalDateTime oneHourBeforeTime = sessionStart.minusHours(1);
+            String hourMessage = String.format("⏰ Your session \"%s\" starts in 1 hour", session.getTitle());
+            createReminder(user, session, NotificationType.REMINDER_HOUR_BEFORE, hourMessage, oneHourBeforeTime);
+        } else if (hoursUntilSession >= 1 && hoursUntilSession < 24) {
+            // Only create 1-hour reminder
+            LocalDateTime oneHourBeforeTime = sessionStart.minusHours(1);
+            String message = String.format("⏰ Your session \"%s\" starts in 1 hour", session.getTitle());
+            createReminder(user, session, NotificationType.REMINDER_HOUR_BEFORE, message, oneHourBeforeTime);
+        }
+        // If less than 1 hour away, don't create any reminders
     }
 }

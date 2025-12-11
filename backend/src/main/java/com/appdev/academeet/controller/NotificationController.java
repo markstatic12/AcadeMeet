@@ -66,4 +66,18 @@ public class NotificationController extends BaseController {
         notificationService.markAllAsRead(user.getId());
         return ResponseEntity.ok(Map.of("message", "All notifications marked as read"));
     }
+    
+    @GetMapping("/reminders/active")
+    public ResponseEntity<List<NotificationDTO>> getActiveReminders() {
+        User user = getAuthenticatedUser();
+        List<NotificationDTO> reminders = notificationService.getActiveReminders(user.getId());
+        return ResponseEntity.ok(reminders);
+    }
+    
+    @GetMapping("/reminders/unread/count")
+    public ResponseEntity<Map<String, Long>> getUnreadReminderCount() {
+        User user = getAuthenticatedUser();
+        Long count = notificationService.getUnreadReminderCount(user.getId());
+        return ResponseEntity.ok(Map.of("count", count));
+    }
 }

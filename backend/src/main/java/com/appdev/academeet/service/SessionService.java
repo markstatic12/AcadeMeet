@@ -40,7 +40,6 @@ public class SessionService {
     private final SessionParticipantRepository sessionParticipantRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final ReminderService reminderService;
     private final NotificationService notificationService;
     private final JwtUtil jwtUtil;
 
@@ -48,14 +47,12 @@ public class SessionService {
                           SessionParticipantRepository sessionParticipantRepository,
                           UserRepository userRepository,
                           BCryptPasswordEncoder passwordEncoder,
-                          ReminderService reminderService,
                           NotificationService notificationService,
                           JwtUtil jwtUtil) {
         this.sessionRepository = sessionRepository;
         this.sessionParticipantRepository = sessionParticipantRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.reminderService = reminderService;
         this.notificationService = notificationService;
         this.jwtUtil = jwtUtil;
     }
@@ -297,7 +294,7 @@ public class SessionService {
         sessionParticipantRepository.save(participant);
         session.setCurrentParticipants(currentParticipants + 1);
         sessionRepository.save(session);
-        reminderService.createRemindersForSession(user, session);
+        notificationService.createRemindersForSession(user, session);
         
         notificationService.notifyJoinConfirmation(user, session);
         notificationService.notifyParticipantJoined(user, session);
@@ -310,6 +307,7 @@ public class SessionService {
             .orElseThrow(() -> new RuntimeException("User is not a participant of this session"));
 
         sessionParticipantRepository.delete(participant);
+        notificationService.deleteRemindersForUserSession(user.getId(), sessionId);
 
         Session session = sessionRepository.findById(sessionId)
             .orElseThrow(() -> new RuntimeException("Session not found"));
