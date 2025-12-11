@@ -45,10 +45,17 @@ const SessionCard = ({ session }) => {
         <div className="flex items-center justify-between mb-2 relative z-10">
           <div className="flex items-center gap-2">
             <SessionStatusBadge status={session.status} />
-            {session.sessionPrivacy === 'PRIVATE' && (
+            {session.sessionPrivacy === 'PRIVATE' ? (
               <div className="flex items-center px-2 py-0.5 bg-amber-900/20 backdrop-blur-sm rounded border border-amber-700/30 shadow-sm">
                 <LockIcon className="w-3 h-3 text-amber-500/90" />
                 <span className="text-xs text-amber-400/90 ml-1 font-medium">Private</span>
+              </div>
+            ) : (
+              <div className="flex items-center px-2 py-0.5 bg-indigo-900/20 backdrop-blur-sm rounded border border-indigo-500/30 shadow-sm">
+                <svg className="w-3 h-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-xs text-indigo-400 ml-1 font-medium">Public</span>
               </div>
             )}
           </div>

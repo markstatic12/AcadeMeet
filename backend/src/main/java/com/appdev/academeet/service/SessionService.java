@@ -217,7 +217,7 @@ public class SessionService {
     public List<SessionDTO> getPublicSessionsByUserId(Long userId) {
         return sessionRepository.findByHost_Id(userId)
                 .stream()
-                .filter(session -> session.getSessionPrivacy() == SessionPrivacy.PUBLIC)
+                // Show both PUBLIC and PRIVATE sessions
                 .map(SessionDTO::new)
                 .filter(dto -> {
                     SessionStatus status = dto.getStatus();
