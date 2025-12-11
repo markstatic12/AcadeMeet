@@ -268,6 +268,8 @@ const ReviewsTab = ({ userData }) => {
 // ===== FEATURED SESSION CARD =====
 
 const FeaturedSessionCard = ({ session }) => {
+  const cur = session.participants ?? session._raw?.currentParticipants ?? 0;
+  const max = session.maxParticipants ?? session._raw?.maxParticipants ?? '—';
   return (
     <div className="group relative bg-gradient-to-br from-amber-900/20 via-amber-800/20 to-amber-700/20 border border-amber-500/30 rounded-2xl overflow-hidden transition-all hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/20 hover:scale-[1.02]">
       {/* Decorative gradient overlay */}
@@ -313,7 +315,7 @@ const FeaturedSessionCard = ({ session }) => {
             <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            <span className="font-medium">{session.participants}/{session.maxParticipants} participants</span>
+            <span className="font-medium">{cur}/{max} participants</span>
           </div>
         </div>
       </div>
@@ -324,30 +326,74 @@ const FeaturedSessionCard = ({ session }) => {
 // ===== PUBLIC SESSION CARD =====
 
 const PublicSessionCard = ({ session, index }) => {
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
+  // Helpers to derive display-friendly date/time from backend-normalized session
+  const formatDateFromISO = (iso) => {
+    try {
+      const d = new Date(iso);
+      if (isNaN(d)) return null;
+      return d.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch (e) {
+      return null;
+    }
   };
-  
-  const formatTime = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
-    });
+
+  const isPreformattedTime = (str) => {
+    if (!str || typeof str !== 'string') return false;
+    return /am|pm|AM|PM/.test(str) || /^[0-9]{1,2}:[0-9]{2}/.test(str) && !str.includes('T');
+  };
+
+  const formatTime = (value) => {
+    if (!value) return '—';
+    if (isPreformattedTime(value)) return value;
+    // If ISO string, parse and format
+    try {
+      const d = new Date(value);
+      if (isNaN(d)) return value;
+      return d.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    } catch (e) {
+      return value;
+    }
+  };
+
+  const getDisplayDate = () => {
+    // Prefer normalized `date` produced by the service
+    if (session.date) return session.date;
+    // Fall back to raw DTO month/day/year
+    if (session._raw && session._raw.month && session._raw.day && session._raw.year) {
+      return `${session._raw.month} ${session._raw.day}, ${session._raw.year}`;
+    }
+    // If startTime is ISO, derive from it
+    if (session.startTime && typeof session.startTime === 'string' && session.startTime.includes('T')) {
+      const isoDate = formatDateFromISO(session.startTime);
+      if (isoDate) return isoDate;
+    }
+    return 'TBD';
   };
 
   const getAvailabilityColor = () => {
-    const percentageFull = (session.participants / session.maxParticipants) * 100;
+    const current = Number(session.participants ?? session._raw?.currentParticipants ?? 0) || 0;
+    const max = Number(session.maxParticipants ?? session._raw?.maxParticipants ?? 0) || 0;
+    if (!max) return 'text-green-400';
+    const percentageFull = (current / max) * 100;
     if (percentageFull >= 90) return 'text-red-400';
     if (percentageFull >= 70) return 'text-yellow-400';
     return 'text-green-400';
   };
+
+  const displayDate = getDisplayDate();
+  const _dateParts = String(displayDate || '').split(' ');
+  const _monthPart = _dateParts[0] || '';
+  const _dayPart = (_dateParts[1] || '').replace(',', '');
+  const currentParticipants = session.participants ?? session._raw?.currentParticipants ?? 0;
+  const maxParticipants = session.maxParticipants ?? session._raw?.maxParticipants ?? '—';
 
   return (
     <Link
@@ -362,10 +408,10 @@ const PublicSessionCard = ({ session, index }) => {
           {/* Left: Date Badge */}
           <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-xl flex flex-col items-center justify-center border border-indigo-500/30 shadow-lg">
             <span className="text-white text-xs font-medium">
-              {formatDate(session.startTime).split(' ')[0]}
+              {_monthPart}
             </span>
             <span className="text-white text-2xl font-bold leading-none">
-              {formatDate(session.startTime).split(' ')[1].replace(',', '')}
+              {_dayPart}
             </span>
           </div>
 
@@ -441,7 +487,7 @@ const PublicSessionCard = ({ session, index }) => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                   <span className={`font-medium ${getAvailabilityColor()}`}>
-                    {session.participants}/{session.maxParticipants}
+                    {currentParticipants}/{maxParticipants}
                   </span>
                 </div>
               </div>

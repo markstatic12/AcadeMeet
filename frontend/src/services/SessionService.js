@@ -130,7 +130,29 @@ export const sessionService = {
 
   async getSessionsByUserId(userId) {
     const response = await api.get(`${API_BASE}/user/${userId}`);
-    return response.data;
+    // Normalize backend SessionDTO shape to frontend-friendly shape
+    // Backend returns: { id, title, description, month, day, year, startTime, endTime, location, sessionPrivacy, status, maxParticipants, currentParticipants, tags }
+    const sessions = Array.isArray(response.data) ? response.data : [];
+    return sessions.map((s) => {
+      const dateString = s.month && s.day && s.year ? `${s.month} ${s.day}, ${s.year}` : null;
+      return {
+        id: s.id,
+        title: s.title,
+        description: s.description,
+        // Keep startTime/endTime as provided (formatted time strings from backend), but also attach rawDate
+        startTime: s.startTime || null,
+        endTime: s.endTime || null,
+        date: dateString,
+        // Legacy field compatibility (some UI used 'sessionType' previously)
+        sessionType: s.sessionPrivacy ? String(s.sessionPrivacy) : (s.sessionType || null),
+        location: s.location,
+        participants: (s.currentParticipants != null) ? s.currentParticipants : (s.participants || 0),
+        maxParticipants: s.maxParticipants || null,
+        tags: s.tags || [],
+        // keep raw DTO for advanced usage
+        _raw: s
+      };
+    });
   },
 
   async getSessionById(sessionId) {
