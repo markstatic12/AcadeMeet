@@ -158,7 +158,7 @@ const DashboardLayout = ({ children }) => {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  // Logout handlers removed with sidebar logout button
+  // Logout handlers removed with sidebar logout button~
 
   const navigation = [
     { name: 'Search', href: '/search', icon: SearchIcon },
