@@ -94,14 +94,8 @@ public class SearchService {
         }
 
         if (keyword != null && !keyword.trim().isEmpty()) {
-            String lowerKeyword = keyword.toLowerCase();
-            users = userRepository.findAll().stream()
-                    .filter(user -> 
-                        (user.getName() != null && user.getName().toLowerCase().contains(lowerKeyword)) ||
-                        (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerKeyword)) ||
-                        (user.getProgram() != null && user.getProgram().toLowerCase().contains(lowerKeyword))
-                    )
-                    .collect(Collectors.toList());
+            // Use repository-level LIKE query for better performance and SQL-level filtering
+            users = userRepository.searchByKeyword(keyword.trim());
         } else {
             users = userRepository.findAll();
         }
