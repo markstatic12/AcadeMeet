@@ -76,9 +76,8 @@ const DashboardLayout = ({ children }) => {
         ? await notificationService.getUnreadNotifications()
         : await notificationService.getAllNotifications();
       
-      // Filter out scheduled reminders - they belong in dashboard
-      const instantNotifications = data.filter(n => !n.scheduledTime);
-      setNotifications(instantNotifications);
+      // Backend now excludes reminders automatically
+      setNotifications(data);
     } catch (err) {
       console.error('Failed to load notifications:', err);
     } finally {

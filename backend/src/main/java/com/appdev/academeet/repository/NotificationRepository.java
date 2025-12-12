@@ -13,17 +13,18 @@ import com.appdev.academeet.model.Notification;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
   
-    @Query("SELECT n FROM Notification n WHERE n.recipient.id = :userId AND (n.scheduledTime IS NULL OR n.scheduledTime <= :currentTime) ORDER BY n.createdAt DESC")
-    List<Notification> findAllByUserId(@Param("userId") Long userId, @Param("currentTime") java.time.LocalDateTime currentTime);
+    // Regular notifications (exclude reminders which have scheduledTime)
+    @Query("SELECT n FROM Notification n WHERE n.recipient.id = :userId AND n.scheduledTime IS NULL ORDER BY n.createdAt DESC")
+    List<Notification> findAllByUserId(@Param("userId") Long userId);
     
-    @Query("SELECT n FROM Notification n WHERE n.recipient.id = :userId AND n.isRead = false AND (n.scheduledTime IS NULL OR n.scheduledTime <= :currentTime) ORDER BY n.createdAt DESC")
-    List<Notification> findUnreadByUserId(@Param("userId") Long userId, @Param("currentTime") java.time.LocalDateTime currentTime);
+    @Query("SELECT n FROM Notification n WHERE n.recipient.id = :userId AND n.isRead = false AND n.scheduledTime IS NULL ORDER BY n.createdAt DESC")
+    List<Notification> findUnreadByUserId(@Param("userId") Long userId);
   
-    @Query("SELECT COUNT(n) FROM Notification n WHERE n.recipient.id = :userId AND n.isRead = false AND (n.scheduledTime IS NULL OR n.scheduledTime <= :currentTime)")
-    Long countUnreadByUserId(@Param("userId") Long userId, @Param("currentTime") java.time.LocalDateTime currentTime);
+    @Query("SELECT COUNT(n) FROM Notification n WHERE n.recipient.id = :userId AND n.isRead = false AND n.scheduledTime IS NULL")
+    Long countUnreadByUserId(@Param("userId") Long userId);
     
     @Modifying
-    @Query("UPDATE Notification n SET n.isRead = true WHERE n.recipient.id = :userId AND n.isRead = false")
+    @Query("UPDATE Notification n SET n.isRead = true WHERE n.recipient.id = :userId AND n.isRead = false AND n.scheduledTime IS NULL")
     void markAllAsReadByUserId(@Param("userId") Long userId);
     
     @Query("SELECT n FROM Notification n WHERE n.recipient.id = :userId AND n.scheduledTime IS NOT NULL AND n.scheduledTime <= :currentTime ORDER BY n.scheduledTime DESC")

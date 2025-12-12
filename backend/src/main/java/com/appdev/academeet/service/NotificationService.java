@@ -37,21 +37,21 @@ public class NotificationService {
    
     @Transactional(readOnly = true)
     public List<NotificationDTO> getAllNotifications(Long userId) {
-        return notificationRepository.findAllByUserId(userId, LocalDateTime.now()).stream()
+        return notificationRepository.findAllByUserId(userId).stream()
                 .map(NotificationDTO::new)
                 .collect(Collectors.toList());
     }
     
     @Transactional(readOnly = true)
     public List<NotificationDTO> getUnreadNotifications(Long userId) {
-        return notificationRepository.findUnreadByUserId(userId, LocalDateTime.now()).stream()
+        return notificationRepository.findUnreadByUserId(userId).stream()
                 .map(NotificationDTO::new)
                 .collect(Collectors.toList());
     }
     
     @Transactional(readOnly = true)
     public Long getUnreadCount(Long userId) {
-        return notificationRepository.countUnreadByUserId(userId, LocalDateTime.now());
+        return notificationRepository.countUnreadByUserId(userId);
     }
     
     @Transactional
