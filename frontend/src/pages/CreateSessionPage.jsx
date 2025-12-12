@@ -83,18 +83,13 @@ const CreateSessionPage = () => {
           <div className="flex-1 relative overflow-hidden">
             <div className="relative h-full flex flex-col">
               {/* Session Title Input - Fixed at top */}
-              <div className="flex items-start gap-4 p-6 pb-5 border-b border-indigo-900/20 flex-shrink-0">
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M4 5h13v7h2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h8v-2H4V5zm16 10l-4-4v3H9v2h7v3l4-4z" />
-                    </svg>
-                  </div>
-                  <div className="px-3 py-1 bg-blue-500/20 border border-blue-400/30 rounded-lg">
-                    <span className="text-xs font-semibold text-blue-300 uppercase tracking-wide">Scheduled</span>
-                  </div>
+              <div className="flex items-center gap-4 p-6 pb-5 border-b border-indigo-900/20 flex-shrink-0">
+                <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 5h13v7h2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h8v-2H4V5zm16 10l-4-4v3H9v2h7v3l4-4z" />
+                  </svg>
                 </div>
-                <div className="flex-1 pt-1">
+                <div className="flex-1">
                   <label className="block text-gray-400 text-xs font-medium mb-1.5">
                     Session Title {fieldErrors.title && <span className="text-red-400 ml-1">*</span>}
                   </label>
