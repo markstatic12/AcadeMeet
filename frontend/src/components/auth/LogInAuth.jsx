@@ -35,7 +35,11 @@ export const LoginForm = ({
       
       <FormOptions />
       
-      <SubmitButton loading={loading} />
+      <SubmitButton 
+        loading={loading} 
+        text="Login" 
+        loadingText="Logging in..." 
+      />
     </form>
   );
 };

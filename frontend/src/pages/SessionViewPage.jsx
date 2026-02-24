@@ -179,7 +179,7 @@ const SessionViewPage = () => {
         setLoading(true);
         setError(null);
         const sessionData = await sessionService.getSessionById(sessionId);
-        console.log('Loaded session:', sessionData);
+        // console.log('Loaded session:', sessionData);
         
         // Wait for currentUserId to be loaded before checking ownership for private sessions
         if (sessionData.sessionPrivacy === 'PRIVATE' && currentUserId === null) {

@@ -160,8 +160,6 @@ public class SearchService {
                          session.getTitle().toLowerCase().contains(lowerKeyword)) ||
                         (session.getLocation() != null && 
                          session.getLocation().toLowerCase().contains(lowerKeyword)) ||
-                        (session.getDescription() != null && 
-                         session.getDescription().toLowerCase().contains(lowerKeyword)) ||
                         (session.getTags() != null && 
                          session.getTags().stream()
                                 .anyMatch(tag -> tag.toLowerCase().contains(lowerKeyword)))
